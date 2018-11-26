@@ -1,0 +1,41 @@
+{
+  "name": "mitosis",
+  "version": "0.0.1",
+  "description": "TBD",
+  "authors": [
+    "Nicolas Drebenstedt",
+    "Alexander Zarges"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/auxdotapp/mitosis.git"
+  },
+  "scripts": {
+    "start": "cross-env NODE_ENV=development webpack-dev-server",
+    "build": "cross-env NODE_ENV=production webpack"
+  },
+  "preferGlobal": true,
+  "devDependencies": {
+    "@types/webpack-env": "1.13.6",
+    "cross-env": "5.2.0",
+    "css-loader": "^0.28.10",
+    "file-loader": "^1.1.10",
+    "html-webpack-plugin": "3.2.0 ",
+    "sass-loader": "7.1.0",
+    "source-map-loader": "0.2.4",
+    "style-loader": "0.23.1",
+    "ts-loader": "5.3.0",
+    "tslint": "^5.11.0",
+    "tslint-loader": "^3.5.4",
+    "typescript": "3.1.6",
+    "url-loader": "1.1.2",
+    "webpack": "4.26.1",
+    "webpack-cli": "3.1.2",
+    "webpack-dev-server": "3.1.10"
+  },
+  "dependencies": {
+  },
+  "homepage": "https://github.com/auxdotapp/mitosis#readme",
+  "keywords": []
+}
