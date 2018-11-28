@@ -7,7 +7,8 @@ export enum ConnectionEventTypes {
   CONNECT = 'connect',
   MESSAGE = 'message',
   ERROR = 'error',
-  SETUP = 'setup'
+  SETUP = 'setup',
+  CLOSE = 'setup'
 }
 
 export interface IConnectionEvent {
@@ -83,6 +84,15 @@ export abstract class Connection {
       this._subject.next({
         type: ConnectionEventTypes.ERROR,
         body: err
+      });
+      this._subject.next({
+        type: ConnectionEventTypes.CLOSE
+      });
+    });
+
+    this.connection.on('close', () => {
+      this._subject.next({
+        type: ConnectionEventTypes.CLOSE
       });
     });
   }

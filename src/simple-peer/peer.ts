@@ -8,6 +8,7 @@ import {Utils} from './utils';
 
 export enum PeerEventType {
   ADD_CONNECTION,
+  REMOVE_CONNECTION,
   MESSAGE
 }
 
@@ -20,7 +21,7 @@ export class Peer {
   private readonly _id: number;
   private _subject: Subject<IPeerEvent>;
   private _offers: Array<ConnectionOut>;
-  private _connectedPeers: Array<{ peerId: number, connection: any }>;
+  private _connectedPeers: Array<{ peerId: number, connection: Connection }>;
   private _socket: SocketMessageService;
 
   constructor() {
@@ -55,6 +56,26 @@ export class Peer {
             from: peerID,
             message: ev.body.content
           }
+        });
+      });
+
+    connection.observe()
+      .pipe(
+        filter(event => event.type === ConnectionEventTypes.CLOSE)
+      )
+      .subscribe((ev) => {
+        const removePeers: Array<{ peerId: number, connection: Connection }> = [];
+        this._connectedPeers.forEach((peer) => {
+          if (peer.connection.getId() === connection.getId()) {
+            removePeers.push(peer);
+          }
+        });
+        removePeers.forEach((peer) => {
+          this._connectedPeers.splice(this._connectedPeers.indexOf(peer), 1);
+          this._subject.next({
+            type: PeerEventType.REMOVE_CONNECTION,
+            body: peer
+          });
         });
       });
   }
