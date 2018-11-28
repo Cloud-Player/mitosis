@@ -100,7 +100,6 @@
         "variable-declaration": "nospace"
       }
     ],
-    "typeof-compare": true,
     "unified-signatures": true,
     "variable-name": false,
     "whitespace": [
@@ -110,6 +109,10 @@
       "check-operator",
       "check-separator",
       "check-type"
-    ]
+    ],
+    "object-literal-shorthand": false,
+    "trailing-comma": false,
+    "arrow-parens": false,
+    "array-type": [true, "generic"]
   }
 }
