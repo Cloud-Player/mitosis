@@ -5,7 +5,7 @@ import {Router} from './router';
 
 export class Signal extends Peer {
 
-  private readonly routers: Router[];
+  private readonly routers: Array<Router>;
 
   constructor() {
     super();
