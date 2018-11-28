@@ -19,18 +19,14 @@ export interface IPeerEvent {
 export class Peer {
   private readonly _id: number;
   private _subject: Subject<IPeerEvent>;
-  private _outConnections: Array<Connection>;
-  private _inConnections: Array<Connection>;
-  private _maxConnections: number;
   private _offers: Array<ConnectionOut>;
-  private _connections: Array<Connection>;
+  private _connectedPeers: Array<{ peerId: number, connection: any }>;
   private _socket: SocketMessageService;
 
-  constructor(maxConnections = 5) {
+  constructor() {
     this._id = Utils.getRandomInt(0, 1000);
-    this._connections = [];
+    this._connectedPeers = [];
     this._offers = [];
-    this._maxConnections = maxConnections;
     this._subject = new Subject<IPeerEvent>();
     this._socket = SocketMessageService.getInstance();
     this.initSocket();
@@ -38,10 +34,14 @@ export class Peer {
   }
 
   private addConnection(peerID: number, connection: Connection) {
-    this._connections.push(connection);
+    const connectedPeer = {
+      peerId: peerID,
+      connection: connection
+    };
+    this._connectedPeers.push(connectedPeer);
     this._subject.next({
       type: PeerEventType.ADD_CONNECTION,
-      body: connection
+      body: connectedPeer
     });
 
     connection.observe()
@@ -152,8 +152,8 @@ export class Peer {
   }
 
   public broadcastMessage(message: any) {
-    this._connections.forEach((connection: Connection) => {
-      connection.send(message);
+    this._connectedPeers.forEach((connectedPeer) => {
+      connectedPeer.connection.send(message);
     });
   }
 
