@@ -4,20 +4,50 @@ import {Peer, PeerEventType} from './simple-peer/peer';
 
 const peer = new Peer();
 
+document.querySelector('.clients ul')
+  .insertAdjacentHTML('afterbegin',
+    `<li>${peer.getId()} (me)</li>`
+  );
+
+document.querySelector('.send-message form').addEventListener('submit', (ev) => {
+  ev.preventDefault();
+  const form: HTMLFormElement = ev.currentTarget as HTMLFormElement;
+  const msg = (form.elements.namedItem('message') as HTMLInputElement).value;
+  const receiver = (form.elements.namedItem('receiver') as HTMLInputElement).value
+
+  if (receiver === '*') {
+    peer.broadcastMessage(msg);
+  } else {
+    peer.sendMessageTo(parseInt(receiver, 10), msg);
+  }
+
+  document.querySelector('.messages ul')
+    .insertAdjacentHTML('beforeend',
+      `<li class="outgoing"><span class="receiver">-> ${receiver}</span>: ${msg}</li>`
+    );
+});
+
 peer.observe()
   .pipe(
     filter(ev => ev.type === PeerEventType.ADD_CONNECTION)
   )
   .subscribe((ev) => {
-    (ev.body as Connection).send('JO JO WAS GEHT');
-  });
+      document.querySelector('.clients ul')
+        .insertAdjacentHTML('beforeend',
+          `<li>${ev.body.peerId}</li>`
+        );
+    }
+  );
 
 peer.observe()
   .pipe(
     filter(ev => ev.type === PeerEventType.MESSAGE)
   )
   .subscribe((ev) => {
-    console.log(peer.getId(), 'GOT MESSAGE', ev.body);
+    document.querySelector('.messages ul')
+      .insertAdjacentHTML('beforeend',
+        `<li class="incoming"><span class="originator"><- ${ev.body.from}</span>: ${ev.body.message}</li>`
+      );
   });
 
 // var Peer = require('simple-peer')

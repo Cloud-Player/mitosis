@@ -3,8 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <title>Title</title>
+
+  <style>
+    html, body {
+      padding: 0;
+      margin: 0;
+    }
+
+    .flex-container {
+      display: flex;
+    }
+
+    .clients {
+      width: 300px;
+    }
+
+    .messages {
+      flex-grow: 1;
+    }
+
+    .chat-client {
+      height: calc(100vh - 80px);
+    }
+
+    .send-message {
+      height: 80px;
+      width: 100vw;
+      background: red;
+      display: flex;
+      align-items: center;
+    }
+  </style>
 </head>
 <body>
+
+<div class="flex-container chat-client">
+  <div class="clients">
+    <ul></ul>
+  </div>
+
+  <div class="messages">
+    <ul></ul>
+  </div>
+</div>
+
+<div class="send-message">
+  <form>
+    <input placeholder="Message" name="message" required/>
+    <input placeholder="Receiver (* for all)" name="receiver" required/>
+    <input type="submit" value="Send">
+  </form>
+</div>
 
 </body>
 </html>

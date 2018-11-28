@@ -157,8 +157,17 @@ export class Peer {
     });
   }
 
-  public sendMessageTo(peerId: number) {
+  public sendMessageTo(peerId: number, message: any) {
+    let existingPeer: { peerId: number, connection: Connection };
+    this._connectedPeers.forEach((peer) => {
+      if (peer.peerId === peerId) {
+        existingPeer = peer;
+      }
+    });
 
+    if (existingPeer) {
+      existingPeer.connection.send(message);
+    }
   }
 
   public getId() {
