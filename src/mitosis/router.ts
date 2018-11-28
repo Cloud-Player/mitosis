@@ -1,13 +1,20 @@
 import {Offer} from './offer';
 import {Peer} from './peer';
 
-export abstract class Router extends Peer {
+export class Router extends Peer {
 
-    peers: Peer[];
-    upstream: Peer;
-    succession: Peer[];
+  private peers: Peer[];
+  private parent: Peer;
+  private succession: Peer[];
 
-    abstract advertise(): void;
+  constructor () {
+    this._peers = [];
 
-    abstract introduce(offer: Offer): void;
+  }
+  public advertise(): void {
+  }
+
+  public introduce(offer: Offer): void {
+
+  }
 }
