@@ -34,8 +34,17 @@ peer.observe()
   .subscribe((ev) => {
       document.querySelector('.clients ul')
         .insertAdjacentHTML('beforeend',
-          `<li>${ev.body.peerId}</li>`
+          `<li id="${ev.body.peerId}">${ev.body.peerId}</li>`
         );
+    }
+  );
+
+peer.observe()
+  .pipe(
+    filter(ev => ev.type === PeerEventType.REMOVE_CONNECTION)
+  )
+  .subscribe((ev) => {
+      document.getElementById(ev.body.peerId).remove();
     }
   );
 
