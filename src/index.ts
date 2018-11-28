@@ -13,7 +13,7 @@ document.querySelector('.send-message form').addEventListener('submit', (ev) => 
   ev.preventDefault();
   const form: HTMLFormElement = ev.currentTarget as HTMLFormElement;
   const msg = (form.elements.namedItem('message') as HTMLInputElement).value;
-  const receiver = (form.elements.namedItem('receiver') as HTMLInputElement).value
+  const receiver = (form.elements.namedItem('receiver') as HTMLInputElement).value;
 
   if (receiver === '*') {
     peer.broadcastMessage(msg);
