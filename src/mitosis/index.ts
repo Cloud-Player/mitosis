@@ -1,6 +1,6 @@
 import {InternalClock} from './clock/internal';
 import {SecureEnclave} from './enclave/secure';
-import {Peer} from './mesh/peer';
+import {RemotePeer} from './mesh/peer';
 import {RoutingTable} from './mesh/routing-table';
 import {RoleFactory} from './role/factory';
 import {IRole, RoleType} from './role/interface';
@@ -35,7 +35,7 @@ export class Mitosis {
     this._roles.delete(roleType)
   }
 
-  public getPeers(): Array<Peer> {
+  public getPeers(): Array<RemotePeer> {
     return this._routingTable.getPeers();
   }
 

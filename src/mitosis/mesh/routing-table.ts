@@ -1,10 +1,10 @@
+import {Address} from '../address/address';
 import {IConnection} from '../connection/interface';
-import {Address} from './address';
-import {Peer} from './peer';
+import {RemotePeer} from './remote-peer';
 
 export class RoutingTable {
 
-  private _peers: Array<Peer>;
+  private _peers: Array<RemotePeer>;
 
   constructor() {
     this._peers = [];
@@ -16,17 +16,17 @@ export class RoutingTable {
     if (peer) {
       return Promise.resolve(peer.getBestConnection());
     } else {
-      peer = new Peer(this);
+      peer = new RemotePeer(this);
       this._peers.push(peer);
       return peer.connect(address);
     }
   }
 
-  public getPeers(): Array<Peer> {
+  public getPeers(): Array<RemotePeer> {
     return this._peers;
   }
 
-  public getPeerById(peerId: number): Peer {
+  public getPeerById(peerId: number): RemotePeer {
     return this.getPeers().find((p) => p.getId() === peerId);
   }
 }

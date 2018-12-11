@@ -1,4 +1,4 @@
-import {Address} from '../mesh/address';
+import {Address} from '../address/address';
 import {IRole} from './interface';
 import {AbstractRole} from './role';
 

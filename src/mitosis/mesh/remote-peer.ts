@@ -1,11 +1,12 @@
+import {Address} from '../address/address';
+import {Protocol} from '../address/interface';
 import {IConnection} from '../connection/interface';
-import {WebRTCConnection} from '../connection/webrtc-connection';
-import {WSConnection} from '../connection/ws-connection';
+import {WebRTCConnection} from '../connection/webrtc';
+import {WebSocketConnection} from '../connection/websocket';
 import {RoleType} from '../role/interface';
-import {Address} from './address';
 import {RoutingTable} from './routing-table';
 
-export class Peer {
+export class RemotePeer {
   private _id: number;
   private _manager: RoutingTable;
   private _roleTypes: Array<RoleType>;
@@ -36,8 +37,8 @@ export class Peer {
 
   public connect(address: Address): Promise<IConnection> {
     let connection: IConnection;
-    if (address.getProtocol() === 'wss') {
-      connection = new WSConnection(address);
+    if (address.getProtocol() === Protocol.WEBSOCKET) {
+      connection = new WebSocketConnection(address);
     } else {
       connection = new WebRTCConnection(address);
     }

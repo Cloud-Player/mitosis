@@ -1,7 +1,9 @@
-export class SecureEnclave implements IEnclave {
+import {Enclave} from './enclave';
 
-  public getPublicKey(): string {
-    return '';
+export class SecureEnclave extends Enclave implements IEnclave {
+
+  protected _generateKeyPair(): Array<string> {
+    return 'public,private'.split(',');
   }
 
   public decrypt(data: Uint8Array): Uint8Array {

@@ -1,7 +1,7 @@
 import {AbstractConnection} from './connection';
 import {IConnection} from './interface';
 
-export class WSConnection extends AbstractConnection implements IConnection {
+export class WebSocketConnection extends AbstractConnection implements IConnection {
 
   public send(data: any): void {
   }

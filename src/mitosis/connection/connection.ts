@@ -1,4 +1,4 @@
-import {Address} from '../mesh/address';
+import {Address} from '../address/address';
 
 export abstract class AbstractConnection {
 

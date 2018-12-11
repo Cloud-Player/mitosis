@@ -1,3 +1,5 @@
+import {Protocol} from './interface';
+
 export class Address {
 
   private _version: string;
@@ -5,7 +7,7 @@ export class Address {
   private _protocol: string;
   private _payload: string;
 
-  public constructor(version: string, peerId: number, protocol: string, payload: string) {
+  public constructor(peerId: number, protocol: Protocol, payload: string, version: string = 'v1') {
     this._version = version;
     this._peerId = peerId;
     this._protocol = protocol;
@@ -14,7 +16,7 @@ export class Address {
 
   public static fromString(addressString: string): Address {
     const [mitosis, version, peer, peerId, protocol, payload] = addressString.split('/');
-    return new Address(version, parseInt(peerId, 10), protocol, payload);
+    return new Address(parseInt(peerId, 10), protocol as Protocol, payload, version);
   }
 
   public getVersion(): string {
