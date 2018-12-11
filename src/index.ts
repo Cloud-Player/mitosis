@@ -1,5 +1,4 @@
 import {filter} from 'rxjs/operators';
-import {Connection} from './simple-peer/connection';
 import {Peer, PeerEventType} from './simple-peer/peer';
 
 const peer = new Peer();

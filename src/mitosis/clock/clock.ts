@@ -11,6 +11,10 @@ export class Clock implements IClock {
     this._milliseconds = milliseconds;
   }
 
+  public onTick(callback: () => void): void {
+    this._callbacks.push(callback);
+  }
+
   protected start(): void {
     this._interval = setInterval(this.tick, this._milliseconds);
   }
@@ -21,9 +25,5 @@ export class Clock implements IClock {
 
   private tick(): void {
     this._callbacks.forEach(callback => callback());
-  }
-
-  public onTick(callback: () => void): void {
-    this._callbacks.push(callback);
   }
 }

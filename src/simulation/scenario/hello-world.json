@@ -1,3 +1,5 @@
 [
-  {"type": "add-peer"}
+  {
+    "type": "add-peer"
+  }
 ]

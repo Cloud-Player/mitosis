@@ -1,11 +1,18 @@
-export abstract class Connection implements IConnection {
+import {Address} from '../mesh/address';
 
-  private _peerId: number;
+export abstract class AbstractConnection {
+
+  protected _address: Address;
+
+  public constructor(address: Address) {
+    this._address = address;
+  }
 
   public getQuality(): number {
     return .0;
   }
 
-  public send(data: any): void {
+  public getPeerId(): number {
+    return this._address.getPeerId();
   }
 }

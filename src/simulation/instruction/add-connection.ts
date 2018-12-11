@@ -1,6 +1,6 @@
-import {Instruction} from './instruction';
+import {AbstractInstruction} from './instruction';
 
-export class AddConnection extends Instruction {
+export class AddConnection extends AbstractInstruction {
 
   public execute(): void {
   }

@@ -34,6 +34,33 @@ export class Peer {
     this.createOffer();
   }
 
+  public observe() {
+    return this._subject;
+  }
+
+  public broadcastMessage(message: any) {
+    this._connectedPeers.forEach((connectedPeer) => {
+      connectedPeer.connection.send(message);
+    });
+  }
+
+  public sendMessageTo(peerId: number, message: any) {
+    let existingPeer: { peerId: number, connection: Connection };
+    this._connectedPeers.forEach((peer) => {
+      if (peer.peerId === peerId) {
+        existingPeer = peer;
+      }
+    });
+
+    if (existingPeer) {
+      existingPeer.connection.send(message);
+    }
+  }
+
+  public getId() {
+    return this._id;
+  }
+
   private addConnection(peerID: number, connection: Connection) {
     const connectedPeer = {
       peerId: peerID,
@@ -166,32 +193,5 @@ export class Peer {
       .then((answer) => {
         return connection;
       });
-  }
-
-  public observe() {
-    return this._subject;
-  }
-
-  public broadcastMessage(message: any) {
-    this._connectedPeers.forEach((connectedPeer) => {
-      connectedPeer.connection.send(message);
-    });
-  }
-
-  public sendMessageTo(peerId: number, message: any) {
-    let existingPeer: { peerId: number, connection: Connection };
-    this._connectedPeers.forEach((peer) => {
-      if (peer.peerId === peerId) {
-        existingPeer = peer;
-      }
-    });
-
-    if (existingPeer) {
-      existingPeer.connection.send(message);
-    }
-  }
-
-  public getId() {
-    return this._id;
   }
 }

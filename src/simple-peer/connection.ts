@@ -22,13 +22,13 @@ export interface ISimplePeerOptions {
 }
 
 export abstract class Connection {
+  protected _signalData: SimplePeer.SignalData;
+  protected connection: SimplePeer.Instance;
   private readonly _id: number;
   private _isConnected: boolean;
   private _subject: Subject<IConnectionEvent>;
-  protected _signalData: SimplePeer.SignalData;
   private _waitForSignalPromise: Promise<SimplePeer.SignalData>;
   private _waitForSignalPromiseResolver: (data: SimplePeer.SignalData) => void;
-  protected connection: SimplePeer.Instance;
 
   constructor(simplePeerOption: ISimplePeerOptions) {
     this._subject = new Subject();
@@ -37,6 +37,20 @@ export abstract class Connection {
     });
     this._id = Utils.getRandomInt(0, 1000);
     this.setup(simplePeerOption);
+  }
+
+  public getId() {
+    return this._id;
+  }
+
+  public send(message: any) {
+    if (this._isConnected) {
+      this.connection.send(message);
+    }
+  }
+
+  public observe() {
+    return this._subject;
   }
 
   protected abstract onSignal(data: SimplePeer.SignalData): void;
@@ -95,19 +109,5 @@ export abstract class Connection {
         type: ConnectionEventTypes.CLOSE
       });
     });
-  }
-
-  public getId() {
-    return this._id;
-  }
-
-  public send(message: any) {
-    if (this._isConnected) {
-      this.connection.send(message);
-    }
-  }
-
-  public observe() {
-    return this._subject;
   }
 }
