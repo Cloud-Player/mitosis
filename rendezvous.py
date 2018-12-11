@@ -82,7 +82,7 @@ class RendezvousHandler(WebSocketHandler):
         offers = message['offers']
         random.shuffle(offers)
         peers = [int(p.decode('utf-8')) for p in
-                 self.redis.srandmember('peers', len(offers))
+                 self.redis.srandmember('peers', len(offers) + 1)
                  if int(p.decode('utf-8')) != self.initiator]
         for peer, offer in zip(peers, offers):
             offer['initiator'] = self.initiator
