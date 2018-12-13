@@ -9,8 +9,4 @@ export class ControllableClock extends Clock {
   public stop(): void {
     super.stop();
   }
-
-  public getChild(): IClock {
-    return new ControllableClock();
-  }
 }

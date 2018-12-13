@@ -5,18 +5,15 @@ export abstract class AbstractRole {
   protected _routingTable: RoutingTable;
   private _isInitialised = false;
 
-  public constructor() {
-    this._initialise().then(() => this._isInitialised = true);
-  }
-
   public onTick(): void {
     if (this._isInitialised) {
       this._onTick();
     }
   }
 
-  public setRoutingTable(routingTable: RoutingTable): void {
+  public initialise(routingTable: RoutingTable): void {
     this._routingTable = routingTable;
+    this._initialise().then(() => this._isInitialised = true);
   }
 
   protected abstract _initialise(): Promise<void>;

@@ -1,6 +1,6 @@
 import {InternalClock} from './clock/internal';
 import {SecureEnclave} from './enclave/secure';
-import {RemotePeer} from './mesh/peer';
+import {RemotePeer} from './mesh/remote-peer';
 import {RoutingTable} from './mesh/routing-table';
 import {RoleFactory} from './role/factory';
 import {IRole, RoleType} from './role/interface';
@@ -11,13 +11,15 @@ export class Mitosis {
   private _roles: Map<RoleType, IRole>;
   private _roleFactory: RoleFactory;
   private _routingTable: RoutingTable;
+  private _myId: string;
 
   public constructor(
     clock: IClock = new InternalClock(),
     enclave: IEnclave = new SecureEnclave(),
     roles: Array<RoleType> = [RoleType.NEWBIE]
   ) {
-    this._routingTable = new RoutingTable();
+    this._myId = Math.round(Math.random() * 1000000000000).toString();
+    this._routingTable = new RoutingTable(this._myId);
     this._roleFactory = new RoleFactory(this._routingTable);
     this._roles = new Map();
     roles.forEach((r) => this.addRole(r));
@@ -32,7 +34,7 @@ export class Mitosis {
   }
 
   public removeRole(roleType: RoleType): void {
-    this._roles.delete(roleType)
+    this._roles.delete(roleType);
   }
 
   public getPeers(): Array<RemotePeer> {

@@ -1,25 +1,25 @@
-import {Address} from '../address/address';
-import {Protocol} from '../address/interface';
 import {IConnection} from '../connection/interface';
 import {WebRTCConnection} from '../connection/webrtc';
 import {WebSocketConnection} from '../connection/websocket';
+import {Address} from '../message/address';
+import {Protocol} from '../message/interface';
 import {RoleType} from '../role/interface';
 import {RoutingTable} from './routing-table';
 
 export class RemotePeer {
-  private _id: number;
-  private _manager: RoutingTable;
+  private _id: string;
+  private _routingTable: RoutingTable;
   private _roleTypes: Array<RoleType>;
   private _connections: Array<IConnection>;
   private _publicKey: string;
 
-  public constructor(manager: RoutingTable) {
-    this._manager = manager;
+  public constructor(routingTable: RoutingTable) {
+    this._routingTable = routingTable;
     this._roleTypes = [RoleType.PEER];
     this._connections = [];
   }
 
-  public getId(): number {
+  public getId(): string {
     return this._id;
   }
 
@@ -37,10 +37,13 @@ export class RemotePeer {
 
   public connect(address: Address): Promise<IConnection> {
     let connection: IConnection;
-    if (address.getProtocol() === Protocol.WEBSOCKET) {
-      connection = new WebSocketConnection(address);
-    } else {
-      connection = new WebRTCConnection(address);
+    switch (address.getProtocol()) {
+      case Protocol.WEBSOCKET:
+        connection = new WebSocketConnection(address);
+        break;
+      case Protocol.WEBRTC:
+        connection = new WebRTCConnection(address);
+        break;
     }
     this._connections.push(connection);
     return connection.open();

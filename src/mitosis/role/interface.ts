@@ -23,7 +23,7 @@ RoleTypeMap.set(RoleType.SIGNAL, Signal);
 
 export interface IRole {
 
-  setRoutingTable(routingTable: RoutingTable): void;
+  initialise(routingTable: RoutingTable): void;
 
   onTick(): void;
 }

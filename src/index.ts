@@ -1,6 +1,9 @@
-import {filter} from 'rxjs/operators';
-import {Peer, PeerEventType} from './simple-peer/peer';
+import {Mitosis} from './mitosis';
 
+const m = new Mitosis();
+console.log(m.getPeers());
+
+/*
 const peer = new Peer();
 
 document.querySelector('.clients ul')
@@ -57,6 +60,7 @@ peer.observe()
         `<li class="incoming"><span class="originator"><- ${ev.body.from}</span>: ${ev.body.message}</li>`
       );
   });
+*/
 
 // var Peer = require('simple-peer')
 //

@@ -1,4 +1,4 @@
-import {Address} from '../address/address';
+import {Address} from '../message/address';
 import {IRole} from './interface';
 import {AbstractRole} from './role';
 

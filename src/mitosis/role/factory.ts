@@ -12,7 +12,7 @@ export class RoleFactory {
   public create(roleType: RoleType): IRole {
     const roleClass = RoleTypeMap.get(roleType);
     const role: IRole = new roleClass();
-    role.setRoutingTable(this._routingTable);
+    role.initialise(this._routingTable);
     return role;
   }
 }
