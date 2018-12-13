@@ -9,7 +9,8 @@ import {Utils} from './utils';
 export enum PeerEventType {
   ADD_CONNECTION,
   REMOVE_CONNECTION,
-  MESSAGE
+  MESSAGE,
+  STREAM
 }
 
 export interface IPeerEvent {
@@ -23,13 +24,15 @@ export class Peer {
   private _offers: Array<ConnectionOut>;
   private _connectedPeers: Array<{ peerId: number, connection: Connection }>;
   private _socket: SocketMessageService;
+  private _stream: any;
 
-  constructor() {
+  constructor(stream?: any) {
     this._id = Utils.getRandomInt(0, 1000);
     this._connectedPeers = [];
     this._offers = [];
     this._subject = new Subject<IPeerEvent>();
     this._socket = SocketMessageService.getInstance();
+    this._stream = stream;
     this.initSocket();
     this.createOffer();
   }
@@ -50,11 +53,55 @@ export class Peer {
         filter(event => event.type === ConnectionEventTypes.MESSAGE)
       )
       .subscribe((ev) => {
+        switch (ev.body.content.type) {
+          case 'offer':
+            this.requestConnection(ev.body.content.content.initiator, ev.body.content.content.offer)
+              .then((streamConnection: ConnectionIn) => {
+                this.sendMessageTo(ev.body.content.content.initiator, {
+                  initiator: ev.body.content.content.initiator,
+                  answer: streamConnection.getAnswer(),
+                  responder: this._id,
+                  id: ev.body.content.content.id
+                }, 'answer');
+              });
+            break;
+          case 'answer':
+            const answerWrapper = ev.body.content.content;
+            let existingOffer: ConnectionOut;
+            this._offers.forEach((offer) => {
+              if (offer.getId() === answerWrapper.id) {
+                existingOffer = offer;
+              }
+            });
+            if (existingOffer) {
+              this.establishConnection(answerWrapper.responder, existingOffer, answerWrapper.answer.sdp);
+            }
+
+            break;
+          case 'message':
+          default:
+            this._subject.next({
+              type: PeerEventType.MESSAGE,
+              body: {
+                from: peerID,
+                message: ev.body.content
+              }
+            });
+            break;
+        }
+      });
+
+    connection.observe()
+      .pipe(
+        filter(event => event.type === ConnectionEventTypes.STREAM)
+      )
+      .subscribe((ev) => {
+        console.log('STREAM');
         this._subject.next({
-          type: PeerEventType.MESSAGE,
+          type: PeerEventType.STREAM,
           body: {
             from: peerID,
-            message: ev.body.content
+            stream: ev.body
           }
         });
       });
@@ -123,9 +170,9 @@ export class Peer {
     });
   }
 
-  private createOffer(): Promise<{ id: number, offer: {} }> {
+  private createOffer(stream?: any): Promise<{ id: number, offer: {} }> {
     return new Promise(() => {
-      const connection = new ConnectionOut();
+      const connection = new ConnectionOut({stream: stream});
       this._offers.push(connection);
       connection.observe()
         .pipe(
@@ -178,7 +225,7 @@ export class Peer {
     });
   }
 
-  public sendMessageTo(peerId: number, message: any) {
+  public sendMessageTo(peerId: number, message: any, type?: any) {
     let existingPeer: { peerId: number, connection: Connection };
     this._connectedPeers.forEach((peer) => {
       if (peer.peerId === peerId) {
@@ -187,8 +234,21 @@ export class Peer {
     });
 
     if (existingPeer) {
-      existingPeer.connection.send(message);
+      existingPeer.connection.send(message, type);
     }
+  }
+
+  public broadcastStream(stream: any) {
+    this._connectedPeers.forEach((connectedPeer) => {
+      const connection = new ConnectionOut({stream: stream});
+      this._offers.push(connection);
+
+      connection.observe()
+        .pipe(filter(ev => ev.type === ConnectionEventTypes.SETUP))
+        .subscribe((ev) => {
+          connectedPeer.connection.send({initiator: this.getId(), offer: connection.getOffer(), id: connection.getId()}, 'offer');
+        });
+    });
   }
 
   public getId() {

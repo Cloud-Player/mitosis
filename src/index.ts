@@ -1,8 +1,10 @@
 import {filter} from 'rxjs/operators';
 import {Connection} from './simple-peer/connection';
 import {Peer, PeerEventType} from './simple-peer/peer';
+import {VideoRecorder} from './simple-peer/video-recorder';
 
 const peer = new Peer();
+const videoRecorder = new VideoRecorder();
 
 document.querySelector('.clients ul')
   .insertAdjacentHTML('afterbegin',
@@ -25,6 +27,19 @@ document.querySelector('.send-message form').addEventListener('submit', (ev) => 
     .insertAdjacentHTML('beforeend',
       `<li class="outgoing"><span class="receiver">-> ${receiver}</span>: ${msg}</li>`
     );
+});
+
+document.querySelector('#broadCastBtn').addEventListener('click', () => {
+  videoRecorder.getStream().then((stream) => {
+    document.querySelector('.messages ul')
+      .insertAdjacentHTML('beforeend',
+        `<li class="outgoing"><video id="myVideo"></video></li>`
+      );
+    const videoEl: HTMLVideoElement = document.getElementById('myVideo') as HTMLVideoElement;
+    videoEl.src = window.URL.createObjectURL(stream);
+    videoEl.play();
+    peer.broadcastStream(stream);
+  });
 });
 
 peer.observe()
@@ -57,6 +72,20 @@ peer.observe()
       .insertAdjacentHTML('beforeend',
         `<li class="incoming"><span class="originator"><- ${ev.body.from}</span>: ${ev.body.message}</li>`
       );
+  });
+
+peer.observe()
+  .pipe(
+    filter(ev => ev.type === PeerEventType.STREAM)
+  )
+  .subscribe((ev) => {
+    document.querySelector('.messages ul')
+      .insertAdjacentHTML('beforeend',
+        `<li class="incoming"><video id="${ev.body.from}Stream"></video></li>`
+      );
+    const videoEl: HTMLVideoElement = document.getElementById(`${ev.body.from}Stream`) as HTMLVideoElement;
+    videoEl.src = window.URL.createObjectURL(ev.body.stream);
+    videoEl.play();
   });
 
 // var Peer = require('simple-peer')

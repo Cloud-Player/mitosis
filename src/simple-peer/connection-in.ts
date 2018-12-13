@@ -8,7 +8,7 @@ export class ConnectionIn extends Connection {
     super({
       initiator: false,
       trickle: false
-    });
+    }, {});
   }
 
   protected onSignal(data: SimplePeer.SignalData): void {

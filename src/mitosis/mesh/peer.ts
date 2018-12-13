@@ -25,6 +25,6 @@ export class Peer {
   }
 
   public send(message: any): void {
-    this._manager.getBestConnection(this._id).send(message);
+    //this._manager.getBestConnection(this._id).send(message);
   }
 }

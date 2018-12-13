@@ -6,6 +6,7 @@ import {Utils} from './utils';
 export enum ConnectionEventTypes {
   CONNECT = 'connect',
   MESSAGE = 'message',
+  STREAM = 'stream',
   ERROR = 'error',
   SETUP = 'setup',
   CLOSE = 'setup'
@@ -30,7 +31,12 @@ export abstract class Connection {
   private _waitForSignalPromiseResolver: (data: SimplePeer.SignalData) => void;
   protected connection: SimplePeer.Instance;
 
-  constructor(simplePeerOption: ISimplePeerOptions) {
+  protected constructor(simplePeerOption: any, extendedOpts: any) {
+    for (const key in extendedOpts) {
+      if (extendedOpts.hasOwnProperty(key)) {
+        simplePeerOption[key] = extendedOpts[key];
+      }
+    }
     this._subject = new Subject();
     this._waitForSignalPromise = new Promise<SimplePeer.SignalData>((resolve) => {
       this._waitForSignalPromiseResolver = resolve;
@@ -65,6 +71,7 @@ export abstract class Connection {
     });
 
     this.connection.on('connect', () => {
+      console.log('IS OPEN');
       this._isConnected = true;
 
       this._subject.next({
@@ -75,7 +82,19 @@ export abstract class Connection {
     this.connection.on('data', (message) => {
       this._subject.next({
         type: ConnectionEventTypes.MESSAGE,
-        body: new Message(this._id, message.toString())
+        body: new Message(this._id, JSON.parse(message.toString()))
+      });
+    });
+
+    this.connection.on('stream', (stream) => {
+      console.log('GOT STREAM');
+      this._subject.next({
+        type: ConnectionEventTypes.CONNECT,
+        body: stream
+      });
+      this._subject.next({
+        type: ConnectionEventTypes.STREAM,
+        body: stream
       });
     });
 
@@ -101,9 +120,9 @@ export abstract class Connection {
     return this._id;
   }
 
-  public send(message: any) {
+  public send(message: any, type: string = 'message') {
     if (this._isConnected) {
-      this.connection.send(message);
+      this.connection.send(JSON.stringify({type: type, content: message}));
     }
   }
 

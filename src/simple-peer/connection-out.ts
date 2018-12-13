@@ -4,11 +4,11 @@ import {Connection, ConnectionEventTypes, IConnectionEvent} from './connection';
 export class ConnectionOut extends Connection {
   private _offer: SimplePeer.SignalData = {};
 
-  constructor() {
+  constructor(opts = {}) {
     super({
       initiator: true,
       trickle: false
-    });
+    }, opts);
   }
 
   protected onSignal(data: SimplePeer.SignalData): void {
