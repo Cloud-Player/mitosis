@@ -23,7 +23,7 @@ export class Mitosis {
     roles: Array<RoleType> = [RoleType.NEWBIE]
   ) {
     this._enclave = enclave;
-    this._myId = Math.round(Math.random() * 1000).toString();
+    this._myId = `p${Math.round(100 + Math.random() * 899)}`;
     this._myAddress = new Address(this._myId);
     console.log('hello i am', this._myAddress.toString());
     this._routingTable = new RoutingTable(this._myId);

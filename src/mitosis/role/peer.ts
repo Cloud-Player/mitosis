@@ -1,4 +1,5 @@
-import {ConnectionState} from '../connection/interface';
+import {ConnectionTable} from '../connection/connection-table';
+import {ConnectionState, IConnection} from '../connection/interface';
 import {Mitosis} from '../index';
 import {RemotePeer} from '../mesh/remote-peer';
 import {RoutingTable} from '../mesh/routing-table';
@@ -12,31 +13,31 @@ export class Peer implements IRole {
   private static readonly connectionGoal = 5;
 
   private satisfyConnectionGoal(routingTable: RoutingTable): void {
-    let directConnectionCount = 0;
-    const indirectConnections: Array<RemotePeer> = [];
+    const directConnections: Array<IConnection> = [];
+    const indirectPeers: Array<RemotePeer> = [];
     routingTable.getPeers().map(
       peer => {
-        const directConnectionsPerPeer = peer.getConnectionTable()
+        const connectionTable = peer.getConnectionTable()
           .filterByStates(ConnectionState.OPEN, ConnectionState.CONNECTING)
-          .filterDirect()
-          .length;
-        if (directConnectionsPerPeer) {
-          directConnectionCount += directConnectionsPerPeer;
+          .filterDirect();
+        if (connectionTable) {
+          directConnections.push(...connectionTable.asArray());
         } else {
-          indirectConnections.push(peer);
+          indirectPeers.push(peer);
         }
       }
     );
-    const insufficientConnections = directConnectionCount < Peer.connectionGoal;
-    if (insufficientConnections && indirectConnections.length) {
-      console.log('acquiring new peers');
-      const indirectPeer = indirectConnections.shift();
-      const address = new Address(indirectPeer.getId(), Protocol.WEBRTC);
+    const insufficientConnections = directConnections.length < Peer.connectionGoal;
+    if (insufficientConnections && indirectPeers.length) {
+      console.info('acquiring new peer');
+      const address = new Address(indirectPeers.shift().getId(), Protocol.WEBRTC);
       routingTable.connectTo(address);
-    } else if (insufficientConnections && !indirectConnections.length) {
-      console.log('no new peers to add');
-    } else {
-      console.log('need to loose peers');
+    } else if (!insufficientConnections) {
+      console.info('need to loose peers');
+      const worstConnection = new ConnectionTable(directConnections)
+        .sortByQuality()
+        .pop();
+      worstConnection.close();
     }
   }
 

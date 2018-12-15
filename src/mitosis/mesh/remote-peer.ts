@@ -109,7 +109,7 @@ export class RemotePeer {
     if (!connection) {
       connection = this.createConnection(address, options);
       this._connectionsPerAddress.set(address.toString(), connection);
-      console.log('remote peer creates new connection', connection);
+      console.log('connection added', connection.getAddress().toString());
       this._connectionChurnSubject.next({connection: connection, type: ChurnType.ADDED});
     }
     return this.openConnection(connection);

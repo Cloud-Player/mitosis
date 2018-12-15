@@ -30,6 +30,12 @@ export class WebSocketConnection extends AbstractConnection implements IConnecti
     this.onError();
   }
 
+  protected closeClient(): void {
+    this._socket.close();
+    this._socket = null;
+    this.onClose();
+  }
+
   public openClient() {
     this._socket = new WebSocket(`${this._address.getProtocol()}://${this._address.getLocation()}`);
     this._socket.onopen = this.onSocketOpen.bind(this);
@@ -38,6 +44,7 @@ export class WebSocketConnection extends AbstractConnection implements IConnecti
     this._socket.onerror = this.onSocketError.bind(this);
   }
 
-  protected closeClient(): void {
+  public getQuality(): number {
+    return 0.5;
   }
 }

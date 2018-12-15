@@ -35,7 +35,6 @@ export class MessageBroker {
   }
 
   private listenOnRoutingTablePeerChurn(): void {
-    console.log('listen on table churn');
     this._routingTable.observePeerChurn()
       .pipe(
         filter(ev => ev.type === ChurnType.ADDED)
@@ -46,7 +45,7 @@ export class MessageBroker {
   }
 
   private listenOnConnectionChurn(remotePeer: RemotePeer): void {
-    console.log('peer added', remotePeer);
+    console.log('peer added', new Address(remotePeer.getId()).toString());
     remotePeer.observeChurn()
       .pipe(
         filter(ev => ev.type === ChurnType.ADDED)
@@ -57,7 +56,6 @@ export class MessageBroker {
   }
 
   private listenOnConnectionAdded(connection: IConnection): void {
-    console.log('connection added', connection);
     connection.observeMessageReceived()
       .subscribe(
         message => {

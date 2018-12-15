@@ -80,6 +80,10 @@ export class WebRTCConnection extends AbstractConnection implements IConnection 
     });
   }
 
+  public getQuality(): number {
+    return 1.0;
+  }
+
   public establish(answer: SimplePeer.SignalData) {
     this._webrtc.signal(answer);
     console.log('establishing webrtc connection');
