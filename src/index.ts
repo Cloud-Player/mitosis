@@ -14,10 +14,12 @@ class App {
 
     this.listenOnSubmitForm();
 
+    const myId = this._mitosis.getMyAddress().getId();
     document.querySelector('.clients ul')
       .insertAdjacentHTML('afterbegin',
         `<li>${this._mitosis.getMyAddress().getId()} (me)</li>`
       );
+    document.title = `${document.title}—${myId}`;
   }
 
   private listenOnSubmitForm() {
@@ -39,7 +41,16 @@ class App {
     if (!this._mitosis.getRoutingTable().getPeerById(peerId)) {
       return;
     }
-    this._mitosis.sendMessageTo(peerId, message);
+    try {
+      this._mitosis.sendMessageTo(peerId, message);
+    } catch (error) {
+      console.error(`Peer ${peerId} is not reachable anymore! (${error})`);
+      document.querySelector('.messages ul')
+        .insertAdjacentHTML('beforeend',
+          `<li class="outgoing"><span class="receiver">X ${peerId}</span>: Left!</li>`
+        );
+      return;
+    }
     document.querySelector('.messages ul')
       .insertAdjacentHTML('beforeend',
         `<li class="outgoing"><span class="receiver">-> ${peerId}</span>: ${message}</li>`
