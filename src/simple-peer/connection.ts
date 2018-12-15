@@ -71,7 +71,6 @@ export abstract class Connection {
     });
 
     this.connection.on('connect', () => {
-      console.log('IS OPEN');
       this._isConnected = true;
 
       this._subject.next({

@@ -2,14 +2,10 @@ import {RemotePeer} from '../mesh/remote-peer';
 import {IRole} from './interface';
 import {AbstractRole} from './role';
 
-export class Router extends AbstractRole implements IRole {
-  private parent: RemotePeer;
-  private succession: Array<RemotePeer>;
+export class Signal extends AbstractRole implements IRole {
 
-  public advertise(): void {
-  }
-
-  public introduce(offer: any): void {
+  public introduce(): RemotePeer {
+    return null;
   }
 
   protected _onTick(): void {

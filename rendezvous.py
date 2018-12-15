@@ -10,49 +10,8 @@ from tornado.log import app_log
 from tornado.web import Application, RequestHandler
 from tornado.websocket import WebSocketHandler
 
-script = """
-<html><head></head><body>
-<h3>me</h3>
-<pre id="me">\t</pre>
-<h3>peers</h3>
-<pre>%s</pre>
-<h3>log</h3>
-<pre id="log"></pre>
-<script>(function() {
-var ws = new WebSocket("ws://localhost:8040/websocket");
-ws.onopen = function (e) {
-    console.info('opened', e);
-    window.me = Math.floor(Math.random() * 899) + 100;
-    document.getElementById("me").innerText = window.me;
-    ws.send(`{"initiator": ${window.me},
-             "offers": [
-                 {"id": 1, "offer": "$$$"},
-                 {"id": 2, "offer": "$$$"},
-                 {"id": 3, "offer": "$$$"},
-                 {"id": 4, "offer": "$$$"},
-                 {"id": 5, "offer": "$$$"}
-            ]}`);
-    document.getElementById("log").append('offering');
-};
-ws.onmessage = function (m) {
-    var message = JSON.parse(m.data);
-    var log = document.getElementById("log");
-    console.info('message', message);
-    if (message.answer === undefined) {
-        ws.send(`{"initiator": ${message['initiator']},
-                "id": ${message['id']},
-                "answer": "€€€",
-                "responder": ${message['responder']}}`);
-        log.append(`\nanswer to ${message['initiator']}`);
-    } else {
-        log.append(`\nconnected with ${message['responder']}`);
-    }
-};
-ws.onerror = function (m) {
-    console.error('error', m);
-};
-})();</script></body></html>
-"""
+
+ROUTER = None
 
 
 class RendezvousHandler(WebSocketHandler):
@@ -70,6 +29,7 @@ class RendezvousHandler(WebSocketHandler):
             self.on_offers(message)
         elif 'answer' in message:
             self.on_answer(message)
+        elif
 
     def on_offers(self, message):
         self.initiator = message['initiator']
@@ -117,14 +77,6 @@ class RendezvousHandler(WebSocketHandler):
         return True
 
 
-class HomeHandler(RequestHandler):
-
-    def get(self):
-        peers = sorted(redis_session().smembers('peers'))
-        peers_list = '\n'.join(p.decode('utf-8') for p in peers)
-        self.write(script % (peers_list or '¯\_(ツ)_/¯'))
-
-
 class FallbackHandler(RequestHandler):
 
     def get(self, *args):
@@ -135,8 +87,8 @@ def define_options():
     opt.define('port', type=int, default=8040)
     opt.define('debug', type=bool, default=True, group='app')
     opt.parse_command_line()
-    opt.define('websocket_ping_interval', type=int, default=0, group='app')
-    opt.define('websocket_ping_timeout', type=int, default=0, group='app')
+    opt.define('websocket_ping_interval', type=int, default=10, group='app')
+    opt.define('websocket_ping_timeout', type=int, default=10, group='app')
     opt.define('redis_host', type=str, default='127.0.0.1', group='redis')
     opt.define('redis_port', type=int, default=6379, group='redis')
     opt.define('redis_db', type=int, default=0, group='redis')

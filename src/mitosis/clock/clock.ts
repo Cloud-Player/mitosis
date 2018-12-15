@@ -8,7 +8,12 @@ export class Clock implements IClock {
   private _milliseconds: number;
 
   public constructor(milliseconds: number = 1000) {
+    this._callbacks = [];
     this._milliseconds = milliseconds;
+  }
+
+  public onTick(callback: () => void): void {
+    this._callbacks.push(callback);
   }
 
   protected start(): void {
@@ -20,10 +25,8 @@ export class Clock implements IClock {
   }
 
   private tick(): void {
-    this._callbacks.forEach(callback => callback());
-  }
-
-  public onTick(callback: () => void): void {
-    this._callbacks.push(callback);
+    if (this._callbacks) {
+      this._callbacks.forEach(callback => callback());
+    }
   }
 }

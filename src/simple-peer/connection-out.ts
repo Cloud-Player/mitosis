@@ -1,5 +1,5 @@
 import * as SimplePeer from 'simple-peer';
-import {Connection, ConnectionEventTypes, IConnectionEvent} from './connection';
+import {Connection} from './connection';
 
 export class ConnectionOut extends Connection {
   private _offer: SimplePeer.SignalData = {};
@@ -11,10 +11,6 @@ export class ConnectionOut extends Connection {
     }, opts);
   }
 
-  protected onSignal(data: SimplePeer.SignalData): void {
-    this._offer = data;
-  }
-
   public establish(answer: { type: string, sdp: any }) {
     this._signalData = null;
     this.connection.signal(answer);
@@ -23,5 +19,9 @@ export class ConnectionOut extends Connection {
 
   public getOffer() {
     return this._offer;
+  }
+
+  protected onSignal(data: SimplePeer.SignalData): void {
+    this._offer = data;
   }
 }

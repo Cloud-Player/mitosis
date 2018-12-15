@@ -21,43 +21,15 @@ export class SocketMessageService {
   private _subject: Subject<ISocketEvent>;
   private _socketUrl: string;
 
+  constructor() {
+    this._subject = new Subject();
+  }
+
   public static getInstance() {
     if (!SocketMessageService.instance) {
       SocketMessageService.instance = new SocketMessageService();
     }
     return SocketMessageService.instance;
-  }
-
-  constructor() {
-    this._subject = new Subject();
-  }
-
-  private onOpen(event: Event) {
-    console.log('[SOCKET] Open');
-    this._isOpened = true;
-    this._subject.next({type: SocketStatusTypes.OPEN});
-  }
-
-  private onMessage(event: MessageEvent) {
-    this._subject.next({type: SocketStatusTypes.MESSAGE, detail: JSON.parse(event.data)});
-  }
-
-  private onClose(event: Event) {
-    console.warn('[SOCKET] Closed');
-    if (this._isOpened) {
-      this.reOpen();
-    }
-    this._isOpened = false;
-    this._subject.next({type: SocketStatusTypes.CLOSED});
-  }
-
-  private onError(event: ErrorEvent) {
-    console.error('[SOCKET] Error', event.error);
-    this._subject.next({type: SocketStatusTypes.ERROR, detail: event.error});
-  }
-
-  private reOpen() {
-    this.open(this._socketUrl);
   }
 
   public open(socketUrl: string) {
@@ -104,5 +76,33 @@ export class SocketMessageService {
 
   public observe() {
     return this._subject;
+  }
+
+  private onOpen(event: Event) {
+    console.log('[SOCKET] Open');
+    this._isOpened = true;
+    this._subject.next({type: SocketStatusTypes.OPEN});
+  }
+
+  private onMessage(event: MessageEvent) {
+    this._subject.next({type: SocketStatusTypes.MESSAGE, detail: JSON.parse(event.data)});
+  }
+
+  private onClose(event: Event) {
+    console.warn('[SOCKET] Closed');
+    if (this._isOpened) {
+      this.reOpen();
+    }
+    this._isOpened = false;
+    this._subject.next({type: SocketStatusTypes.CLOSED});
+  }
+
+  private onError(event: ErrorEvent) {
+    console.error('[SOCKET] Error', event.error);
+    this._subject.next({type: SocketStatusTypes.ERROR, detail: event.error});
+  }
+
+  private reOpen() {
+    this.open(this._socketUrl);
   }
 }
