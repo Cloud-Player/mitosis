@@ -8,6 +8,7 @@ import {Address} from '../message/address';
 import {Protocol} from '../message/interface';
 import {RoleType} from '../role/interface';
 import {ChurnType} from './routing-table';
+import {Message} from '../message/message';
 
 export interface IConnectionChurnEvent {
   type: ChurnType;
@@ -115,7 +116,7 @@ export class RemotePeer {
     return this.openConnection(connection);
   }
 
-  public send(message: any): void {
+  public send(message: Message): void {
     const connection: IConnection = this.getConnectionTable()
       .filterByStates(ConnectionState.OPEN)
       .filterDirect()
