@@ -1,11 +1,12 @@
 export enum Protocol {
+  WEBSOCKET_UNSECURE = 'ws',
   WEBSOCKET = 'wss',
-  WEBRTC = 'webrtc'
+  WEBRTC = 'webrtc',
+  VIA = 'via'
 }
 
 export enum MessageSubject {
-  INTRODUCTION = 'intro',
-  ROUTING_TABLE_UPDATE = 'rtu',
-  PROMOTION = 'pro',
-  CONNECTION_NEGOTIATION = 'cng'
+  PEER_UPDATE = 'peer-update',
+  ROLE_UPDATE = 'role-update',
+  CONNECTION_NEGOTIATION = 'connection-negotiation'
 }

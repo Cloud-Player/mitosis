@@ -1,16 +1,28 @@
 import {Subject} from 'rxjs';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
-import {IConnection} from './interface';
+import {ConnectionState, IConnection, IConnectionOptions} from './interface';
 
 export abstract class AbstractConnection {
   private _onOpenResolver: (connection: IConnection) => void;
   private _onOpenRejector: () => void;
+  private _state: ConnectionState;
+  protected _id: string;
+  protected _options: IConnectionOptions;
   protected _address: Address;
-  protected _subject: Subject<any>;
+  protected _stateChangeSubject: Subject<ConnectionState>;
+  protected _messageReceivedSubject: Subject<Message>;
 
-  public constructor(address: Address) {
+  public constructor(address: Address, options?: IConnectionOptions) {
+    if (!address.getLocation()) {
+      address.setLocation('C' + Math.round(Math.random() * 100).toString());
+    }
+    this._id = address.getLocation();
+    this._options = options;
     this._address = address;
+    this._state = ConnectionState.CLOSED;
+    this._stateChangeSubject = new Subject();
+    this._messageReceivedSubject = new Subject();
   }
 
   protected abstract openClient(): void;
@@ -25,40 +37,50 @@ export abstract class AbstractConnection {
     return this._address;
   }
 
+  public getId(): string {
+    return this._id;
+  }
+
   public onOpen(connection: IConnection) {
     if (this._onOpenResolver) {
       this._onOpenResolver(connection);
       this._onOpenResolver = null;
       this._onOpenRejector = null;
     }
-
-    this.publish('OPEN');
+    this._state = ConnectionState.OPEN;
+    this._stateChangeSubject.next(ConnectionState.OPEN);
   }
 
   public onClose() {
+    console.log('connection onClose');
     if (this._onOpenRejector) {
       this._onOpenRejector();
       this._onOpenResolver = null;
       this._onOpenRejector = null;
     }
-
-    this.publish('CLOSE');
-    this._subject.complete();
+    this._state = ConnectionState.CLOSED;
+    this._stateChangeSubject.next(ConnectionState.CLOSED);
+    this._stateChangeSubject.complete();
+    this._messageReceivedSubject.complete();
   }
 
   public onError() {
-    this.publish('ERROR');
+    this._state = ConnectionState.ERROR;
+    this._stateChangeSubject.next(ConnectionState.ERROR);
+    this.onClose();
   }
 
   public onMessage(message: Message) {
-    this._subject.next(message);
+    this._messageReceivedSubject.next(message);
   }
 
   public close() {
+    console.log('connection close');
     this.closeClient();
   }
 
   public open(): Promise<IConnection> {
+    this._state = ConnectionState.CONNECTING;
     return new Promise<IConnection>((resolve, reject) => {
       this._onOpenResolver = resolve;
       this._onOpenRejector = reject;
@@ -66,13 +88,15 @@ export abstract class AbstractConnection {
     });
   }
 
-  private publish(value: any): void {
-    if (this._subject) {
-      this._subject.next(value);
-    }
+  public getState(): ConnectionState {
+    return this._state;
   }
 
-  public observe() {
-    return this._subject;
+  public observeMessageReceived(): Subject<Message> {
+    return this._messageReceivedSubject;
+  }
+
+  public observeStateChange(): Subject<ConnectionState> {
+    return this._stateChangeSubject;
   }
 }

@@ -31,7 +31,7 @@ export class WebSocketConnection extends AbstractConnection implements IConnecti
   }
 
   public openClient() {
-    this._socket = new WebSocket(`${this._address.getProtocol()}://${this._address.getIdentifier()}`);
+    this._socket = new WebSocket(`${this._address.getProtocol()}://${this._address.getLocation()}`);
     this._socket.onopen = this.onSocketOpen.bind(this);
     this._socket.onclose = this.onSocketClose.bind(this);
     this._socket.onmessage = this.onSocketMessage.bind(this);

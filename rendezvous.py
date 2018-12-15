@@ -1,6 +1,7 @@
 import json
 import redis
 import random
+import traceback
 import signal
 import sys
 
@@ -11,51 +12,60 @@ from tornado.web import Application, RequestHandler
 from tornado.websocket import WebSocketHandler
 
 
-ROUTER = None
-
-
 class RendezvousHandler(WebSocketHandler):
+
+    ROUTER = {}
+    MY_ADDRESS = 'mitosis/v1/0/wss/signal.aux.app/websocket'
+    MY_ADDRESS = 'mitosis/v1/0/ws/localhost:8040/websocket'
 
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
+        self.peer_id = '0'
         self.redis = redis_session()
+        self.pubsub = self.redis.pubsub(ignore_subscribe_messages=True)
+        self.pubsub.subscribe(keep_alive=lambda: True)
+        self.callback = PeriodicCallback(self.pubsub.get_message, 100, 0.1)
+        self.callback.start()
 
     def open(self):
         app_log.info('ws open')
 
     def on_message(self, message):
         message = json.loads(message)
-        if 'offers' in message:
-            self.on_offers(message)
-        elif 'answer' in message:
-            self.on_answer(message)
-        elif
+        app_log.error(message)
+        subject = message.get('subject')
+        if subject == 'peer-update':
+            self.on_peer_update(message)
+        elif subject == 'connection-negotiation':
+            self.on_connection_negotiation(message)
 
-    def on_offers(self, message):
-        self.initiator = message['initiator']
-        self.redis.sadd('peers', self.initiator)
-        app_log.info('%s joined', self.initiator)
-        self.pubsub = self.redis.pubsub(ignore_subscribe_messages=True)
-        self.pubsub.subscribe(**{'peer-%s' % self.initiator: self.forward})
-        self.callback = PeriodicCallback(self.pubsub.get_message, 100, 0.1)
-        self.callback.start()
-        offers = message['offers']
-        random.shuffle(offers)
-        peers = [int(p.decode('utf-8')) for p in
-                 self.redis.srandmember('peers', len(offers) + 1)
-                 if int(p.decode('utf-8')) != self.initiator]
-        for peer, offer in zip(peers, offers):
-            offer['initiator'] = self.initiator
-            offer['responder'] = peer
-            self.redis.publish('peer-%s' % peer, self.dumps(offer))
-            app_log.info('send offer %s from %s to %s',
-                         offer['id'], self.initiator, peer)
+    def on_peer_update(self, message):
+        sender = message['sender']
+        self.peer_id = sender.split('/', 3)[2]
+        self.pubsub.subscribe(**{'peer-%s' % self.peer_id: self.forward})
+        if RendezvousHandler.ROUTER:
+            app_log.warning('%s (peer) joined', self.peer_id)
+            self.send_message(sender, 'role-update', ['peer'])
+            self.send_message(sender, 'peer-update', [RendezvousHandler.ROUTER])
+        else:
+            app_log.warning('%s (router) joined', self.peer_id)
+            roles = ['router', 'peer']
+            RendezvousHandler.ROUTER.update(
+                {'peerId': self.peer_id, 'roles': roles, 'quality': 1.0})
+            self.send_message(sender, 'role-update', roles)
 
-    def on_answer(self, message):
-        app_log.info('%s answered %s from %s', message['responder'],
-                     message['id'], message['initiator'])
-        self.redis.publish(
-            'peer-%s' % message['initiator'], self.dumps(message))
+    def on_connection_negotiation(self, message):
+        receiver = message['receiver']
+        receiver_id = receiver.split('/', 3)[2]
+        self.redis.publish('peer-%s' % receiver_id, self.dumps(message))
+
+    def send_message(self, receiver, subject, body):
+        message = {
+            'subject': subject,
+            'sender': self.MY_ADDRESS,
+            'receiver': receiver,
+            'body': body}
+        self.write_message(self.dumps(message))
 
     def forward(self, message):
         self.write_message(message['data'])
@@ -64,14 +74,13 @@ class RendezvousHandler(WebSocketHandler):
         return json.dumps(data, separators=',:', sort_keys=True)
 
     def on_close(self):
-        try:
-            self.callback.stop()
-            self.redis.srem('peers', self.initiator)
-            self.pubsub.unsubscribe('peer-%s' % self.initiator)
-            self.pubsub.close()
-            app_log.info('%s left', self.initiator)
-        except AttributeError:
-            app_log.info('premature exit')
+        if self.peer_id == RendezvousHandler.ROUTER.get('peerId'):
+            RendezvousHandler.ROUTER.clear()
+            app_log.warning('%s (router) left', self.peer_id)
+        else:
+            app_log.warning('%s left', self.peer_id)
+        self.callback.stop()
+        self.pubsub.close()
 
     def check_origin(self, origin):
         return True
@@ -87,8 +96,7 @@ def define_options():
     opt.define('port', type=int, default=8040)
     opt.define('debug', type=bool, default=True, group='app')
     opt.parse_command_line()
-    opt.define('websocket_ping_interval', type=int, default=10, group='app')
-    opt.define('websocket_ping_timeout', type=int, default=10, group='app')
+    opt.define('websocket_ping_interval', type=int, default=1, group='app')
     opt.define('redis_host', type=str, default='127.0.0.1', group='redis')
     opt.define('redis_port', type=int, default=6379, group='redis')
     opt.define('redis_db', type=int, default=0, group='redis')
@@ -104,8 +112,7 @@ def main():
     define_options()
     redis_session().delete('peers')
     app = Application(
-        [(r'/', HomeHandler),
-         (r'/websocket', RendezvousHandler),
+        [(r'/websocket', RendezvousHandler),
          (r'.*', FallbackHandler)],
         **opt.options.group_dict('app'))
     app.listen(opt.options.port)
