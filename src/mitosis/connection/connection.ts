@@ -20,7 +20,10 @@ export abstract class AbstractConnection {
   protected _messageReceivedSubject: Subject<Message>;
 
   public constructor(address: Address, options?: IConnectionOptions) {
-    this._id = address.getLocation() || 'C' + Math.round(Math.random() * 100).toString();
+    if (!address.getLocation()) {
+      address.setLocation('C' + Math.round(Math.random() * 100).toString());
+    }
+    this._id = address.getLocation();
     this._options = options;
     this._address = address;
     this._isOpen = false;

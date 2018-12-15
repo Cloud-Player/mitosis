@@ -55,24 +55,33 @@ export class MessageBroker {
     console.log('connection added', connection);
     connection.observeMessageReceived()
       .subscribe(
-        message =>
-          this.handleMessage(message, connection.getAddress())
+        message => {
+          this.ensureViaConnection(message.getSender(), connection.getAddress());
+          this.handleMessage(message);
+        }
       );
   }
 
-  private handleMessage(message: Message, lastHopAddress: Address): void {
+  private ensureViaConnection(sender: Address, lastHop: Address): void {
+    console.log('ensuring via connection', sender, lastHop);
+    if (
+      !lastHop.matches(sender) &&
+      sender.getId() !== this._routingTable.getMyId()
+    ) {
+      const viaAddress = new Address(
+        sender.getId(),
+        Protocol.VIA,
+        lastHop.getId()
+      );
+      this._routingTable.connectTo(viaAddress);
+    }
+  }
+
+  private handleMessage(message: Message): void {
     console.log('handling message', message);
     if (message.getReceiver().getId() === this._routingTable.getMyId()) {
       this.receiveMessage(message);
     } else {
-      if (!lastHopAddress.matches(message.getSender())) {
-        const viaAddress = new Address(
-          message.getSender().getId(),
-          Protocol.VIA,
-          lastHopAddress.getId()
-        );
-        this._routingTable.connectTo(viaAddress);
-      }
       this.forwardMessage(message);
     }
   }

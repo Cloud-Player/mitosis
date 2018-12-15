@@ -70,10 +70,10 @@ export class RemotePeer {
         });
       });
       this._openConnectionPromises.set(connection, promise);
-      console.warn('CONNECTING TO', connection.getAddress().toString())
+      console.warn('CONNECTING TO', connection.getAddress().toString());
 
     } else {
-      console.warn('CONNECTION TO', connection.getAddress().toString(), 'IS TRYING TO OPEN')
+      console.warn('CONNECTION TO', connection.getAddress().toString(), 'IS TRYING TO OPEN');
       promise = openPromise;
     }
     return promise;
@@ -119,17 +119,17 @@ export class RemotePeer {
   }
 
   public connect(address: Address, options?: IConnectionOptions): Promise<RemotePeer> {
-    let existingConnection = this._connectionsPerAddress.get(address.toString());
-    if (!existingConnection) {
-      existingConnection = this.createConnection(address, options);
-      this._connectionsPerAddress.set(address.toString(), existingConnection);
-      console.log('remote peer creates new connection', existingConnection);
-      this._connectionChurnSubject.next({connection: existingConnection, type: ChurnType.ADDED});
+    let connection = this._connectionsPerAddress.get(address.toString());
+    if (!connection) {
+      connection = this.createConnection(address, options);
+      this._connectionsPerAddress.set(address.toString(), connection);
+      console.log('remote peer creates new connection', connection);
+      this._connectionChurnSubject.next({connection: connection, type: ChurnType.ADDED});
     }
-    if (existingConnection.isOpen()) {
+    if (connection.isOpen()) {
       return Promise.resolve(this);
     }
-    return this.openConnection(existingConnection);
+    return this.openConnection(connection);
   }
 
   public send(message: any): void {

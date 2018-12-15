@@ -7,7 +7,7 @@ export class Clock implements IClock {
   private _interval: Timeout;
   private _milliseconds: number;
 
-  public constructor(milliseconds: number = 1000) {
+  public constructor(milliseconds: number = 5000) {
     this._callbacks = [];
     this._milliseconds = milliseconds;
   }

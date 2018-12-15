@@ -38,6 +38,10 @@ export class Address {
     return this._location;
   }
 
+  public setLocation(location: string): void {
+    this._location = location;
+  }
+
   public getVersion(): string {
     return this._version;
   }

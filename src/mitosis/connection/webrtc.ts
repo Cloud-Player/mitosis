@@ -69,7 +69,7 @@ export class WebRTCConnection extends AbstractConnection implements IConnection 
       console.log('webrtc answer ready');
       this.onMessage(new Message(
         new Address(mitosisId, Protocol.WEBRTC, this.getId()),
-        this.getAddress(),
+        new Address(this.getAddress().getId()),
         MessageSubject.CONNECTION_NEGOTIATION,
         answer
       ));
