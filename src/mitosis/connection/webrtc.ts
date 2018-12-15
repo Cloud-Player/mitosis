@@ -10,10 +10,14 @@ export class WebRTCConnection extends AbstractConnection implements IConnection 
   private _webrtc: SimplePeer.Instance;
   protected _options: IWebRTCConnectionOptions;
 
-  public send(data: any): void {
+  public send(message: Message): void {
+    this._webrtc.send(message.toString());
   }
 
   protected closeClient(): void {
+    this._webrtc.destroy();
+    this._webrtc = null;
+    this.onClose();
   }
 
   protected openClient(): void {
