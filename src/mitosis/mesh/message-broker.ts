@@ -61,43 +61,49 @@ export class MessageBroker {
     connection.observeMessageReceived()
       .subscribe(
         message => {
-          this.ensureViaConnection(message.getSender(), connection.getAddress());
-          this.handleMessage(message);
+          this.handleMessage(message, connection);
         }
       );
   }
 
-  private ensureViaConnection(sender: Address, lastHop: Address): void {
-    console.log('ensuring via connection', sender, lastHop);
+  private ensureViaConnection(sender: Address, via: Address): void {
     if (
-      !lastHop.matches(sender) &&
+      !via.matches(sender) &&
       sender.getId() !== this._routingTable.getMyId()
     ) {
       const viaAddress = new Address(
         sender.getId(),
         Protocol.VIA,
-        lastHop.getId()
+        via.getId()
       );
       this._routingTable.connectTo(viaAddress);
     }
   }
 
-  private handleMessage(message: Message): void {
-    console.log('handling message', message);
+  private handleMessage(message: Message, connection: IConnection): void {
     if (message.getReceiver().getId() === this._routingTable.getMyId()) {
-      this.receiveMessage(message);
+      this.receiveMessage(message, connection);
     } else {
       this.forwardMessage(message);
     }
   }
 
-  private receiveMessage(message: Message): void {
+  private receiveMessage(message: Message, connection: IConnection): void {
+    this.ensureViaConnection(message.getSender(), connection.getAddress());
     switch (message.getSubject()) {
       case MessageSubject.ROLE_UPDATE:
+        // TODO: Only accept role update from superior
         this.updateRoles(message as RoleUpdate);
         break;
       case MessageSubject.PEER_UPDATE:
-        this.updatePeers(message as PeerUpdate);
+        if (message.getSender().getId() === connection.getAddress().getId()) {
+          this.updatePeers(message as PeerUpdate);
+        } else {
+          throw new Error(
+            `will not accept peer update from ` +
+            `${message.getSender()} via ${connection.getAddress()}`
+          );
+        }
         break;
       case MessageSubject.CONNECTION_NEGOTIATION:
         this.negotiateConnection(message as ConnectionNegotiation);
@@ -112,16 +118,19 @@ export class MessageBroker {
   }
 
   private updatePeers(peerUpdate: PeerUpdate): void {
-    peerUpdate.getBody().forEach(
-      entry => {
-        const address = new Address(
-          entry.peerId,
-          Protocol.VIA,
-          peerUpdate.getSender().getId()
-        );
-        this._routingTable.connectTo(address);
-      }
-    );
+    peerUpdate.getBody()
+      .forEach(
+        entry => {
+          if (entry.peerId !== this._routingTable.getMyId()) {
+            const address = new Address(
+              entry.peerId,
+              Protocol.VIA,
+              peerUpdate.getSender().getId()
+            );
+            this._routingTable.connectTo(address);
+          }
+        }
+      );
   }
 
   private negotiateConnection(connectionNegotiation: ConnectionNegotiation): void {

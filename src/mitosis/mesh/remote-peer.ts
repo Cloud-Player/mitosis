@@ -117,6 +117,7 @@ export class RemotePeer {
 
   public send(message: any): void {
     const connection: IConnection = this.getConnectionTable()
+      .filterByStates(ConnectionState.OPEN)
       .filterDirect()
       .sortByQuality()
       .shift();
