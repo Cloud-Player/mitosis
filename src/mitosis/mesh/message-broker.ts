@@ -23,15 +23,13 @@ export class MessageBroker {
 
   private _routingTable: RoutingTable;
   private _roleManager: RoleManager;
-  private _roleUpdateSubject: Subject<Array<RoleType>>;
-  private _redirectsSubject: Subject<Message>;
+  private _appContentMessagesSubject: Subject<Message>;
 
   constructor(routingTable: RoutingTable, roleManager: RoleManager) {
     this._routingTable = routingTable;
     this.listenOnRoutingTablePeerChurn();
     this._roleManager = roleManager;
-    this._roleUpdateSubject = new Subject();
-    this._redirectsSubject = new Subject();
+    this._appContentMessagesSubject = new Subject();
   }
 
   private listenOnRoutingTablePeerChurn(): void {
@@ -108,6 +106,9 @@ export class MessageBroker {
       case MessageSubject.CONNECTION_NEGOTIATION:
         this.negotiateConnection(message as ConnectionNegotiation);
         break;
+      case MessageSubject.APP_CONTENT:
+        this.deliverAppContent(message);
+        break;
       default:
         throw new Error(`unsupported subject ${message.getSubject()}`);
     }
@@ -161,6 +162,10 @@ export class MessageBroker {
     }
   }
 
+  private deliverAppContent(message: Message) {
+    this._appContentMessagesSubject.next(message);
+  }
+
   private forwardMessage(message: Message): void {
     const peerId = message.getReceiver().getId();
     const receiverPeer = this._routingTable.getPeerById(peerId);
@@ -178,11 +183,7 @@ export class MessageBroker {
     directPeer.send(message);
   }
 
-  public observeRoleUpdate(): Subject<Array<RoleType>> {
-    return this._roleUpdateSubject;
-  }
-
-  public observeRedirects(): Subject<Message> {
-    return this._redirectsSubject;
+  public observeAppContentMessages() {
+    return this._appContentMessagesSubject;
   }
 }
