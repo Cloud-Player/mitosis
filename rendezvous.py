@@ -15,8 +15,7 @@ from tornado.websocket import WebSocketHandler
 class RendezvousHandler(WebSocketHandler):
 
     ROUTER = {}
-    MY_ADDRESS = 'mitosis/v1/0/wss/signal.aux.app/websocket'
-    MY_ADDRESS = 'mitosis/v1/0/ws/localhost:8040/websocket'
+    MY_ADDRESS = 'mitosis/v1/p007/ws/localhost:8040/websocket'
 
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
