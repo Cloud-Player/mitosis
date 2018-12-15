@@ -35,8 +35,16 @@ export class ConnectionTable {
     );
   }
 
+  public asArray(): Array<IConnection> {
+    return this._connections.slice();
+  }
+
   public shift(): IConnection {
     return this._connections.shift();
+  }
+
+  public pop(): IConnection {
+    return this._connections.pop();
   }
 
   public get length(): number {

@@ -15,7 +15,7 @@ export abstract class AbstractConnection {
 
   public constructor(address: Address, options?: IConnectionOptions) {
     if (!address.getLocation()) {
-      address.setLocation('C' + Math.round(Math.random() * 100).toString());
+      address.setLocation(`c${Math.round(10000 + Math.random() * 89999)}`);
     }
     this._id = address.getLocation();
     this._options = options;
@@ -30,7 +30,7 @@ export abstract class AbstractConnection {
   protected abstract closeClient(): void;
 
   public getQuality(): number {
-    return .0;
+    return 1.0;
   }
 
   public getAddress(): Address {
