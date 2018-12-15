@@ -1,18 +1,12 @@
 import {Subject} from 'rxjs';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
-import {IConnection, IConnectionOptions} from './interface';
-
-export enum ConnectionState {
-  OPEN = 'open',
-  CLOSED = 'closed',
-  ERROR = 'error'
-}
+import {ConnectionState, IConnection, IConnectionOptions} from './interface';
 
 export abstract class AbstractConnection {
   private _onOpenResolver: (connection: IConnection) => void;
   private _onOpenRejector: () => void;
-  private _isOpen: boolean;
+  private _state: ConnectionState;
   protected _id: string;
   protected _options: IConnectionOptions;
   protected _address: Address;
@@ -26,7 +20,7 @@ export abstract class AbstractConnection {
     this._id = address.getLocation();
     this._options = options;
     this._address = address;
-    this._isOpen = false;
+    this._state = ConnectionState.CLOSED;
     this._stateChangeSubject = new Subject();
     this._messageReceivedSubject = new Subject();
   }
@@ -47,17 +41,13 @@ export abstract class AbstractConnection {
     return this._id;
   }
 
-  public isOpen(): boolean {
-    return this._isOpen;
-  }
-
   public onOpen(connection: IConnection) {
     if (this._onOpenResolver) {
       this._onOpenResolver(connection);
       this._onOpenResolver = null;
       this._onOpenRejector = null;
     }
-    this._isOpen = true;
+    this._state = ConnectionState.OPEN;
     this._stateChangeSubject.next(ConnectionState.OPEN);
   }
 
@@ -68,13 +58,14 @@ export abstract class AbstractConnection {
       this._onOpenResolver = null;
       this._onOpenRejector = null;
     }
-    this._isOpen = false;
+    this._state = ConnectionState.CLOSED;
     this._stateChangeSubject.next(ConnectionState.CLOSED);
     this._stateChangeSubject.complete();
     this._messageReceivedSubject.complete();
   }
 
   public onError() {
+    this._state = ConnectionState.ERROR;
     this._stateChangeSubject.next(ConnectionState.ERROR);
     this.onClose();
   }
@@ -89,11 +80,16 @@ export abstract class AbstractConnection {
   }
 
   public open(): Promise<IConnection> {
+    this._state = ConnectionState.CONNECTING;
     return new Promise<IConnection>((resolve, reject) => {
       this._onOpenResolver = resolve;
       this._onOpenRejector = reject;
       this.openClient();
     });
+  }
+
+  public getState(): ConnectionState {
+    return this._state;
   }
 
   public observeMessageReceived(): Subject<Message> {

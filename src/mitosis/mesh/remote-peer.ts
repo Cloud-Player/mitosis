@@ -1,5 +1,6 @@
 import {Subject} from 'rxjs';
-import {IConnection, IConnectionOptions, IWebRTCConnectionOptions} from '../connection/interface';
+import {ConnectionTable} from '../connection/connection-table';
+import {ConnectionState, IConnection, IConnectionOptions, IWebRTCConnectionOptions} from '../connection/interface';
 import {ViaConnection} from '../connection/via';
 import {WebRTCConnection} from '../connection/webrtc';
 import {WebSocketConnection} from '../connection/websocket';
@@ -43,26 +44,23 @@ export class RemotePeer {
     return this._publicKey;
   }
 
+  public getConnectionTable(): ConnectionTable {
+    return ConnectionTable.fromIterable(
+      this._connectionsPerAddress.values()
+    );
+  }
+
   public getConnectionForAddress(address: Address): IConnection {
     return this._connectionsPerAddress.get(address.toString());
-  }
-
-  private getSortedConnections(): Array<IConnection> {
-    return Array.from(this._connectionsPerAddress.values())
-      .filter(connection => connection.isOpen())
-      .sort((a, b) => a.getQuality() - b.getQuality());
-  }
-
-  private getBestDirectConnection(): IConnection {
-    return this.getSortedConnections()
-      .filter(connection => !(connection instanceof ViaConnection))
-      .shift();
   }
 
   private openConnection(connection: IConnection): Promise<RemotePeer> {
     const openPromise = this._openConnectionPromises.get(connection);
     let promise;
     if (!openPromise) {
+      if (connection.getState() === ConnectionState.OPEN) {
+        return Promise.resolve(this);
+      }
       promise = new Promise<RemotePeer>((resolve) => {
         connection.open().then(() => {
           resolve(this);
@@ -70,10 +68,7 @@ export class RemotePeer {
         });
       });
       this._openConnectionPromises.set(connection, promise);
-      console.warn('CONNECTING TO', connection.getAddress().toString());
-
     } else {
-      console.warn('CONNECTION TO', connection.getAddress().toString(), 'IS TRYING TO OPEN');
       promise = openPromise;
     }
     return promise;
@@ -105,15 +100,6 @@ export class RemotePeer {
     return connection;
   }
 
-  public hasDirectConnection(): boolean {
-    return !!this.getBestDirectConnection();
-  }
-
-  public getBestConnection(): IConnection {
-    return this.getSortedConnections()
-      .shift();
-  }
-
   public hasRole(roleType: RoleType): boolean {
     return this._roleTypes.indexOf(roleType) >= 0;
   }
@@ -126,14 +112,19 @@ export class RemotePeer {
       console.log('remote peer creates new connection', connection);
       this._connectionChurnSubject.next({connection: connection, type: ChurnType.ADDED});
     }
-    if (connection.isOpen()) {
-      return Promise.resolve(this);
-    }
     return this.openConnection(connection);
   }
 
   public send(message: any): void {
-    return this.getBestDirectConnection().send(message);
+    const connection: IConnection = this.getConnectionTable()
+      .filterDirect()
+      .sortByQuality()
+      .shift();
+    if (connection) {
+      connection.send(message);
+    } else {
+      throw new Error(`no direct connection to ${message.getReceiver()}`);
+    }
   }
 
   public observeChurn(): Subject<IConnectionChurnEvent> {

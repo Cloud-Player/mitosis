@@ -7,7 +7,7 @@ import {IRole} from './interface';
 export class Newbie implements IRole {
 
   // static readonly signalAddress = Address.fromString('mitosis/v1/0/wss/signal.aux.app/websocket');
-  static readonly signalAddress = Address.fromString('mitosis/v1/0/ws/localhost:8040/websocket');
+  static readonly signalAddress = Address.fromString('mitosis/v1/0/ws/192.168.2.110:8040/websocket');
 
   private _signal: RemotePeer;
 

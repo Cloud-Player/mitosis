@@ -5,13 +5,11 @@ import {IConnection} from './interface';
 export class ViaConnection extends AbstractConnection implements IConnection {
 
   protected closeClient(): void {
+    this.onClose();
   }
 
   protected openClient(): void {
-  }
-
-  public isOpen(): boolean {
-    return true;
+    this.onOpen(this);
   }
 
   public send(message: Message): void {

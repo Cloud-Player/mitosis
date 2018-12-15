@@ -1,6 +1,11 @@
 import {Subject} from 'rxjs';
 import {filter} from 'rxjs/operators';
-import {IConnection, IWebRTCConnectionOptions, WebRTCConnectionOptionsPayloadType} from '../connection/interface';
+import {
+  ConnectionState,
+  IConnection,
+  IWebRTCConnectionOptions,
+  WebRTCConnectionOptionsPayloadType
+} from '../connection/interface';
 import {ViaConnection} from '../connection/via';
 import {WebRTCConnection} from '../connection/webrtc';
 import {Address} from '../message/address';
@@ -150,7 +155,10 @@ export class MessageBroker {
   private forwardMessage(message: Message): void {
     const peerId = message.getReceiver().getId();
     const receiverPeer = this._routingTable.getPeerById(peerId);
-    const connection = receiverPeer.getBestConnection();
+    const connection = receiverPeer.getConnectionTable()
+      .filterByStates(ConnectionState.OPEN)
+      .sortByQuality()
+      .shift();
     let directPeer;
     if (connection instanceof ViaConnection) {
       const directPeerId = connection.getAddress().getLocation();

@@ -1,3 +1,4 @@
+import {ConnectionState} from '../connection/interface';
 import {Mitosis} from '../index';
 import {RemotePeer} from '../mesh/remote-peer';
 import {Address} from '../message/address';
@@ -11,8 +12,12 @@ export class Peer implements IRole {
     const indirectConnections: Array<RemotePeer> = [];
     mitosis.getRoutingTable().getPeers().map(
       peer => {
-        if (peer.hasDirectConnection()) {
-          directConnectionCount++;
+        const directConnectionsPerPeer = peer.getConnectionTable()
+          .filterByStates(ConnectionState.OPEN, ConnectionState.CONNECTING)
+          .filterDirect()
+          .length;
+        if (directConnectionsPerPeer) {
+          directConnectionCount += directConnectionsPerPeer;
         } else {
           indirectConnections.push(peer);
         }

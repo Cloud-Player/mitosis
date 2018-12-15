@@ -1,4 +1,4 @@
-import {IConnection} from '../connection/interface';
+import {ConnectionState, IConnection} from '../connection/interface';
 import {RemotePeer} from '../mesh/remote-peer';
 import {RoleType} from '../role/interface';
 import {Address} from './address';
@@ -17,7 +17,10 @@ export class PeerUpdate extends Message {
   public constructor(sender: Address, receiver: Address, remotePeers: Array<RemotePeer>) {
     const body: Array<IRoutingTableUpdateEntry> = [];
     remotePeers.forEach(remotePeer => {
-      const connection: IConnection = remotePeer.getBestConnection();
+      const connection: IConnection = remotePeer.getConnectionTable()
+        .filterByStates(ConnectionState.OPEN)
+        .sortByQuality()
+        .shift();
       body.push({peerId: remotePeer.getId(), roles: remotePeer.getRoles(), quality: connection.getQuality()});
     });
     super(sender, receiver, MessageSubject.PEER_UPDATE, body);
