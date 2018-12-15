@@ -1,47 +1,50 @@
 import {InternalClock} from './clock/internal';
 import {SecureEnclave} from './enclave/secure';
+import {MessageBroker} from './mesh/message-broker';
 import {RemotePeer} from './mesh/remote-peer';
+import {RoleManager} from './mesh/role-manager';
 import {RoutingTable} from './mesh/routing-table';
-import {RoleFactory} from './role/factory';
-import {IRole, RoleType} from './role/interface';
+import {Address} from './message/address';
+import {RoleType} from './role/interface';
 
 export class Mitosis {
 
   private _enclave: IEnclave;
-  private _roles: Map<RoleType, IRole>;
-  private _roleFactory: RoleFactory;
+
   private _routingTable: RoutingTable;
+  private _roleManager: RoleManager;
+  private _messageBroker: MessageBroker;
   private _myId: string;
+  private _myAddress: Address;
 
   public constructor(
     clock: IClock = new InternalClock(),
     enclave: IEnclave = new SecureEnclave(),
     roles: Array<RoleType> = [RoleType.NEWBIE]
   ) {
-    this._myId = Math.round(Math.random() * 1000000000000).toString();
-    this._routingTable = new RoutingTable(this._myId);
-    this._roleFactory = new RoleFactory(this._routingTable);
-    this._roles = new Map();
-    roles.forEach((r) => this.addRole(r));
     this._enclave = enclave;
+    this._myId = Math.round(Math.random() * 1000).toString();
+    this._myAddress = new Address(this._myId);
+    console.log('hello i am', this._myAddress.toString());
+    this._routingTable = new RoutingTable(this._myId);
+    this._roleManager = new RoleManager(roles);
+    this._messageBroker = new MessageBroker(this._routingTable, this._roleManager);
     clock.onTick(this.onTick.bind(this));
   }
 
-  public addRole(roleType: RoleType): void {
-    if (!this._roles.has(roleType)) {
-      this._roles.set(roleType, this._roleFactory.create(roleType));
-    }
+  private onTick(): void {
+    this._roleManager.onTick(this);
   }
 
-  public removeRole(roleType: RoleType): void {
-    this._roles.delete(roleType);
+  public getMyAddress(): Address {
+    return this._myAddress;
   }
 
   public getPeers(): Array<RemotePeer> {
     return this._routingTable.getPeers();
   }
 
-  private onTick(): void {
-    this._roles.forEach(role => role.onTick());
+  public getRoutingTable() {
+    return this._routingTable;
   }
 }

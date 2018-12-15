@@ -3,7 +3,7 @@ import Timeout = NodeJS.Timeout;
 
 export class Clock implements IClock {
 
-  private _callbacks: Array<() => void>;
+  protected _callbacks: Array<() => void>;
   private _interval: Timeout;
   private _milliseconds: number;
 
@@ -17,7 +17,7 @@ export class Clock implements IClock {
   }
 
   protected start(): void {
-    this._interval = setInterval(this.tick, this._milliseconds);
+    this._interval = setInterval(this.tick.bind(this), this._milliseconds);
   }
 
   protected stop(): void {

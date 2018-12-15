@@ -5,7 +5,7 @@ export class Message {
   private _receiver: Address;
   private _sender: Address;
   private _subject: MessageSubject;
-  private _body: any;
+  protected _body: any;
 
   public static fromString(messageString: string): Message {
     const messageJSON = JSON.parse(messageString);

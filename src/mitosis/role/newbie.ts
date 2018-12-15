@@ -1,25 +1,36 @@
-import {IConnection} from '../connection/interface';
+import {Mitosis} from '../index';
+import {RemotePeer} from '../mesh/remote-peer';
 import {Address} from '../message/address';
-import {MessageSubject, Protocol} from '../message/interface';
-import {Message} from '../message/message';
+import {PeerUpdate} from '../message/peer-update';
 import {IRole} from './interface';
-import {AbstractRole} from './role';
 
-export class Newbie extends AbstractRole implements IRole {
+export class Newbie implements IRole {
 
-  static readonly signalAddress = Address.fromString('mitosis/v1/wss/signal.aux.app/websocket');
+  // static readonly signalAddress = Address.fromString('mitosis/v1/0/wss/signal.aux.app/websocket');
+  static readonly signalAddress = Address.fromString('mitosis/v1/0/ws/localhost:8040/websocket');
 
-  protected _onTick(): void {
-  }
+  private _signal: RemotePeer;
 
-  protected _initialise(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      this._routingTable.connectTo(Newbie.signalAddress).then((connection: IConnection) => {
-          const myAddress = new Address(Protocol.WEBSOCKET, this._routingTable.getMyId());
-          connection.send(new Message(myAddress, Newbie.signalAddress, MessageSubject.INTRODUCTION, '👻'));
-          console.log('OPEN');
+  public onTick(mitosis: Mitosis): void {
+    if (!this._signal) {
+      mitosis.getRoutingTable().connectTo(Newbie.signalAddress).then(
+        remotePeer => {
+          this._signal = remotePeer;
+          this.sendTableUpdate(mitosis);
         }
       );
-    });
+    } else {
+      this.sendTableUpdate(mitosis);
+    }
+  }
+
+  private sendTableUpdate(mitosis: Mitosis): void {
+    const tableUpdate = new PeerUpdate(
+      mitosis.getMyAddress(),
+      Newbie.signalAddress,
+      mitosis.getRoutingTable().getPeers()
+    );
+    console.log('sending update', tableUpdate);
+    this._signal.send(tableUpdate);
   }
 }

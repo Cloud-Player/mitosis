@@ -1,9 +1,14 @@
-import * as Peer from 'simple-peer';
+import * as SimplePeer from 'simple-peer';
+import {Address} from '../message/address';
+import {MessageSubject, Protocol} from '../message/interface';
 import {Message} from '../message/message';
 import {AbstractConnection} from './connection';
-import {IConnection} from './interface';
+import {IConnection, IWebRTCConnectionOptions, WebRTCConnectionOptionsPayloadType} from './interface';
 
 export class WebRTCConnection extends AbstractConnection implements IConnection {
+
+  private _webrtc: SimplePeer.Instance;
+  protected _options: IWebRTCConnectionOptions;
 
   public send(data: any): void {
   }
@@ -12,25 +17,67 @@ export class WebRTCConnection extends AbstractConnection implements IConnection 
   }
 
   protected openClient(): void {
-    const peer = new Peer({initiator: true, trickle: false});
+    if (!this._options) {
+      throw  new Error('cannot open without options');
+    }
+    if (this._options.payload) {
+      switch (this._options.payload.type) {
+        case WebRTCConnectionOptionsPayloadType.OFFER:
+          this.createAnswer(this._options.mitosisId, this._options.payload);
+          break;
+        case WebRTCConnectionOptionsPayloadType.ANSWER:
+          this.establish(this._options.payload);
+          break;
+        default:
+          throw new Error(
+            `unsupported webrtc connection options payload type ${this._options.payload.type}`
+          );
+      }
+    } else {
+      this.createOffer(this._options.mitosisId);
+    }
 
-    peer.on('signal', (data) => {
+    this._webrtc.on('connect', () => {
+      console.log('webrtc connection is established!');
+      this.onOpen(this);
     });
+    this._webrtc.on('data', (data) => {
+      this.onMessage(Message.fromString(data));
+    });
+    this._webrtc.on('error', (error) => {
+      console.error(error);
+    });
+  }
 
-    // peer2.on('signal', function (data) {
-    //   // when peer2 has signaling data, give it to peer1 somehow
-    //   peer1.signal(data)
-    // })
-    //
-    // peer1.on('connect', function () {
-    //   // wait for 'connect' event before using the data channel
-    //   peer1.send('hey peer2, how is it going?')
-    // })
-    //
-    // peer2.on('data', function (data) {
-    //   // got a data channel message
-    //   console.log('got a message from peer1: ' + data)
-    // })
+  private createOffer(mitosisId: string) {
+    this._webrtc = new SimplePeer({initiator: true, trickle: false});
+    this._webrtc.on('signal', (offer: SimplePeer.SignalData) => {
+      console.log('webrtc offer ready');
+      this.onMessage(new Message(
+        new Address(mitosisId, Protocol.WEBRTC, this.getId()),
+        this.getAddress(),
+        MessageSubject.CONNECTION_NEGOTIATION,
+        offer
+      ));
+    });
+  }
 
+  private createAnswer(mitosisId: string, offer: SimplePeer.SignalData) {
+    this._webrtc = new SimplePeer({initiator: false, trickle: false});
+    this._webrtc.signal(offer);
+    this._webrtc.on('signal', (answer: SimplePeer.SignalData) => {
+      console.log('webrtc answer ready');
+      this.onMessage(new Message(
+        new Address(mitosisId, Protocol.WEBRTC, this.getId()),
+        this.getAddress(),
+        MessageSubject.CONNECTION_NEGOTIATION,
+        answer
+      ));
+    });
+  }
+
+  public establish(answer: SimplePeer.SignalData) {
+    this._webrtc.signal(answer);
+    console.log('establishing webrtc connection');
   }
 }

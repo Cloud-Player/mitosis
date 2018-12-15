@@ -1,7 +1,6 @@
 import {Mitosis} from './mitosis';
 
 const m = new Mitosis();
-console.log(m.getPeers());
 
 /*
 const peer = new Peer();

@@ -1,17 +1,8 @@
-import {RemotePeer} from '../mesh/remote-peer';
+import {Mitosis} from '../index';
 import {IRole} from './interface';
-import {AbstractRole} from './role';
 
-export class Signal extends AbstractRole implements IRole {
+export class Signal implements IRole {
 
-  public introduce(): RemotePeer {
-    return null;
-  }
-
-  protected _onTick(): void {
-  }
-
-  protected _initialise(): Promise<void> {
-    return undefined;
+  public onTick(mitosis: Mitosis): void {
   }
 }

@@ -1,4 +1,4 @@
-import {RoutingTable} from '../mesh/routing-table';
+import {Mitosis} from '../index';
 import {Newbie} from './newbie';
 import {Peer} from './peer';
 import {Router} from './router';
@@ -23,7 +23,5 @@ RoleTypeMap.set(RoleType.SIGNAL, Signal);
 
 export interface IRole {
 
-  initialise(routingTable: RoutingTable): void;
-
-  onTick(): void;
+  onTick(mitosis: Mitosis): void;
 }

@@ -1,18 +1,32 @@
+import {Mitosis} from '../index';
+import {RemotePeer} from '../mesh/remote-peer';
 import {Address} from '../message/address';
+import {Protocol} from '../message/interface';
 import {IRole} from './interface';
-import {AbstractRole} from './role';
 
-export class Peer extends AbstractRole implements IRole {
+export class Peer implements IRole {
 
-  protected _onTick(): void {
-  }
-
-  protected _initialise(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      const signalAddress = Address.fromString('mitosis/v1/peer/1/wss/signal.aux.app');
-      this._routingTable.connectTo(signalAddress).then(
-        // TODO: sendMyOffer, waitForAnswer, connectToRouter, disconnectFromSignal
-      );
-    });
+  public onTick(mitosis: Mitosis): void {
+    let directConnectionCount = 0;
+    const indirectConnections: Array<RemotePeer> = [];
+    mitosis.getRoutingTable().getPeers().map(
+      peer => {
+        if (peer.hasDirectConnection()) {
+          directConnectionCount++;
+        } else {
+          indirectConnections.push(peer);
+        }
+      }
+    );
+    if (directConnectionCount < 5 && indirectConnections.length) {
+      console.log('acquiring new peers');
+      const indirectPeer = indirectConnections.shift();
+      const address = new Address(indirectPeer.getId(), Protocol.WEBRTC);
+      mitosis.getRoutingTable().connectTo(address);
+    } else if (directConnectionCount < 5 && !indirectConnections.length) {
+      console.log('no new peers to add');
+    } else {
+      console.log('need to loose peers');
+    }
   }
 }
