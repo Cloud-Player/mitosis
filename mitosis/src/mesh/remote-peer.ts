@@ -6,9 +6,9 @@ import {WebRTCConnection} from '../connection/webrtc';
 import {WebSocketConnection} from '../connection/websocket';
 import {Address} from '../message/address';
 import {Protocol} from '../message/interface';
+import {Message} from '../message/message';
 import {RoleType} from '../role/interface';
 import {ChurnType} from './routing-table';
-import {Message} from '../message/message';
 
 export interface IConnectionChurnEvent {
   type: ChurnType;
