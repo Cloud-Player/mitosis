@@ -1,8 +1,8 @@
+import {Mitosis} from 'mitosis/src';
+import {ConnectionState, IConnection} from 'mitosis/src/connection/interface';
+import {RemotePeer} from 'mitosis/src/mesh/remote-peer';
+import {ChurnType, IPeerChurnEvent} from 'mitosis/src/mesh/routing-table';
 import {filter} from 'rxjs/operators';
-import {Mitosis} from './mitosis';
-import {ConnectionState, IConnection} from './mitosis/connection/interface';
-import {RemotePeer} from './mitosis/mesh/remote-peer';
-import {ChurnType} from './mitosis/mesh/routing-table';
 
 class App {
   private _mitosis: Mitosis;
@@ -82,18 +82,22 @@ class App {
   private listenOnPeerChurn() {
     this._mitosis.getRoutingTable().observePeerChurn()
       .pipe(
-        filter(ev => ev.type === ChurnType.ADDED)
+        filter(
+          (ev: IPeerChurnEvent) => ev.type === ChurnType.ADDED)
       )
       .subscribe(
-        ev => this.addPeer(ev.peer)
+        (ev: IPeerChurnEvent) => this.addPeer(ev.peer)
       );
 
     this._mitosis.getRoutingTable().observePeerChurn()
       .pipe(
-        filter(ev => ev.type === ChurnType.REMOVED)
+        filter(
+          (ev: IPeerChurnEvent) => {
+            return ev.type === ChurnType.REMOVED;
+          })
       )
       .subscribe(
-        ev => this.removePeer(ev.peer)
+        (ev: IPeerChurnEvent) => this.removePeer(ev.peer)
       );
   }
 

@@ -1,5 +1,7 @@
 import {Subject} from 'rxjs';
+import {IClock} from './clock/interface';
 import {InternalClock} from './clock/internal';
+import {IEnclave} from './enclave/interface';
 import {SecureEnclave} from './enclave/secure';
 import {MessageBroker} from './mesh/message-broker';
 import {RemotePeer} from './mesh/remote-peer';

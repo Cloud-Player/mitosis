@@ -1,4 +1,4 @@
-interface IEnclave {
+export interface IEnclave {
   getPublicKey(): string;
 
   encrypt(data: Uint8Array, publicKey: string): Uint8Array;

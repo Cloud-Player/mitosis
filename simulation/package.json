@@ -1,5 +1,5 @@
 {
-  "name": "mitosis",
+  "name": "mitosis-simulation",
   "version": "0.0.1",
   "description": "TBD",
   "authors": [
@@ -14,9 +14,6 @@
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack-dev-server",
     "build": "cross-env NODE_ENV=production webpack"
-  },
-  "bin": {
-    "mitosis": "src/simulation/index.ts"
   },
   "preferGlobal": true,
   "devDependencies": {

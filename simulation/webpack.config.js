@@ -7,7 +7,7 @@ const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const dev = process.env.NODE_ENV !== 'production';
 
 const HTMLWebpackPluginConfig = new HTMLWebpackPlugin({
-  template: path.join(__dirname, '/src/index.html'),
+  template: path.join(__dirname, '/mitosis/index.html'),
   filename: 'index.html',
   inject: 'body',
   minify: {
@@ -44,8 +44,8 @@ module.exports = {
     historyApiFallback: true,
   },
   entry: [
-    path.join(__dirname, '/src/index.ts'),
-    path.join(__dirname, '/src/index.scss')
+    path.join(__dirname, '/index.ts'),
+    path.join(__dirname, '/index.scss')
   ],
   devtool: 'inline-source-map',
   module: {

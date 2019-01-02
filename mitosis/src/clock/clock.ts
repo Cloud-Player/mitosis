@@ -1,4 +1,5 @@
 import {setInterval} from 'timers';
+import {IClock} from './interface';
 import Timeout = NodeJS.Timeout;
 
 export class Clock implements IClock {

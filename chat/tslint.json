@@ -110,7 +110,7 @@
     ],
     "object-literal-shorthand": false,
     "trailing-comma": false,
-    "arrow-parens": false,
+    "arrow-parents": false,
     "array-type": [true, "generic"]
   }
 }

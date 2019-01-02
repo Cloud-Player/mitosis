@@ -1,4 +1,5 @@
 import {Enclave} from './enclave';
+import {IEnclave} from './interface';
 
 export class SecureEnclave extends Enclave implements IEnclave {
 
