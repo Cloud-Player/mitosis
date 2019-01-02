@@ -20,7 +20,7 @@ export class Peer implements IRole {
         const connectionTable = peer.getConnectionTable()
           .filterByStates(ConnectionState.OPEN, ConnectionState.CONNECTING)
           .filterDirect();
-        if (connectionTable) {
+        if (connectionTable.length) {
           directConnections.push(...connectionTable.asArray());
         } else {
           indirectPeers.push(peer);

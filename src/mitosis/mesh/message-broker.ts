@@ -14,7 +14,6 @@ import {MessageSubject, Protocol} from '../message/interface';
 import {Message} from '../message/message';
 import {PeerUpdate} from '../message/peer-update';
 import {RoleUpdate} from '../message/role-update';
-import {RoleType} from '../role/interface';
 import {RemotePeer} from './remote-peer';
 import {RoleManager} from './role-manager';
 import {ChurnType, RoutingTable} from './routing-table';
