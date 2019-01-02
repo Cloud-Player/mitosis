@@ -4,7 +4,7 @@ import {RemotePeer} from 'mitosis/src/mesh/remote-peer';
 import {ChurnType, IPeerChurnEvent} from 'mitosis/src/mesh/routing-table';
 import {filter} from 'rxjs/operators';
 
-class App {
+class Chat {
   private _mitosis: Mitosis;
 
   constructor() {
@@ -145,4 +145,4 @@ class App {
   }
 }
 
-const app = new App();
+const chat = new Chat();
