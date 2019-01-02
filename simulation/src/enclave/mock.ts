@@ -1,3 +1,5 @@
+import {IEnclave} from 'mitosis/src/enclave/interface';
+
 export class MockEnclave implements IEnclave {
 
   public getPublicKey(): string {
