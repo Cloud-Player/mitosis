@@ -9,8 +9,7 @@
     "typeRoots": [
       "node_modules/@types"
     ],
-    "declarationDir": "dist/types",
-    "outDir": "dist/lib",
+    "outDir": "dist",
     "baseUrl": ".",
     "paths": {
       "mitosis": ["src"]
