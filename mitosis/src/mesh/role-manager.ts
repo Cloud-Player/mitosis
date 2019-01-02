@@ -1,4 +1,4 @@
-import {Mitosis} from '../index';
+import {Mitosis} from '../mitosis';
 import {IRole, RoleType, RoleTypeMap} from '../role/interface';
 
 export class RoleManager {

@@ -7,7 +7,7 @@ import {WebSocketConnection} from '../connection/websocket';
 import {Address} from '../message/address';
 import {Protocol} from '../message/interface';
 import {RoleType} from '../role/interface';
-import {ChurnType} from './routing-table';
+import {ChurnType} from './interface';
 import {Message} from '../message/message';
 
 export interface IConnectionChurnEvent {

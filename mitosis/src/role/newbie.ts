@@ -1,4 +1,4 @@
-import {Mitosis} from '../index';
+import {Mitosis} from '../mitosis';
 import {RemotePeer} from '../mesh/remote-peer';
 import {Address} from '../message/address';
 import {PeerUpdate} from '../message/peer-update';

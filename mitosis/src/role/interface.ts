@@ -1,4 +1,4 @@
-import {Mitosis} from '../index';
+import {Mitosis} from '../mitosis';
 import {Newbie} from './newbie';
 import {Peer} from './peer';
 import {Router} from './router';

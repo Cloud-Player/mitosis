@@ -16,7 +16,8 @@ import {PeerUpdate} from '../message/peer-update';
 import {RoleUpdate} from '../message/role-update';
 import {RemotePeer} from './remote-peer';
 import {RoleManager} from './role-manager';
-import {ChurnType, RoutingTable} from './routing-table';
+import {ChurnType} from './interface';
+import {RoutingTable} from './routing-table';
 
 export class MessageBroker {
 

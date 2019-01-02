@@ -2,16 +2,7 @@ import {Subject} from 'rxjs';
 import {IConnectionOptions} from '../connection/interface';
 import {Address} from '../message/address';
 import {RemotePeer} from './remote-peer';
-
-export enum ChurnType {
-  ADDED = 'added',
-  REMOVED = 'removed'
-}
-
-export interface IPeerChurnEvent {
-  type: ChurnType;
-  peer: RemotePeer;
-}
+import {ChurnType, IPeerChurnEvent} from './interface';
 
 export class RoutingTable {
 

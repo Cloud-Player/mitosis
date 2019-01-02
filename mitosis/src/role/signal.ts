@@ -1,4 +1,4 @@
-import {Mitosis} from '../index';
+import {Mitosis} from '../mitosis';
 import {IRole} from './interface';
 
 export class Signal implements IRole {
