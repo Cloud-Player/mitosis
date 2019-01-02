@@ -27,7 +27,9 @@ module.exports = {
         use: [
           {
             loader: 'tslint-loader',
-            options: {/* Loader options go here */}
+            options: {
+              configFile: '../tslint.json'
+            }
           }
         ]
       },
