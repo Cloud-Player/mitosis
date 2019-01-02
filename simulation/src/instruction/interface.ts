@@ -23,8 +23,6 @@ export interface IInstruction {
 
   getTick(): number;
 
-  getType(): InstructionType;
-
   getConfiguration(): {};
 
   execute(): void;

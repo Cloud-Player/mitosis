@@ -10,7 +10,7 @@ export abstract class AbstractInstruction {
     this._configuration = configuration;
   }
 
-  public static fromJSON(json: string): Array<IInstruction> {
+  public static arrayFromJSON(json: string): Array<IInstruction> {
     const instructions: Array<IInstruction> = [];
     const parameters = JSON.parse(json) as Array<any>;
     parameters.forEach(parameter => {
@@ -37,10 +37,6 @@ export abstract class AbstractInstruction {
 
   public getConfiguration(): {} {
     return this._configuration;
-  }
-
-  public getType(): InstructionType {
-    return null;
   }
 
   public abstract execute(): void;
