@@ -1,0 +1,2 @@
+tornado >= 5.1
+redis >= redis 3.0

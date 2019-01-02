@@ -10,9 +10,7 @@ export enum InstructionType {
   REMOVE_CONNECTION = 'remove-connection'
 }
 
-export interface IInstructionConstructor {
-  new(...args: Array<any>): IInstruction;
-}
+export type IInstructionConstructor = new(...args: Array<any>) => IInstruction;
 
 export const InstructionTypeMap: Map<InstructionType, IInstructionConstructor> = new Map([
   [InstructionType.ADD_PEER, AddPeer],

@@ -1,10 +1,10 @@
-import {Mitosis} from 'mitosis/src';
-import {ConnectionState, IConnection} from 'mitosis/src/connection/interface';
-import {RemotePeer} from 'mitosis/src/mesh/remote-peer';
-import {ChurnType, IPeerChurnEvent} from 'mitosis/src/mesh/routing-table';
+import {Mitosis} from 'mitosis';
+import {ConnectionState, IConnection} from 'mitosis/dist/types/connection/interface';
+import {ChurnType, IPeerChurnEvent} from 'mitosis/dist/types/mesh/interface';
+import {RemotePeer} from 'mitosis/dist/types/mesh/remote-peer';
 import {filter} from 'rxjs/operators';
 
-class App {
+class Chat {
   private _mitosis: Mitosis;
 
   constructor() {
@@ -83,7 +83,10 @@ class App {
     this._mitosis.getRoutingTable().observePeerChurn()
       .pipe(
         filter(
-          (ev: IPeerChurnEvent) => ev.type === ChurnType.ADDED)
+          (ev: IPeerChurnEvent) => {
+            return ev.type === ChurnType.ADDED;
+          }
+        )
       )
       .subscribe(
         (ev: IPeerChurnEvent) => this.addPeer(ev.peer)
@@ -132,7 +135,7 @@ class App {
 
   private listenOnPeerConnectionChurn(peer: RemotePeer) {
     peer.observeChurn()
-      .subscribe(ev => {
+      .subscribe((ev) => {
         this.updateConnections(peer);
         this.listenOnConnectionChanges(peer, ev.connection);
       });
@@ -140,9 +143,9 @@ class App {
 
   private listenOnConnectionChanges(peer: RemotePeer, connection: IConnection) {
     connection.observeStateChange().subscribe(
-      ev => this.updateConnections(peer)
+      (ev: ConnectionState) => this.updateConnections(peer)
     );
   }
 }
 
-const app = new App();
+const chat = new Chat();

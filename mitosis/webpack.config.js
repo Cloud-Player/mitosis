@@ -27,7 +27,9 @@ module.exports = {
         use: [
           {
             loader: 'tslint-loader',
-            options: {/* Loader options go here */}
+            options: {
+              configFile: '../tslint.json'
+            }
           }
         ]
       },
@@ -45,6 +47,14 @@ module.exports = {
     filename: 'bundle.js',
     path: path.join(__dirname, 'dist'),
     publicPath: publicPath
+  },
+  externals: {
+    rxjs: {
+      commonjs: 'rxjs',
+      commonjs2: 'rxjs',
+      amd: 'rxjs',
+      root: 'rxjs'
+    },
   },
   mode: dev ? 'development' : 'production',
   plugins: dev

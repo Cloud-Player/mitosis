@@ -1,3 +1,4 @@
+import {IClock} from 'mitosis/src/clock/interface';
 import {ControllableClock} from './clock/controllable';
 
 export class Simulation {
@@ -8,3 +9,5 @@ export class Simulation {
     this._clock = new ControllableClock();
   }
 }
+
+const simulation = new Simulation();

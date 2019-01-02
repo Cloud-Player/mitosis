@@ -37,11 +37,11 @@
     "url-loader": "1.1.2",
     "webpack": "4.26.1",
     "webpack-cli": "3.1.2",
-    "webpack-dev-server": "3.1.10"
+    "webpack-dev-server": "^3.1.14"
   },
   "dependencies": {
-    "rxjs": "^6.3.3",
-    "simple-peer": "^9.1.2"
+    "mitosis": "file:../mitosis",
+    "rxjs": "file:../mitosis/node_modules/rxjs"
   },
   "homepage": "https://github.com/auxdotapp/mitosis#readme",
   "keywords": []

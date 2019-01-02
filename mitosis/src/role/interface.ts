@@ -11,9 +11,7 @@ export enum RoleType {
   SIGNAL = 'signal'
 }
 
-export interface IRoleConstructor {
-  new(...args: Array<any>): IRole;
-}
+export type IRoleConstructor = new(...args: Array<any>) => IRole;
 
 export const RoleTypeMap: Map<RoleType, IRoleConstructor> = new Map();
 RoleTypeMap.set(RoleType.PEER, Peer);

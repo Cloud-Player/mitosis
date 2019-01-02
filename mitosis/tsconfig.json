@@ -2,15 +2,19 @@
   "compilerOptions": {
     "sourceMap": true,
     "declaration": true,
-    "outDir": "./dist/",
     "noImplicitAny": true,
     "module": "es6",
     "target": "es5",
-    "jsx": "react",
     "moduleResolution": "node",
     "typeRoots": [
       "node_modules/@types"
     ],
+    "declarationDir": "dist/types",
+    "outDir": "dist/lib",
+    "baseUrl": ".",
+    "paths": {
+      "mitosis": ["src"]
+    },
     "lib": [
       "es2017",
       "dom"

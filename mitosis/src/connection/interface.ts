@@ -3,9 +3,7 @@ import {Address} from '../message/address';
 import {Protocol} from '../message/interface';
 import {Message} from '../message/message';
 
-export interface IConnectionConstructor {
-  new(address: Address, options?: IConnectionOptions): IConnection;
-}
+export type IConnectionConstructor = new(address: Address, options?: IConnectionOptions) => IConnection;
 
 export interface IConnectionOptions {
   protocol: Protocol;
