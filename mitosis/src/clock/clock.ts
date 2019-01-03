@@ -1,11 +1,9 @@
-import {setInterval} from 'timers';
 import {IClock} from './interface';
-import Timeout = NodeJS.Timeout;
 
 export class Clock implements IClock {
 
   protected _callbacks: Array<() => void>;
-  private _interval: Timeout;
+  private _interval: any;
   private _milliseconds: number;
 
   public constructor(milliseconds: number = 5000) {
