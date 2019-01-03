@@ -13,7 +13,7 @@
     "outDir": "dist/lib",
     "baseUrl": ".",
     "paths": {
-      "mitosis": ["src"]
+      "rxjs": ["node_modules/rxjs"]
     },
     "lib": [
       "es2017",
