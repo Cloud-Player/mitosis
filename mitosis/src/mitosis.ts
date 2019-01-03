@@ -80,3 +80,7 @@ export class Mitosis {
     }
   }
 }
+
+export * from './connection/interface';
+export * from './mesh/interface';
+export * from './mesh/remote-peer';
