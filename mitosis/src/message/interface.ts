@@ -1,3 +1,5 @@
+import {RoleType} from '../role/interface';
+
 export enum Protocol {
   WEBSOCKET_UNSECURE = 'ws',
   WEBSOCKET = 'wss',
@@ -10,4 +12,10 @@ export enum MessageSubject {
   ROLE_UPDATE = 'role-update',
   CONNECTION_NEGOTIATION = 'connection-negotiation',
   APP_CONTENT = 'app-content'
+}
+
+export interface IRoutingTableUpdateEntry {
+  peerId: string;
+  roles: Array<RoleType>;
+  quality: number;
 }
