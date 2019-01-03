@@ -1,5 +1,6 @@
 import {Mitosis} from '../mitosis';
 import {IRole, RoleType, RoleTypeMap} from '../role/interface';
+import {Message} from '../message/message';
 
 export class RoleManager {
   private _roles: Map<RoleType, IRole>;
@@ -35,5 +36,9 @@ export class RoleManager {
 
   public onTick(mitosis: Mitosis): void {
     this._roles.forEach(role => role.onTick(mitosis));
+  }
+
+  public onMessage(message: Message, mitosis: Mitosis): void {
+    this._roles.forEach(role => role.onMessage(message, mitosis));
   }
 }

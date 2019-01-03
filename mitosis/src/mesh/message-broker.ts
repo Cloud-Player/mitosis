@@ -24,12 +24,14 @@ export class MessageBroker {
   private _routingTable: RoutingTable;
   private _roleManager: RoleManager;
   private _appContentMessagesSubject: Subject<Message>;
+  private _appMessagesSubject: Subject<Message>;
 
   constructor(routingTable: RoutingTable, roleManager: RoleManager) {
     this._routingTable = routingTable;
     this.listenOnRoutingTablePeerChurn();
     this._roleManager = roleManager;
     this._appContentMessagesSubject = new Subject();
+    this._appMessagesSubject = new Subject();
   }
 
   private listenOnRoutingTablePeerChurn(): void {
@@ -110,6 +112,7 @@ export class MessageBroker {
       default:
         throw new Error(`unsupported subject ${message.getSubject()}`);
     }
+    this._appMessagesSubject.next(message);
   }
 
   private updateRoles(roleUpdate: RoleUpdate): void {
@@ -182,6 +185,10 @@ export class MessageBroker {
   }
 
   public observeAppContentMessages() {
+    return this._appContentMessagesSubject;
+  }
+
+  public observeMessages() {
     return this._appContentMessagesSubject;
   }
 }

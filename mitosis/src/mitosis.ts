@@ -42,6 +42,7 @@ export class Mitosis {
     this._roleManager = new RoleManager(roles);
     this._messageBroker = new MessageBroker(this._routingTable, this._roleManager);
     this._inbox = new Subject();
+    this.listenOnMessages();
     this.listenOnAppContentMessages();
     clock.onTick(this.onTick.bind(this));
   }
@@ -51,6 +52,11 @@ export class Mitosis {
       .subscribe(
         message => this._inbox.next(message)
       );
+  }
+
+  private listenOnMessages() {
+    this._messageBroker.observeMessages()
+      .subscribe(message => this._roleManager.onMessage(message, this));
   }
 
   private onTick(): void {
