@@ -97,6 +97,9 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.ts'],
+    alias: {
+      rxjs: 'rxjs'
+    }
   },
   output: {
     filename: 'bundle.js',
