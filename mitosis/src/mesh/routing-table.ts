@@ -3,6 +3,7 @@ import {IConnectionOptions} from '../connection/interface';
 import {Address} from '../message/address';
 import {RemotePeer} from './remote-peer';
 import {ChurnType, IPeerChurnEvent} from './interface';
+import {Message} from '../message/message';
 
 export class RoutingTable {
 
@@ -36,6 +37,15 @@ export class RoutingTable {
     return peer.connect(address, options).then(() => {
       return peer;
     });
+  }
+
+  public sendMessage(message: Message) {
+    const existingPeer = this.getPeerById(message.getReceiver().getId());
+    if (existingPeer) {
+      existingPeer.send(message);
+    } else {
+      console.error(`Can not send message to peer ${message.getReceiver().getId()}. Peer does not exist`);
+    }
   }
 
   public getPeers(): Array<RemotePeer> {

@@ -74,16 +74,12 @@ export class Mitosis {
   }
 
   public sendMessageTo(peerId: string, message: any) {
-    const existingPeer = this.getRoutingTable().getPeerById(peerId);
-    if (existingPeer) {
-      existingPeer.send(
-        new AppContent(
-          this.getMyAddress(),
-          new Address(existingPeer.getId()),
-          message
-        )
-      );
-    }
+    const appMessage = new AppContent(
+      this.getMyAddress(),
+      new Address(peerId),
+      message
+    );
+    this._routingTable.sendMessage(appMessage);
   }
 }
 
