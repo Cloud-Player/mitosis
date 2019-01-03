@@ -1,5 +1,6 @@
-import {Mitosis} from '../mitosis';
 import {RemotePeer} from '../mesh/remote-peer';
+import {Message} from '../message/message';
+import {Mitosis} from '../mitosis';
 import {IRole} from './interface';
 
 export class Router implements IRole {
@@ -13,5 +14,8 @@ export class Router implements IRole {
   }
 
   public onTick(mitosis: Mitosis): void {
+  }
+
+  public onMessage(message: Message, mitosis: Mitosis): void {
   }
 }

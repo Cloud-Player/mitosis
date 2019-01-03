@@ -1,11 +1,12 @@
 import {ConnectionTable} from '../connection/connection-table';
 import {ConnectionState, IConnection} from '../connection/interface';
-import {Mitosis} from '../mitosis';
 import {RemotePeer} from '../mesh/remote-peer';
 import {RoutingTable} from '../mesh/routing-table';
 import {Address} from '../message/address';
 import {Protocol} from '../message/interface';
+import {Message} from '../message/message';
 import {PeerUpdate} from '../message/peer-update';
+import {Mitosis} from '../mitosis';
 import {IRole} from './interface';
 
 export class Peer implements IRole {
@@ -62,5 +63,8 @@ export class Peer implements IRole {
   public onTick(mitosis: Mitosis): void {
     this.satisfyConnectionGoal(mitosis.getRoutingTable());
     this.publishRoutingTable(mitosis.getMyAddress(), mitosis.getRoutingTable());
+  }
+
+  public onMessage(message: Message, mitosis: Mitosis): void {
   }
 }

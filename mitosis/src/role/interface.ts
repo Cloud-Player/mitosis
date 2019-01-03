@@ -1,3 +1,4 @@
+import {Message} from '../message/message';
 import {Mitosis} from '../mitosis';
 import {Newbie} from './newbie';
 import {Peer} from './peer';
@@ -22,4 +23,6 @@ RoleTypeMap.set(RoleType.SIGNAL, Signal);
 export interface IRole {
 
   onTick(mitosis: Mitosis): void;
+
+  onMessage(message: Message, mitosis: Mitosis): void;
 }
