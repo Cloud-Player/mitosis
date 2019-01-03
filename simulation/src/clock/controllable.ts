@@ -1,4 +1,4 @@
-import {Clock} from 'mitosis/dist/clock/clock';
+import {Clock} from 'mitosis';
 
 export class ControllableClock extends Clock {
 

@@ -1,3 +1,4 @@
+import {Simulation} from '../index';
 import {AddConnection} from './add-connection';
 import {AddPeer} from './add-peer';
 import {RemoveConnection} from './remove-connection';
@@ -19,11 +20,15 @@ export const InstructionTypeMap: Map<InstructionType, IInstructionConstructor> =
   [InstructionType.REMOVE_CONNECTION, RemoveConnection]
 ]);
 
+export interface IConfiguration {
+  address?: string;
+}
+
 export interface IInstruction {
 
   getTick(): number;
 
-  getConfiguration(): {};
+  getConfiguration(): IConfiguration;
 
-  execute(): void;
+  execute(simulation: Simulation): void;
 }

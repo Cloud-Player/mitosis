@@ -26,11 +26,17 @@ export class Mitosis {
   public constructor(
     clock: IClock = new InternalClock(),
     enclave: IEnclave = new SecureEnclave(),
+    address: string = null,
     roles: Array<RoleType> = [RoleType.NEWBIE]
   ) {
     this._enclave = enclave;
-    this._myId = `p${Math.round(100 + Math.random() * 899)}`;
-    this._myAddress = new Address(this._myId);
+    if (address) {
+      this._myAddress = Address.fromString(address);
+      this._myId = this._myAddress.getId();
+    } else {
+      this._myId = `p${Math.round(100 + Math.random() * 899)}`;
+      this._myAddress = new Address(this._myId);
+    }
     console.log('hello i am', this._myAddress.toString());
     this._routingTable = new RoutingTable(this._myId);
     this._roleManager = new RoleManager(roles);
@@ -84,3 +90,5 @@ export class Mitosis {
 export * from './connection/interface';
 export * from './mesh/interface';
 export * from './mesh/remote-peer';
+export * from './clock/interface';
+export * from './clock/clock';

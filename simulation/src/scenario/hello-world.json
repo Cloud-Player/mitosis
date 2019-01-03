@@ -1,5 +1,15 @@
-[
-  {
-    "type": "add-peer"
-  }
-]
+{
+  "instructions": [
+    {
+      "tick": 0,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/p001"
+      }
+    },
+    {
+      "tick": 1,
+      "type": "add-peer"
+    }
+  ]
+}

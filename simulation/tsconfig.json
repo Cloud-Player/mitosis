@@ -14,7 +14,11 @@
     "lib": [
       "es2017",
       "dom"
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "rxjs": ["node_modules/rxjs"]
+    }
   },
   "include": [
     "./src/**/*"

@@ -1,43 +1,23 @@
-import {IInstruction, InstructionType, InstructionTypeMap} from './interface';
+import {Simulation} from '../index';
+import {IConfiguration} from './interface';
 
 export abstract class AbstractInstruction {
 
-  private _tick: number;
-  private _configuration: {};
+  private readonly _tick: number;
+  private readonly _configuration: IConfiguration;
 
-  public constructor(tick: number, configuration: {}) {
+  public constructor(tick: number, configuration: IConfiguration) {
     this._tick = tick;
     this._configuration = configuration;
-  }
-
-  public static arrayFromJSON(json: string): Array<IInstruction> {
-    const instructions: Array<IInstruction> = [];
-    const parameters = JSON.parse(json) as Array<any>;
-    parameters.forEach(parameter => {
-      const instruction = AbstractInstruction.fromParameters(parameter);
-      if (instruction) {
-        instructions.push(instruction);
-      }
-    });
-    return instructions;
-  }
-
-  public static fromParameters(parameters: any): IInstruction {
-    if (!parameters.type) {
-      console.error('could not parse instruction from', parameters);
-      return null;
-    }
-    const instructionClass = InstructionTypeMap.get(parameters.type as InstructionType);
-    return new instructionClass();
   }
 
   public getTick(): number {
     return this._tick;
   }
 
-  public getConfiguration(): {} {
+  public getConfiguration(): IConfiguration {
     return this._configuration;
   }
 
-  public abstract execute(): void;
+  public abstract execute(simulation: Simulation): void;
 }
