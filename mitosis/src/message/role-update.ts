@@ -7,7 +7,7 @@ import {Message} from './message';
 export class RoleUpdate extends Message {
   protected _body: Array<RoleType>;
 
-  public constructor(sender: Address, receiver: Address, roles: Array<RemotePeer>) {
+  public constructor(sender: Address, receiver: Address, roles: Array<RoleType>) {
     super(sender, receiver, MessageSubject.ROLE_UPDATE, roles);
   }
 

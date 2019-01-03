@@ -8,7 +8,7 @@ export class AddPeer extends AbstractInstruction implements IInstruction {
 
   public execute(simulation: Simulation): void {
     const config = this.getConfiguration();
-    const peer = new Mitosis(simulation.getClock(), new MockEnclave());
+    const peer = new Mitosis(simulation.getClock(), new MockEnclave(), config.address);
     simulation.getNodes().push(peer);
     console.log('added peer', peer.getMyAddress().getId());
   }

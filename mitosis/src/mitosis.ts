@@ -21,12 +21,14 @@ export class Mitosis {
   private _messageBroker: MessageBroker;
   private _myId: string;
   private _myAddress: Address;
+  private _signalAddress: Address;
   private _inbox: Subject<Message>;
 
   public constructor(
     clock: IClock = new InternalClock(),
     enclave: IEnclave = new SecureEnclave(),
     address: string = null,
+    signal: string = 'mitosis/v1/p007/ws/localhost:8040/websocket',
     roles: Array<RoleType> = [RoleType.NEWBIE]
   ) {
     this._enclave = enclave;
@@ -38,6 +40,7 @@ export class Mitosis {
       this._myAddress = new Address(this._myId);
     }
     console.log('hello i am', this._myAddress.toString());
+    this._signalAddress = Address.fromString(signal);
     this._routingTable = new RoutingTable(this._myId);
     this._roleManager = new RoleManager(roles);
     this._messageBroker = new MessageBroker(this._routingTable, this._roleManager);
@@ -65,6 +68,10 @@ export class Mitosis {
 
   public getMyAddress(): Address {
     return this._myAddress;
+  }
+
+  public getSignalAddress(): Address {
+    return this._signalAddress;
   }
 
   public getPeers(): Array<RemotePeer> {
