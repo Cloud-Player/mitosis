@@ -1,7 +1,4 @@
-import {Mitosis} from 'mitosis';
-import {ConnectionState, IConnection} from 'mitosis/dist/types/connection/interface';
-import {ChurnType, IPeerChurnEvent} from 'mitosis/dist/types/mesh/interface';
-import {RemotePeer} from 'mitosis/dist/types/mesh/remote-peer';
+import {ChurnType, ConnectionState, IConnection, IPeerChurnEvent, Mitosis, RemotePeer} from 'mitosis';
 import {filter} from 'rxjs/operators';
 
 class Chat {
