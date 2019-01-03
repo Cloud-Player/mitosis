@@ -11,7 +11,7 @@
     "type": "git",
     "url": "git://github.com/auxdotapp/mitosis.git"
   },
-  "main": "src/mitosis.ts",
+  "main": "dist/mitosis.umd.js",
   "module": "dist/mitosis.es5.js",
   "typings": "dist/types/mitosis.d.ts",
   "files": [
