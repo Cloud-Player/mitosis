@@ -1,4 +1,3 @@
-import {forceSimulation} from 'd3-force';
 import {IClock, IConnection, Message, Mitosis, Protocol, ProtocolConnectionMap} from 'mitosis';
 import {ControllableClock} from './clock/controllable';
 import {MockConnection} from './connection/mock';
@@ -24,8 +23,10 @@ export class Simulation {
     this._nodes = new Map();
     this._edges = new Map();
     const instructions = InstructionFactory.arrayFromJSON('hello-world');
-    instructions.forEach(instr => instr.execute(this));
-    forceSimulation();
+    instructions.forEach(
+      instr => {
+        this._clock.scheduleOnTick(instr.getTick(), instr.execute.bind(instr, this));
+      });
     this._clock.start();
   }
 
@@ -73,7 +74,11 @@ export class Simulation {
   }
 
   public removeNode(mitosis: Mitosis) {
-    this._nodes.delete(mitosis.getMyAddress().getId());
+    this.removeNodeById(mitosis.getMyAddress().getId());
+  }
+
+  public removeNodeById(id: string) {
+    this._nodes.delete(id);
   }
 
   public getClock(): IClock {
