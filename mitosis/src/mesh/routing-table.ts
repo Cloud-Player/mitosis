@@ -1,9 +1,9 @@
 import {Subject} from 'rxjs';
 import {IConnectionOptions} from '../connection/interface';
 import {Address} from '../message/address';
-import {RemotePeer} from './remote-peer';
-import {ChurnType, IPeerChurnEvent} from './interface';
 import {Message} from '../message/message';
+import {ChurnType, IPeerChurnEvent} from './interface';
+import {RemotePeer} from './remote-peer';
 
 export class RoutingTable {
 

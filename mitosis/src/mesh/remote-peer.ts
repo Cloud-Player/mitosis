@@ -1,11 +1,7 @@
 import {Subject} from 'rxjs';
 import {ConnectionTable} from '../connection/connection-table';
-import {ConnectionState, IConnection, IConnectionOptions, IWebRTCConnectionOptions} from '../connection/interface';
-import {ViaConnection} from '../connection/via';
-import {WebRTCConnection} from '../connection/webrtc';
-import {WebSocketConnection} from '../connection/websocket';
+import {ConnectionState, IConnection, IConnectionOptions, ProtocolConnectionMap} from '../connection/interface';
 import {Address} from '../message/address';
-import {Protocol} from '../message/interface';
 import {Message} from '../message/message';
 import {RoleType} from '../role/interface';
 import {ChurnType} from './interface';
@@ -76,29 +72,17 @@ export class RemotePeer {
   }
 
   private createConnection(address: Address, options?: IConnectionOptions): IConnection {
-    let connection;
-    switch (address.getProtocol()) {
-      case Protocol.WEBSOCKET:
-      case Protocol.WEBSOCKET_UNSECURE:
-        connection = new WebSocketConnection(address);
-        break;
-      case Protocol.WEBRTC:
-        let webRtcOptions = options as IWebRTCConnectionOptions;
-        if (!webRtcOptions) {
-          webRtcOptions = {
-            protocol: Protocol.WEBRTC,
-            mitosisId: this._mitosisId
-          };
-        }
-        connection = new WebRTCConnection(address, webRtcOptions);
-        break;
-      case Protocol.VIA:
-        connection = new ViaConnection(address);
-        break;
-      default:
-        throw new Error(`unsupported protocol ${address.getProtocol()}`);
+    if (!options) {
+      options = {
+        protocol: address.getProtocol(),
+        mitosisId: this._mitosisId
+      };
     }
-    return connection;
+    const connectionClass = ProtocolConnectionMap.get(address.getProtocol());
+    if (!connectionClass) {
+      throw new Error(`unsupported protocol ${address.getProtocol()}`);
+    }
+    return new connectionClass(address, options);
   }
 
   public hasRole(roleType: RoleType): boolean {

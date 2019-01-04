@@ -15,11 +15,11 @@ export class Clock implements IClock {
     this._callbacks.push(callback);
   }
 
-  protected start(): void {
+  public start(): void {
     this._interval = setInterval(this.tick.bind(this), this._milliseconds);
   }
 
-  protected stop(): void {
+  public stop(): void {
     clearInterval(this._interval);
   }
 

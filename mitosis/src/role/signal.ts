@@ -9,10 +9,26 @@ export class Signal implements IRole {
   public onTick(mitosis: Mitosis): void {
   }
 
-  public onMessage(mitosis: Mitosis, message: Message): void {
-    const routers = mitosis.getRoutingTable().getPeers().filter(
-      peer => peer.hasRole(RoleType.ROUTER)
-    );
+  public onMessage(message: Message, mitosis: Mitosis): void {
+    const routers = mitosis.getRoutingTable()
+      .getPeers()
+      .filter(
+        peer => peer.hasRole(RoleType.ROUTER)
+      );
+    const roles = [RoleType.PEER];
+
+    if (!routers.length) {
+      const newRouter = mitosis.getRoutingTable()
+        .getPeers()
+        .find(
+          peer => peer.getId() === message.getSender().getId()
+        );
+      newRouter.getRoles().push(RoleType.ROUTER);
+      routers.push(newRouter);
+
+      roles.push(RoleType.ROUTER);
+    }
+
     const tableUpdate = new PeerUpdate(
       mitosis.getMyAddress(),
       message.getSender(),
@@ -23,7 +39,7 @@ export class Signal implements IRole {
     const roleUpdate = new RoleUpdate(
       mitosis.getMyAddress(),
       message.getSender(),
-      [RoleType.PEER]
+      roles
     );
     mitosis.getRoutingTable().sendMessage(roleUpdate);
   }

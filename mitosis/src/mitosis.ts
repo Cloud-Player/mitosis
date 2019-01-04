@@ -14,8 +14,10 @@ import {RoleType} from './role/interface';
 
 export class Mitosis {
 
-  private _enclave: IEnclave;
+  private static readonly defaultSignal = 'mitosis/v1/p007/ws/localhost:8040/websocket';
+  private static readonly defaultRoles = [RoleType.NEWBIE];
 
+  private _enclave: IEnclave;
   private _routingTable: RoutingTable;
   private _roleManager: RoleManager;
   private _messageBroker: MessageBroker;
@@ -25,12 +27,18 @@ export class Mitosis {
   private _inbox: Subject<Message>;
 
   public constructor(
-    clock: IClock = new InternalClock(),
-    enclave: IEnclave = new SecureEnclave(),
+    clock: IClock = null,
+    enclave: IEnclave = null,
     address: string = null,
-    signal: string = 'mitosis/v1/p007/ws/localhost:8040/websocket',
-    roles: Array<RoleType> = [RoleType.NEWBIE]
+    signal: string = null,
+    roles: Array<RoleType> = null
   ) {
+    if (!clock) {
+      clock = new InternalClock();
+    }
+    if (!enclave) {
+      enclave = new SecureEnclave();
+    }
     this._enclave = enclave;
     if (address) {
       this._myAddress = Address.fromString(address);
@@ -39,14 +47,27 @@ export class Mitosis {
       this._myId = `p${Math.round(100 + Math.random() * 899)}`;
       this._myAddress = new Address(this._myId);
     }
-    console.log('hello i am', this._myAddress.toString());
+    if (!signal) {
+      signal = Mitosis.defaultSignal;
+    }
     this._signalAddress = Address.fromString(signal);
-    this._routingTable = new RoutingTable(this._myId);
+    if (!roles || !roles.length) {
+      roles = Mitosis.defaultRoles;
+    }
     this._roleManager = new RoleManager(roles);
+
+    this._routingTable = new RoutingTable(this._myId);
     this._messageBroker = new MessageBroker(this._routingTable, this._roleManager);
     this._inbox = new Subject();
     this.listenOnMessages();
     this.listenOnAppContentMessages();
+
+    console.log(
+      'hello, i am',
+      this._myAddress.toString(),
+      'and i am a',
+      roles.join(' and a '));
+
     clock.onTick(this.onTick.bind(this));
   }
 
@@ -96,8 +117,14 @@ export class Mitosis {
   }
 }
 
+export * from './clock/interface';
 export * from './connection/interface';
 export * from './mesh/interface';
-export * from './mesh/remote-peer';
-export * from './clock/interface';
-export * from './clock/clock';
+export * from './message/interface';
+export * from './role/interface';
+
+export {Clock} from './clock/clock';
+export {AbstractConnection} from './connection/connection';
+export {RemotePeer} from './mesh/remote-peer';
+export {Address} from './message/address';
+export {Message} from './message/message';

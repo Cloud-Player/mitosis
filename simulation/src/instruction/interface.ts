@@ -1,3 +1,4 @@
+import {RoleType} from 'mitosis';
 import {Simulation} from '../index';
 import {AddConnection} from './add-connection';
 import {AddPeer} from './add-peer';
@@ -22,6 +23,8 @@ export const InstructionTypeMap: Map<InstructionType, IInstructionConstructor> =
 
 export interface IConfiguration {
   address?: string;
+  signal?: string;
+  roles?: Array<RoleType>;
 }
 
 export interface IInstruction {

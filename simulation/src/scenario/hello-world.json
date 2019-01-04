@@ -4,7 +4,7 @@
       "tick": 0,
       "type": "add-peer",
       "configuration": {
-        "address": "mitosis/v1/signal",
+        "address": "mitosis/v1/signal/mock",
         "roles": ["signal"]
       }
     },
@@ -12,16 +12,16 @@
       "tick": 1,
       "type": "add-peer",
       "configuration": {
-        "address": "mitosis/v1/alice",
-        "signal": "mitosis/v1/signal"
+        "address": "mitosis/v1/alice/mock",
+        "signal": "mitosis/v1/signal/mock"
       }
     },
     {
       "tick": 2,
       "type": "add-peer",
       "configuration": {
-        "address": "mitosis/v1/bob",
-        "signal": "mitosis/v1/signal"
+        "address": "mitosis/v1/bob/mock",
+        "signal": "mitosis/v1/signal/mock"
       }
     }
   ]
