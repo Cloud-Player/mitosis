@@ -1,5 +1,5 @@
 import {AbstractConnection, IConnection, Message} from 'mitosis';
-import {Simulation} from '../index';
+import {Simulation} from '../simulation';
 
 export class MockConnection extends AbstractConnection implements IConnection {
 

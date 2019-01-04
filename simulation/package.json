@@ -11,39 +11,35 @@
     "type": "git",
     "url": "git://github.com/auxdotapp/mitosis.git"
   },
+  "main": "dist/mitosis-simulation.umd.js",
+  "module": "dist/mitosis-simulation.es5.js",
+  "typings": "dist/types/simulation.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "start": "cross-env NODE_ENV=development webpack-dev-server",
-    "build": "cross-env NODE_ENV=production webpack"
+    "prebuild": "rimraf dist",
+    "build": "tsc --module commonjs && rollup -c rollup.config.ts && typedoc --out docs --target es6 --theme minimal --mode file src",
+    "start": "rollup -c rollup.config.ts -w"
   },
-  "preferGlobal": true,
   "devDependencies": {
-    "@types/webpack-env": "1.13.6",
-    "@types/d3": "5.5.0",
-    "cross-env": "5.2.0",
-    "css-loader": "^0.28.10",
-    "file-loader": "^1.1.10",
-    "html-loader": "^0.5.5",
-    "html-webpack-plugin": "3.2.0 ",
-    "mini-css-extract-plugin": "^0.5.0",
-    "node-sass": "^4.10.0",
-    "optimize-css-assets-webpack-plugin": "^5.0.1",
-    "sass-loader": "7.1.0",
-    "source-map-loader": "0.2.4",
-    "style-loader": "0.23.1",
-    "timers": "0.1.1",
-    "ts-loader": "5.3.0",
+    "@types/node": "^10.12.18",
+    "@types/rollup-plugin-json": "^3.0.1",
+    "@types/simple-peer": "^6.1.5",
+    "rimraf": "^2.6.3",
+    "rollup": "^1.0.0",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-json": "^3.1.0",
+    "rollup-plugin-node-resolve": "^4.0.0",
+    "rollup-plugin-sourcemaps": "^0.4.2",
+    "rollup-plugin-typescript2": "^0.18.1",
     "tslint": "^5.11.0",
-    "tslint-loader": "^3.5.4",
-    "typescript": "3.1.6",
-    "url-loader": "1.1.2",
-    "webpack": "4.26.1",
-    "webpack-cli": "3.1.2",
-    "webpack-dev-server": "^3.1.14"
+    "typedoc": "^0.14.0",
+    "typescript": "3.1.6"
   },
   "dependencies": {
     "mitosis": "file:../mitosis",
-    "rxjs": "6.3.3",
-    "d3": "5.5.0"
+    "rxjs": "6.3.3"
   },
   "homepage": "https://github.com/auxdotapp/mitosis#readme",
   "keywords": []

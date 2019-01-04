@@ -39,8 +39,8 @@
     "webpack-dev-server": "^3.1.14"
   },
   "dependencies": {
-    "rxjs": "6.3.3",
-    "mitosis": "file:../mitosis"
+    "mitosis": "file:../mitosis",
+    "rxjs": "6.3.3"
   },
   "homepage": "https://github.com/auxdotapp/mitosis#readme",
   "keywords": []

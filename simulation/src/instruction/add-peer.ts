@@ -1,6 +1,6 @@
 import {Mitosis} from 'mitosis';
 import {MockEnclave} from '../enclave/mock';
-import {Simulation} from '../index';
+import {Simulation} from '../simulation';
 import {AbstractInstruction} from './instruction';
 import {IInstruction} from './interface';
 

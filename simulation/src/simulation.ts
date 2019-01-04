@@ -93,5 +93,3 @@ export class Simulation {
     return Array.from(this._nodes.values());
   }
 }
-
-const simulation = Simulation.getInstance();
