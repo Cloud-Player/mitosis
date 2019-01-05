@@ -1,9 +1,10 @@
 import {AbstractClock} from './clock';
-import {IClock} from './interface';
+import {IClock, IScheduledCallback} from './interface';
 
 export class ForkedClock extends AbstractClock implements IClock {
 
   private _masterClock: IClock;
+  private _masterCallback: IScheduledCallback;
 
   public constructor(masterClock: IClock) {
     super();
@@ -17,10 +18,11 @@ export class ForkedClock extends AbstractClock implements IClock {
   }
 
   public start(): void {
-    this._masterClock.setInterval(this.tick);
+    this._masterCallback = this._masterClock.setInterval(this.tick.bind(this));
   }
 
   public pause(): void {
-    this._masterClock.clearInterval(this.tick);
+    this._masterClock.clearInterval(this._masterCallback);
+    this._masterCallback = null;
   }
 }

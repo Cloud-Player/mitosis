@@ -1,4 +1,4 @@
-import {IClock, IConnection, MasterClock, Message, Mitosis, Protocol, ProtocolConnectionMap} from 'mitosis';
+import {IClock, MasterClock, Message, Mitosis, Protocol, ProtocolConnectionMap} from 'mitosis';
 import {MockConnection} from './connection/mock';
 import {InstructionFactory} from './instruction/factory';
 
@@ -87,14 +87,14 @@ export class Simulation {
   }
 
   public onUpdate(callback: () => void) {
-    this._clock.onTick(callback);
+    this._clock.setInterval(callback);
   }
 
   public start(scenarioJSON: { instructions: Array<any> }) {
     const instructions = InstructionFactory.arrayFromJSON(scenarioJSON);
     instructions.forEach(
       instr => {
-        this._clock.scheduleOnTick(instr.getTick(), instr.execute.bind(instr, this));
+        this._clock.setTimeout(instr.execute.bind(instr, this), instr.getTick());
       });
     this._clock.start();
   }
