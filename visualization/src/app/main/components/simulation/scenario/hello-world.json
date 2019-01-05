@@ -19,17 +19,18 @@
       }
     },
     {
-      "tick": 3,
-      "type": "remove-peer",
-      "configuration": {
-        "address": "mitosis/v1/alice/mock"
-      }
-    },
-    {
-      "tick": 5,
+      "tick": 2,
       "type": "add-peer",
       "configuration": {
         "address": "mitosis/v1/bob/mock",
+        "signal": "mitosis/v1/signal/mock"
+      }
+    },
+    {
+      "tick": 3,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/max/mock",
         "signal": "mitosis/v1/signal/mock"
       }
     }

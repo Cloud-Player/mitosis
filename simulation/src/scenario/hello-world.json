@@ -11,7 +11,7 @@
       }
     },
     {
-      "tick": 1,
+      "tick": 0,
       "type": "add-peer",
       "configuration": {
         "address": "mitosis/v1/alice/mock",
@@ -19,14 +19,14 @@
       }
     },
     {
-      "tick": 3,
+      "tick": 0,
       "type": "remove-peer",
       "configuration": {
         "address": "mitosis/v1/alice/mock"
       }
     },
     {
-      "tick": 5,
+      "tick": 0,
       "type": "add-peer",
       "configuration": {
         "address": "mitosis/v1/bob/mock",

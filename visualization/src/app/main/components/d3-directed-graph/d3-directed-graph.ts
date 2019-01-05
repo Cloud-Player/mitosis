@@ -1,4 +1,13 @@
-import {AfterViewInit, Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewEncapsulation} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  ViewEncapsulation
+} from '@angular/core';
 import * as d3 from 'd3';
 import {Selection} from 'd3-selection';
 import {D3Model, ID3Node} from './models/d3';
@@ -26,8 +35,6 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
   private simulation: any;
   private zoomHandler: any;
   private nodeColor = '#ccc';
-  private link: any;
-  private node: any;
 
   constructor(private el: ElementRef) {
 
@@ -48,7 +55,7 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
 
   private dragended(d: any) {
     if (!d3.event.active) {
-      this.simulation.alphaTarget(0);
+      this.simulation.alphaTarget(0).restart();
     }
     d.fx = null;
     d.fy = null;
@@ -70,64 +77,25 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       });
   }
 
-  private drawData() {
-    if (!this.model) {
-      return;
-    }
-
-    const nodes = this.model.getD3Nodes();
-    const edges = this.model.getD3Edges();
-
-    // this.link = this.zoomHolder.append('g')
-    //   .attr('class', 'edges')
-    //   .selectAll('line')
-    //   .data(edges)
-    //   .enter()
-    //   .append('line')
-    //   .attr('class', 'edge')
-    //   .attr('stroke-width', (d: any) => {
-    //     return d.weight;
-    //   });
-    //
-    // this.link.exit()
-    //   .remove();
-
-    this.node = this.zoomHolder.append('g')
-      .attr('class', 'nodes')
-      .selectAll('.node');
-    //
-    // this.node.append('text')
-    //   .attr('text-anchor', 'middle')
-    //   .attr('dx', (d: any) => {
-    //     return 0;
-    //   })
-    //   .attr('font-size', (d) => {
-    //     let scale = (d.size * 2);
-    //     scale = scale > 32 ? 32 : scale < 10 ? 10 : scale;
-    //     return scale + 'px';
-    //   })
-    //   .attr('dy', '.35em')
-    //   .text((d: any) => {
-    //     return d.id;
-    //   });
-  }
-
   private tick() {
-    // this.link
-    //   .attr('x1', (d: any) => {
-    //     return d.source.x;
-    //   })
-    //   .attr('y1', (d: any) => {
-    //     return d.source.y;
-    //   })
-    //   .attr('x2', (d: any) => {
-    //     return d.target.x;
-    //   })
-    //   .attr('y2', (d: any) => {
-    //     return d.target.y;
-    //   });
+    const links = d3.select('.links').selectAll('.link');
+    const nodes = d3.select('.nodes').selectAll('.node');
 
-    this.zoomHolder.selectAll('.node')
+    links
+      .attr('x1', (d: any) => {
+        return d.source.x;
+      })
+      .attr('y1', (d: any) => {
+        return d.source.y;
+      })
+      .attr('x2', (d: any) => {
+        return d.target.x;
+      })
+      .attr('y2', (d: any) => {
+        return d.target.y;
+      });
+
+    nodes
       .attr('transform', (d: any) => {
         return 'translate(' + d.x + ',' + d.y + ')';
       });
@@ -148,15 +116,15 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
 
     this.simulation = d3.forceSimulation()
       .force('collide',
-        d3.forceCollide((d: any) => d.size + 20)
-          .iterations(4))
+        d3.forceCollide((d: any) => 100)
+          .iterations(2))
       .force('link',
         d3.forceLink()
           .id((d: any) => d.id)
-          .distance((d: any) => d.weight)
-          .strength(0.5)
+          .distance((d: any) => 10)
+          .strength(0.2)
       )
-      .force('charge', d3.forceManyBody())
+      .force('charge', d3.forceManyBody().strength(-20))
       .force('center', d3.forceCenter(this.width / 2, this.height / 2))
       .on('tick', this.tick.bind(this));
 
@@ -164,69 +132,99 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       .on('zoom', this.zoomActions.bind(this));
 
     this.zoomHandler(this.svg);
+
+    this.link = this.zoomHolder.append('g')
+      .attr('class', 'links')
+      .selectAll('link');
+
+    this.node = this.zoomHolder.append('g')
+      .attr('class', 'nodes')
+      .selectAll('.node');
   }
 
   private update() {
 
-    let node = this.zoomHolder.select('.nodes').selectAll('.node');
-
+    let node = d3.select('.nodes').selectAll('.node');
     node = node.data(this.model.getD3Nodes(), (d: ID3Node) => d.id);
-    console.log(this.model.getD3Nodes(), node.enter());
 
-    node
+    const nodeHolder = node
       .enter()
       .append('g')
+      .attr('class', 'node');
+
+    nodeHolder
       .append('circle')
       .attr('r', (d: any) => {
         return d.size + 5;
       })
-      .attr('fill', this.nodeColor)
-      .attr('class', 'node')
+      .attr('fill', this.nodeColor);
+
+    nodeHolder
       .call(d3.drag()
         .on('start', this.dragstarted.bind(this))
         .on('drag', this.dragged.bind(this))
         .on('end', this.dragended.bind(this)));
 
+    nodeHolder
+      .append('text')
+      .attr('text-anchor', 'middle')
+      .attr('dx', (d: any) => {
+        return 0;
+      })
+      .attr('font-size', (d: any) => {
+        let scale = (d.size * 2);
+        scale = scale > 32 ? 32 : scale < 10 ? 10 : scale;
+        return scale + 'px';
+      })
+      .attr('dy', '.35em')
+      .text((d: any) => {
+        return d.id;
+      });
+
     node.exit()
       .remove();
 
-    // this.simulation
-    //   .force('link')
-    //   .links(this.model.getD3Edges());
+    let link = d3.select('.links').selectAll('.link');
+    link = link.data(this.model.getD3Edges());
+
+    link
+      .enter()
+      .append('line')
+      .attr('class', 'link')
+      .attr('stroke-width', (d: any) => {
+        return d.weight;
+      });
+
+    link.exit()
+      .remove();
+
 
     this.simulation
       .nodes(this.model.getD3Nodes());
 
-    this.simulation.alphaTarget(0.3).restart();
+    this.simulation
+      .force('link')
+      .links(this.model.getD3Edges());
 
-    // this.node.exit()
-    //   .remove();
+    if (!node.enter().empty() || !node.exit().empty()) {
+      this.simulation.alphaTarget(0.3).restart();
+    } else {
+      this.simulation.alphaTarget(0).restart();
+    }
   }
 
   ngOnInit(): void {
   }
 
   ngAfterViewInit(): void {
-    console.log('AFTER VIEW INIT');
     this.width = this.el.nativeElement.offsetWidth;
     this.height = this.el.nativeElement.offsetHeight;
     this.initD3();
-    this.drawData();
-    this.model.on('add update', () => {
-      this.update();
-      // this.simulation
-      //   .force('link')
-      //   .links(this.model.getD3Edges());
-      //
-      // this.simulation
-      //   .nodes(this.model.getD3Nodes());
-    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.model.currentValue && this.width) {
-      console.log('CHANGE');
-      this.drawData();
+      this.update();
     }
   }
 }
