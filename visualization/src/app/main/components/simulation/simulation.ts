@@ -11,20 +11,29 @@ const scenario = require('./scenario/hello-world.json');
 })
 export class SimulationComponent implements OnInit {
   public model: D3Model;
+
   constructor() {
+    this.model = new D3Model();
   }
 
   ngOnInit(): void {
-    const simulation = Simulation.getInstance();
-    simulation.start(scenario);
-    simulation.onUpdate(() => {
-      this.model = new D3Model();
-      simulation.getNodes().forEach((node) => {
-        this.model.addNode(node.getMyAddress().getId());
-      });
-      simulation.getEdges().forEach((edge) => {
-        this.model.addEdge(edge.getSourceId(), edge.getAddress().getId());
-      });
+    // const simulation = Simulation.getInstance();
+    // simulation.start(scenario);
+    // simulation.onUpdate(() => {
+    //   this.model = new D3Model();
+    //   simulation.getNodes().forEach((node) => {
+    //     this.model.addNode(node.getMyAddress().getId());
+    //   });
+    //   simulation.getEdges().forEach((edge) => {
+    //     this.model.addEdge(edge.getSourceId(), edge.getAddress().getId());
+    //   });
+    // });
+    setTimeout(() => {
+      this.model.addNode('p1');
+      this.model.addNode('p2');
+      this.model.addEdge('p1', 'p2');
     });
+
+    (window as any).model = this.model;
   }
 }

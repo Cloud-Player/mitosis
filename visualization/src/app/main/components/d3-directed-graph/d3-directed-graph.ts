@@ -37,6 +37,8 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
   private simulation: any;
   private zoomHandler: any;
   private nodeColor = '#ccc';
+  private link: any;
+  private node: any;
 
   constructor(private el: ElementRef) {
 
@@ -83,82 +85,71 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
     if (!this.model) {
       return;
     }
-    d3.select('.nodes').remove();
-    d3.select('.edges').remove();
 
-    const nodes = this.model.getNodes();
-    const edges = this.model.getEdges();
+    const nodes = this.model.getD3Nodes();
+    const edges = this.model.getD3Edges();
 
-    const link = this.zoomHolder.append('g')
-      .attr('class', 'edges')
-      .selectAll('line')
-      .data(edges)
-      .enter().append('line')
-      .attr('class', 'edge')
-      .attr('stroke-width', (d: any) => {
-        return d.weight;
-      });
+    // this.link = this.zoomHolder.append('g')
+    //   .attr('class', 'edges')
+    //   .selectAll('line')
+    //   .data(edges)
+    //   .enter()
+    //   .append('line')
+    //   .attr('class', 'edge')
+    //   .attr('stroke-width', (d: any) => {
+    //     return d.weight;
+    //   });
+    //
+    // this.link.exit()
+    //   .remove();
 
-    const node = this.zoomHolder.append('g')
+    this.node = this.zoomHolder.append('g')
       .attr('class', 'nodes')
-      .selectAll('circle')
-      .data(nodes)
-      .enter()
-      .append('g')
-      .attr('class', 'node')
-      .call(d3.drag()
-        .on('start', this.dragstarted.bind(this))
-        .on('drag', this.dragged.bind(this))
-        .on('end', this.dragended.bind(this)));
+      .selectAll('.node');
+    //
+    // this.node.append('text')
+    //   .attr('text-anchor', 'middle')
+    //   .attr('dx', (d: any) => {
+    //     return 0;
+    //   })
+    //   .attr('font-size', (d) => {
+    //     let scale = (d.size * 2);
+    //     scale = scale > 32 ? 32 : scale < 10 ? 10 : scale;
+    //     return scale + 'px';
+    //   })
+    //   .attr('dy', '.35em')
+    //   .text((d: any) => {
+    //     return d.id;
+    //   });
+  }
 
-    node.append('circle')
-      .attr('r', (d: any) => {
-        return d.size + 5;
-      })
-      .attr('fill', this.nodeColor);
+  private tick() {
+    // this.link
+    //   .attr('x1', (d: any) => {
+    //     return d.source.x;
+    //   })
+    //   .attr('y1', (d: any) => {
+    //     return d.source.y;
+    //   })
+    //   .attr('x2', (d: any) => {
+    //     return d.target.x;
+    //   })
+    //   .attr('y2', (d: any) => {
+    //     return d.target.y;
+    //   });
 
-    node.append('text')
-      .attr('text-anchor', 'middle')
-      .attr('dx', (d: any) => {
-        return 0;
-      })
-      .attr('font-size', (d) => {
-        let scale = (d.size * 2);
-        scale = scale > 32 ? 32 : scale < 10 ? 10 : scale;
-        return scale + 'px';
-      })
-      .attr('dy', '.35em')
-      .text((d: any) => {
-        return d.id;
-      });
-
-    this.simulation
-      .nodes(nodes)
-      .on('tick', ticked);
-
-    this.simulation
-      .force('link')
-      .links(edges);
-
-    function ticked() {
-      link
-        .attr('x1', (d: any) => {
-          return d.source.x;
-        })
-        .attr('y1', (d: any) => {
-          return d.source.y;
-        })
-        .attr('x2', (d: any) => {
-          return d.target.x;
-        })
-        .attr('y2', (d: any) => {
-          return d.target.y;
-        });
-
-      node.attr('transform', (d: any) => {
+   this.node
+      .attr('transform', (d: any) => {
         return 'translate(' + d.x + ',' + d.y + ')';
       });
-    }
+
+    this.node
+      .attr('cx', function (d) {
+        return d.x;
+      })
+      .attr('cy', function (d) {
+        return d.y;
+      });
   }
 
   private initD3() {
@@ -185,12 +176,45 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
           .strength(0.5)
       )
       .force('charge', d3.forceManyBody())
-      .force('center', d3.forceCenter(this.width / 2, this.height / 2));
+      .force('center', d3.forceCenter(this.width / 2, this.height / 2))
+      .on('tick', this.tick.bind(this));
 
     this.zoomHandler = d3.zoom()
       .on('zoom', this.zoomActions.bind(this));
 
     this.zoomHandler(this.svg);
+  }
+
+  private update() {
+    console.log(this.model.getD3Nodes(), this.node.data(this.model.getD3Nodes()))
+    this.node = this.node.data(this.model.getD3Nodes());
+
+    this.node
+      .enter()
+      .append('g')
+      .append('circle')
+      .attr('r', (d: any) => {
+        return d.size + 5;
+      })
+      .attr('fill', this.nodeColor)
+      .attr('class', 'node')
+      .call(d3.drag()
+        .on('start', this.dragstarted.bind(this))
+        .on('drag', this.dragged.bind(this))
+        .on('end', this.dragended.bind(this)));
+
+    this.node.exit()
+      .remove();
+
+    this.simulation
+      .force('link')
+      .links(this.model.getD3Edges());
+
+    this.simulation.alphaTarget(0.3).restart();
+
+    //console.log(this.node.exit())
+    // this.node.exit()
+    //   .remove();
   }
 
   ngOnInit(): void {
@@ -202,6 +226,15 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
     this.height = this.el.nativeElement.offsetHeight;
     this.initD3();
     this.drawData();
+    this.model.on('add update', () => {
+      this.update();
+      // this.simulation
+      //   .force('link')
+      //   .links(this.model.getD3Edges());
+      //
+      // this.simulation
+      //   .nodes(this.model.getD3Nodes());
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
