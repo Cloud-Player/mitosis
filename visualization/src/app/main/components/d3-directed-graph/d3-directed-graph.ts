@@ -1,18 +1,7 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-  ViewEncapsulation
-} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewEncapsulation} from '@angular/core';
 import * as d3 from 'd3';
 import {Selection} from 'd3-selection';
-import {Simulation} from 'd3';
-import {D3Model} from './models/d3';
-import {NodeModel} from './models/node';
+import {D3Model, ID3Node} from './models/d3';
 
 @Component({
   selector: 'app-d3-directed-graph',
@@ -138,17 +127,9 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
     //     return d.target.y;
     //   });
 
-   this.node
+    this.zoomHolder.selectAll('.node')
       .attr('transform', (d: any) => {
         return 'translate(' + d.x + ',' + d.y + ')';
-      });
-
-    this.node
-      .attr('cx', function (d) {
-        return d.x;
-      })
-      .attr('cy', function (d) {
-        return d.y;
       });
   }
 
@@ -186,10 +167,13 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
   }
 
   private update() {
-    console.log(this.model.getD3Nodes(), this.node.data(this.model.getD3Nodes()))
-    this.node = this.node.data(this.model.getD3Nodes());
 
-    this.node
+    let node = this.zoomHolder.select('.nodes').selectAll('.node');
+
+    node = node.data(this.model.getD3Nodes(), (d: ID3Node) => d.id);
+    console.log(this.model.getD3Nodes(), node.enter());
+
+    node
       .enter()
       .append('g')
       .append('circle')
@@ -203,19 +187,18 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
         .on('drag', this.dragged.bind(this))
         .on('end', this.dragended.bind(this)));
 
-    this.node.exit()
+    node.exit()
       .remove();
 
     // this.simulation
     //   .force('link')
     //   .links(this.model.getD3Edges());
 
-    // this.simulation
-    //   .nodes(this.model.getD3Nodes());
+    this.simulation
+      .nodes(this.model.getD3Nodes());
 
     this.simulation.alphaTarget(0.3).restart();
 
-    //console.log(this.node.exit())
     // this.node.exit()
     //   .remove();
   }
