@@ -1,12 +1,11 @@
-import {IClock, IConnection, Message, Mitosis, Protocol, ProtocolConnectionMap} from 'mitosis';
-import {ControllableClock} from './clock/controllable';
+import {IClock, IConnection, MasterClock, Message, Mitosis, Protocol, ProtocolConnectionMap} from 'mitosis';
 import {MockConnection} from './connection/mock';
 import {InstructionFactory} from './instruction/factory';
 
 export class Simulation {
 
   private static _instance: Simulation;
-  private readonly _clock: ControllableClock;
+  private readonly _clock: IClock;
   private _nodes: Map<string, Mitosis>;
   private _edges: Map<string, MockConnection>;
 
@@ -19,13 +18,13 @@ export class Simulation {
   }
 
   private constructor() {
-    this._clock = new ControllableClock();
+    this._clock = new MasterClock();
     this._nodes = new Map();
     this._edges = new Map();
     const instructions = InstructionFactory.arrayFromJSON('hello-world');
     instructions.forEach(
       instr => {
-        this._clock.scheduleOnTick(instr.getTick(), instr.execute.bind(instr, this));
+        this._clock.setTimeout(instr.execute.bind(instr, this), instr.getTick());
       });
     this._clock.start();
   }
@@ -93,5 +92,3 @@ export class Simulation {
     return Array.from(this._nodes.values());
   }
 }
-
-const simulation = Simulation.getInstance();
