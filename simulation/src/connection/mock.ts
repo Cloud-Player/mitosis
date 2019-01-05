@@ -2,6 +2,7 @@ import {AbstractConnection, IConnection, Message} from 'mitosis';
 import {Simulation} from '../simulation';
 
 export class MockConnection extends AbstractConnection implements IConnection {
+
   protected closeClient(): void {
     Simulation.getInstance()
       .removeConnection(this._options.mitosisId, this._address.getId());

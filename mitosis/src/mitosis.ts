@@ -120,6 +120,7 @@ export class Mitosis {
   }
 
   public destroy() {
+    this._routingTable.destroy();
     this._clock.stop();
   }
 }
