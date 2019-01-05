@@ -14,7 +14,6 @@ export class Newbie implements IRole {
       mitosis.getSignalAddress(),
       mitosis.getRoutingTable().getPeers()
     );
-    console.table('sending update', tableUpdate.getBody());
     this._signal.send(tableUpdate);
   }
 

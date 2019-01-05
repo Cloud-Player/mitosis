@@ -1,3 +1,8 @@
+export interface IScheduledCallback {
+  tick: number;
+  callback: () => void;
+}
+
 export interface IClock {
 
   fork(): IClock;
@@ -8,11 +13,11 @@ export interface IClock {
 
   stop(): void;
 
-  setInterval(callback: () => void): void;
+  setInterval(callback: () => void): IScheduledCallback;
 
-  clearInterval(callback: () => void): void;
+  clearInterval(scheduledCallback: IScheduledCallback): void;
 
-  setTimeout(callback: () => void, ticks: number): void;
+  setTimeout(callback: () => void, ticks: number): IScheduledCallback;
 
-  clearTimeout(callback: () => void): void;
+  clearTimeout(scheduledCallback: IScheduledCallback): void;
 }

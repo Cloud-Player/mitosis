@@ -19,7 +19,7 @@ export class MasterClock extends AbstractClock implements IClock {
   }
 
   public start(): void {
-    this._masterIntervalId = setInterval(this.tick, this._msPerTick);
+    this._masterIntervalId = setInterval(this.tick.bind(this), this._msPerTick);
   }
 
   public pause(): void {
