@@ -1,5 +1,5 @@
 import {RoleType} from 'mitosis';
-import {Simulation} from '../index';
+import {Simulation} from '../simulation';
 import {AddConnection} from './add-connection';
 import {AddPeer} from './add-peer';
 import {RemoveConnection} from './remove-connection';

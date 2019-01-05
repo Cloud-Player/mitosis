@@ -1,4 +1,4 @@
-import {Simulation} from '../index';
+import {Simulation} from '../simulation';
 import {IConfiguration} from './interface';
 
 export abstract class AbstractInstruction {

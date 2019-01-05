@@ -1,12 +1,11 @@
 {
   "compilerOptions": {
     "sourceMap": true,
-    "outDir": "./dist/",
     "noImplicitAny": true,
+    "declaration": true,
     "module": "es6",
     "target": "es5",
     "jsx": "react",
-    "allowJs": true,
     "moduleResolution": "node",
     "typeRoots": [
       "node_modules/@types"
@@ -15,12 +14,15 @@
       "es2017",
       "dom"
     ],
+    "declarationDir": "dist/types",
+    "outDir": "dist/lib",
     "baseUrl": ".",
     "paths": {
       "rxjs": ["node_modules/rxjs"]
     }
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "./src/scenario/hello-world.json"
   ]
 }
