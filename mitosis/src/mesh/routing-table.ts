@@ -59,4 +59,12 @@ export class RoutingTable {
   public observePeerChurn(): Subject<IPeerChurnEvent> {
     return this._peerChurnSubject;
   }
+
+  public destroy(): void {
+    this._peers.forEach(
+      peer => peer.getConnectionTable().asArray().forEach(
+        connection => connection.close()
+      )
+    );
+  }
 }
