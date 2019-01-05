@@ -22,12 +22,6 @@ export class Simulation {
     this._clock = new ControllableClock();
     this._nodes = new Map();
     this._edges = new Map();
-    const instructions = InstructionFactory.arrayFromJSON('hello-world');
-    instructions.forEach(
-      instr => {
-        this._clock.scheduleOnTick(instr.getTick(), instr.execute.bind(instr, this));
-      });
-    this._clock.start();
   }
 
   public addConnection(from: string, to: string, connection: MockConnection) {
@@ -85,11 +79,24 @@ export class Simulation {
     return this._clock;
   }
 
-  public getEdges(): Array<IConnection> {
+  public getEdges(): Array<MockConnection> {
     return Array.from(this._edges.values());
   }
 
   public getNodes(): Array<Mitosis> {
     return Array.from(this._nodes.values());
+  }
+
+  public onUpdate(callback: () => void) {
+    this._clock.onTick(callback);
+  }
+
+  public start(scenarioJSON: { instructions: Array<any> }) {
+    const instructions = InstructionFactory.arrayFromJSON(scenarioJSON);
+    instructions.forEach(
+      instr => {
+        this._clock.scheduleOnTick(instr.getTick(), instr.execute.bind(instr, this));
+      });
+    this._clock.start();
   }
 }

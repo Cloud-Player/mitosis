@@ -1,10 +1,9 @@
 import {IConfiguration, IInstruction, InstructionType, InstructionTypeMap} from './interface';
 
 export class InstructionFactory {
-  public static arrayFromJSON(scenario: string): Array<IInstruction> {
-    const json = require(`../scenario/${scenario}.json`);
+  public static arrayFromJSON(scenario: { instructions: Array<any> }): Array<IInstruction> {
     const instructions: Array<IInstruction> = [];
-    const parameters = json.instructions as Array<any>;
+    const parameters = scenario.instructions as Array<any>;
     parameters.forEach(parameter => {
       const instruction = InstructionFactory.fromParameters(parameter);
       if (instruction) {

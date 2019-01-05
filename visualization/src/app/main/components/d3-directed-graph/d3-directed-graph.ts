@@ -1,4 +1,13 @@
-import {AfterViewInit, Component, ElementRef, Input, OnInit, ViewEncapsulation} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  ViewEncapsulation
+} from '@angular/core';
 import * as d3 from 'd3';
 import {Selection} from 'd3-selection';
 import {Simulation} from 'd3';
@@ -11,9 +20,9 @@ import {NodeModel} from './models/node';
   styleUrls: ['./d3-directed-graph.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class D3DirectedGraphComponent implements OnInit, AfterViewInit {
+export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChanges {
   @Input()
-  public values: Array<NodeModel>;
+  public model: D3Model;
 
   private margin: {
     top: number,
@@ -21,8 +30,8 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit {
     bottom: number,
     left: number
   } = {top: 20, right: 20, bottom: 30, left: 40};
-  private width = 660;
-  private height = 500;
+  private width;
+  private height;
   private svg: Selection<any, any, any, any>;
   private zoomHolder: Selection<any, any, any, any>;
   private simulation: any;
@@ -58,19 +67,6 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit {
     this.zoomHolder.attr('transform', d3.event.transform);
   }
 
-  private getData(nodes: Array<NodeModel>): D3Model {
-    const d3Model = new D3Model();
-
-    nodes.forEach((node: NodeModel) => {
-      d3Model.addNode(node);
-      node.getEdges().forEach((edge) => {
-        d3Model.addEdge(node.getId(), edge);
-      });
-    });
-
-    return d3Model;
-  }
-
   private highlightNodes(searchTerm: string) {
 
     d3.select('.nodes').selectAll('circle')
@@ -84,12 +80,14 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit {
   }
 
   private drawData() {
+    if (!this.model) {
+      return;
+    }
     d3.select('.nodes').remove();
     d3.select('.edges').remove();
-    const data = this.getData(this.values);
 
-    const nodes = data.getNodes();
-    const edges = data.getEdges();
+    const nodes = this.model.getNodes();
+    const edges = this.model.getEdges();
 
     const link = this.zoomHolder.append('g')
       .attr('class', 'edges')
@@ -196,18 +194,20 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.values = [
-      new NodeModel('p1', ['p2', 'p3', 'p4']),
-      new NodeModel('p2', ['p1']),
-      new NodeModel('p3'),
-      new NodeModel('p4')
-    ];
   }
 
   ngAfterViewInit(): void {
+    console.log('AFTER VIEW INIT');
     this.width = this.el.nativeElement.offsetWidth;
     this.height = this.el.nativeElement.offsetHeight;
     this.initD3();
     this.drawData();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.model.currentValue && this.width) {
+      console.log('CHANGE');
+      this.drawData();
+    }
   }
 }

@@ -11,6 +11,7 @@
     "experimentalDecorators": true,
     "importHelpers": true,
     "target": "es5",
+    "types": [ "node" ],
     "typeRoots": [
       "node_modules/@types"
     ],
@@ -20,8 +21,7 @@
     ],
     "paths": {
       "rxjs": ["node_modules/rxjs"],
-      "simple-peer": ["node_modules/simple-peer"],
-      "../scenario": ["src/scenario"]
+      "simple-peer": ["node_modules/simple-peer"]
     }
   }
 }

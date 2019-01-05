@@ -22,9 +22,10 @@ export class D3Model {
     });
   }
 
-  public addNode(node: NodeModel): NodeModel {
-    let existingNode = this.getNodeById(node.getId());
+  public addNode(nodeId: string): NodeModel {
+    let existingNode = this.getNodeById(nodeId);
     if (!existingNode) {
+      const node = new NodeModel(nodeId);
       this._nodes.push(node);
       existingNode = node;
     }

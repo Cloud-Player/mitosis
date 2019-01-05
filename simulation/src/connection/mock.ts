@@ -2,7 +2,6 @@ import {AbstractConnection, IConnection, Message} from 'mitosis';
 import {Simulation} from '../simulation';
 
 export class MockConnection extends AbstractConnection implements IConnection {
-
   protected closeClient(): void {
     Simulation.getInstance()
       .removeConnection(this._options.mitosisId, this._address.getId());
@@ -19,5 +18,9 @@ export class MockConnection extends AbstractConnection implements IConnection {
     Simulation.getInstance()
       .deliverMessage(this._options.mitosisId, this._address.getId(), message);
     console.log('send message', message);
+  }
+
+  public getSourceId(): string {
+    return this._options.mitosisId;
   }
 }
