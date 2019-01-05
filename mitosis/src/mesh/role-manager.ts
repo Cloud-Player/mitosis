@@ -1,6 +1,6 @@
+import {Message} from '../message/message';
 import {Mitosis} from '../mitosis';
 import {IRole, RoleType, RoleTypeMap} from '../role/interface';
-import {Message} from '../message/message';
 
 export class RoleManager {
   private _roles: Map<RoleType, IRole>;

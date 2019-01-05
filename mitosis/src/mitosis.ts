@@ -1,6 +1,6 @@
 import {Subject} from 'rxjs';
 import {IClock} from './clock/interface';
-import {InternalClock} from './clock/internal';
+import {MasterClock} from './clock/master';
 import {IEnclave} from './enclave/interface';
 import {SecureEnclave} from './enclave/secure';
 import {MessageBroker} from './mesh/message-broker';
@@ -25,6 +25,7 @@ export class Mitosis {
   private _myAddress: Address;
   private _signalAddress: Address;
   private _inbox: Subject<Message>;
+  private _clock: IClock;
 
   public constructor(
     clock: IClock = null,
@@ -34,7 +35,8 @@ export class Mitosis {
     roles: Array<RoleType> = null
   ) {
     if (!clock) {
-      clock = new InternalClock();
+      clock = new MasterClock();
+      clock.start();
     }
     if (!enclave) {
       enclave = new SecureEnclave();
@@ -68,7 +70,8 @@ export class Mitosis {
       'and i am a',
       roles.join(' and a '));
 
-    clock.onTick(this.onTick.bind(this));
+    clock.setInterval(this.onTick.bind(this));
+    this._clock = clock;
   }
 
   private listenOnAppContentMessages() {
@@ -115,6 +118,10 @@ export class Mitosis {
     );
     this._routingTable.sendMessage(appMessage);
   }
+
+  public destroy() {
+    this._clock.stop();
+  }
 }
 
 export * from './clock/interface';
@@ -123,7 +130,8 @@ export * from './mesh/interface';
 export * from './message/interface';
 export * from './role/interface';
 
-export {Clock} from './clock/clock';
+export {AbstractClock} from './clock/clock';
+export {MasterClock} from './clock/master';
 export {AbstractConnection} from './connection/connection';
 export {RemotePeer} from './mesh/remote-peer';
 export {Address} from './message/address';

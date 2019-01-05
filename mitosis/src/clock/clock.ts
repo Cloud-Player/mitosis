@@ -1,40 +1,68 @@
 import {IClock} from './interface';
 
-export class Clock implements IClock {
+export abstract class AbstractClock {
 
-  protected _callbacks: Array<() => void> = [];
-  private _interval: any;
-  private _milliseconds: number;
-  private _counter = 0;
-
-  public constructor(milliseconds: number = 5000) {
-    this._milliseconds = milliseconds;
-  }
+  protected _intervals: Array<[number, () => void]> = [];
+  protected _timeouts: Array<[number, () => void]> = [];
+  private _tickCounter = 0;
 
   private doTick(): void {
-    this.tick();
-    this._counter++;
-  }
-
-  protected getCounter(): number {
-    return this._counter;
+    this._intervals.forEach(
+      value => {
+        if (this._tickCounter % value[0] === 0) {
+          value[1]();
+        }
+      });
+    this._timeouts = this._timeouts.filter(
+      value => {
+        if (value[0] <= this._tickCounter) {
+          value[1]();
+          return false;
+        } else {
+          return true;
+        }
+      });
   }
 
   protected tick(): void {
-    if (this._callbacks) {
-      this._callbacks.forEach(callback => callback());
+    try {
+      this.doTick();
+    } catch (error) {
+      throw error;
+    } finally {
+      this._tickCounter++;
     }
   }
 
-  public onTick(callback: () => void): void {
-    this._callbacks.push(callback);
-  }
+  public abstract fork(): IClock;
 
-  public start(): void {
-    this._interval = setInterval(this.doTick.bind(this), this._milliseconds);
-  }
+  public abstract start(): void;
+
+  public abstract pause(): void;
 
   public stop(): void {
-    clearInterval(this._interval);
+    this.pause();
+    this._intervals.length = 0;
+    this._timeouts.length = 0;
+  }
+
+  public setInterval(callback: () => void, interval: number = 1): void {
+    this._intervals.push([interval, callback]);
+  }
+
+  public clearInterval(callback: () => void): void {
+    this._intervals = this._intervals.filter(
+      value => value[1] !== callback
+    );
+  }
+
+  public setTimeout(callback: () => void, timeout: number = 0): void {
+    this._timeouts.push([this._tickCounter + timeout, callback]);
+  }
+
+  public clearTimeout(callback: () => void): void {
+    this._timeouts = this._timeouts.filter(
+      value => value[1] !== callback
+    );
   }
 }
