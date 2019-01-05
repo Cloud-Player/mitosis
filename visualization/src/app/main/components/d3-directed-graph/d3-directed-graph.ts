@@ -206,9 +206,12 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
     this.node.exit()
       .remove();
 
-    this.simulation
-      .force('link')
-      .links(this.model.getD3Edges());
+    // this.simulation
+    //   .force('link')
+    //   .links(this.model.getD3Edges());
+
+    // this.simulation
+    //   .nodes(this.model.getD3Nodes());
 
     this.simulation.alphaTarget(0.3).restart();
 
