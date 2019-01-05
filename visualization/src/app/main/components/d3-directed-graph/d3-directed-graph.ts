@@ -133,11 +133,11 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
 
     this.zoomHandler(this.svg);
 
-    this.link = this.zoomHolder.append('g')
+    this.zoomHolder.append('g')
       .attr('class', 'links')
       .selectAll('link');
 
-    this.node = this.zoomHolder.append('g')
+    this.zoomHolder.append('g')
       .attr('class', 'nodes')
       .selectAll('.node');
   }
@@ -185,7 +185,7 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       .remove();
 
     let link = d3.select('.links').selectAll('.link');
-    link = link.data(this.model.getD3Edges());
+    link = link.data(this.model.getD3Edges(), (d: ID3Node) => d.id);
 
     link
       .enter()
@@ -198,6 +198,9 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
     link.exit()
       .remove();
 
+    if (!link.enter().empty()) {
+      console.warn('ADD LINK');
+    }
 
     this.simulation
       .nodes(this.model.getD3Nodes());

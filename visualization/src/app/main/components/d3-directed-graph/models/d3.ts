@@ -7,6 +7,7 @@ export interface ID3Node {
 }
 
 export interface ID3Edge {
+  id: string;
   source: string;
   target: string;
   weight: number;
@@ -85,6 +86,7 @@ export class D3Model {
       const edge = new EdgeModel(sourceId, targetId);
       this._edges.push(edge);
       this._d3Edges.push({
+        id: `c${edge.getSource()}-${edge.getTarget()}`,
         source: edge.getSource(),
         target: edge.getTarget(),
         weight: 1
