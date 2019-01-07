@@ -1,0 +1,46 @@
+<div class="sidebar">
+  <section>
+    Clock {{getClock().getTick()}}
+    <p>
+      <app-button *ngIf="!getClock().isRunning()"
+                  text="Start"
+                  (click)="getClock().start()">
+      </app-button>
+      <app-button *ngIf="getClock().isRunning()"
+                  text="Pause"
+                  (click)="getClock().pause()">
+      </app-button>
+    </p>
+  </section>
+
+  <section>
+    <app-search-input
+      placeholder="Search for a node"
+      (valueChange)="search($event)">
+    </app-search-input>
+  </section>
+
+  <section>
+    <app-tab-bar *ngIf="selectedNode">
+      <app-tab-pane title="Node Settings">
+        <section>
+          <header *ngIf="selectedNode">Selected node: {{selectedNode.getId()}}</header>
+          <header *ngIf="!selectedNode">Node node selected</header>
+        </section>
+      </app-tab-pane>
+      <app-tab-pane title="Routingtable">
+        <section>
+          <header>Remote Peers</header>
+          <ul>
+            <li *ngFor="let remotePeer of selectedNode.getMitosis().getPeers()">
+              {{remotePeer.getId()}}
+            </li>
+          </ul>
+        </section>
+      </app-tab-pane>
+      <app-tab-pane title="Messages">
+        <section></section>
+      </app-tab-pane>
+    </app-tab-bar>
+  </section>
+</div>

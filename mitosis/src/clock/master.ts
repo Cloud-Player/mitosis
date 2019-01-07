@@ -18,11 +18,11 @@ export class MasterClock extends AbstractClock implements IClock {
     return forked;
   }
 
-  public start(): void {
+  public startClock(): void {
     this._masterCancelId = setInterval(this.tick.bind(this), this._msPerTick);
   }
 
-  public pause(): void {
+  public pauseClock(): void {
     clearInterval(this._masterCancelId);
   }
 }

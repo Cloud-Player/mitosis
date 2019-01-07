@@ -21,4 +21,8 @@ export interface IClock {
   setTimeout(callback: () => void, ticks: number): number;
 
   clearTimeout(cancelId: number): void;
+
+  isRunning(): boolean;
+
+  getTick(): number;
 }
