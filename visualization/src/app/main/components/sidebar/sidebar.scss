@@ -28,6 +28,16 @@
       }
     }
 
+    app-button {
+      margin: 0 5px;
+    }
+    app-button:first-child {
+      margin-left: 0;
+    }
+    app-button:last-child {
+      margin-right: 0;
+    }
+
     /deep/ app-tab-bar {
       .tab-bar {
         border-bottom-color: transparent;
