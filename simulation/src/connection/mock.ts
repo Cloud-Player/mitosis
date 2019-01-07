@@ -24,7 +24,6 @@ export class MockConnection extends AbstractConnection implements IConnection {
         this._address.getId(),
         MockConnection._delay,
         message);
-    console.log('send message', message);
   }
 
   public getSourceId(): string {

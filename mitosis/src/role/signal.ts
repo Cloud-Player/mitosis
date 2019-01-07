@@ -1,8 +1,8 @@
 import {Message} from '../message/message';
 import {PeerUpdate} from '../message/peer-update';
 import {RoleUpdate} from '../message/role-update';
-import {Mitosis} from '../mitosis';
-import {IRole, RoleType} from './interface';
+import {MessageSubject, Mitosis, RoleType} from '../mitosis';
+import {IRole} from './interface';
 
 export class Signal implements IRole {
 
@@ -10,37 +10,42 @@ export class Signal implements IRole {
   }
 
   public onMessage(message: Message, mitosis: Mitosis): void {
-    const routers = mitosis.getRoutingTable()
-      .getPeers()
-      .filter(
-        peer => peer.hasRole(RoleType.ROUTER)
-      );
-    const roles = [RoleType.PEER];
+    if (message.getSubject() === MessageSubject.PEER_UPDATE) {
+      const senderId = message.getSender().getId();
+      const sender = mitosis.getRoutingTable().getPeerById(senderId);
 
-    if (!routers.length) {
-      const newRouter = mitosis.getRoutingTable()
+      const routers = mitosis.getRoutingTable()
         .getPeers()
-        .find(
-          peer => peer.getId() === message.getSender().getId()
+        .filter(
+          peer => peer.hasRole(RoleType.ROUTER)
         );
-      newRouter.getRoles().push(RoleType.ROUTER);
-      routers.push(newRouter);
 
-      roles.push(RoleType.ROUTER);
+      if (!routers.includes(sender)) {
+        const roles = [RoleType.PEER];
+        if (!routers.length) {
+          const newRouter = mitosis.getRoutingTable()
+            .getPeers()
+            .find(
+              peer => peer.getId() === senderId
+            );
+          newRouter.getRoles().push(RoleType.ROUTER);
+          routers.push(newRouter);
+          roles.push(RoleType.ROUTER);
+        }
+        const roleUpdate = new RoleUpdate(
+          mitosis.getMyAddress(),
+          message.getSender(),
+          roles
+        );
+        mitosis.getRoutingTable().sendMessage(roleUpdate);
+      }
+
+      const tableUpdate = new PeerUpdate(
+        mitosis.getMyAddress(),
+        message.getSender(),
+        routers
+      );
+      mitosis.getRoutingTable().sendMessage(tableUpdate);
     }
-
-    const tableUpdate = new PeerUpdate(
-      mitosis.getMyAddress(),
-      message.getSender(),
-      routers
-    );
-    mitosis.getRoutingTable().sendMessage(tableUpdate);
-
-    const roleUpdate = new RoleUpdate(
-      mitosis.getMyAddress(),
-      message.getSender(),
-      roles
-    );
-    mitosis.getRoutingTable().sendMessage(roleUpdate);
   }
 }

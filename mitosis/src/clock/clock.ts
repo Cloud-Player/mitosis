@@ -4,6 +4,8 @@ export abstract class AbstractClock {
 
   protected _intervals: Array<IScheduledCallback> = [];
   protected _timeouts: Array<IScheduledCallback> = [];
+  private readonly _maxCancelId = Number.MAX_SAFE_INTEGER - 10;
+  private _lastCancelId = 0;
   private _tickCounter = 0;
 
   private doTick(): void {
@@ -46,27 +48,29 @@ export abstract class AbstractClock {
     this._timeouts.length = 0;
   }
 
-  public setInterval(callback: () => void, interval: number = 1): IScheduledCallback {
-    const scheduledCallback = {tick: interval, callback: callback};
+  public setInterval(callback: () => void, interval: number = 1): number {
+    this._lastCancelId = (this._lastCancelId + 1) % this._maxCancelId;
+    const scheduledCallback = {tick: interval, cancelId: this._lastCancelId, callback: callback};
     this._intervals.push(scheduledCallback);
-    return scheduledCallback;
+    return this._lastCancelId;
   }
 
-  public clearInterval(scheduledCallback: IScheduledCallback): void {
+  public clearInterval(cancelId: number): void {
     this._intervals = this._intervals.filter(
-      value => value !== scheduledCallback
+      value => value.cancelId !== cancelId
     );
   }
 
-  public setTimeout(callback: () => void, timeout: number = 0): IScheduledCallback {
-    const scheduledCallback = {tick: this._tickCounter + timeout, callback: callback};
+  public setTimeout(callback: () => void, timeout: number = 0): number {
+    this._lastCancelId = (this._lastCancelId + 1) % this._maxCancelId;
+    const scheduledCallback = {tick: this._tickCounter + timeout, cancelId: this._lastCancelId, callback: callback};
     this._timeouts.push(scheduledCallback);
-    return scheduledCallback;
+    return this._lastCancelId;
   }
 
-  public clearTimeout(scheduledCallback: IScheduledCallback): void {
+  public clearTimeout(cancelId: number): void {
     this._timeouts = this._timeouts.filter(
-      value => value !== scheduledCallback
+      value => value.cancelId !== cancelId
     );
   }
 }

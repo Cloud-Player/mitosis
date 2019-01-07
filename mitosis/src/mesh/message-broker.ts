@@ -1,11 +1,6 @@
 import {Subject} from 'rxjs';
 import {filter} from 'rxjs/operators';
-import {
-  ConnectionState,
-  IConnection,
-  IWebRTCConnectionOptions,
-  WebRTCConnectionOptionsPayloadType
-} from '../connection/interface';
+import {ConnectionState, IConnection, IWebRTCConnectionOptions, WebRTCConnectionOptionsPayloadType} from '../connection/interface';
 import {ViaConnection} from '../connection/via';
 import {WebRTCConnection} from '../connection/webrtc';
 import {Address} from '../message/address';
@@ -14,9 +9,9 @@ import {MessageSubject, Protocol} from '../message/interface';
 import {Message} from '../message/message';
 import {PeerUpdate} from '../message/peer-update';
 import {RoleUpdate} from '../message/role-update';
+import {ChurnType} from './interface';
 import {RemotePeer} from './remote-peer';
 import {RoleManager} from './role-manager';
-import {ChurnType} from './interface';
 import {RoutingTable} from './routing-table';
 
 export class MessageBroker {
@@ -107,7 +102,7 @@ export class MessageBroker {
         this.negotiateConnection(message as ConnectionNegotiation);
         break;
       case MessageSubject.APP_CONTENT:
-        this.deliverAppContent(message);
+        this._appContentMessagesSubject.next(message);
         break;
       default:
         throw new Error(`unsupported subject ${message.getSubject()}`);
@@ -163,10 +158,6 @@ export class MessageBroker {
     }
   }
 
-  private deliverAppContent(message: Message) {
-    this._appContentMessagesSubject.next(message);
-  }
-
   private forwardMessage(message: Message): void {
     const peerId = message.getReceiver().getId();
     const receiverPeer = this._routingTable.getPeerById(peerId);
@@ -189,6 +180,6 @@ export class MessageBroker {
   }
 
   public observeMessages() {
-    return this._appContentMessagesSubject;
+    return this._appMessagesSubject;
   }
 }

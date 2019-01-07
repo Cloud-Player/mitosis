@@ -14,7 +14,9 @@ export class Simulation {
   public static getInstance() {
     if (!Simulation._instance) {
       Simulation._instance = new Simulation();
-      ProtocolConnectionMap.set(Protocol.MOCK, MockConnection);
+      ProtocolConnectionMap.set(Protocol.WEBSOCKET_UNSECURE, MockConnection);
+      ProtocolConnectionMap.set(Protocol.WEBSOCKET, MockConnection);
+      ProtocolConnectionMap.set(Protocol.WEBRTC, MockConnection);
     }
     return Simulation._instance;
   }
@@ -58,9 +60,12 @@ export class Simulation {
   public deliverMessage(from: string, to: string, delay: number, message: Message) {
     const edge = this._edges.get([to, from].join('-'));
     if (edge) {
-      this._clock.setTimeout(() => {
-        (edge.getConnection() as MockConnection).onMessage(message);
-      }, delay);
+      /*
+        this._clock.setTimeout(() => {
+          (edge.getConnection() as MockConnection).onMessage(message);
+        }, delay);
+      */
+      (edge.getConnection() as MockConnection).onMessage(message);
     } else {
       console.error('could not deliver', message);
     }

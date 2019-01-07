@@ -4,7 +4,7 @@ import {IClock} from './interface';
 
 export class MasterClock extends AbstractClock implements IClock {
 
-  private _masterIntervalId: any;
+  private _masterCancelId: any;
   private _msPerTick: number;
 
   public constructor(msPerTick: number = 1000) {
@@ -19,10 +19,10 @@ export class MasterClock extends AbstractClock implements IClock {
   }
 
   public start(): void {
-    this._masterIntervalId = setInterval(this.tick.bind(this), this._msPerTick);
+    this._masterCancelId = setInterval(this.tick.bind(this), this._msPerTick);
   }
 
   public pause(): void {
-    clearInterval(this._masterIntervalId);
+    clearInterval(this._masterCancelId);
   }
 }
