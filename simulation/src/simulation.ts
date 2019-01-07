@@ -1,13 +1,15 @@
 import {IClock, MasterClock, Message, Mitosis, Protocol, ProtocolConnectionMap} from 'mitosis';
 import {MockConnection} from './connection/mock';
+import {Edge} from './edge/edge';
 import {InstructionFactory} from './instruction/factory';
+import {Node} from './node/node';
 
 export class Simulation {
 
   private static _instance: Simulation;
   private readonly _clock: IClock;
-  private _nodes: Map<string, Mitosis>;
-  private _edges: Map<string, MockConnection>;
+  private _nodes: Map<string, Node>;
+  private _edges: Map<string, Edge>;
 
   public static getInstance() {
     if (!Simulation._instance) {
@@ -33,10 +35,10 @@ export class Simulation {
     }
 
     if (!this._edges.get([from, to].join('-'))) {
-      this._edges.set([from, to].join('-'), connection);
+      this._edges.set([from, to].join('-'), new Edge(from, connection));
     }
     if (!this._edges.get([to, from].join('-'))) {
-      remote.getRoutingTable().connectTo(local.getMyAddress());
+      remote.getMitosis().getRoutingTable().connectTo(local.getMitosis().getMyAddress());
     }
   }
 
@@ -44,9 +46,9 @@ export class Simulation {
     const directions = [[from, to].join('-'), [to, from].join('-')];
     directions.forEach(
       key => {
-        const connection = this._edges.get(key);
-        if (connection) {
-          connection.onClose();
+        const edge = this._edges.get(key);
+        if (edge) {
+          (edge.getConnection() as MockConnection).onClose();
           this._edges.delete(key);
         }
       }
@@ -54,16 +56,16 @@ export class Simulation {
   }
 
   public deliverMessage(from: string, to: string, message: Message) {
-    const connection = this._edges.get([to, from].join('-'));
-    if (connection) {
-      connection.onMessage(message);
+    const edge = this._edges.get([to, from].join('-'));
+    if (edge) {
+      (edge.getConnection() as MockConnection).onMessage(message);
     } else {
       console.error('could not deliver', message);
     }
   }
 
   public addNode(mitosis: Mitosis) {
-    this._nodes.set(mitosis.getMyAddress().getId(), mitosis);
+    this._nodes.set(mitosis.getMyAddress().getId(), new Node(mitosis));
   }
 
   public removeNode(mitosis: Mitosis) {
@@ -78,11 +80,11 @@ export class Simulation {
     return this._clock;
   }
 
-  public getEdges(): Array<MockConnection> {
+  public getEdges(): Array<Edge> {
     return Array.from(this._edges.values());
   }
 
-  public getNodes(): Array<Mitosis> {
+  public getNodes(): Array<Node> {
     return Array.from(this._nodes.values());
   }
 
@@ -99,3 +101,6 @@ export class Simulation {
     this._clock.start();
   }
 }
+
+export {Node} from './node/node';
+export {Edge} from './edge/edge';

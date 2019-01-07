@@ -22,10 +22,10 @@ export class SimulationComponent implements OnInit {
     simulation.onUpdate(() => {
       const model = new D3Model();
       simulation.getNodes().forEach((node) => {
-        model.addNode(node.getMyAddress().getId());
+        model.addNode(node);
       });
       simulation.getEdges().forEach((edge) => {
-        model.addEdge(edge.getSourceId(), edge.getAddress().getId());
+        model.addEdge(edge);
       });
       this.model = model;
     });

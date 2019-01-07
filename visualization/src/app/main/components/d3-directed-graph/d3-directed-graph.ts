@@ -10,7 +10,9 @@ import {
 } from '@angular/core';
 import * as d3 from 'd3';
 import {Selection} from 'd3-selection';
-import {D3Model, ID3Node} from './models/d3';
+import {D3Model} from './models/d3';
+import {Edge, Node} from 'mitosis-simulation';
+import {RoleType} from 'mitosis';
 
 @Component({
   selector: 'app-d3-directed-graph',
@@ -96,9 +98,23 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       });
 
     nodes
-      .attr('transform', (d: any) => {
+      .attr('transform', (d: Node) => {
         return 'translate(' + d.x + ',' + d.y + ')';
       });
+
+    nodes
+      .select('circle')
+      .attr('fill', (d: Node) => {
+        if (d.getMitosis().getRoles().get(RoleType.SIGNAL)) {
+          return 'red';
+        } else {
+          return '#ccc';
+        }
+      });
+  }
+
+  private selectNode(node: Node) {
+    console.log('SELECT NODE', node.getId())
   }
 
   private initD3() {
@@ -115,17 +131,18 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       .attr('class', 'zoom-holder-el');
 
     this.simulation = d3.forceSimulation()
-      .force('collide',
-        d3.forceCollide((d: any) => 100)
-          .iterations(2))
+    // .force('collide',
+    //   d3.forceCollide()
+    //     .iterations(2))
       .force('link',
         d3.forceLink()
-          .id((d: any) => d.id)
-          .distance((d: any) => 10)
-          .strength(0.2)
+          .id((d: any) => d.getId())
+          .distance((d: any) => 50)
+          .strength(0.4)
       )
-      .force('charge', d3.forceManyBody().strength(-20))
-      .force('center', d3.forceCenter(this.width / 2, this.height / 2))
+      .force('charge', d3.forceManyBody())
+      .force('x', d3.forceX(this.width / 2))
+      .force('y', d3.forceY(this.height / 2))
       .on('tick', this.tick.bind(this));
 
     this.zoomHandler = d3.zoom()
@@ -145,7 +162,7 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
   private update() {
 
     let node = d3.select('.nodes').selectAll('.node');
-    node = node.data(this.model.getD3Nodes(), (d: ID3Node) => d.id);
+    node = node.data(this.model.getNodes(), (d: Node) => d.getId());
 
     const nodeHolder = node
       .enter()
@@ -154,8 +171,9 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
 
     nodeHolder
       .append('circle')
+      .on('click', this.selectNode)
       .attr('r', (d: any) => {
-        return d.size + 5;
+        return 10;
       })
       .attr('fill', this.nodeColor);
 
@@ -172,42 +190,36 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
         return 0;
       })
       .attr('font-size', (d: any) => {
-        let scale = (d.size * 2);
-        scale = scale > 32 ? 32 : scale < 10 ? 10 : scale;
-        return scale + 'px';
+        return '12px';
       })
       .attr('dy', '.35em')
-      .text((d: any) => {
-        return d.id;
+      .text((d: Node) => {
+        return d.getId();
       });
 
     node.exit()
       .remove();
 
     let link = d3.select('.links').selectAll('.link');
-    link = link.data(this.model.getD3Edges(), (d: ID3Node) => d.id);
+    link = link.data(this.model.getEdges(), (d: Edge) => d.getId());
 
     link
       .enter()
       .append('line')
       .attr('class', 'link')
       .attr('stroke-width', (d: any) => {
-        return d.weight;
+        return '2';
       });
 
     link.exit()
       .remove();
 
-    if (!link.enter().empty()) {
-      console.warn('ADD LINK');
-    }
-
     this.simulation
-      .nodes(this.model.getD3Nodes());
+      .nodes(this.model.getNodes());
 
     this.simulation
       .force('link')
-      .links(this.model.getD3Edges());
+      .links(this.model.getEdges());
 
     if (!node.enter().empty() || !node.exit().empty()) {
       this.simulation.alphaTarget(0.3).restart();

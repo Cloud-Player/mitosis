@@ -1,19 +1,30 @@
 import {IConnection, Mitosis} from 'mitosis';
+import {Edge} from '../edge/edge';
 
-export class Device {
+export class Node {
   private _mitosis: Mitosis;
+  public x: number;
+  public y: number;
 
-  constructor() {
-    this._mitosis = new Mitosis();
+  constructor(mitosis: Mitosis) {
+    this._mitosis = mitosis;
+  }
+
+  public getMitosis() {
+    return this._mitosis;
   }
 
   public getEdges() {
-    const connections: Array<IConnection> = [];
+    const edges: Array<Edge> = [];
     this._mitosis.getRoutingTable().getPeers().forEach((peer) => {
       peer.getConnectionTable().filterDirect().asArray().forEach((connection) => {
-        connections.push(connection);
+        edges.push(new Edge(this.getId(), connection));
       });
     });
-    return connections;
+    return edges;
+  }
+
+  public getId() {
+    return this._mitosis.getMyAddress().getId();
   }
 }
