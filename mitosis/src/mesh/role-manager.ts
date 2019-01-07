@@ -41,4 +41,8 @@ export class RoleManager {
   public onMessage(message: Message, mitosis: Mitosis): void {
     this._roles.forEach(role => role.onMessage(message, mitosis));
   }
+
+  public getRoles() {
+    return this._roles;
+  }
 }

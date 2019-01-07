@@ -110,6 +110,10 @@ export class Mitosis {
     return this._inbox;
   }
 
+  public getRoles() {
+    return this._roleManager.getRoles();
+  }
+
   public sendMessageTo(peerId: string, message: any) {
     const appMessage = new AppContent(
       this.getMyAddress(),
