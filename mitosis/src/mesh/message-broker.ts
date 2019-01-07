@@ -166,13 +166,15 @@ export class MessageBroker {
       .sortByQuality()
       .shift();
     let directPeer;
-    if (connection instanceof ViaConnection) {
+    if (!connection) {
+      console.error('all connections lost to', receiverPeer.getId());
+    } else if (connection instanceof ViaConnection) {
       const directPeerId = connection.getAddress().getLocation();
       directPeer = this._routingTable.getPeerById(directPeerId);
+      directPeer.send(message);
     } else {
-      directPeer = receiverPeer;
+      receiverPeer.send(message);
     }
-    directPeer.send(message);
   }
 
   public observeAppContentMessages() {
