@@ -56,7 +56,7 @@ export class Simulation {
   public deliverMessage(from: string, to: string, delay: number, message: Message) {
     const connection = this._edges.get([to, from].join('-'));
     if (connection) {
-      this._clock.setTimeout(connection.onMessage.bind(message), delay);
+      this._clock.setTimeout(() => connection.onMessage(message), delay);
     } else {
       console.error('could not deliver', message);
     }
