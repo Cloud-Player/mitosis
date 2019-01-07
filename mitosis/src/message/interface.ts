@@ -4,8 +4,7 @@ export enum Protocol {
   WEBSOCKET_UNSECURE = 'ws',
   WEBSOCKET = 'wss',
   WEBRTC = 'webrtc',
-  VIA = 'via',
-  MOCK = 'mock'
+  VIA = 'via'
 }
 
 export enum MessageSubject {
