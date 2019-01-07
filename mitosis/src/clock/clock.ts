@@ -7,6 +7,7 @@ export abstract class AbstractClock {
   private readonly _maxCancelId = Number.MAX_SAFE_INTEGER - 10;
   private _lastCancelId = 0;
   private _tickCounter = 0;
+  private _isRunning = false;
 
   private doTick(): void {
     this._intervals.forEach(
@@ -36,11 +37,19 @@ export abstract class AbstractClock {
     }
   }
 
-  public abstract fork(): IClock;
+  protected abstract startClock(): void;
 
-  public abstract start(): void;
+  protected abstract pauseClock(): void;
 
-  public abstract pause(): void;
+  public start() {
+    this._isRunning = true;
+    this.startClock();
+  }
+
+  public pause() {
+    this._isRunning = false;
+    this.pauseClock();
+  }
 
   public stop(): void {
     this.pause();
@@ -72,5 +81,13 @@ export abstract class AbstractClock {
     this._timeouts = this._timeouts.filter(
       value => value.cancelId !== cancelId
     );
+  }
+
+  public getTick() {
+    return this._tickCounter;
+  }
+
+  public isRunning() {
+    return this._isRunning;
   }
 }
