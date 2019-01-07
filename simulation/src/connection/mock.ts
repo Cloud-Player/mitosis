@@ -3,6 +3,8 @@ import {Simulation} from '../simulation';
 
 export class MockConnection extends AbstractConnection implements IConnection {
 
+  private static readonly _delay: 1;
+
   protected closeClient(): void {
     Simulation.getInstance()
       .removeConnection(this._options.mitosisId, this._address.getId());
@@ -17,7 +19,11 @@ export class MockConnection extends AbstractConnection implements IConnection {
 
   public send(message: Message): void {
     Simulation.getInstance()
-      .deliverMessage(this._options.mitosisId, this._address.getId(), message);
+      .deliverMessage(
+        this._options.mitosisId,
+        this._address.getId(),
+        MockConnection._delay,
+        message);
     console.log('send message', message);
   }
 

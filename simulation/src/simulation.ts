@@ -55,10 +55,12 @@ export class Simulation {
     );
   }
 
-  public deliverMessage(from: string, to: string, message: Message) {
+  public deliverMessage(from: string, to: string, delay: number, message: Message) {
     const edge = this._edges.get([to, from].join('-'));
     if (edge) {
-      (edge.getConnection() as MockConnection).onMessage(message);
+      this._clock.setTimeout(() => {
+        (edge.getConnection() as MockConnection).onMessage(message);
+      }, delay);
     } else {
       console.error('could not deliver', message);
     }
