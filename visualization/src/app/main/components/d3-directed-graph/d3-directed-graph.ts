@@ -105,8 +105,11 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
     nodes
       .select('circle')
       .attr('fill', (d: Node) => {
-        if (d.getMitosis().getRoles().get(RoleType.SIGNAL)) {
+        const roles = d.getMitosis().getRoles();
+        if (roles.get(RoleType.SIGNAL)) {
           return 'red';
+        } else if (roles.get(RoleType.ROUTER)) {
+          return 'green';
         } else {
           return '#ccc';
         }
