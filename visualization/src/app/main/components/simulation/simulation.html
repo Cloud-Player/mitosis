@@ -1,3 +1,11 @@
 <div class="simulation">
-  <app-d3-directed-graph [model]="model"></app-d3-directed-graph>
+  <div class="graph">
+    <app-d3-directed-graph [model]="model"
+                           (selectedNodeChange)="selectNode($event)">
+    </app-d3-directed-graph>
+  </div>
+  <div class="sidebar">
+    <app-sidebar [selectedNode]="selectedNode"
+                 [simulation]="simulation"></app-sidebar>
+  </div>
 </div>

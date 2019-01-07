@@ -1,0 +1,17 @@
+<div class="search-input">
+  <i class="addon fa fa-search"></i>
+  <mat-form-field class="search-form-field">
+    <input matInput type="text"
+           [placeholder]="placeholder"
+           [(ngModel)]="query"
+           (ngModelChange)="searchOnInput($event)">
+    <button *ngIf="query"
+            mat-button
+            matSuffix
+            mat-icon-button
+            aria-label="Clear"
+            (click)="reset()">
+      <i class="fa fa-times"></i>
+    </button>
+  </mat-form-field>
+</div>

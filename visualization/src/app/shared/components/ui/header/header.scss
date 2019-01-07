@@ -1,0 +1,30 @@
+@import 'variables';
+
+:host {
+  header {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+
+    i {
+      margin-right: 10px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      text-transform: uppercase;
+      font-weight: 100;
+    }
+
+    .left,
+    .right {
+      display: flex;
+      align-items: center;
+    }
+
+    .left {
+      flex-grow: 1;
+    }
+  }
+}

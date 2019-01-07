@@ -9,6 +9,9 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {RouterModule} from '@angular/router';
 import {D3DirectedGraphComponent} from './components/d3-directed-graph/d3-directed-graph';
 import {SimulationComponent} from './components/simulation/simulation';
+import {SharedModule} from '../shared/shared.module';
+import {SidebarComponent} from './components/sidebar/sidebar';
+import {MatButtonModule, MatMenuModule, MatSelectModule} from '@angular/material';
 
 
 @NgModule({
@@ -18,12 +21,15 @@ import {SimulationComponent} from './components/simulation/simulation';
     HttpClientModule,
     BrowserAnimationsModule,
 
+    SharedModule,
+
     MainRoutingModule
   ],
   declarations: [
     MainComponent,
     D3DirectedGraphComponent,
-    SimulationComponent
+    SimulationComponent,
+    SidebarComponent
   ],
   providers: [],
   bootstrap: [MainComponent]

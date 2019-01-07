@@ -1,0 +1,35 @@
+<div class="modal-holder">
+  <div class="modal"
+       [@modalState]="isVisible?'visible':'hidden'"
+       (@modalState.done)="handleDone($event)">
+    <header>
+      <div class="title">{{getTitle()}}</div>
+      <div *ngIf="modalOptions.dismissible"
+           class="closer clickable" (click)="cancel()">
+        <i class="fa fa-times "></i>
+      </div>
+    </header>
+    <section class="content scrollable">
+      <div #modalContainer></div>
+    </section>
+    <footer *ngIf="hasFooter()">
+      <div class="btn-group pull-right">
+
+        <button *ngIf="modalOptions.secondaryAction"
+                mat-raised-button
+                [disabled]="isDisabled('secondaryAction')"
+                (click)="executeSecondary()">
+          {{modalOptions.secondaryAction.text}}
+        </button>
+
+        <button *ngIf="modalOptions.primaryAction"
+                mat-raised-button
+                color="primary"
+                [disabled]="isDisabled('primaryAction')"
+                (click)="executePrimary()">
+          {{modalOptions.primaryAction.text}}
+        </button>
+      </div>
+    </footer>
+  </div>
+</div>

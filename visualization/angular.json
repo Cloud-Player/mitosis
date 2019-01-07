@@ -26,6 +26,12 @@
               "src/favicon.ico",
               "src/assets"
             ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src",
+                "node_modules"
+              ]
+            },
             "styles": [
               "src/styles.sass"
             ],

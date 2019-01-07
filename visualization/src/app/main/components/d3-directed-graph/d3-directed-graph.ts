@@ -2,9 +2,11 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  EventEmitter,
   Input,
   OnChanges,
   OnInit,
+  Output,
   SimpleChanges,
   ViewEncapsulation
 } from '@angular/core';
@@ -13,6 +15,8 @@ import {Selection} from 'd3-selection';
 import {D3Model} from './models/d3';
 import {Edge, Node} from 'mitosis-simulation';
 import {RoleType} from 'mitosis';
+import {LayoutChangeTypes, LayoutService} from '../../../shared/services/layout';
+import {filter} from 'rxjs/operators';
 
 @Component({
   selector: 'app-d3-directed-graph',
@@ -23,6 +27,9 @@ import {RoleType} from 'mitosis';
 export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChanges {
   @Input()
   public model: D3Model;
+
+  @Output()
+  public selectedNodeChange: EventEmitter<Node>;
 
   private margin: {
     top: number,
@@ -38,8 +45,8 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
   private zoomHandler: any;
   private nodeColor = '#ccc';
 
-  constructor(private el: ElementRef) {
-
+  constructor(private el: ElementRef, private layoutService: LayoutService) {
+    this.selectedNodeChange = new EventEmitter();
   }
 
   private dragstarted(d: any) {
@@ -118,6 +125,7 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
 
   private selectNode(node: Node) {
     console.log('SELECT NODE', node.getId())
+    this.selectedNodeChange.emit(node);
   }
 
   private initD3() {
@@ -127,20 +135,20 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
     this.svg = d3.select(holderEl)
       .append('svg')
       .attr('width', this.width)
-      .attr('height', this.height);
+      .attr('height', this.height - 5);
 
     this.zoomHolder = this.svg
       .append('g')
       .attr('class', 'zoom-holder-el');
 
     this.simulation = d3.forceSimulation()
-    // .force('collide',
-    //   d3.forceCollide()
-    //     .iterations(2))
+      .force('collide',
+        d3.forceCollide(30)
+          .iterations(2))
       .force('link',
         d3.forceLink()
           .id((d: any) => d.getId())
-          .distance((d: any) => 50)
+          .distance(50)
           .strength(0.4)
       )
       .force('charge', d3.forceManyBody())
@@ -174,11 +182,11 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
 
     nodeHolder
       .append('circle')
-      .on('click', this.selectNode)
       .attr('r', (d: any) => {
         return 10;
       })
-      .attr('fill', this.nodeColor);
+      .attr('fill', this.nodeColor)
+      .on('click', this.selectNode.bind(this));
 
     nodeHolder
       .call(d3.drag()
@@ -231,7 +239,28 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
     }
   }
 
+  private resize() {
+    this.svg.attr('width', 0);
+    this.svg.attr('height', 0);
+    setTimeout(() => {
+      this.width = this.el.nativeElement.offsetWidth;
+      this.height = this.el.nativeElement.offsetHeight;
+      this.svg.attr('width', this.width);
+      this.svg.attr('height', this.height - 5);
+      this.simulation
+        .force('x', d3.forceX(this.width / 2))
+        .force('y', d3.forceY(this.height / 2));
+    });
+  }
+
   ngOnInit(): void {
+    this.layoutService.getObservable()
+      .pipe(
+        filter(ev => ev.changeType === LayoutChangeTypes.windowSizeChange)
+      )
+      .subscribe(
+        this.resize.bind(this)
+      );
   }
 
   ngAfterViewInit(): void {

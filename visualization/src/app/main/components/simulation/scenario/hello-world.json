@@ -27,7 +27,7 @@
       }
     },
     {
-      "tick": 3,
+      "tick": 2,
       "type": "add-peer",
       "configuration": {
         "address": "mitosis/v1/cloe/webrtc",

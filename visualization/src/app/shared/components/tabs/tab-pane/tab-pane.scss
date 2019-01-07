@@ -1,0 +1,19 @@
+@import 'variables';
+
+:host {
+  min-height: inherit;
+  .tab-pane {
+    min-height: inherit;
+    padding: 15px;
+
+    /deep/ .card {
+      border-radius: 0;
+    }
+  }
+
+  @media (max-width: $screen-sm-max) {
+    .tab-pane{
+      margin: 0;
+    }
+  }
+}

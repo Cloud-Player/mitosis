@@ -11,46 +11,29 @@ const scenario = require('./scenario/hello-world.json');
 })
 export class SimulationComponent implements OnInit {
   public model: D3Model;
+  public selectedNode: Node;
+  public simulation: Simulation;
 
   constructor() {
     this.model = new D3Model();
+    this.simulation = Simulation.getInstance();
+  }
+
+  public selectNode(node: Node) {
+    this.selectedNode = node;
   }
 
   ngOnInit(): void {
-    const simulation = Simulation.getInstance();
-    simulation.start(scenario);
-    simulation.onUpdate(() => {
+    this.simulation.start(scenario);
+    this.simulation.onUpdate(() => {
       const model = new D3Model();
-      simulation.getNodes().forEach((node) => {
+      this.simulation.getNodes().forEach((node) => {
         model.addNode(node);
       });
-      simulation.getEdges().forEach((edge) => {
+      this.simulation.getEdges().forEach((edge) => {
         model.addEdge(edge);
       });
       this.model = model;
     });
-    // setTimeout(() => {
-    //   // this.model.addNode('p1');
-    //   // this.model.addNode('p2');
-    //   // this.model.addEdge('p1', 'p2');
-    //   const n = 10;
-    //   for (let i = 0; i < Math.pow(n,2); i++) {
-    //     this.model.addNode(`p${i}`);
-    //   }
-    //
-    //   for (let y = 0; y < n; ++y) {
-    //     for (let x = 0; x < n; ++x) {
-    //       if (y > 0) {
-    //         this.model.addEdge(`p${(y - 1) * n + x}`, `p${y * n + x}`);
-    //       }
-    //
-    //       if (x > 0) {
-    //         this.model.addEdge(`p${(y * n + (x - 1))}`, `p${y * n + x}`);
-    //       }
-    //     }
-    //   }
-    //
-    //   (window as any).model = this.model;
-    // });
   }
 }
