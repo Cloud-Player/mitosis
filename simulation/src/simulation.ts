@@ -1,4 +1,4 @@
-import {IClock, MasterClock, Message, Mitosis, Protocol, ProtocolConnectionMap} from 'mitosis';
+import {Address, IClock, MasterClock, Message, Mitosis, Protocol, ProtocolConnectionMap} from 'mitosis';
 import {MockConnection} from './connection/mock';
 import {Edge} from './edge/edge';
 import {InstructionFactory} from './instruction/factory';
@@ -42,7 +42,12 @@ export class Simulation {
       this._edges.set([from, to].join('-'), new Edge(from, connection));
     }
     if (!this._edges.get([to, from].join('-'))) {
-      remote.getMitosis().getRoutingTable().connectTo(local.getMitosis().getMyAddress());
+      const localAddress = new Address(
+        local.getMitosis().getMyAddress().getId(),
+        connection.getAddress().getProtocol(),
+        connection.getAddress().getLocation()
+      );
+      remote.getMitosis().getRoutingTable().connectTo(localAddress);
     }
   }
 
