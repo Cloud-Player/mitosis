@@ -14,7 +14,7 @@ export class AddPeer extends AbstractInstruction implements IInstruction {
       config.address,
       config.signal,
       config.roles);
+    console.info('👍 add peer', peer.getMyAddress().getId());
     simulation.addNode(peer);
-    console.log('added peer', peer.getMyAddress().getId());
   }
 }

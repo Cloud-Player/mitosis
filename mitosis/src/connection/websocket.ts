@@ -1,16 +1,20 @@
 import {Message} from '../message/message';
 import {AbstractConnection} from './connection';
-import {IConnection} from './interface';
+import {ConnectionState, IConnection} from './interface';
 
 export class WebSocketConnection extends AbstractConnection implements IConnection {
 
   private _client: WebSocket;
 
   public send(message: Message): void {
-    if (this._client && this._client.readyState === WebSocket.OPEN) {
-      this._client.send(message.toString());
+    if (!this._client) {
+      throw new Error('socket client not initialized');
+    } else if (this.getState() !== ConnectionState.OPEN) {
+      throw new Error(`socket connection not in open state (${this.getState()})`);
+    } else if (this._client.readyState !== WebSocket.OPEN) {
+      throw new Error(`socket client not in open state (${this._client.readyState})`);
     } else {
-      // TODO: Queue message in out buffer or raise error
+      this._client.send(message.toString());
     }
   }
 

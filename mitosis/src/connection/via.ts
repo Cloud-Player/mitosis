@@ -13,6 +13,6 @@ export class ViaConnection extends AbstractConnection implements IConnection {
   }
 
   public send(message: Message): void {
-    throw new Error('send not implemented');
+    throw new Error('via connection cannot send directly');
   }
 }

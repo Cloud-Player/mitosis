@@ -120,9 +120,14 @@ export class RemotePeer {
       .sortByQuality()
       .shift();
     if (connection) {
-      connection.send(message);
+      try {
+        connection.send(message);
+      } catch (error) {
+        console.error(error);
+        connection.close();
+      }
     } else {
-      throw new Error(`no direct connection to ${message.getReceiver()}`);
+      console.error(`no direct connection to ${message.getReceiver()}`);
     }
   }
 

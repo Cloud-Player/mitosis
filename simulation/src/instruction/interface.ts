@@ -24,6 +24,7 @@ export const InstructionTypeMap: Map<InstructionType, IInstructionConstructor> =
 export interface IConfiguration {
   address?: string;
   signal?: string;
+  target?: string;
   roles?: Array<RoleType>;
 }
 

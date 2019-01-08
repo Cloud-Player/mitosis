@@ -33,7 +33,6 @@ export class RoutingTable {
       this._peerChurnSubject.next({peer: peer, type: ChurnType.ADDED});
     }
 
-    console.log('connecting to', address.toString());
     return peer.connect(address, options).then(() => {
       return peer;
     });
@@ -44,7 +43,7 @@ export class RoutingTable {
     if (existingPeer) {
       existingPeer.send(message);
     } else {
-      console.error(`Can not send message to peer ${message.getReceiver().getId()}. Peer does not exist`);
+      console.error(`cannot send message because ${message.getReceiver().toString()} does not exist`);
     }
   }
 

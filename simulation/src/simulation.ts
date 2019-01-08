@@ -27,7 +27,7 @@ export class Simulation {
     this._edges = new Map();
   }
 
-  public addConnection(from: string, to: string, connection: MockConnection) {
+  public addConnection(from: string, to: string, connection: MockConnection): void {
     const local = this._nodes.get(from);
     const remote = this._nodes.get(to);
     if (!local) {
@@ -51,7 +51,7 @@ export class Simulation {
     }
   }
 
-  public removeConnection(from: string, to: string) {
+  public removeConnection(from: string, to: string): void {
     const directions = [[from, to].join('-'), [to, from].join('-')];
     directions.forEach(
       key => {
@@ -64,7 +64,7 @@ export class Simulation {
     );
   }
 
-  public deliverMessage(from: string, to: string, delay: number, message: Message) {
+  public deliverMessage(from: string, to: string, delay: number, message: Message): void {
     const edge = this._edges.get([to, from].join('-'));
     if (edge) {
       /*
@@ -74,19 +74,19 @@ export class Simulation {
       */
       (edge.getConnection() as MockConnection).onMessage(message);
     } else {
-      console.error('could not deliver', message);
+      throw new Error('mock connection failed to deliver');
     }
   }
 
-  public addNode(mitosis: Mitosis) {
+  public addNode(mitosis: Mitosis): void {
     this._nodes.set(mitosis.getMyAddress().getId(), new Node(mitosis));
   }
 
-  public removeNode(mitosis: Mitosis) {
+  public removeNode(mitosis: Mitosis): void {
     this.removeNodeById(mitosis.getMyAddress().getId());
   }
 
-  public removeNodeById(id: string) {
+  public removeNodeById(id: string): void {
     const node = this._nodes.get(id);
     if (node) {
       node.getMitosis().destroy();
@@ -106,11 +106,11 @@ export class Simulation {
     return Array.from(this._nodes.values());
   }
 
-  public onUpdate(callback: () => void) {
+  public onUpdate(callback: () => void): void {
     this._clock.setInterval(callback);
   }
 
-  public start(scenarioJSON: { instructions: Array<any> }) {
+  public start(scenarioJSON: { instructions: Array<any> }): void {
     const instructions = InstructionFactory.arrayFromJSON(scenarioJSON);
     instructions.forEach(
       instr => {
