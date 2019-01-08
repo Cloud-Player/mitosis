@@ -12,7 +12,7 @@
     "url": "git://github.com/auxdotapp/mitosis.git"
   },
   "main": "dist/mitosis-simulation.umd.js",
-  "module": "dist/mitosis-simulation.es5.js",
+  "module": "dist/mitosis-simulation.es6.js",
   "typings": "dist/types/simulation.d.ts",
   "files": [
     "dist"

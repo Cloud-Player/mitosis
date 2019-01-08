@@ -4,14 +4,14 @@
     "noImplicitAny": true,
     "declaration": true,
     "module": "es6",
-    "target": "es5",
+    "target": "es2018",
     "jsx": "react",
     "moduleResolution": "node",
     "typeRoots": [
       "node_modules/@types"
     ],
     "lib": [
-      "es2017",
+      "es2018",
       "dom"
     ],
     "declarationDir": "dist/types",
