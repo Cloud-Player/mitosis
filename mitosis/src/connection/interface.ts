@@ -36,8 +36,9 @@ export interface IWebRTCConnectionOptionsPayload {
 }
 
 export enum ConnectionState {
+  OPENING = 'opening',
   OPEN = 'open',
-  CONNECTING = 'connecting',
+  CLOSING = 'closing',
   CLOSED = 'closed',
   ERROR = 'error'
 }

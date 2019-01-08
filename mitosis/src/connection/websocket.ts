@@ -4,11 +4,11 @@ import {IConnection} from './interface';
 
 export class WebSocketConnection extends AbstractConnection implements IConnection {
 
-  private _socket: WebSocket;
+  private _client: WebSocket;
 
   public send(message: Message): void {
-    if (this._socket && this._socket.readyState === WebSocket.OPEN) {
-      this._socket.send(message.toString());
+    if (this._client && this._client.readyState === WebSocket.OPEN) {
+      this._client.send(message.toString());
     } else {
       // TODO: Queue message in out buffer or raise error
     }
@@ -27,21 +27,20 @@ export class WebSocketConnection extends AbstractConnection implements IConnecti
   }
 
   private onSocketError(event: Event) {
-    this.onError();
+    this.onError(event);
   }
 
   protected closeClient(): void {
-    this._socket.close();
-    this._socket = null;
-    this.onClose();
+    this._client.close();
+    this._client = null;
   }
 
   public openClient() {
-    this._socket = new WebSocket(`${this._address.getProtocol()}://${this._address.getLocation()}`);
-    this._socket.onopen = this.onSocketOpen.bind(this);
-    this._socket.onclose = this.onSocketClose.bind(this);
-    this._socket.onmessage = this.onSocketMessage.bind(this);
-    this._socket.onerror = this.onSocketError.bind(this);
+    this._client = new WebSocket(`${this._address.getProtocol()}://${this._address.getLocation()}`);
+    this._client.onopen = this.onSocketOpen.bind(this);
+    this._client.onclose = this.onSocketClose.bind(this);
+    this._client.onmessage = this.onSocketMessage.bind(this);
+    this._client.onerror = this.onSocketError.bind(this);
   }
 
   public getQuality(): number {

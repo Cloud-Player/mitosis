@@ -42,6 +42,7 @@ export abstract class AbstractConnection {
   }
 
   public onOpen(connection: IConnection) {
+    console.debug(`connection opened ${this.getAddress().toString()}`);
     if (this._onOpenResolver) {
       this._onOpenResolver(connection);
       this._onOpenResolver = null;
@@ -52,7 +53,7 @@ export abstract class AbstractConnection {
   }
 
   public onClose() {
-    console.log('connection onClose');
+    console.debug(`connection closed ${this.getAddress().toString()}`);
     if (this._onOpenRejector) {
       this._onOpenRejector();
       this._onOpenResolver = null;
@@ -64,7 +65,8 @@ export abstract class AbstractConnection {
     this._messageReceivedSubject.complete();
   }
 
-  public onError() {
+  public onError(error?: any) {
+    console.error(`connection error ${this.getAddress().toString()} ${error}`);
     this._state = ConnectionState.ERROR;
     this._stateChangeSubject.next(ConnectionState.ERROR);
     this.onClose();
@@ -75,12 +77,15 @@ export abstract class AbstractConnection {
   }
 
   public close() {
-    console.log('connection close');
+    console.debug(`connection closing ${this.getAddress().toString()}`);
+    this._state = ConnectionState.CLOSING;
+    this._stateChangeSubject.next(ConnectionState.CLOSING);
     this.closeClient();
   }
 
   public open(): Promise<IConnection> {
-    this._state = ConnectionState.CONNECTING;
+    console.debug(`connection opening ${this.getAddress().toString()}`);
+    this._state = ConnectionState.OPENING;
     return new Promise<IConnection>((resolve, reject) => {
       this._onOpenResolver = resolve;
       this._onOpenRejector = reject;
