@@ -1,6 +1,7 @@
-import {Component, OnInit, ViewEncapsulation} from '@angular/core';
+import {Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {Simulation} from 'mitosis-simulation';
 import {D3Model} from '../d3-directed-graph/models/d3';
+import {D3DirectedGraphComponent} from '../d3-directed-graph/d3-directed-graph';
 
 const scenario = require('./scenario/hello-world.json');
 
@@ -13,6 +14,9 @@ export class SimulationComponent implements OnInit {
   public model: D3Model;
   public selectedNode: Node;
   public simulation: Simulation;
+
+  @ViewChild('graph')
+  public graph: D3DirectedGraphComponent;
 
   constructor() {
     this.model = new D3Model();

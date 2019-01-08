@@ -20,11 +20,12 @@
   <section>
     <app-search-input
       placeholder="Search for a node"
+      [options]="availableNodeIds"
       (valueChange)="search($event)">
     </app-search-input>
   </section>
 
-  <section>
+  <section class="no-padding">
     <app-tab-bar *ngIf="selectedNode">
       <app-tab-pane title="Node Settings">
         <section>

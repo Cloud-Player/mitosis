@@ -3,6 +3,7 @@ import {Edge} from '../edge/edge';
 
 export class Node {
   private _mitosis: Mitosis;
+  private _isSelected: boolean;
   public x: number;
   public y: number;
 
@@ -26,5 +27,13 @@ export class Node {
 
   public getId() {
     return this._mitosis.getMyAddress().getId();
+  }
+
+  public setSelected(isSelected: boolean) {
+    this._isSelected = isSelected;
+  }
+
+  public isSelected() {
+    return this._isSelected;
   }
 }

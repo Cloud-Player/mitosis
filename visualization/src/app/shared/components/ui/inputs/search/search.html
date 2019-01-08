@@ -3,8 +3,14 @@
   <mat-form-field class="search-form-field">
     <input matInput type="text"
            [placeholder]="placeholder"
+           [matAutocomplete]="auto"
            [(ngModel)]="query"
            (ngModelChange)="searchOnInput($event)">
+    <mat-autocomplete #auto="matAutocomplete">
+      <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+        {{option}}
+      </mat-option>
+    </mat-autocomplete>
     <button *ngIf="query"
             mat-button
             matSuffix
