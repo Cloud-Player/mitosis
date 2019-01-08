@@ -1,4 +1,5 @@
 import {Subject} from 'rxjs';
+import {filter} from 'rxjs/operators';
 import {IConnectionOptions} from '../connection/interface';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
@@ -17,6 +18,14 @@ export class RoutingTable {
     this._peerChurnSubject = new Subject();
   }
 
+  private listenOnConnectionRemoved(remotePeer: RemotePeer): void {
+    if (remotePeer.getConnectionTable().length === 0) {
+      this._peers = this._peers.filter(
+        peer => peer.getId() !== remotePeer.getId()
+      );
+    }
+  }
+
   public getMyId(): string {
     return this._myId;
   }
@@ -30,6 +39,13 @@ export class RoutingTable {
     if (!peer) {
       peer = new RemotePeer(address.getId(), this._myId);
       this._peers.push(peer);
+      peer.observeChurn()
+        .pipe(
+          filter(ev => ev.type === ChurnType.REMOVED)
+        )
+        .subscribe(
+          ev => this.listenOnConnectionRemoved(peer)
+        );
       this._peerChurnSubject.next({peer: peer, type: ChurnType.ADDED});
     }
 
