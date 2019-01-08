@@ -56,7 +56,7 @@ export class ConfirmDeleteDirective implements AfterContentInit, OnDestroy {
     this.askUser().then(() => {
       this.confirmedClick.emit();
     }, () => {
-      console.log('User canceled');
+      console.debug('user canceled');
     });
   }
 

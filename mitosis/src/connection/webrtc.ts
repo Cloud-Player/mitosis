@@ -3,7 +3,7 @@ import {Address} from '../message/address';
 import {MessageSubject, Protocol} from '../message/interface';
 import {Message} from '../message/message';
 import {AbstractConnection} from './connection';
-import {IConnection, IWebRTCConnectionOptions, WebRTCConnectionOptionsPayloadType} from './interface';
+import {ConnectionState, IConnection, IWebRTCConnectionOptions, WebRTCConnectionOptionsPayloadType} from './interface';
 
 export class WebRTCConnection extends AbstractConnection implements IConnection {
 
@@ -11,7 +11,13 @@ export class WebRTCConnection extends AbstractConnection implements IConnection 
   protected _options: IWebRTCConnectionOptions;
 
   public send(message: Message): void {
-    this._client.send(message.toString());
+    if (!this._client) {
+      throw new Error('webrtc client not initialized');
+    } else if (this.getState() !== ConnectionState.OPEN) {
+      throw new Error(`webrtc connection not in open state (${this.getState()})`);
+    } else {
+      this._client.send(message.toString());
+    }
   }
 
   protected closeClient(): void {

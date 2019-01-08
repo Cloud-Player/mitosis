@@ -74,7 +74,7 @@ export class Simulation {
       */
       (edge.getConnection() as MockConnection).onMessage(message);
     } else {
-      console.error('could not deliver', message);
+      throw new Error('mock connection failed to deliver');
     }
   }
 

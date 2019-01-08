@@ -64,11 +64,7 @@ export class Mitosis {
     this.listenOnMessages();
     this.listenOnAppContentMessages();
 
-    console.log(
-      'hello, i am',
-      this._myAddress.toString(),
-      'and i am a',
-      roles.join(' and a '));
+    console.info(`👋 i am ${this._myId} and i am a ${roles.join(' and a ')}`);
 
     clock.setInterval(this.onTick.bind(this));
     this._clock = clock;

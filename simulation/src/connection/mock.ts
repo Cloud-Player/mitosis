@@ -1,4 +1,4 @@
-import {AbstractConnection, IConnection, Message} from 'mitosis';
+import {AbstractConnection, ConnectionState, IConnection, Message} from 'mitosis';
 import {Simulation} from '../simulation';
 
 export class MockConnection extends AbstractConnection implements IConnection {
@@ -17,11 +17,15 @@ export class MockConnection extends AbstractConnection implements IConnection {
   }
 
   public send(message: Message): void {
-    this._client.deliverMessage(
-      this._options.mitosisId,
-      this._address.getId(),
-      MockConnection._delay,
-      message);
+    if (this.getState() !== ConnectionState.OPEN) {
+      throw new Error('mock connection not in open state');
+    } else {
+      this._client.deliverMessage(
+        this._options.mitosisId,
+        this._address.getId(),
+        MockConnection._delay,
+        message);
+    }
   }
 
   public getSourceId(): string {

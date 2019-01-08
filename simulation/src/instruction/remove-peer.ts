@@ -8,7 +8,7 @@ export class RemovePeer extends AbstractInstruction implements IInstruction {
   public execute(simulation: Simulation): void {
     const config = this.getConfiguration();
     const address = Address.fromString(config.address);
+    console.info('👎 remove peer', address.getId());
     simulation.removeNodeById(address.getId());
-    console.log('removed peer', address.getId());
   }
 }

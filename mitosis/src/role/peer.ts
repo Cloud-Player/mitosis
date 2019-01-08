@@ -30,11 +30,9 @@ export class Peer implements IRole {
     );
     const insufficientConnections = directConnections.length < Peer.connectionGoal;
     if (insufficientConnections && indirectPeers.length) {
-      console.info('acquiring new peer');
       const address = new Address(indirectPeers.shift().getId(), Protocol.WEBRTC);
       routingTable.connectTo(address);
     } else if (!insufficientConnections) {
-      console.info('need to loose peers');
       const worstConnection = new ConnectionTable(directConnections)
         .sortByQuality()
         .pop();

@@ -40,7 +40,7 @@ export class MessageBroker {
   }
 
   private listenOnConnectionChurn(remotePeer: RemotePeer): void {
-    console.log('peer added', new Address(remotePeer.getId()).toString());
+    console.log(`${this._routingTable.getMyId()} added ${new Address(remotePeer.getId()).toString()}`);
     remotePeer.observeChurn()
       .pipe(
         filter(ev => ev.type === ChurnType.ADDED)
