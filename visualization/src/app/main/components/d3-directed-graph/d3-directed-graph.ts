@@ -74,18 +74,6 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
     this.zoomHolder.attr('transform', d3.event.transform);
   }
 
-  private highlightNodes(searchTerm: string) {
-
-    d3.select('.nodes').selectAll('circle')
-      .attr('fill', (d: any) => {
-        if (searchTerm && searchTerm.length > 0 && d.id.match(searchTerm)) {
-          return 'red';
-        } else {
-          return this.nodeColor;
-        }
-      });
-  }
-
   private tick() {
     const links = d3.select('.links').selectAll('.link');
     const nodes = d3.select('.nodes').selectAll('.node');
@@ -113,6 +101,7 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       .select('circle')
       .attr('fill', (d: Node) => {
         const roles = d.getMitosis().getRoles();
+
         if (roles.get(RoleType.SIGNAL)) {
           return 'red';
         } else if (roles.get(RoleType.ROUTER)) {
@@ -120,12 +109,14 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
         } else {
           return '#ccc';
         }
+      })
+      .attr('stroke', (d: Node) => {
+        if (d.isSelected()) {
+          return 'blue';
+        } else {
+          return 'white';
+        }
       });
-  }
-
-  private selectNode(node: Node) {
-    console.log('SELECT NODE', node.getId())
-    this.selectedNodeChange.emit(node);
   }
 
   private initD3() {
@@ -251,6 +242,25 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
         .force('x', d3.forceX(this.width / 2))
         .force('y', d3.forceY(this.height / 2));
     });
+  }
+
+  public selectNode(nodeId: string) {
+    let selectedNode: Node;
+    d3.selectAll('.node').each((d: Node) => {
+      if (!selectedNode && d.getId().match(nodeId)) {
+        selectedNode = d;
+      }
+      if (d.isSelected()) {
+        d.setSelected(false);
+      }
+    });
+
+    if (selectedNode) {
+      selectedNode.setSelected(true);
+      this.selectedNodeChange.emit(selectedNode);
+    } else {
+      this.selectedNodeChange.emit(null);
+    }
   }
 
   ngOnInit(): void {

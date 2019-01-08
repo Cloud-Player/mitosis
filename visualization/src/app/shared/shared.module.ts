@@ -17,7 +17,7 @@ import {ConfirmDeleteDirective} from './directives/confirm-delete';
 import {ConfirmDeleteComponent} from './components/confirm-delete/confirm-delete';
 import {TimeAgoDirective} from './directives/time-ago.directive';
 import {SearchInputComponent} from './components/ui/inputs/search/search';
-import {MatButtonModule, MatInputModule} from '@angular/material';
+import {MatAutocompleteModule, MatButtonModule, MatInputModule} from '@angular/material';
 import {ButtonComponent} from './components/ui/inputs/button/button';
 
 @NgModule({
@@ -26,7 +26,8 @@ import {ButtonComponent} from './components/ui/inputs/button/button';
     BrowserAnimationsModule,
     FormsModule,
     MatInputModule,
-    MatButtonModule
+    MatButtonModule,
+    MatAutocompleteModule
   ],
   exports: [
     ScrollViewComponent,
