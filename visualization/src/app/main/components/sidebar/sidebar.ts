@@ -1,5 +1,5 @@
-import {Component, Input, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
-import {Simulation} from 'mitosis-simulation';
+import {Component, Input, OnInit} from '@angular/core';
+import {Node, Simulation} from 'mitosis-simulation';
 import {D3DirectedGraphComponent} from '../d3-directed-graph/d3-directed-graph';
 
 @Component({
