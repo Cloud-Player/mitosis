@@ -31,9 +31,11 @@ export class Simulation {
     const local = this._nodes.get(from);
     const remote = this._nodes.get(to);
     if (!local) {
-      return console.error('connection impossible: local missing', from, to);
+      connection.onError(`local missing from ${from} to ${to}`);
+      return;
     } else if (!remote) {
-      return console.error('connection impossible: remote hung up', from, to);
+      connection.onError(`remote hung up from ${from} to ${to}`);
+      return;
     }
 
     if (!this._edges.get([from, to].join('-'))) {
@@ -80,7 +82,11 @@ export class Simulation {
   }
 
   public removeNodeById(id: string) {
-    this._nodes.delete(id);
+    const node = this._nodes.get(id);
+    if (node) {
+      node.getMitosis().destroy();
+      this._nodes.delete(id);
+    }
   }
 
   public getClock(): IClock {

@@ -4,26 +4,24 @@ import {Simulation} from '../simulation';
 export class MockConnection extends AbstractConnection implements IConnection {
 
   private static readonly _delay: 1;
+  private readonly _client: Simulation = Simulation.getInstance();
 
   protected closeClient(): void {
-    Simulation.getInstance()
-      .removeConnection(this._options.mitosisId, this._address.getId());
+    this._client.removeConnection(this._options.mitosisId, this._address.getId());
     this.onClose();
   }
 
   protected openClient(): void {
-    Simulation.getInstance()
-      .addConnection(this._options.mitosisId, this._address.getId(), this);
+    this._client.addConnection(this._options.mitosisId, this._address.getId(), this);
     this.onOpen(this);
   }
 
   public send(message: Message): void {
-    Simulation.getInstance()
-      .deliverMessage(
-        this._options.mitosisId,
-        this._address.getId(),
-        MockConnection._delay,
-        message);
+    this._client.deliverMessage(
+      this._options.mitosisId,
+      this._address.getId(),
+      MockConnection._delay,
+      message);
   }
 
   public getSourceId(): string {

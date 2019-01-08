@@ -19,7 +19,7 @@ export class Peer implements IRole {
     routingTable.getPeers().map(
       peer => {
         const connectionTable = peer.getConnectionTable()
-          .filterByStates(ConnectionState.OPEN, ConnectionState.CONNECTING)
+          .filterByStates(ConnectionState.OPEN, ConnectionState.OPENING)
           .filterDirect();
         if (connectionTable.length) {
           directConnections.push(...connectionTable.asArray());

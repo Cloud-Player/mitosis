@@ -52,21 +52,34 @@ export class RemotePeer {
   }
 
   private openConnection(connection: IConnection): Promise<RemotePeer> {
-    const openPromise = this._openConnectionPromises.get(connection);
-    let promise;
-    if (!openPromise) {
-      if (connection.getState() === ConnectionState.OPEN) {
-        return Promise.resolve(this);
+    let promise = this._openConnectionPromises.get(connection);
+    if (!promise) {
+      switch (connection.getState()) {
+        case ConnectionState.OPEN:
+          promise = Promise.resolve(this);
+          break;
+        case ConnectionState.CLOSING:
+        case ConnectionState.ERROR:
+          promise = Promise.reject(this);
+          break;
+        case ConnectionState.CLOSED:
+          promise = new Promise<RemotePeer>((resolve, reject) => {
+            connection.open()
+              .then(() => {
+                resolve(this);
+              })
+              .catch(() => {
+                reject(this);
+              })
+              .finally(() => {
+                this._openConnectionPromises.delete(connection);
+              });
+          });
+          this._openConnectionPromises.set(connection, promise);
+          break;
+        default:
+          throw new Error('opening connection should be in map');
       }
-      promise = new Promise<RemotePeer>((resolve) => {
-        connection.open().then(() => {
-          resolve(this);
-          this._openConnectionPromises.delete(connection);
-        });
-      });
-      this._openConnectionPromises.set(connection, promise);
-    } else {
-      promise = openPromise;
     }
     return promise;
   }
@@ -94,7 +107,7 @@ export class RemotePeer {
     if (!connection) {
       connection = this.createConnection(address, options);
       this._connectionsPerAddress.set(address.toString(), connection);
-      console.log('connection added', connection.getAddress().toString());
+      console.debug('connection added', connection.getAddress().toString());
       this._connectionChurnSubject.next({connection: connection, type: ChurnType.ADDED});
     }
     return this.openConnection(connection);
