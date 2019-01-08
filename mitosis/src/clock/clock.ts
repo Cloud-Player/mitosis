@@ -27,7 +27,7 @@ export abstract class AbstractClock {
       });
   }
 
-  protected tick(): void {
+  public tick(): void {
     try {
       this.doTick();
     } catch (error) {

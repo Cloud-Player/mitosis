@@ -6,6 +6,10 @@
                   text="Start"
                   (click)="getClock().start()">
       </app-button>
+      <app-button *ngIf="!getClock().isRunning()"
+                  text="Next tick"
+                  (click)="getClock().tick()">
+      </app-button>
       <app-button *ngIf="getClock().isRunning()"
                   text="Pause"
                   (click)="getClock().pause()">
