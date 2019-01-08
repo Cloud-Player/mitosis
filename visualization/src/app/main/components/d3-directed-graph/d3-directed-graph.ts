@@ -177,7 +177,9 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
         return 10;
       })
       .attr('fill', this.nodeColor)
-      .on('click', this.selectNode.bind(this));
+      .on('click', (d: Node) => {
+        this.selectNode(d.getId());
+      });
 
     nodeHolder
       .call(d3.drag()
