@@ -49,9 +49,14 @@ export class RoutingTable {
       this._peerChurnSubject.next({peer: peer, type: ChurnType.ADDED});
     }
 
-    return peer.connect(address, options).then(() => {
-      return peer;
-    });
+    return peer.connect(address, options)
+      .then(() => {
+        return peer;
+      })
+      .catch(() => {
+        console.warn(`${this.getMyId()} can not open connection to peer ${peer.getId()}`);
+        return Promise.reject(peer);
+      });
   }
 
   public sendMessage(message: Message) {
