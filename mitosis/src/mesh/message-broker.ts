@@ -67,7 +67,7 @@ export class MessageBroker {
 
   private ensureViaConnection(sender: Address, via: Address): void {
     if (
-      !via.matches(sender) &&
+      sender.getId() !== via.getId() &&
       sender.getId() !== this._routingTable.getMyId()
     ) {
       const viaAddress = new Address(
