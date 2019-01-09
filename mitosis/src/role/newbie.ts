@@ -22,7 +22,6 @@ export class Newbie implements IRole {
       mitosis.getRoutingTable().connectTo(mitosis.getSignalAddress()).then(
         remotePeer => {
           this._signal = remotePeer;
-          this.sendTableUpdate(mitosis);
         }
       );
     } else {
