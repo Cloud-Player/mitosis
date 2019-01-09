@@ -51,6 +51,16 @@ export class RemotePeer {
     return this._connectionsPerAddress.get(address.toString());
   }
 
+  private listenOnConnectionChanges(connection: IConnection) {
+    connection.observeStateChange().subscribe((ev) => {
+      switch (ev) {
+        case ConnectionState.CLOSED:
+          this._connectionsPerAddress.delete(connection.getAddress().toString());
+          break;
+      }
+    });
+  }
+
   private openConnection(connection: IConnection): Promise<RemotePeer> {
     let promise = this._openConnectionPromises.get(connection);
     if (!promise) {
@@ -95,7 +105,12 @@ export class RemotePeer {
     if (!connectionClass) {
       throw new Error(`unsupported protocol ${address.getProtocol()}`);
     }
-    return new connectionClass(address, options);
+    const connection = new connectionClass(address, options);
+    this._connectionsPerAddress.set(address.toString(), connection);
+    console.debug('connection added', connection.getAddress().toString());
+    this._connectionChurnSubject.next({connection: connection, type: ChurnType.ADDED});
+    this.listenOnConnectionChanges(connection);
+    return connection;
   }
 
   public hasRole(roleType: RoleType): boolean {
@@ -106,9 +121,6 @@ export class RemotePeer {
     let connection = this._connectionsPerAddress.get(address.toString());
     if (!connection) {
       connection = this.createConnection(address, options);
-      this._connectionsPerAddress.set(address.toString(), connection);
-      console.debug('connection added', connection.getAddress().toString());
-      this._connectionChurnSubject.next({connection: connection, type: ChurnType.ADDED});
     }
     return this.openConnection(connection);
   }
