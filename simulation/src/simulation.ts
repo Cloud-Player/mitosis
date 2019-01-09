@@ -1,5 +1,6 @@
 import {Address, IClock, MasterClock, Message, Mitosis, Protocol, ProtocolConnectionMap} from 'mitosis';
 import {MockConnection} from './connection/mock';
+import {WebRTCMockConnection} from './connection/webrtc-mock';
 import {Edge} from './edge/edge';
 import {InstructionFactory} from './instruction/factory';
 import {Node} from './node/node';
@@ -16,7 +17,7 @@ export class Simulation {
       Simulation._instance = new Simulation();
       ProtocolConnectionMap.set(Protocol.WEBSOCKET_UNSECURE, MockConnection);
       ProtocolConnectionMap.set(Protocol.WEBSOCKET, MockConnection);
-      ProtocolConnectionMap.set(Protocol.WEBRTC, MockConnection);
+      ProtocolConnectionMap.set(Protocol.WEBRTC, WebRTCMockConnection);
     }
     return Simulation._instance;
   }
@@ -71,7 +72,7 @@ export class Simulation {
         (edge.getConnection() as MockConnection).onMessage(message);
       }, delay);
     } else {
-      throw new Error('mock connection failed to deliver');
+      throw new Error(`mock connection failed to deliver message ${message.toString()} to edge ${to}`);
     }
   }
 
@@ -104,7 +105,7 @@ export class Simulation {
   }
 
   public onUpdate(callback: () => void): void {
-    this._clock.setInterval(callback);
+    this._clock.setInterval(callback, 1);
   }
 
   public start(scenarioJSON: { instructions: Array<any> }): void {
