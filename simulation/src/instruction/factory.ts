@@ -19,6 +19,7 @@ export class InstructionFactory {
       return null;
     }
     const instructionClass = InstructionTypeMap.get(parameters.type as InstructionType);
-    return new instructionClass(parameters.tick as number, parameters.configuration as IConfiguration);
+    const config = (parameters.configuration || {}) as IConfiguration;
+    return new instructionClass(parameters.tick as number, config);
   }
 }

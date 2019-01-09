@@ -25,6 +25,10 @@
         "address": "mitosis/v1/bob/webrtc",
         "signal": "mitosis/v1/signal/wss"
       }
+    },
+    {
+      "tick": 9,
+      "type": "pause-clock"
     }
   ]
 }
