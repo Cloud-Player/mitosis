@@ -67,12 +67,9 @@ export class Simulation {
   public deliverMessage(from: string, to: string, delay: number, message: Message): void {
     const edge = this._edges.get([to, from].join('-'));
     if (edge) {
-      /*
-        this._clock.setTimeout(() => {
-          (edge.getConnection() as MockConnection).onMessage(message);
-        }, delay);
-      */
-      (edge.getConnection() as MockConnection).onMessage(message);
+      this._clock.setTimeout(() => {
+        (edge.getConnection() as MockConnection).onMessage(message);
+      }, delay);
     } else {
       throw new Error('mock connection failed to deliver');
     }
