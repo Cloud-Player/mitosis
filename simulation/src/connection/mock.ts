@@ -3,8 +3,8 @@ import {Simulation} from '../simulation';
 
 export class MockConnection extends AbstractConnection implements IConnection {
 
-  private static readonly _delay: 1;
-  private readonly _client: Simulation = Simulation.getInstance();
+  protected _delay = 1;
+  protected readonly _client: Simulation = Simulation.getInstance();
 
   protected closeClient(): void {
     this._client.removeConnection(this._options.mitosisId, this._address.getId());
@@ -23,9 +23,17 @@ export class MockConnection extends AbstractConnection implements IConnection {
       this._client.deliverMessage(
         this._options.mitosisId,
         this._address.getId(),
-        MockConnection._delay,
+        this._delay,
         message);
     }
+  }
+
+  public setDelay(delay: number) {
+    this._delay = delay;
+  }
+
+  public getDelay() {
+    return this._delay;
   }
 
   public getSourceId(): string {

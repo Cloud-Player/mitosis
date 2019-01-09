@@ -119,3 +119,4 @@ export class Simulation {
 
 export {Node} from './node/node';
 export {Edge} from './edge/edge';
+export {MockConnection} from './connection/mock';
