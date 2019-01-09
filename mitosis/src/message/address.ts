@@ -1,4 +1,4 @@
-import {Protocol} from './interface';
+import {Protocol} from '../connection/interface';
 
 export class Address {
 

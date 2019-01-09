@@ -1,12 +1,18 @@
 import {Subject} from 'rxjs';
 import {Address} from '../message/address';
-import {Protocol} from '../message/interface';
 import {Message} from '../message/message';
 import {ViaConnection} from './via';
 import {WebRTCConnection} from './webrtc';
 import {WebSocketConnection} from './websocket';
 
 export type IConnectionConstructor = new(address: Address, options?: IConnectionOptions) => IConnection;
+
+export enum Protocol {
+  WEBSOCKET_UNSECURE = 'ws',
+  WEBSOCKET = 'wss',
+  WEBRTC = 'webrtc',
+  VIA = 'via'
+}
 
 export const ProtocolConnectionMap: Map<Protocol, IConnectionConstructor> = new Map();
 ProtocolConnectionMap.set(Protocol.WEBSOCKET, WebSocketConnection);
@@ -44,7 +50,6 @@ export enum ConnectionState {
 }
 
 export interface IConnection {
-
   getQuality(): number;
 
   getAddress(): Address;
