@@ -1,9 +1,15 @@
 import * as SimplePeer from 'simple-peer';
 import {Address} from '../message/address';
-import {MessageSubject, Protocol} from '../message/interface';
+import {MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
 import {AbstractConnection} from './connection';
-import {ConnectionState, IConnection, IWebRTCConnectionOptions, WebRTCConnectionOptionsPayloadType} from './interface';
+import {
+  ConnectionState,
+  IConnection,
+  IWebRTCConnectionOptions,
+  Protocol,
+  WebRTCConnectionOptionsPayloadType
+} from './interface';
 
 export class WebRTCConnection extends AbstractConnection implements IConnection {
 

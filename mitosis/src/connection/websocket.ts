@@ -1,9 +1,8 @@
 import {Message} from '../message/message';
 import {AbstractConnection} from './connection';
-import {ConnectionState, IConnection} from './interface';
+import {ConnectionState, IConnection, Protocol} from './interface';
 
 export class WebSocketConnection extends AbstractConnection implements IConnection {
-
   private _client: WebSocket;
 
   public send(message: Message): void {

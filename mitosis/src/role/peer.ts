@@ -1,9 +1,8 @@
 import {ConnectionTable} from '../connection/connection-table';
-import {ConnectionState, IConnection} from '../connection/interface';
+import {ConnectionState, IConnection, Protocol} from '../connection/interface';
 import {RemotePeer} from '../mesh/remote-peer';
 import {RoutingTable} from '../mesh/routing-table';
 import {Address} from '../message/address';
-import {Protocol} from '../message/interface';
 import {Message} from '../message/message';
 import {PeerUpdate} from '../message/peer-update';
 import {Mitosis} from '../mitosis';

@@ -1,11 +1,17 @@
 import {Subject} from 'rxjs';
 import {filter} from 'rxjs/operators';
-import {ConnectionState, IConnection, IWebRTCConnectionOptions, WebRTCConnectionOptionsPayloadType} from '../connection/interface';
+import {
+  ConnectionState,
+  IConnection,
+  IWebRTCConnectionOptions,
+  Protocol,
+  WebRTCConnectionOptionsPayloadType
+} from '../connection/interface';
 import {ViaConnection} from '../connection/via';
 import {WebRTCConnection} from '../connection/webrtc';
 import {Address} from '../message/address';
 import {ConnectionNegotiation, ConnectionNegotiationType} from '../message/connection-negotiation';
-import {MessageSubject, Protocol} from '../message/interface';
+import {MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
 import {PeerUpdate} from '../message/peer-update';
 import {RoleUpdate} from '../message/role-update';

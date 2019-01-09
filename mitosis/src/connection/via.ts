@@ -1,9 +1,8 @@
 import {Message} from '../message/message';
 import {AbstractConnection} from './connection';
-import {IConnection} from './interface';
+import {IConnection, Protocol} from './interface';
 
 export class ViaConnection extends AbstractConnection implements IConnection {
-
   protected closeClient(): void {
     this.onClose();
   }
