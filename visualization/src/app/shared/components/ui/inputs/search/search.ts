@@ -1,4 +1,14 @@
-import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {
+  Component, ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+  ViewChild
+} from '@angular/core';
 import {Subject} from 'rxjs/internal/Subject';
 import {Subscription} from 'rxjs/internal/Subscription';
 import {debounceTime, distinctUntilChanged, map, startWith, switchMap} from 'rxjs/operators';
@@ -9,11 +19,14 @@ import {Observable} from 'rxjs';
   templateUrl: './search.html',
   styleUrls: ['./search.scss']
 })
-export class SearchInputComponent implements OnInit, OnDestroy {
+export class SearchInputComponent implements OnInit, OnChanges, OnDestroy {
   private searchTerms = new Subject<string>();
   private searchTermsSubscription: Subscription;
+  private _isActive = false;
 
   public filteredOptions: Observable<string[]>;
+
+  @Input()
   public query: string;
 
   @Input()
@@ -34,7 +47,7 @@ export class SearchInputComponent implements OnInit, OnDestroy {
   }
 
   private static deleteSearchTerm(): void {
-     localStorage.removeItem('mitosis-vis-node-search');
+    localStorage.removeItem('mitosis-vis-node-search');
   }
 
   constructor() {
@@ -60,8 +73,12 @@ export class SearchInputComponent implements OnInit, OnDestroy {
     this.searchTerms.next(null);
   }
 
-  ngOnDestroy(): void {
-    this.searchTermsSubscription.unsubscribe();
+  public setActive(isActive: boolean) {
+    this._isActive = isActive;
+  }
+
+  public isActive() {
+    return this._isActive;
   }
 
   ngOnInit(): void {
@@ -94,5 +111,15 @@ export class SearchInputComponent implements OnInit, OnDestroy {
     if (existingSearchTerm) {
       this.searchOnInput(existingSearchTerm);
     }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.query && changes.query.currentValue) {
+      this.searchOnInput(changes.query.currentValue);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.searchTermsSubscription.unsubscribe();
   }
 }

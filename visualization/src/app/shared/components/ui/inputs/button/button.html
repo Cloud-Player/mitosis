@@ -1,3 +1,14 @@
 <div class="button">
-  <button mat-raised-button [color]="type" [disabled]="disabled">{{text}}</button>
+  <button *ngIf="!type"
+          mat-raised-button [color]="color"
+          [disabled]="disabled">{{text}}
+  </button>
+
+  <button *ngIf="type==='icon'"
+          mat-icon-button
+          [disabled]="disabled">
+    <i [class]="text"></i>
+  </button>
 </div>
+
+

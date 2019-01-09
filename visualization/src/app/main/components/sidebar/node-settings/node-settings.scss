@@ -1,0 +1,11 @@
+@import "variables";
+
+:host {
+  .form-field{
+    margin: 30px 0;
+    label{
+      display: block;
+      margin-bottom: 15px;
+    }
+  }
+}

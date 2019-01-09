@@ -1,6 +1,7 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {Node, Simulation} from 'mitosis-simulation';
 import {D3DirectedGraphComponent} from '../d3-directed-graph/d3-directed-graph';
+import {SearchInputComponent} from '../../../shared/components/ui/inputs/search/search';
 
 @Component({
   selector: 'app-sidebar',
@@ -9,7 +10,9 @@ import {D3DirectedGraphComponent} from '../d3-directed-graph/d3-directed-graph';
 })
 export class SidebarComponent implements OnInit {
   private searchNode: string;
+  public nodeQuery: string;
   public availableNodeIds: Array<string> = [];
+
   @Input()
   public selectedNode: Node;
 
@@ -18,6 +21,9 @@ export class SidebarComponent implements OnInit {
 
   @Input()
   public graph: D3DirectedGraphComponent;
+
+  @ViewChild('searchInput')
+  public searchEl: SearchInputComponent;
 
   constructor() {
   }
@@ -41,5 +47,12 @@ export class SidebarComponent implements OnInit {
         this.graph.selectNode(this.searchNode);
       }
     });
+
+    this.graph.selectedNodeChange
+      .subscribe((node: Node) => {
+        if (node && !this.searchEl.isActive()) {
+          this.searchEl.searchOnInput(node.getId());
+        }
+      });
   }
 }

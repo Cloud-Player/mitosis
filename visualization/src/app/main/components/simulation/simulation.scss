@@ -1,3 +1,5 @@
+@import "variables";
+
 :host{
   .simulation{
     display: flex;
@@ -16,6 +18,8 @@
       width: 25vw;
       background: red;
       height: 100vh;
+      background: $brand-primary;
+      color: white;
       min-width: 350px;
     }
   }

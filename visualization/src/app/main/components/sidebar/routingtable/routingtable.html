@@ -1,0 +1,26 @@
+<div class="routing-table">
+  <app-collapsible *ngFor="let remotePeer of selectedNode.getMitosis().getPeers()"
+                   [isCollapsed]="true"
+                   [title]="remotePeer.getId()"
+                   [text]="getConnectionText(remotePeer)">
+    <ul class="connections">
+      <li *ngFor="let connection of remotePeer.getConnectionTable().asArray()">
+        <div class="left">
+          <app-button type="icon"
+                      text="fa fa-trash"
+                      [disabled]="connection.getAddress().getProtocol()==='via'"
+                      (click)="connection.close()">
+          </app-button>
+          {{connection.getAddress().getProtocol()}}
+          <span *ngIf="connection.getAddress().getProtocol()==='via'">
+            {{connection.getAddress().getLocation()}}
+          </span>
+        </div>
+        <div class="right">
+          {{connection.getState()}},
+          TQ {{connection.getQuality()}}
+        </div>
+      </li>
+    </ul>
+  </app-collapsible>
+</div>

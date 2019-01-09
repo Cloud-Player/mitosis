@@ -1,7 +1,8 @@
-import {Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
-import {Simulation} from 'mitosis-simulation';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {Edge, Simulation} from 'mitosis-simulation';
 import {D3Model} from '../d3-directed-graph/models/d3';
 import {D3DirectedGraphComponent} from '../d3-directed-graph/d3-directed-graph';
+import {ConnectionState, Protocol} from 'mitosis';
 
 const scenario = require('./scenario/hello-world.json');
 
@@ -33,9 +34,17 @@ export class SimulationComponent implements OnInit {
       const model = new D3Model();
       this.simulation.getNodes().forEach((node) => {
         model.addNode(node);
-      });
-      this.simulation.getEdges().forEach((edge) => {
-        model.addEdge(edge);
+        node.getMitosis().getRoutingTable()
+          .getPeers()
+          .forEach((p) => {
+            p.getConnectionTable()
+              .asArray()
+              .forEach((c) => {
+                if (c.getAddress().getProtocol() !== Protocol.VIA && c.getState() === ConnectionState.OPEN) {
+                  model.addEdge(new Edge(node.getId(), c));
+                }
+              });
+          });
       });
       this.model = model;
     });

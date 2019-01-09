@@ -5,7 +5,9 @@
            [placeholder]="placeholder"
            [matAutocomplete]="auto"
            [(ngModel)]="query"
-           (ngModelChange)="searchOnInput($event)">
+           (ngModelChange)="searchOnInput($event)"
+           (focus)="setActive(true)"
+           (blur)="setActive(false)">
     <mat-autocomplete #auto="matAutocomplete">
       <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
         {{option}}

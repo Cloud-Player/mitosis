@@ -19,6 +19,7 @@
 
   <section>
     <app-search-input
+      #searchInput
       placeholder="Search for a node"
       [options]="availableNodeIds"
       (valueChange)="search($event)">
@@ -31,16 +32,13 @@
         <section>
           <header *ngIf="selectedNode">Selected node: {{selectedNode.getId()}}</header>
           <header *ngIf="!selectedNode">Node node selected</header>
+          <app-node-settings [selectedNode]="selectedNode"></app-node-settings>
         </section>
       </app-tab-pane>
       <app-tab-pane title="Routingtable">
         <section>
           <header>Remote Peers</header>
-          <ul>
-            <li *ngFor="let remotePeer of selectedNode.getMitosis().getPeers()">
-              {{remotePeer.getId()}}
-            </li>
-          </ul>
+          <app-routing-table [selectedNode]="selectedNode"></app-routing-table>
         </section>
       </app-tab-pane>
       <app-tab-pane title="Messages">

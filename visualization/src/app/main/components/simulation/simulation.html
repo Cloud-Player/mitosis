@@ -5,7 +5,9 @@
                            (selectedNodeChange)="selectNode($event)">
     </app-d3-directed-graph>
   </div>
-  <div class="sidebar">
+  <div class="sidebar scrollable"
+       appFillHeight
+       [minHeight]="false">
     <app-sidebar [selectedNode]="selectedNode"
                  [graph]="graph"
                  [simulation]="simulation"></app-sidebar>

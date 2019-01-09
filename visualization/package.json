@@ -3,9 +3,10 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "npm run build:lib && ng serve",
     "build": "ng build",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "build:lib":  "cd ../mitosis && npm run build && cd ../simulation && npm run build && cd ../visualization"
   },
   "private": true,
   "preferGlobal": true,

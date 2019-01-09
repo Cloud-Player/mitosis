@@ -17,8 +17,17 @@ import {ConfirmDeleteDirective} from './directives/confirm-delete';
 import {ConfirmDeleteComponent} from './components/confirm-delete/confirm-delete';
 import {TimeAgoDirective} from './directives/time-ago.directive';
 import {SearchInputComponent} from './components/ui/inputs/search/search';
-import {MatAutocompleteModule, MatButtonModule, MatInputModule} from '@angular/material';
+import {
+  MatAutocompleteModule,
+  MatButtonModule,
+  MatFormFieldModule,
+  MatInputModule,
+  MatSliderModule
+} from '@angular/material';
 import {ButtonComponent} from './components/ui/inputs/button/button';
+import {CollapsibleComponent} from './components/collapsible/collapsible';
+import {FormFieldComponent} from './components/ui/form/form-field/form-field';
+import {SliderComponent} from './components/ui/inputs/slider/slider';
 
 @NgModule({
   imports: [
@@ -27,10 +36,13 @@ import {ButtonComponent} from './components/ui/inputs/button/button';
     FormsModule,
     MatInputModule,
     MatButtonModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatSliderModule,
+    MatFormFieldModule
   ],
   exports: [
     ScrollViewComponent,
+    CollapsibleComponent,
 
     TabBarComponent,
     TabPaneComponent,
@@ -41,6 +53,8 @@ import {ButtonComponent} from './components/ui/inputs/button/button';
     HeaderComponent,
     SearchInputComponent,
     ButtonComponent,
+    SliderComponent,
+    FormFieldComponent,
 
     FillHeightDirective,
     ConfirmDeleteDirective,
@@ -49,6 +63,7 @@ import {ButtonComponent} from './components/ui/inputs/button/button';
   declarations: [
     ScrollViewComponent,
     ConfirmDeleteComponent,
+    CollapsibleComponent,
 
     TabBarComponent,
     TabPaneComponent,
@@ -59,6 +74,8 @@ import {ButtonComponent} from './components/ui/inputs/button/button';
     HeaderComponent,
     SearchInputComponent,
     ButtonComponent,
+    SliderComponent,
+    FormFieldComponent,
 
     FillHeightDirective,
     ConfirmDeleteDirective,
