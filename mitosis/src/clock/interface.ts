@@ -14,11 +14,11 @@ export interface IClock {
 
   stop(): void;
 
-  setInterval(callback: () => void): number;
+  setInterval(callback: () => void, interval?: number): number;
 
   clearInterval(cancelId: number): void;
 
-  setTimeout(callback: () => void, ticks: number): number;
+  setTimeout(callback: () => void, timeout?: number): number;
 
   clearTimeout(cancelId: number): void;
 

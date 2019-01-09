@@ -1,4 +1,4 @@
-import {IClock, IScheduledCallback} from './interface';
+import {IScheduledCallback} from './interface';
 
 export abstract class AbstractClock {
 
@@ -10,6 +10,12 @@ export abstract class AbstractClock {
   private _isRunning = false;
 
   private doTick(): void {
+    this._timeouts.forEach(
+      (value: IScheduledCallback) => {
+        if (value.tick === this._tickCounter) {
+          value.callback();
+        }
+      });
     this._intervals.forEach(
       (value: IScheduledCallback) => {
         if (this._tickCounter % value.tick === 0) {
@@ -18,12 +24,7 @@ export abstract class AbstractClock {
       });
     this._timeouts = this._timeouts.filter(
       (value: IScheduledCallback) => {
-        if (value.tick <= this._tickCounter) {
-          value.callback();
-          return false;
-        } else {
-          return true;
-        }
+        return value.tick > this._tickCounter;
       });
   }
 
@@ -58,6 +59,7 @@ export abstract class AbstractClock {
   }
 
   public setInterval(callback: () => void, interval: number = 1): number {
+    interval = Math.max(interval, 1);
     this._lastCancelId = (this._lastCancelId + 1) % this._maxCancelId;
     const scheduledCallback = {tick: interval, cancelId: this._lastCancelId, callback: callback};
     this._intervals.push(scheduledCallback);
@@ -70,7 +72,8 @@ export abstract class AbstractClock {
     );
   }
 
-  public setTimeout(callback: () => void, timeout: number = 0): number {
+  public setTimeout(callback: () => void, timeout: number = 1): number {
+    timeout = Math.max(timeout, 1);
     this._lastCancelId = (this._lastCancelId + 1) % this._maxCancelId;
     const scheduledCallback = {tick: this._tickCounter + timeout, cancelId: this._lastCancelId, callback: callback};
     this._timeouts.push(scheduledCallback);
