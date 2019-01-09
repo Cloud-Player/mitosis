@@ -56,12 +56,4 @@ export class Address {
     ].filter(value => value !== undefined);
     return segments.join('/');
   }
-
-  public matches(other: Address): boolean {
-    return (
-      this.getId() === other.getId() &&
-      this.getProtocol() === other.getProtocol() &&
-      this.getVersion() === other.getVersion()
-    );
-  }
 }
