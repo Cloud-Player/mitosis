@@ -31,28 +31,28 @@ export class Logger implements ILogger {
   }
 
   public debug(...args: Array<any>): void {
-    if (Logger._logLevel >= LogLevel.DEBUG) {
+    if (Logger._logLevel <= LogLevel.DEBUG) {
       console.log(`🔧 [${this._id}]`, ...args);
     }
     this._logSubject.next({level: LogLevel.DEBUG, data: args});
   }
 
   public info(...args: Array<any>): void {
-    if (Logger._logLevel >= LogLevel.INFO) {
+    if (Logger._logLevel <= LogLevel.INFO) {
       console.info(`[${this._id}]`, ...args);
     }
     this._logSubject.next({level: LogLevel.INFO, data: args});
   }
 
   public warn(...args: Array<any>): void {
-    if (Logger._logLevel >= LogLevel.WARN) {
+    if (Logger._logLevel <= LogLevel.WARN) {
       console.warn(`[${this._id}]`, ...args);
     }
     this._logSubject.next({level: LogLevel.WARN, data: args});
   }
 
   public error(...args: Array<any>): void {
-    if (Logger._logLevel >= LogLevel.ERROR) {
+    if (Logger._logLevel <= LogLevel.ERROR) {
       console.error(`[${this._id}]`, ...args);
     }
     this._logSubject.next({level: LogLevel.ERROR, data: args});

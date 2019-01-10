@@ -1,0 +1,22 @@
+@import "variables";
+
+:host {
+  li {
+    margin: 10px;
+    .log {
+      color: gainsboro;
+    }
+    .debug {
+      color: lightcyan;
+    }
+    .info {
+      color: lightyellow;
+    }
+    .warn {
+      color: darkorange;
+    }
+    .error {
+      color: tomato;
+    }
+  }
+}

@@ -28,7 +28,7 @@
 
   <section class="no-padding">
     <app-tab-bar *ngIf="selectedNode">
-      <app-tab-pane title="Node Settings">
+      <app-tab-pane title="Settings">
         <section>
           <header *ngIf="selectedNode">Selected node: {{selectedNode.getId()}}</header>
           <header *ngIf="!selectedNode">Node node selected</header>
@@ -41,8 +41,11 @@
           <app-routing-table [selectedNode]="selectedNode"></app-routing-table>
         </section>
       </app-tab-pane>
-      <app-tab-pane title="Message Log">
+      <app-tab-pane title="Messages">
         <section></section>
+      </app-tab-pane>
+      <app-tab-pane title="Logger">
+        <app-logger [selectedNode]="selectedNode"></app-logger>
       </app-tab-pane>
     </app-tab-bar>
   </section>

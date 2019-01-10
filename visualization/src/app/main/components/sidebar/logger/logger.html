@@ -1,0 +1,7 @@
+<div class="logger">
+  <ul>
+    <li *ngFor="let event of getMessageLog()">
+      <span [class]=event.level *ngFor="let data of event.data">{{data}}</span>
+    </li>
+  </ul>
+</div>

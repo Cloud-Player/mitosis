@@ -3,6 +3,7 @@ import {NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {MainComponent} from './components/main/main';
 import {HashLocationStrategy, LocationStrategy} from '@angular/common';
+import {LoggerComponent} from './components/sidebar/logger/logger';
 import {MainRoutingModule} from './main.routes';
 import {HttpClientModule} from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
@@ -33,7 +34,8 @@ import {NodeSettingsComponent} from './components/sidebar/node-settings/node-set
     SimulationComponent,
     SidebarComponent,
     RoutingTableComponent,
-    NodeSettingsComponent
+    NodeSettingsComponent,
+    LoggerComponent
   ],
   providers: [],
   bootstrap: [MainComponent]
