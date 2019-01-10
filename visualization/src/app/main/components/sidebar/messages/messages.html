@@ -1,0 +1,13 @@
+<section class="messages">
+  <header>
+    Inbox
+    <app-button type="icon" text="fa fa-trash" (click)="purgeMessages()"></app-button>
+  </header>
+
+  <app-collapsible *ngFor="let message of messages"
+                   [isCollapsed]="true"
+                   [text]="message.getReceiver().getId() !== selectedNode.getId() ? '->'+message.getReceiver().getId() : null"
+                   title="{{message.getSubject()}} from {{message.getSender().getId()}} via {{message.getSender().getProtocol()}}">
+    {{message.getBody() | json}}
+  </app-collapsible>
+</section>

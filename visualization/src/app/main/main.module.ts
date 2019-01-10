@@ -14,6 +14,7 @@ import {SidebarComponent} from './components/sidebar/sidebar';
 import {MatButtonModule, MatMenuModule, MatSelectModule} from '@angular/material';
 import {RoutingtableComponent} from './components/sidebar/routingtable/routingtable';
 import {NodeSettingsComponent} from './components/sidebar/node-settings/node-settings';
+import {MessagesComponent} from './components/sidebar/messages/messages';
 
 
 @NgModule({
@@ -33,7 +34,8 @@ import {NodeSettingsComponent} from './components/sidebar/node-settings/node-set
     SimulationComponent,
     SidebarComponent,
     RoutingtableComponent,
-    NodeSettingsComponent
+    NodeSettingsComponent,
+    MessagesComponent
   ],
   providers: [],
   bootstrap: [MainComponent]

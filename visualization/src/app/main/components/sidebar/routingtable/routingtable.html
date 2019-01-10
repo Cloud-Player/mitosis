@@ -1,4 +1,5 @@
-<div class="routing-table">
+<section class="routing-table">
+  <header>Remote Peers</header>
   <app-collapsible *ngFor="let remotePeer of selectedNode.getMitosis().getPeers()"
                    id="rtbl-{{selectedNode.getId()+'-'+remotePeer.getId()}}"
                    [isCollapsed]="true"
@@ -24,4 +25,4 @@
       </li>
     </ul>
   </app-collapsible>
-</div>
+</section>

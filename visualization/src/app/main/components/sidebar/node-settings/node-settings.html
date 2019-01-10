@@ -1,4 +1,6 @@
-<div class="routing-table">
+<section class="settings">
+  <header *ngIf="selectedNode">Selected node: {{selectedNode.getId()}}</header>
+  <header *ngIf="!selectedNode">Node node selected</header>
   <!--<div class="form-field">-->
     <!--<label>WSS Deliver Timeout</label>-->
     <!--<app-slider [(ngModel)]="wssDelay"-->
@@ -16,4 +18,4 @@
                 <!--(valueChanged)="updateWebRtcDelay($event)">-->
     <!--</app-slider>-->
   <!--</div>-->
-</div>
+</section>
