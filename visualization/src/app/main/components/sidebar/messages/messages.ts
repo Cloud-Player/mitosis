@@ -1,6 +1,7 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {MockConnection, Node} from 'mitosis-simulation';
-import {Message, Protocol} from 'mitosis';
+import {Logger, Message, Protocol} from 'mitosis';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-messages',
@@ -8,21 +9,29 @@ import {Message, Protocol} from 'mitosis';
   styleUrls: ['./messages.scss'],
 })
 export class MessagesComponent implements OnInit, OnChanges {
+  private maxLogs = 100;
+  private _subscriptions: Subscription;
   @Input()
   public selectedNode: Node;
 
   public messages: Array<Message> = [];
 
   constructor() {
+    this._subscriptions = new Subscription();
   }
 
   private initNode() {
     this.messages = [];
-    this.selectedNode.getMitosis()
-      .observeInternalMessages()
-      .subscribe((message) => {
-        this.messages.push(message);
-      });
+    this._subscriptions.unsubscribe();
+    this._subscriptions = new Subscription();
+    this._subscriptions.add(
+      this.selectedNode.getMitosis()
+        .observeInternalMessages()
+        .subscribe((message) => {
+          this.messages.unshift(message);
+          this.messages.splice(this.maxLogs);
+        })
+    );
   }
 
   public purgeMessages() {
