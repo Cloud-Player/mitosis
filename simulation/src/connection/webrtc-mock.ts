@@ -36,6 +36,10 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
     }
   }
 
+  protected closeClient(): void {
+    this._client.closeConnection(this._address.getId(), this._options.mitosisId);
+  }
+
   private createOffer(mitosisId: string) {
     this._client.getClock().setTimeout(() => {
       console.debug('webrtc offer ready');
