@@ -9,6 +9,7 @@ import {
 } from '../connection/interface';
 import {ViaConnection} from '../connection/via';
 import {WebRTCConnection} from '../connection/webrtc';
+import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {ConnectionNegotiation, ConnectionNegotiationType} from '../message/connection-negotiation';
 import {MessageSubject} from '../message/interface';
@@ -46,7 +47,7 @@ export class MessageBroker {
   }
 
   private listenOnConnectionChurn(remotePeer: RemotePeer): void {
-    console.log(`${this._routingTable.getMyId()} added ${new Address(remotePeer.getId()).toString()}`);
+    Logger.getLogger(this._routingTable.getMyId()).info(`added ${remotePeer.getId()}`);
     remotePeer.observeChurn()
       .pipe(
         filter(ev => ev.type === ChurnType.ADDED)
@@ -173,7 +174,7 @@ export class MessageBroker {
       .shift();
     let directPeer;
     if (!connection) {
-      console.error('all connections lost to', receiverPeer.getId());
+      Logger.getLogger(this._routingTable.getMyId()).error('all connections lost to', receiverPeer.getId());
     } else if (connection instanceof ViaConnection) {
       const directPeerId = connection.getAddress().getLocation();
       directPeer = this._routingTable.getPeerById(directPeerId);

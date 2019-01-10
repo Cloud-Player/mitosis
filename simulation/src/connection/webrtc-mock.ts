@@ -1,15 +1,20 @@
 import {
   Address,
   IConnection,
-  Message, MessageSubject, Protocol,
+  Logger,
+  Message,
+  MessageSubject,
+  Protocol,
   WebRTCConnectionOptionsPayloadType
 } from 'mitosis';
 import {MockConnection} from './mock';
 
 export class WebRTCMockConnection extends MockConnection implements IConnection {
+
   private _lastOffer = 1;
   private _lastAnswer = 1;
   private _signalDelay = 1;
+  private _quality = (Math.floor(Math.random() * 50) / 100) + 0.5;
 
   protected openClient(): void {
     if (!this._options) {
@@ -18,15 +23,15 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
     if (this._options.payload) {
       switch (this._options.payload.type) {
         case WebRTCConnectionOptionsPayloadType.OFFER:
-          console.log('CREATE ANSWER', this._options.payload);
+          Logger.getLogger(this._options.mitosisId).debug('create answer', this._options.payload);
           this.createAnswer(this._options.mitosisId, this._options.payload);
           break;
         case WebRTCConnectionOptionsPayloadType.ANSWER:
-          console.log('ESTABLISH', this._options.payload);
+          Logger.getLogger(this._options.mitosisId).debug('establish', this._options.payload);
           this.establish(this._options.payload);
           break;
         default:
-          console.log('NO TYPE FOUND', this._options.payload);
+          Logger.getLogger(this._options.mitosisId).debug('no type found', this._options.payload);
           throw new Error(
             `webrtc options unsupported ${this._options.payload.type}`
           );
@@ -38,7 +43,7 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
 
   private createOffer(mitosisId: string) {
     this._client.getClock().setTimeout(() => {
-      console.debug('webrtc offer ready');
+      Logger.getLogger(mitosisId).debug('webrtc offer ready');
       const offer = {
         type: 'offer',
         sdp: this._lastOffer++
@@ -55,7 +60,7 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
 
   private createAnswer(mitosisId: string, offer: number) {
     this._client.getClock().setTimeout(() => {
-      console.debug('webrtc answer ready');
+      Logger.getLogger(mitosisId).debug('webrtc answer ready');
       const answer = {
         type: 'answer',
         sdp: this._lastAnswer++
@@ -71,11 +76,11 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
   }
 
   public getQuality(): number {
-    return 1.0;
+    return this._quality;
   }
 
   public establish(answer: number) {
-    console.log('ESTABLISH CONNECTION', answer);
+    Logger.getLogger(this._options.mitosisId).debug('establish connection', answer);
     this._client.getClock().setTimeout(() => {
       this._client.addConnection(this._address.getId(), this._options.mitosisId, this);
       this._client.addConnection(this._options.mitosisId, this._address.getId(), this);

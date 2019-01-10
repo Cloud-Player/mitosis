@@ -1,4 +1,4 @@
-import {Address, IClock, MasterClock, Message, Mitosis, Protocol, ProtocolConnectionMap} from 'mitosis';
+import {Address, IClock, Logger, LogLevel, MasterClock, Message, Mitosis, Protocol, ProtocolConnectionMap} from 'mitosis';
 import {MockConnection} from './connection/mock';
 import {WebRTCMockConnection} from './connection/webrtc-mock';
 import {Edge} from './edge/edge';
@@ -14,6 +14,7 @@ export class Simulation {
 
   public static getInstance() {
     if (!Simulation._instance) {
+      Logger.setLogLevel(LogLevel.WARN);
       Simulation._instance = new Simulation();
       ProtocolConnectionMap.set(Protocol.WEBSOCKET_UNSECURE, MockConnection);
       ProtocolConnectionMap.set(Protocol.WEBSOCKET, MockConnection);

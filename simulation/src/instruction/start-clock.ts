@@ -5,7 +5,7 @@ import {IInstruction} from './interface';
 export class StartClock extends AbstractInstruction implements IInstruction {
 
   public execute(simulation: Simulation): void {
-    console.info(`✌️ start clock`);
+    console.info(`🤞 start clock`);
     simulation.getClock().start();
   }
 }

@@ -15,7 +15,7 @@ export class InstructionFactory {
 
   public static fromParameters(parameters: any): IInstruction {
     if (!parameters.type) {
-      console.error('could not parse instruction from', parameters);
+      console.error('🤜 could not parse instruction from', parameters);
       return null;
     }
     const instructionClass = InstructionTypeMap.get(parameters.type as InstructionType);

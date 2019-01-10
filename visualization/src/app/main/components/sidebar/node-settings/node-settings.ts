@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {MockConnection, Node} from 'mitosis-simulation';
 import {Protocol} from 'mitosis';
+import {MockConnection, Node} from 'mitosis-simulation';
 
 @Component({
   selector: 'app-node-settings',

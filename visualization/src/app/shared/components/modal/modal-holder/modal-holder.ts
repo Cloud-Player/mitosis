@@ -55,7 +55,6 @@ export class ModalHolderComponent implements OnInit, OnDestroy {
       return;
     }
     openModal.getObservable().next(ModalStates.Abort);
-    console.warn('CLOSED MODALS', $event.target);
     let canContinue = true;
     this.modalService.getModalStack().reverse().forEach((modal) => {
       if (canContinue && modal.getOptions().dismissible) {

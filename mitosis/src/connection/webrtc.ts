@@ -1,4 +1,5 @@
 import * as SimplePeer from 'simple-peer';
+import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
@@ -69,7 +70,7 @@ export class WebRTCConnection extends AbstractConnection implements IConnection 
   private createOffer(mitosisId: string) {
     this._client = new SimplePeer({initiator: true, trickle: false});
     this._client.on('signal', (offer: SimplePeer.SignalData) => {
-      console.debug('webrtc offer ready');
+      Logger.getLogger(mitosisId).debug('webrtc offer ready');
       this.onMessage(new Message(
         new Address(mitosisId, Protocol.WEBRTC, this.getId()),
         this.getAddress(),
@@ -83,7 +84,7 @@ export class WebRTCConnection extends AbstractConnection implements IConnection 
     this._client = new SimplePeer({initiator: false, trickle: false});
     this._client.signal(offer);
     this._client.on('signal', (answer: SimplePeer.SignalData) => {
-      console.debug('webrtc answer ready');
+      Logger.getLogger(mitosisId).debug('webrtc answer ready');
       this.onMessage(new Message(
         new Address(mitosisId, Protocol.WEBRTC, this.getId()),
         new Address(this.getAddress().getId()),
@@ -98,7 +99,7 @@ export class WebRTCConnection extends AbstractConnection implements IConnection 
   }
 
   public establish(answer: SimplePeer.SignalData) {
+    Logger.getLogger(this._options.mitosisId).debug('webrtc connection negotiating');
     this._client.signal(answer);
-    console.debug('webrtc connection negotiating');
   }
 }

@@ -1,7 +1,7 @@
 import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {Node, Simulation} from 'mitosis-simulation';
-import {D3DirectedGraphComponent} from '../d3-directed-graph/d3-directed-graph';
 import {SearchInputComponent} from '../../../shared/components/ui/inputs/search/search';
+import {D3DirectedGraphComponent} from '../d3-directed-graph/d3-directed-graph';
 
 @Component({
   selector: 'app-sidebar',

@@ -3,6 +3,7 @@ import {IClock} from './clock/interface';
 import {MasterClock} from './clock/master';
 import {IEnclave} from './enclave/interface';
 import {SecureEnclave} from './enclave/secure';
+import {Logger} from './logger/logger';
 import {MessageBroker} from './mesh/message-broker';
 import {RemotePeer} from './mesh/remote-peer';
 import {RoleManager} from './mesh/role-manager';
@@ -64,7 +65,7 @@ export class Mitosis {
     this.listenOnMessages();
     this.listenOnAppContentMessages();
 
-    console.info(`👋 i am ${this._myId} and i am a ${roles.join(' and a ')}`);
+    Logger.getLogger(this._myId).info(`👋 hi i am a ${roles.join(' and a ')}`);
 
     clock.setInterval(this.onTick.bind(this));
     this._clock = clock;
@@ -130,6 +131,7 @@ export * from './connection/interface';
 export * from './mesh/interface';
 export * from './message/interface';
 export * from './role/interface';
+export * from './logger/interface';
 
 export {AbstractClock} from './clock/clock';
 export {MasterClock} from './clock/master';
@@ -137,3 +139,4 @@ export {AbstractConnection} from './connection/connection';
 export {RemotePeer} from './mesh/remote-peer';
 export {Address} from './message/address';
 export {Message} from './message/message';
+export {Logger} from './logger/logger';

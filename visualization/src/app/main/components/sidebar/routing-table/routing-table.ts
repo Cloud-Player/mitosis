@@ -1,13 +1,13 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {Node, Simulation} from 'mitosis-simulation';
 import {IConnection, Protocol, RemotePeer} from 'mitosis';
+import {Node, Simulation} from 'mitosis-simulation';
 
 @Component({
   selector: 'app-routing-table',
-  templateUrl: './routingtable.html',
-  styleUrls: ['./routingtable.scss'],
+  templateUrl: './routing-table.html',
+  styleUrls: ['./routing-table.scss'],
 })
-export class RoutingtableComponent implements OnInit {
+export class RoutingTableComponent implements OnInit {
   @Input()
   public selectedNode: Node;
 

@@ -1,9 +1,9 @@
 import {AfterContentInit, Directive, ElementRef, EventEmitter, Input, OnDestroy, Output, Renderer2} from '@angular/core';
 import {Subscription} from 'rxjs';
 import {filter} from 'rxjs/internal/operators';
+import {ConfirmDeleteComponent} from '../components/confirm-delete/confirm-delete';
 import {ModalService} from '../services/modal';
 import {ModalStates} from '../src/modal-factory.class';
-import {ConfirmDeleteComponent} from '../components/confirm-delete/confirm-delete';
 
 @Directive({
   selector: '[appConfirmDelete]'
@@ -55,8 +55,6 @@ export class ConfirmDeleteDirective implements AfterContentInit, OnDestroy {
     ev.preventDefault();
     this.askUser().then(() => {
       this.confirmedClick.emit();
-    }, () => {
-      console.debug('user canceled');
     });
   }
 

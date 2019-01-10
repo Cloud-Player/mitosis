@@ -16,6 +16,10 @@ export class MockConnection extends AbstractConnection implements IConnection {
     this.onOpen(this);
   }
 
+  public getQuality(): number {
+    return 0.25;
+  }
+
   public send(message: Message): void {
     if (this.getState() !== ConnectionState.OPEN) {
       throw new Error('mock connection not in open state');

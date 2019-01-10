@@ -1,6 +1,7 @@
 import {Subject} from 'rxjs';
 import {ConnectionTable} from '../connection/connection-table';
 import {ConnectionState, IConnection, IConnectionOptions, ProtocolConnectionMap} from '../connection/interface';
+import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
 import {RoleType} from '../role/interface';
@@ -58,6 +59,7 @@ export class RemotePeer {
           this._connectionsPerAddress.delete(connection.getAddress().toString());
           break;
       }
+      Logger.getLogger(this._mitosisId).debug(`connection ${ev.toString()}`, connection);
     });
   }
 
@@ -107,7 +109,6 @@ export class RemotePeer {
     }
     const connection = new connectionClass(address, options);
     this._connectionsPerAddress.set(address.toString(), connection);
-    console.debug('connection added', connection.getAddress().toString());
     this._connectionChurnSubject.next({connection: connection, type: ChurnType.ADDED});
     this.listenOnConnectionChanges(connection);
     return connection;
@@ -135,11 +136,11 @@ export class RemotePeer {
       try {
         connection.send(message);
       } catch (error) {
-        console.error(error);
+        Logger.getLogger(this._mitosisId).error(error);
         connection.close();
       }
     } else {
-      console.error(`no direct connection to ${message.getReceiver()}`);
+      Logger.getLogger(this._mitosisId).error(`no direct connection to ${message.getReceiver()}`);
     }
   }
 

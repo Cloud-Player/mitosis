@@ -12,7 +12,7 @@ import {SimulationComponent} from './components/simulation/simulation';
 import {SharedModule} from '../shared/shared.module';
 import {SidebarComponent} from './components/sidebar/sidebar';
 import {MatButtonModule, MatMenuModule, MatSelectModule} from '@angular/material';
-import {RoutingtableComponent} from './components/sidebar/routingtable/routingtable';
+import {RoutingTableComponent} from './components/sidebar/routing-table/routing-table';
 import {NodeSettingsComponent} from './components/sidebar/node-settings/node-settings';
 
 
@@ -32,7 +32,7 @@ import {NodeSettingsComponent} from './components/sidebar/node-settings/node-set
     D3DirectedGraphComponent,
     SimulationComponent,
     SidebarComponent,
-    RoutingtableComponent,
+    RoutingTableComponent,
     NodeSettingsComponent
   ],
   providers: [],

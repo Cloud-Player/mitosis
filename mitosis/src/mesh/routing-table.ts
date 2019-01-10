@@ -1,6 +1,7 @@
 import {Subject} from 'rxjs';
 import {filter} from 'rxjs/operators';
 import {IConnectionOptions} from '../connection/interface';
+import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
 import {ChurnType, IPeerChurnEvent} from './interface';
@@ -54,7 +55,7 @@ export class RoutingTable {
         return peer;
       })
       .catch(() => {
-        console.warn(`${this.getMyId()} can not open connection to peer ${peer.getId()}`);
+        Logger.getLogger(this._myId).warn(`cannot open connection to peer ${peer.getId()}`);
         return Promise.reject(peer);
       });
   }
@@ -64,7 +65,7 @@ export class RoutingTable {
     if (existingPeer) {
       existingPeer.send(message);
     } else {
-      console.error(`cannot send message because ${message.getReceiver().toString()} does not exist`);
+      Logger.getLogger(this._myId).error(`cannot send message because ${message.getReceiver().toString()} does not exist`);
     }
   }
 
