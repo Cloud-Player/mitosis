@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {Edge, Simulation} from 'mitosis-simulation';
+import {Edge, MockConnection, Simulation} from 'mitosis-simulation';
 import {D3Model} from '../d3-directed-graph/models/d3';
 import {D3DirectedGraphComponent} from '../d3-directed-graph/d3-directed-graph';
 import {ConnectionState, Protocol} from 'mitosis';
@@ -41,7 +41,7 @@ export class SimulationComponent implements OnInit {
               .asArray()
               .forEach((c) => {
                 if (c.getAddress().getProtocol() !== Protocol.VIA && c.getState() === ConnectionState.OPEN) {
-                  model.addEdge(new Edge(node.getId(), c));
+                  model.addEdge(new Edge(node.getId(), c as MockConnection));
                 }
               });
           });

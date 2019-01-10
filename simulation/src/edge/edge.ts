@@ -1,7 +1,8 @@
 import {IConnection} from 'mitosis';
+import {MockConnection} from '../connection/mock';
 
 export class Edge {
-  private _connection: IConnection;
+  private _connection: MockConnection;
   private _sourceId: string;
   private _id: string;
   public source: string;
@@ -11,7 +12,7 @@ export class Edge {
     return `c-${sourceId}-${targetId}}`;
   }
 
-  constructor(sourceId: string, connection: IConnection) {
+  constructor(sourceId: string, connection: MockConnection) {
     this._connection = connection;
     this._sourceId = sourceId;
     this._id = Edge.buildId(this._sourceId, this._connection.getAddress().getId());
