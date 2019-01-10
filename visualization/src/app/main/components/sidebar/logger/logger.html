@@ -1,7 +1,14 @@
-<div class="logger">
-  <ul>
-    <li *ngFor="let event of getMessageLog()">
-      <span [class]="'level-' + event.level" *ngFor="let data of event.data">{{data}}</span>
-    </li>
-  </ul>
-</div>
+<section class="logger">
+  <header>
+    Log entries
+    <app-button type="icon" text="fa fa-trash" (click)="purgeMessages()"></app-button>
+  </header>
+
+  <app-collapsible *ngFor="let event of getMessageLog()"
+                   [isCollapsed]="true"
+                   title="{{event.level}} {{event.data[0]}}">
+    <pre *ngFor="let data of event.data">
+      {{data.toString()}}
+    </pre>
+  </app-collapsible>
+</section>
