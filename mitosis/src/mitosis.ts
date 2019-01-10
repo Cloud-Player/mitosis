@@ -24,7 +24,8 @@ export class Mitosis {
   private _myId: string;
   private _myAddress: Address;
   private _signalAddress: Address;
-  private _inbox: Subject<Message>;
+  private _inbox: Subject<AppContent>;
+  private _internalMessages: Subject<Message>;
   private _clock: IClock;
 
   public constructor(
@@ -60,7 +61,8 @@ export class Mitosis {
 
     this._routingTable = new RoutingTable(this._myId);
     this._messageBroker = new MessageBroker(this._routingTable, this._roleManager);
-    this._inbox = new Subject();
+    this._inbox = new Subject<AppContent>();
+    this._internalMessages = new Subject<Message>();
     this.listenOnMessages();
     this.listenOnAppContentMessages();
 
@@ -73,13 +75,16 @@ export class Mitosis {
   private listenOnAppContentMessages() {
     this._messageBroker.observeAppContentMessages()
       .subscribe(
-        message => this._inbox.next(message)
+        (message: AppContent) => this._inbox.next(message)
       );
   }
 
   private listenOnMessages() {
     this._messageBroker.observeMessages()
       .subscribe(message => this._roleManager.onMessage(message, this));
+
+    this._messageBroker.observeIncomingMessages()
+      .subscribe(message => this._internalMessages.next(message));
   }
 
   private onTick(): void {
@@ -104,6 +109,10 @@ export class Mitosis {
 
   public getInbox() {
     return this._inbox;
+  }
+
+  public observeInternalMessages() {
+    return this._internalMessages;
   }
 
   public getRoles() {
