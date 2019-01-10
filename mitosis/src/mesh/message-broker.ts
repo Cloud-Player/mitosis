@@ -27,6 +27,7 @@ export class MessageBroker {
   private _roleManager: RoleManager;
   private _appContentMessagesSubject: Subject<Message>;
   private _appMessagesSubject: Subject<Message>;
+  private _incomingMessageSubject: Subject<Message>;
 
   constructor(routingTable: RoutingTable, roleManager: RoleManager) {
     this._routingTable = routingTable;
@@ -34,6 +35,7 @@ export class MessageBroker {
     this._roleManager = roleManager;
     this._appContentMessagesSubject = new Subject();
     this._appMessagesSubject = new Subject();
+    this._incomingMessageSubject = new Subject();
   }
 
   private listenOnRoutingTablePeerChurn(): void {
@@ -81,6 +83,7 @@ export class MessageBroker {
   }
 
   private handleMessage(message: Message, connection: IConnection): void {
+    this._incomingMessageSubject.next(message);
     if (message.getReceiver().getId() === this._routingTable.getMyId()) {
       this.receiveMessage(message, connection);
     } else {
@@ -190,5 +193,9 @@ export class MessageBroker {
 
   public observeMessages() {
     return this._appMessagesSubject;
+  }
+
+  public observeIncomingMessages() {
+    return this._incomingMessageSubject;
   }
 }

@@ -29,22 +29,15 @@
   <section class="no-padding">
     <app-tab-bar *ngIf="selectedNode">
       <app-tab-pane title="Settings">
-        <section>
-          <header *ngIf="selectedNode">Selected node: {{selectedNode.getId()}}</header>
-          <header *ngIf="!selectedNode">Node node selected</header>
-          <app-node-settings [selectedNode]="selectedNode"></app-node-settings>
-        </section>
+        <app-node-settings [selectedNode]="selectedNode"></app-node-settings>
       </app-tab-pane>
-      <app-tab-pane title="Routing Table">
-        <section>
-          <header>Remote Peers</header>
-          <app-routing-table [selectedNode]="selectedNode"></app-routing-table>
-        </section>
+      <app-tab-pane title="Routing">
+        <app-routing-table [selectedNode]="selectedNode"></app-routing-table>
       </app-tab-pane>
       <app-tab-pane title="Messages">
-        <section></section>
+        <app-messages [selectedNode]="selectedNode"></app-messages>
       </app-tab-pane>
-      <app-tab-pane title="Logger">
+      <app-tab-pane title="Log">
         <app-logger [selectedNode]="selectedNode"></app-logger>
       </app-tab-pane>
     </app-tab-bar>

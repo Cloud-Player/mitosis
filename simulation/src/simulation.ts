@@ -1,4 +1,15 @@
-import {Address, IClock, Logger, LogLevel, MasterClock, Message, Mitosis, Protocol, ProtocolConnectionMap} from 'mitosis';
+import {
+  Address,
+  ConnectionState,
+  IClock,
+  Logger,
+  LogLevel,
+  MasterClock,
+  Message,
+  Mitosis,
+  Protocol,
+  ProtocolConnectionMap
+} from 'mitosis';
 import {MockConnection} from './connection/mock';
 import {WebRTCMockConnection} from './connection/webrtc-mock';
 import {Edge} from './edge/edge';
@@ -104,10 +115,15 @@ export class Simulation {
     const edge = this._edges.get([to, from].join('-'));
     if (edge) {
       this._clock.setTimeout(() => {
-        (edge.getConnection() as MockConnection).onMessage(message);
+        const connection = (edge.getConnection() as MockConnection);
+        if (connection.getState() === ConnectionState.OPEN) {
+          connection.onMessage(message);
+        } else {
+          throw new Error(`mock connection failed to deliver message ${message.toString()} to edge ${to} because connection is not open!`);
+        }
       }, delay);
     } else {
-      throw new Error(`mock connection failed to deliver message ${message.toString()} to edge ${to}`);
+      throw new Error(`mock connection failed to deliver message ${message.toString()} to edge ${to} because connection does not exist!`);
     }
   }
 

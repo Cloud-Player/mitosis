@@ -4,6 +4,7 @@
   .sidebar {
     height: 100%;
 
+    /deep/ section,
     section {
       padding: 15px 24px;
       border-top: 2px solid;
