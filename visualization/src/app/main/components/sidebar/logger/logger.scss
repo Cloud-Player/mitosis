@@ -3,19 +3,19 @@
 :host {
   li {
     margin: 10px;
-    .log {
+    .level-0 {
       color: gainsboro;
     }
-    .debug {
+    .level-10 {
       color: lightcyan;
     }
-    .info {
+    .level-20 {
       color: lightyellow;
     }
-    .warn {
+    .level-30 {
       color: darkorange;
     }
-    .error {
+    .level-40 {
       color: tomato;
     }
   }
