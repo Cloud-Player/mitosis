@@ -28,6 +28,24 @@ export class Simulation {
     this._edges = new Map();
   }
 
+  public establishConnection(from: string, to: string) {
+    const edge1 = this._edges.get([to, from].join('-'));
+    const edge2 = this._edges.get([from, to].join('-'));
+    if (edge1) {
+      const con1 = edge1.getConnection();
+      con1.onOpen(con1);
+    } else {
+      console.error(`Edge ${to}->${from} does not exist! Can not establish connection`);
+    }
+
+    if (edge2) {
+      const con2 = edge2.getConnection();
+      con2.onOpen(con2);
+    } else {
+      console.error(`Edge ${from}->${to} does not exist! Can not establish connection`);
+    }
+  }
+
   public addConnection(from: string, to: string, connection: MockConnection): void {
     const local = this._nodes.get(from);
     const remote = this._nodes.get(to);

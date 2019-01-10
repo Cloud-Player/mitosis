@@ -49,6 +49,7 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
         MessageSubject.CONNECTION_NEGOTIATION,
         offer
       );
+      this._client.addConnection(this._address.getId(), this._options.mitosisId, this);
       this.onMessage(offerMsg);
     }, this._signalDelay);
   }
@@ -66,6 +67,7 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
         MessageSubject.CONNECTION_NEGOTIATION,
         answer
       );
+      this._client.addConnection(this._address.getId(), this._options.mitosisId, this);
       this.onMessage(answerMsg);
     }, this._signalDelay);
   }
@@ -77,9 +79,7 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
   public establish(answer: number) {
     console.log('ESTABLISH CONNECTION', answer);
     this._client.getClock().setTimeout(() => {
-      this._client.addConnection(this._address.getId(), this._options.mitosisId, this);
-      this._client.addConnection(this._options.mitosisId, this._address.getId(), this);
-      this.onOpen(this);
+      this._client.establishConnection(this._address.getId(), this._options.mitosisId);
     }, this._signalDelay);
   }
 }
