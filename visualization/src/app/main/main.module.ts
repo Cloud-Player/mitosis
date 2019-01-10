@@ -14,7 +14,6 @@ import {SidebarComponent} from './components/sidebar/sidebar';
 import {SimulationComponent} from './components/simulation/simulation';
 import {MainRoutingModule} from './main.routes';
 
-
 @NgModule({
   imports: [
     BrowserModule,

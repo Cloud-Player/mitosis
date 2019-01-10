@@ -42,21 +42,28 @@ export class Peer implements IRole {
   }
 
   private publishRoutingTable(myAddress: Address, routingTable: RoutingTable): void {
-    routingTable.getPeers().forEach(remotePeer => {
-        const directConnection = remotePeer.getConnectionTable()
-          .filterByStates(ConnectionState.OPEN)
+    const directPeers = routingTable.getPeers()
+      .filter(remotePeer => {
+        return remotePeer.getConnectionTable()
           .filterDirect()
-          .shift();
-        if (directConnection) {
-          const tableUpdate = new PeerUpdate(
-            myAddress,
-            directConnection.getAddress(),
-            routingTable.getPeers()
-          );
-          directConnection.send(tableUpdate);
-        }
-      }
-    );
+          .filterByStates(ConnectionState.OPEN)
+          .length !== 0;
+      });
+    directPeers.forEach(remotePeer => {
+      remotePeer.getConnectionTable()
+        .filterDirect()
+        .filterByStates(ConnectionState.OPEN)
+        .asArray()
+        .forEach(
+          connection => {
+            const tableUpdate = new PeerUpdate(
+              myAddress,
+              connection.getAddress(),
+              directPeers
+            );
+            connection.send(tableUpdate);
+          });
+    });
   }
 
   public onTick(mitosis: Mitosis): void {

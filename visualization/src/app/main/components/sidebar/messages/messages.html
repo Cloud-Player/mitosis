@@ -8,6 +8,6 @@
                    [isCollapsed]="true"
                    [text]="message.getReceiver().getId() !== selectedNode.getId() ? '->'+message.getReceiver().getId() : null"
                    title="{{message.getSubject()}} from {{message.getSender().getId()}} via {{message.getSender().getProtocol()}}">
-    {{message.getBody() | json}}
+    <pre>{{message.toString()}}</pre>
   </app-collapsible>
 </section>

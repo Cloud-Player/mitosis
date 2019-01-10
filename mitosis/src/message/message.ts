@@ -47,7 +47,9 @@ export class Message {
         sender: this.getSender().toString(),
         subject: this.getSubject() as string,
         body: this.getBody()
-      }
+      },
+      undefined,
+      2
     );
   }
 }

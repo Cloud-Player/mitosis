@@ -128,7 +128,8 @@ export class MessageBroker {
     peerUpdate.getBody()
       .forEach(
         entry => {
-          if (entry.peerId !== this._routingTable.getMyId()) {
+          if (entry.peerId !== this._routingTable.getMyId() &&
+              entry.peerId !== peerUpdate.getSender().getId()) {
             const address = new Address(
               entry.peerId,
               Protocol.VIA,

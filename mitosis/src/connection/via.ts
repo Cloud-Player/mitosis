@@ -1,6 +1,6 @@
 import {Message} from '../message/message';
 import {AbstractConnection} from './connection';
-import {IConnection, Protocol} from './interface';
+import {IConnection} from './interface';
 
 export class ViaConnection extends AbstractConnection implements IConnection {
   protected closeClient(): void {

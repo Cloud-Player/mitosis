@@ -1,7 +1,7 @@
 import {Message} from '../message/message';
 import {PeerUpdate} from '../message/peer-update';
 import {RoleUpdate} from '../message/role-update';
-import {MessageSubject, Mitosis, RoleType} from '../mitosis';
+import {ConnectionState, MessageSubject, Mitosis, RoleType} from '../mitosis';
 import {IRole} from './interface';
 
 export class Signal implements IRole {
@@ -17,7 +17,13 @@ export class Signal implements IRole {
       const routers = mitosis.getRoutingTable()
         .getPeers()
         .filter(
-          peer => peer.hasRole(RoleType.ROUTER)
+          peer => {
+            return peer.hasRole(RoleType.ROUTER) &&
+              peer.getConnectionTable()
+                .filterDirect()
+                .filterByStates(ConnectionState.OPEN)
+                .length;
+          }
         );
 
       if (!routers.includes(sender)) {
@@ -41,7 +47,7 @@ export class Signal implements IRole {
       }
 
       const tableUpdate = new PeerUpdate(
-        mitosis.getMyAddress(),
+        message.getReceiver(),
         message.getSender(),
         routers
       );
