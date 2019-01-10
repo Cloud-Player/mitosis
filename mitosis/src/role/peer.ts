@@ -53,7 +53,7 @@ export class Peer implements IRole {
             directConnection.getAddress(),
             routingTable.getPeers()
           );
-          remotePeer.send(tableUpdate);
+          directConnection.send(tableUpdate);
         }
       }
     );
