@@ -1,5 +1,6 @@
 <div class="routing-table">
   <app-collapsible *ngFor="let remotePeer of selectedNode.getMitosis().getPeers()"
+                   id="rtbl-{{selectedNode.getId()+'-'+remotePeer.getId()}}"
                    [isCollapsed]="true"
                    [title]="remotePeer.getId()"
                    [text]="getConnectionText(remotePeer)">
