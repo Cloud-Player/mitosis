@@ -41,6 +41,14 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
     this.updateDelayForProtocol(Protocol.WEBRTC, delay);
   }
 
+  public getRoles() {
+    if (this.selectedNode) {
+      return Array.from(this.selectedNode.getMitosis().getRoles().keys());
+    } else {
+      return [];
+    }
+  }
+
   private initNode() {
     this.selectedNode
       .getMitosis()

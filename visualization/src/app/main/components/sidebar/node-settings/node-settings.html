@@ -1,21 +1,26 @@
 <section class="settings">
   <header *ngIf="selectedNode">Selected node: {{selectedNode.getId()}}</header>
   <header *ngIf="!selectedNode">Node node selected</header>
+  <ul *ngIf="selectedNode">
+    <li *ngFor="let role of getRoles()">
+      {{role}}
+    </li>
+  </ul>
   <!--<div class="form-field">-->
-    <!--<label>WSS Deliver Timeout</label>-->
-    <!--<app-slider [(ngModel)]="wssDelay"-->
-                <!--[min]="0"-->
-                <!--[max]="10"-->
-                <!--[showSliderValue]="true"-->
-                <!--(valueChanged)="updateWssDelay($event)"></app-slider>-->
+  <!--<label>WSS Deliver Timeout</label>-->
+  <!--<app-slider [(ngModel)]="wssDelay"-->
+  <!--[min]="0"-->
+  <!--[max]="10"-->
+  <!--[showSliderValue]="true"-->
+  <!--(valueChanged)="updateWssDelay($event)"></app-slider>-->
   <!--</div>-->
 
   <!--<div class="form-field">-->
-    <!--<label>WebRTC Deliver Timeout</label>-->
-    <!--<app-slider [(ngModel)]="webRTCDelay"-->
-                <!--[min]="0" [max]="10"-->
-                <!--[showSliderValue]="true"-->
-                <!--(valueChanged)="updateWebRtcDelay($event)">-->
-    <!--</app-slider>-->
+  <!--<label>WebRTC Deliver Timeout</label>-->
+  <!--<app-slider [(ngModel)]="webRTCDelay"-->
+  <!--[min]="0" [max]="10"-->
+  <!--[showSliderValue]="true"-->
+  <!--(valueChanged)="updateWebRtcDelay($event)">-->
+  <!--</app-slider>-->
   <!--</div>-->
 </section>
