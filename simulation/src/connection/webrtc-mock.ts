@@ -41,6 +41,10 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
     }
   }
 
+  protected closeClient(): void {
+    this._client.closeConnection(this._address.getId(), this._options.mitosisId);
+  }
+
   private createOffer(mitosisId: string) {
     this._client.getClock().setTimeout(() => {
       Logger.getLogger(mitosisId).debug('webrtc offer ready');
@@ -54,6 +58,7 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
         MessageSubject.CONNECTION_NEGOTIATION,
         offer
       );
+      this._client.addConnection(this._address.getId(), this._options.mitosisId, this);
       this.onMessage(offerMsg);
     }, this._signalDelay);
   }
@@ -71,6 +76,7 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
         MessageSubject.CONNECTION_NEGOTIATION,
         answer
       );
+      this._client.addConnection(this._address.getId(), this._options.mitosisId, this);
       this.onMessage(answerMsg);
     }, this._signalDelay);
   }
@@ -82,9 +88,7 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
   public establish(answer: number) {
     Logger.getLogger(this._options.mitosisId).debug('establish connection', answer);
     this._client.getClock().setTimeout(() => {
-      this._client.addConnection(this._address.getId(), this._options.mitosisId, this);
-      this._client.addConnection(this._options.mitosisId, this._address.getId(), this);
-      this.onOpen(this);
+      this._client.establishConnection(this._address.getId(), this._options.mitosisId);
     }, this._signalDelay);
   }
 }

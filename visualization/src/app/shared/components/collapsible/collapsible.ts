@@ -5,7 +5,7 @@ import {
   EventEmitter,
   Input,
   OnChanges,
-  OnDestroy,
+  OnDestroy, OnInit,
   Output,
   Renderer2,
   SimpleChanges,
@@ -19,7 +19,7 @@ import {isUndefined} from 'underscore';
   styleUrls: ['./collapsible.scss'],
   templateUrl: './collapsible.html'
 })
-export class CollapsibleComponent implements AfterContentInit, OnChanges, OnDestroy {
+export class CollapsibleComponent implements AfterContentInit, OnInit, OnDestroy {
   private _transitionDuration = 200;
   private _subscriptions: Subscription;
   private _isCollapsed = false;
@@ -31,6 +31,9 @@ export class CollapsibleComponent implements AfterContentInit, OnChanges, OnDest
 
   @ViewChild('collapsibleBodyContent')
   private _collapsibleBodyContent: ElementRef;
+
+  @Input()
+  public id: string;
 
   @Input()
   public title: string;
@@ -58,7 +61,25 @@ export class CollapsibleComponent implements AfterContentInit, OnChanges, OnDest
     this.removeMaxHeight = () => {
       this._collapsibleBody.nativeElement.style.maxHeight = 'initial';
       this._collapsibleBody.nativeElement.style.overflow = 'initial';
+      this._collapsibleBody.nativeElement.style.opacity = 1;
     };
+  }
+
+  private static saveToggleState(id: string, isOpen: boolean) {
+    if (!id) {
+      return;
+    }
+    return localStorage.setItem(`collabsible-${id}`, JSON.stringify(isOpen));
+  }
+
+  private static getToggleState(id: string) {
+    if (!id) {
+      return;
+    }
+    const state = localStorage.getItem(`collabsible-${id}`);
+    if (!isUndefined(state)) {
+      return JSON.parse(state);
+    }
   }
 
   private collapsibleOnOpened() {
@@ -126,18 +147,17 @@ export class CollapsibleComponent implements AfterContentInit, OnChanges, OnDest
   public toggle() {
     if (this._isCollapsed) {
       this.open();
+      CollapsibleComponent.saveToggleState(this.id, true);
     } else {
       this.close();
+      CollapsibleComponent.saveToggleState(this.id, false);
     }
   }
 
-  public ngOnChanges(changes: SimpleChanges): void {
-    if (changes.isCollapsed && !isUndefined(changes.isCollapsed.currentValue) && changes.isCollapsed.currentValue !== this._isCollapsed) {
-      if (changes.isCollapsed.currentValue) {
-        this.close();
-      } else {
-        this.open();
-      }
+  ngOnInit() {
+    const persistedIsOpenState = CollapsibleComponent.getToggleState(this.id);
+    if (!isUndefined(persistedIsOpenState)) {
+      this.isCollapsed = !persistedIsOpenState;
     }
   }
 
@@ -146,6 +166,8 @@ export class CollapsibleComponent implements AfterContentInit, OnChanges, OnDest
       this.collapse();
       this._isCollapsed = true;
       this.isCollapsed = true;
+    } else {
+      this.removeMaxHeight();
     }
     this._collapsibleBody.nativeElement.style.transition = `all ${this._transitionDuration / 1000}s ease`;
   }

@@ -31,11 +31,13 @@ export class Peer implements IRole {
     if (insufficientConnections && indirectPeers.length) {
       const address = new Address(indirectPeers.shift().getId(), Protocol.WEBRTC);
       routingTable.connectTo(address);
-    } else if (!insufficientConnections) {
+    } else if (directConnections.length > Peer.connectionGoal) {
       const worstConnection = new ConnectionTable(directConnections)
         .sortByQuality()
         .pop();
-      worstConnection.close();
+      if (worstConnection.getState() !== ConnectionState.OPENING) {
+        worstConnection.close();
+      }
     }
   }
 
@@ -51,7 +53,7 @@ export class Peer implements IRole {
             directConnection.getAddress(),
             routingTable.getPeers()
           );
-          remotePeer.send(tableUpdate);
+          directConnection.send(tableUpdate);
         }
       }
     );

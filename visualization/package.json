@@ -6,7 +6,7 @@
     "start": "npm run build:lib && ng serve",
     "build": "ng build",
     "lint": "ng lint",
-    "build:lib":  "cd ../mitosis && npm run build && cd ../simulation && npm run build && cd ../visualization"
+    "build:lib": "cd ../mitosis && npm run build && cd ../simulation && npm run build && cd ../visualization"
   },
   "private": true,
   "preferGlobal": true,
@@ -42,6 +42,7 @@
     "@types/jasmine": "~2.8.8",
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "^8.9.5",
+    "@types/underscore": "^1.8.9",
     "codelyzer": "~4.5.0",
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",

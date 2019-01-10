@@ -100,7 +100,7 @@ export class MessageBroker {
           this.updatePeers(message as PeerUpdate);
         } else {
           throw new Error(
-            `will not accept peer update from ` +
+            `${message.getReceiver()} will not accept peer update from ` +
             `${message.getSender()} via ${connection.getAddress()}`
           );
         }
