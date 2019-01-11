@@ -1,20 +1,20 @@
 import {RemotePeer} from '../mesh/remote-peer';
 import {Message} from '../message/message';
 import {PeerUpdate} from '../message/peer-update';
-import {Mitosis} from '../mitosis';
+import {Mitosis, RoleType} from '../mitosis';
 import {IRole} from './interface';
+import {Introduction} from '../message/introduction';
 
 export class Newbie implements IRole {
 
   private _signal: RemotePeer;
 
-  private sendTableUpdate(mitosis: Mitosis): void {
-    const tableUpdate = new PeerUpdate(
+  private sendIntroduction(mitosis: Mitosis): void {
+    const introduction = new Introduction(
       mitosis.getMyAddress(),
-      mitosis.getSignalAddress(),
-      mitosis.getRoutingTable().getPeers()
+      mitosis.getSignalAddress()
     );
-    this._signal.send(tableUpdate);
+    this._signal.send(introduction);
   }
 
   public onTick(mitosis: Mitosis): void {
@@ -25,7 +25,7 @@ export class Newbie implements IRole {
         }
       );
     } else {
-      this.sendTableUpdate(mitosis);
+      this.sendIntroduction(mitosis);
     }
   }
 

@@ -26,7 +26,7 @@ export class MessageBroker {
   private _routingTable: RoutingTable;
   private _roleManager: RoleManager;
   private _appContentMessagesSubject: Subject<Message>;
-  private _appMessagesSubject: Subject<Message>;
+  private _messagesSubject: Subject<Message>;
   private _incomingMessageSubject: Subject<Message>;
 
   constructor(routingTable: RoutingTable, roleManager: RoleManager) {
@@ -34,7 +34,7 @@ export class MessageBroker {
     this.listenOnRoutingTablePeerChurn();
     this._roleManager = roleManager;
     this._appContentMessagesSubject = new Subject();
-    this._appMessagesSubject = new Subject();
+    this._messagesSubject = new Subject();
     this._incomingMessageSubject = new Subject();
   }
 
@@ -114,10 +114,12 @@ export class MessageBroker {
       case MessageSubject.APP_CONTENT:
         this._appContentMessagesSubject.next(message);
         break;
+      case MessageSubject.INTRODUCTION:
+        break;
       default:
         throw new Error(`unsupported subject ${message.getSubject()}`);
     }
-    this._appMessagesSubject.next(message);
+    this._messagesSubject.next(message);
   }
 
   private updateRoles(roleUpdate: RoleUpdate): void {
@@ -129,7 +131,7 @@ export class MessageBroker {
       .forEach(
         entry => {
           if (entry.peerId !== this._routingTable.getMyId() &&
-              entry.peerId !== peerUpdate.getSender().getId()) {
+            entry.peerId !== peerUpdate.getSender().getId()) {
             const address = new Address(
               entry.peerId,
               Protocol.VIA,
@@ -193,7 +195,7 @@ export class MessageBroker {
   }
 
   public observeMessages() {
-    return this._appMessagesSubject;
+    return this._messagesSubject;
   }
 
   public observeIncomingMessages() {

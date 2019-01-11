@@ -1,6 +1,7 @@
 import {RoleType} from '../role/interface';
 
 export enum MessageSubject {
+  INTRODUCTION = 'introduction',
   PEER_UPDATE = 'peer-update',
   ROLE_UPDATE = 'role-update',
   CONNECTION_NEGOTIATION = 'connection-negotiation',
