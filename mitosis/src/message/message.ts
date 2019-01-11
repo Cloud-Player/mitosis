@@ -5,6 +5,7 @@ export class Message {
   private _receiver: Address;
   private _sender: Address;
   private _subject: MessageSubject;
+  private _id: string;
   protected _body: any;
 
   public static fromString(messageString: string): Message {
@@ -22,6 +23,7 @@ export class Message {
     this._receiver = receiver;
     this._subject = subject;
     this._body = body;
+    this._id = `m${Math.round(100 + Math.random() * 899)}`;
   }
 
   public getReceiver(): Address {
@@ -40,9 +42,14 @@ export class Message {
     return this._body;
   }
 
+  public getId(): string {
+    return this._id;
+  }
+
   public toString(): string {
     return JSON.stringify(
       {
+        id: this._id,
         receiver: this.getReceiver().toString(),
         sender: this.getSender().toString(),
         subject: this.getSubject() as string,
