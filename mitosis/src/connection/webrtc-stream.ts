@@ -1,6 +1,5 @@
-import {Address} from '../message/address';
 import {Message} from '../message/message';
-import {IConnection, IConnectionOptions, Protocol} from './interface';
+import {IConnection, Protocol} from './interface';
 import {WebRTCConnection} from './webrtc';
 
 export class WebRTCStreamConnection extends WebRTCConnection implements IConnection {
@@ -10,17 +9,12 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
   private _onStreamPromise: Promise<MediaStream>;
   private _stream: MediaStream;
 
-  constructor(address: Address, options: IConnectionOptions) {
-    super(address, options);
-    this._simplePeerOptions.stream = new MediaStream();
-  }
-
   public send(message: Message): void {
     throw new Error('not implemented');
   }
 
   public addTrack(track: MediaStreamTrack): void {
-    (this._client as any).addTrack(track, this._simplePeerOptions.stream);
+    (this._client as any).addTrack(track, this._stream);
   }
 
   protected bindClientListeners(): void {
@@ -31,6 +25,11 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
         this._onStreamResolver(this._stream);
       }
     });
+  }
+
+  public setStream(stream: MediaStream): void {
+    this._stream = stream;
+    this._simplePeerOptions.stream = stream;
   }
 
   public getStream(): Promise<MediaStream> {

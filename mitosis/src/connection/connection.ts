@@ -4,6 +4,7 @@ import {Message} from '../message/message';
 import {ConnectionState, IConnection, IConnectionOptions} from './interface';
 
 export abstract class AbstractConnection {
+
   private _onOpenResolver: (connection: IConnection) => void;
   private _onOpenRejector: () => void;
   private _state: ConnectionState;

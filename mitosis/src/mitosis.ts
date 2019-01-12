@@ -144,7 +144,9 @@ export * from './logger/interface';
 
 export {AbstractClock} from './clock/clock';
 export {MasterClock} from './clock/master';
+export {ProtocolConnectionMap} from './connection/protocol-map';
 export {AbstractConnection} from './connection/connection';
+export {WebRTCStreamConnection} from './connection/webrtc-stream';
 export {RemotePeer} from './mesh/remote-peer';
 export {Address} from './message/address';
 export {Message} from './message/message';

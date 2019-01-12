@@ -1,10 +1,6 @@
 import {Subject} from 'rxjs';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
-import {ViaConnection} from './via';
-import {WebRTCConnection} from './webrtc';
-import {WebRTCStreamConnection} from './webrtc-stream';
-import {WebSocketConnection} from './websocket';
 
 export type IConnectionConstructor = new(address: Address, options?: IConnectionOptions) => IConnection;
 
@@ -15,13 +11,6 @@ export enum Protocol {
   WEBRTC_STREAM = 'webrtc-stream',
   VIA = 'via'
 }
-
-export const ProtocolConnectionMap: Map<Protocol, IConnectionConstructor> = new Map();
-ProtocolConnectionMap.set(Protocol.WEBSOCKET, WebSocketConnection);
-ProtocolConnectionMap.set(Protocol.WEBSOCKET_UNSECURE, WebSocketConnection);
-ProtocolConnectionMap.set(Protocol.WEBRTC, WebRTCConnection);
-ProtocolConnectionMap.set(Protocol.WEBRTC_STREAM, WebRTCStreamConnection);
-ProtocolConnectionMap.set(Protocol.VIA, ViaConnection);
 
 export interface IConnectionOptions {
   protocol: Protocol;

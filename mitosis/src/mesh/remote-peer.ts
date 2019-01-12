@@ -1,6 +1,7 @@
 import {Subject} from 'rxjs';
 import {ConnectionTable} from '../connection/connection-table';
-import {ConnectionState, IConnection, IConnectionOptions, ProtocolConnectionMap} from '../connection/interface';
+import {ConnectionState, IConnection, IConnectionOptions} from '../connection/interface';
+import {ProtocolConnectionMap} from '../connection/protocol-map';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
