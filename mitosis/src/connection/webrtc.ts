@@ -7,6 +7,7 @@ import {AbstractConnection} from './connection';
 import {
   ConnectionState,
   IConnection,
+  IConnectionOptions,
   IWebRTCConnectionOptions,
   Protocol,
   WebRTCConnectionOptionsPayloadType
@@ -14,22 +15,61 @@ import {
 
 export class WebRTCConnection extends AbstractConnection implements IConnection {
 
-  private _client: SimplePeer.Instance;
+  protected static protocol: Protocol = Protocol.WEBRTC;
+  protected _client: SimplePeer.Instance;
   protected _options: IWebRTCConnectionOptions;
+  protected _simplePeerOptions: SimplePeer.Options;
 
-  public send(message: Message): void {
-    if (!this._client) {
-      throw new Error('webrtc client not initialized');
-    } else if (this.getState() !== ConnectionState.OPEN) {
-      throw new Error(`webrtc connection not in open state (${this.getState()})`);
-    } else {
-      this._client.send(message.toString());
-    }
+  constructor(address: Address, options: IConnectionOptions) {
+    super(address, options);
+    this._simplePeerOptions = {initiator: true, trickle: false};
+  }
+
+  private createOffer(mitosisId: string) {
+    this._client = new SimplePeer(this._simplePeerOptions);
+    this._client.on('signal', (offer: SimplePeer.SignalData) => {
+      Logger.getLogger(mitosisId).debug('webrtc offer ready');
+      this.onMessage(new Message(
+        new Address(mitosisId, WebRTCConnection.protocol, this.getId()),
+        this.getAddress(),
+        MessageSubject.CONNECTION_NEGOTIATION,
+        offer
+      ));
+    });
+  }
+
+  private createAnswer(mitosisId: string, offer: SimplePeer.SignalData) {
+    this._client = new SimplePeer({initiator: false, trickle: false});
+    this._client.signal(offer);
+    this._client.on('signal', (answer: SimplePeer.SignalData) => {
+      Logger.getLogger(mitosisId).debug('webrtc answer ready');
+      this.onMessage(new Message(
+        new Address(mitosisId, WebRTCConnection.protocol, this.getId()),
+        new Address(this.getAddress().getId()),
+        MessageSubject.CONNECTION_NEGOTIATION,
+        answer
+      ));
+    });
   }
 
   protected closeClient(): void {
     this._client.destroy();
     this._client = null;
+  }
+
+  protected bindClientListeners(): void {
+    this._client.on('connect', () => {
+      this.onOpen(this);
+    });
+    this._client.on('data', (data) => {
+      this.onMessage(Message.fromString(data));
+    });
+    this._client.on('close', () => {
+      this.onClose();
+    });
+    this._client.on('error', (error) => {
+      this.onError(error);
+    });
   }
 
   protected openClient(): void {
@@ -52,46 +92,17 @@ export class WebRTCConnection extends AbstractConnection implements IConnection 
     } else {
       this.createOffer(this._options.mitosisId);
     }
-
-    this._client.on('connect', () => {
-      this.onOpen(this);
-    });
-    this._client.on('data', (data) => {
-      this.onMessage(Message.fromString(data));
-    });
-    this._client.on('close', () => {
-      this.onClose();
-    });
-    this._client.on('error', (error) => {
-      this.onError(error);
-    });
+    this.bindClientListeners();
   }
 
-  private createOffer(mitosisId: string) {
-    this._client = new SimplePeer({initiator: true, trickle: false});
-    this._client.on('signal', (offer: SimplePeer.SignalData) => {
-      Logger.getLogger(mitosisId).debug('webrtc offer ready');
-      this.onMessage(new Message(
-        new Address(mitosisId, Protocol.WEBRTC, this.getId()),
-        this.getAddress(),
-        MessageSubject.CONNECTION_NEGOTIATION,
-        offer
-      ));
-    });
-  }
-
-  private createAnswer(mitosisId: string, offer: SimplePeer.SignalData) {
-    this._client = new SimplePeer({initiator: false, trickle: false});
-    this._client.signal(offer);
-    this._client.on('signal', (answer: SimplePeer.SignalData) => {
-      Logger.getLogger(mitosisId).debug('webrtc answer ready');
-      this.onMessage(new Message(
-        new Address(mitosisId, Protocol.WEBRTC, this.getId()),
-        new Address(this.getAddress().getId()),
-        MessageSubject.CONNECTION_NEGOTIATION,
-        answer
-      ));
-    });
+  public send(message: Message): void {
+    if (!this._client) {
+      throw new Error('webrtc client not initialized');
+    } else if (this.getState() !== ConnectionState.OPEN) {
+      throw new Error(`webrtc connection not in open state (${this.getState()})`);
+    } else {
+      this._client.send(message.toString());
+    }
   }
 
   public getQuality(): number {
