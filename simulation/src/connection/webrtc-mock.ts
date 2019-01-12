@@ -1,20 +1,11 @@
-import {
-  Address,
-  IConnection,
-  Logger,
-  Message,
-  MessageSubject,
-  Protocol,
-  WebRTCConnectionOptionsPayloadType
-} from 'mitosis';
+import {Address, IConnection, Logger, Message, MessageSubject, Protocol, WebRTCConnectionOptionsPayloadType} from 'mitosis';
 import {MockConnection} from './mock';
 
 export class WebRTCMockConnection extends MockConnection implements IConnection {
 
+  protected _quality = (Math.floor(Math.random() * 50) / 100) + 0.5;
   private _lastOffer = 1;
   private _lastAnswer = 1;
-  private _signalDelay = 1;
-  private _quality = (Math.floor(Math.random() * 50) / 100) + 0.5;
 
   protected openClient(): void {
     if (!this._options) {
@@ -41,10 +32,6 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
     }
   }
 
-  protected closeClient(): void {
-    this._client.closeConnection(this._address.getId(), this._options.mitosisId);
-  }
-
   private createOffer(mitosisId: string) {
     this._client.getClock().setTimeout(() => {
       Logger.getLogger(mitosisId).debug('webrtc offer ready');
@@ -58,9 +45,9 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
         MessageSubject.CONNECTION_NEGOTIATION,
         offer
       );
-      this._client.addConnection(this._address.getId(), this._options.mitosisId, this);
+      this._client.addConnection(this._options.mitosisId, this._address.getId(), this);
       this.onMessage(offerMsg);
-    }, this._signalDelay);
+    }, this.getConnectionDelay());
   }
 
   private createAnswer(mitosisId: string, offer: number) {
@@ -76,19 +63,15 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
         MessageSubject.CONNECTION_NEGOTIATION,
         answer
       );
-      this._client.addConnection(this._address.getId(), this._options.mitosisId, this);
+      this._client.addConnection(this._options.mitosisId, this._address.getId(), this);
       this.onMessage(answerMsg);
-    }, this._signalDelay);
-  }
-
-  public getQuality(): number {
-    return this._quality;
+    }, this.getConnectionDelay());
   }
 
   public establish(answer: number) {
     Logger.getLogger(this._options.mitosisId).debug('establish connection', answer);
     this._client.getClock().setTimeout(() => {
       this._client.establishConnection(this._address.getId(), this._options.mitosisId);
-    }, this._signalDelay);
+    }, this.getConnectionDelay());
   }
 }

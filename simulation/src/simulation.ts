@@ -1,17 +1,7 @@
-import {
-  Address,
-  ConnectionState,
-  IClock,
-  Logger,
-  LogLevel,
-  MasterClock,
-  Message,
-  Mitosis,
-  Protocol,
-  ProtocolConnectionMap
-} from 'mitosis';
+import {ConnectionState, IClock, Logger, LogLevel, MasterClock, Message, Mitosis, Protocol, ProtocolConnectionMap} from 'mitosis';
 import {MockConnection} from './connection/mock';
 import {WebRTCMockConnection} from './connection/webrtc-mock';
+import {WebSocketMockConnection} from './connection/websocket-mock';
 import {Edge} from './edge/edge';
 import {InstructionFactory} from './instruction/factory';
 import {Node} from './node/node';
@@ -27,8 +17,8 @@ export class Simulation {
     if (!Simulation._instance) {
       Logger.setLogLevel(LogLevel.WARN);
       Simulation._instance = new Simulation();
-      ProtocolConnectionMap.set(Protocol.WEBSOCKET_UNSECURE, MockConnection);
-      ProtocolConnectionMap.set(Protocol.WEBSOCKET, MockConnection);
+      ProtocolConnectionMap.set(Protocol.WEBSOCKET_UNSECURE, WebSocketMockConnection);
+      ProtocolConnectionMap.set(Protocol.WEBSOCKET, WebSocketMockConnection);
       ProtocolConnectionMap.set(Protocol.WEBRTC, WebRTCMockConnection);
     }
     return Simulation._instance;
@@ -58,22 +48,6 @@ export class Simulation {
     }
   }
 
-  public closeConnection(from: string, to: string) {
-    const edge1 = this._edges.get([to, from].join('-'));
-    const edge2 = this._edges.get([from, to].join('-'));
-    if (edge1) {
-      edge1.getConnection().onClose();
-    } else {
-      console.error(`Edge ${to}->${from} does not exist! Can not close connection`);
-    }
-
-    if (edge2) {
-      edge2.getConnection().onClose();
-    } else {
-      console.error(`Edge ${from}->${to} does not exist! Can not close connection`);
-    }
-  }
-
   public addConnection(from: string, to: string, connection: MockConnection): void {
     const local = this._nodes.get(from);
     const remote = this._nodes.get(to);
@@ -88,27 +62,14 @@ export class Simulation {
     if (!this._edges.get([from, to].join('-'))) {
       this._edges.set([from, to].join('-'), new Edge(from, connection));
     }
-    if (!this._edges.get([to, from].join('-'))) {
-      const localAddress = new Address(
-        local.getMitosis().getMyAddress().getId(),
-        connection.getAddress().getProtocol(),
-        connection.getAddress().getLocation()
-      );
-      remote.getMitosis().getRoutingTable().connectTo(localAddress);
-    }
   }
 
   public removeConnection(from: string, to: string): void {
-    const directions = [[from, to].join('-'), [to, from].join('-')];
-    directions.forEach(
-      key => {
-        const edge = this._edges.get(key);
-        if (edge) {
-          (edge.getConnection() as MockConnection).onClose();
-          this._edges.delete(key);
-        }
-      }
-    );
+    const edgeKey = [from, to].join('-');
+    const edge = this._edges.get(edgeKey);
+    if (edge) {
+      this._edges.delete(edgeKey);
+    }
   }
 
   public deliverMessage(from: string, to: string, delay: number, message: Message): void {
@@ -147,12 +108,12 @@ export class Simulation {
     return this._clock;
   }
 
-  public getEdges(): Array<Edge> {
-    return Array.from(this._edges.values());
+  public getEdgeMap(): Map<string, Edge> {
+    return this._edges;
   }
 
-  public getNodes(): Array<Node> {
-    return Array.from(this._nodes.values());
+  public getNodeMap(): Map<string, Node> {
+    return this._nodes;
   }
 
   public onUpdate(callback: () => void): void {

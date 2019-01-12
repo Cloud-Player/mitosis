@@ -1,23 +1,25 @@
 import {AbstractConnection, ConnectionState, IConnection, Message} from 'mitosis';
 import {Simulation} from '../simulation';
 
-export class MockConnection extends AbstractConnection implements IConnection {
+export abstract class MockConnection extends AbstractConnection implements IConnection {
 
   protected _delay = 1;
   protected readonly _client: Simulation = Simulation.getInstance();
+  protected _quality = 1;
+  protected _connectionDelay = 1;
+
+  protected abstract openClient(): void;
 
   protected closeClient(): void {
-    this._client.removeConnection(this._options.mitosisId, this._address.getId());
     this.onClose();
   }
 
-  protected openClient(): void {
-    this._client.addConnection(this._options.mitosisId, this._address.getId(), this);
-    this.onOpen(this);
-  }
-
-  public getQuality(): number {
-    return 0.25;
+  public onClose(): void {
+    super.onClose();
+    this._client.removeConnection(this._options.mitosisId, this._address.getId());
+    const remoteEdgeKey = [this._address.getId(), this._options.mitosisId].join('-');
+    const remoteEdge = this._client.getEdgeMap().get(remoteEdgeKey);
+    remoteEdge.getConnection().closeClient();
   }
 
   public send(message: Message): void {
@@ -38,6 +40,14 @@ export class MockConnection extends AbstractConnection implements IConnection {
 
   public getDelay() {
     return this._delay;
+  }
+
+  public getQuality(): number {
+    return this._quality;
+  }
+
+  public getConnectionDelay() {
+    return this._connectionDelay;
   }
 
   public getSourceId(): string {

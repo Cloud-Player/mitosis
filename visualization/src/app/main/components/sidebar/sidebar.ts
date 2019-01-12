@@ -40,7 +40,7 @@ export class SidebarComponent implements OnInit {
   ngOnInit(): void {
     this.simulation.onUpdate(() => {
       this.availableNodeIds = [];
-      this.simulation.getNodes().forEach((node) => {
+      this.simulation.getNodeMap().forEach((node) => {
         this.availableNodeIds.push(node.getId());
       });
       if (this.searchNode && !this.selectedNode) {
