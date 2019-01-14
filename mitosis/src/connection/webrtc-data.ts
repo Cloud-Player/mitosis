@@ -75,6 +75,13 @@ export class WebRTCDataConnection extends WebRTCConnection implements IConnectio
     };
   }
 
+  public onClose() {
+    super.onClose();
+    if (this._pingInterval) {
+      clearInterval(this._pingInterval);
+    }
+  }
+
   public onMessage(message: Message) {
     if (message.getSubject() === MessageSubject.PING) {
       this.handlePing(message as Ping);
