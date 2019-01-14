@@ -7,8 +7,8 @@ import {Message} from './message';
 export class AppContent extends Message {
   protected _body: Array<RoleType>;
 
-  public constructor(sender: Address, receiver: Address, roles: Array<RemotePeer>) {
-    super(sender, receiver, MessageSubject.APP_CONTENT, roles);
+  public constructor(sender: Address, receiver: Address, message: string) {
+    super(sender, receiver, MessageSubject.APP_CONTENT, message);
   }
 
   public getBody(): Array<RoleType> {
