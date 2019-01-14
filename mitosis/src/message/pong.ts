@@ -5,13 +5,13 @@ import {MessageSubject} from './interface';
 import {Message} from './message';
 
 export class Pong extends Message {
-  protected _body: Array<RoleType>;
+  protected _body: number;
 
-  public constructor(sender: Address, receiver: Address) {
-    super(sender, receiver, MessageSubject.PONG, null);
+  public constructor(sender: Address, receiver: Address, sequence: number) {
+    super(sender, receiver, MessageSubject.PONG, sequence);
   }
 
-  public getBody(): Array<RoleType> {
+  public getBody(): number {
     return this._body;
   }
 }
