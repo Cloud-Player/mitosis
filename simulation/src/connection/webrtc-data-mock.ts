@@ -11,7 +11,7 @@ import {
 import {filter} from 'rxjs/operators';
 import {MockConnection} from './mock';
 
-export class WebRTCMockConnection extends MockConnection implements IConnection {
+export class WebRTCDataMockConnection extends MockConnection implements IConnection {
 
   private _lastOffer = 1;
   private _lastAnswer = 1;
