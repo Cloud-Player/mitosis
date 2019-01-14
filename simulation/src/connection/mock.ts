@@ -1,4 +1,5 @@
-import {AbstractConnection, ConnectionState, IConnection, Message} from 'mitosis';
+import {AbstractConnection, Address, ConnectionState, IConnection, IConnectionOptions, Logger, Message} from 'mitosis';
+import {filter} from 'rxjs/operators';
 import {Simulation} from '../simulation';
 
 export abstract class MockConnection extends AbstractConnection implements IConnection {
@@ -7,8 +8,36 @@ export abstract class MockConnection extends AbstractConnection implements IConn
   protected readonly _client: Simulation = Simulation.getInstance();
   protected _quality = 1;
   protected _connectionDelay = 1;
+  private _timeout: number;
 
   protected abstract openClient(): void;
+
+  public constructor(address: Address, options?: IConnectionOptions) {
+    super(address, options);
+    this.expectOpenWithinTimeout();
+  }
+
+  private expectOpenWithinTimeout(): void {
+    this.observeStateChange().pipe(
+      filter((ev: ConnectionState) => ev === ConnectionState.OPENING)
+    ).subscribe(() => {
+      this._timeout = this._client.getClock().setTimeout(
+        () => {
+          Logger.getLogger(this._options.mitosisId).warn('opening took too long', this.getAddress().toString());
+          this.onError();
+        },
+        20
+      );
+    });
+    this.observeStateChange().pipe(
+      filter((ev: ConnectionState) => ev !== ConnectionState.OPENING)
+    ).subscribe(
+      () => {
+        if (this._timeout) {
+          this._client.getClock().clearTimeout(this._timeout);
+        }
+      });
+  }
 
   protected closeClient(): void {
     this.onClose();

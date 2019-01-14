@@ -1,9 +1,8 @@
 import {RemotePeer} from '../mesh/remote-peer';
-import {Message} from '../message/message';
-import {PeerUpdate} from '../message/peer-update';
-import {Mitosis, RoleType} from '../mitosis';
-import {IRole} from './interface';
 import {Introduction} from '../message/introduction';
+import {Message} from '../message/message';
+import {Mitosis} from '../mitosis';
+import {IRole} from './interface';
 
 export class Newbie implements IRole {
 

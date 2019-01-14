@@ -98,14 +98,7 @@ export class MessageBroker {
         this.updateRoles(message as RoleUpdate);
         break;
       case MessageSubject.PEER_UPDATE:
-        if (message.getSender().getId() === connection.getAddress().getId()) {
-          this.updatePeers(message as PeerUpdate);
-        } else {
-          throw new Error(
-            `${message.getReceiver()} will not accept peer update from ` +
-            `${message.getSender()} via ${connection.getAddress()}`
-          );
-        }
+        this.updatePeers(message as PeerUpdate, connection);
         break;
       case MessageSubject.CONNECTION_NEGOTIATION:
         this.negotiateConnection(message as ConnectionNegotiation);
@@ -125,7 +118,20 @@ export class MessageBroker {
     this._roleManager.updateRoles(roleUpdate.getBody());
   }
 
-  private updatePeers(peerUpdate: PeerUpdate): void {
+  private updatePeers(peerUpdate: PeerUpdate, connection: IConnection): void {
+    // Only accept peer updates from direct connections or peers in opening state
+    if (peerUpdate.getSender().getId() !== connection.getAddress().getId()) {
+      const sender = this._routingTable.getPeerById(peerUpdate.getSender().getId());
+      const openingConnections = sender.getConnectionTable()
+        .filterDirect()
+        .filterByStates(ConnectionState.OPENING);
+      if (openingConnections.length === 0) {
+        throw new Error(
+          `${peerUpdate.getReceiver()} will not accept peer update from ` +
+          `${peerUpdate.getSender()} via ${connection.getAddress()}`
+        );
+      }
+    }
     peerUpdate.getBody()
       .forEach(
         entry => {
@@ -136,7 +142,11 @@ export class MessageBroker {
               Protocol.VIA,
               peerUpdate.getSender().getId()
             );
-            this._routingTable.connectTo(address);
+            const options = {
+              protocol: Protocol.VIA,
+              payload: {quality: entry.quality}
+            };
+            this._routingTable.connectTo(address, options);
           }
         }
       );

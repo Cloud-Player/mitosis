@@ -17,6 +17,15 @@ export interface IConnectionOptions {
   payload?: any;
 }
 
+export interface IViaConnectionOptions extends IConnectionOptions {
+  protocol: Protocol.VIA;
+  payload?: IViaConnectionOptionsPayload;
+}
+
+export interface IViaConnectionOptionsPayload {
+  quality: number;
+}
+
 export interface IWebRTCConnectionOptions extends IConnectionOptions {
   payload?: IWebRTCConnectionOptionsPayload;
 }

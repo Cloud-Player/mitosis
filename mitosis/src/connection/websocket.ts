@@ -1,6 +1,6 @@
 import {Message} from '../message/message';
 import {AbstractConnection} from './connection';
-import {ConnectionState, IConnection, Protocol} from './interface';
+import {ConnectionState, IConnection} from './interface';
 
 export class WebSocketConnection extends AbstractConnection implements IConnection {
   private _client: WebSocket;
@@ -17,12 +17,12 @@ export class WebSocketConnection extends AbstractConnection implements IConnecti
     }
   }
 
-  private onSocketOpen(event: Event) {
+  private onSocketOpen() {
     this.onOpen(this);
   }
 
   private onSocketClose(event: Event) {
-    this.onClose();
+    this.onClose(event);
   }
 
   private onSocketMessage(event: MessageEvent) {

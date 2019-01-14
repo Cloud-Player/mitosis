@@ -6,7 +6,7 @@ import {ConnectionState, IConnection, IConnectionOptions, Protocol} from './inte
 export abstract class AbstractConnection {
 
   private _onOpenResolver: (connection: IConnection) => void;
-  private _onOpenRejector: () => void;
+  private _onOpenRejector: (error?: any) => void;
   private _state: ConnectionState;
   protected _id: string;
   protected _options: IConnectionOptions;
@@ -45,29 +45,29 @@ export abstract class AbstractConnection {
   public onOpen(connection: IConnection) {
     if (this._onOpenResolver) {
       this._onOpenResolver(connection);
-      this._onOpenResolver = null;
-      this._onOpenRejector = null;
     }
+    this._onOpenResolver = null;
+    this._onOpenRejector = null;
     this._state = ConnectionState.OPEN;
-    this._stateChangeSubject.next(ConnectionState.OPEN);
+    this._stateChangeSubject.next(this._state);
   }
 
-  public onClose() {
+  public onClose(reason?: any) {
     if (this._onOpenRejector) {
-      this._onOpenRejector();
-      this._onOpenResolver = null;
-      this._onOpenRejector = null;
+      this._onOpenRejector(reason);
     }
+    this._onOpenResolver = null;
+    this._onOpenRejector = null;
     this._state = ConnectionState.CLOSED;
-    this._stateChangeSubject.next(ConnectionState.CLOSED);
+    this._stateChangeSubject.next(this._state);
     this._stateChangeSubject.complete();
     this._messageReceivedSubject.complete();
   }
 
-  public onError(error?: any) {
+  public onError(reason?: any) {
     this._state = ConnectionState.ERROR;
-    this._stateChangeSubject.next(ConnectionState.ERROR);
-    this.onClose();
+    this._stateChangeSubject.next(this._state);
+    this.onClose(reason);
   }
 
   public onMessage(message: Message) {
@@ -100,5 +100,13 @@ export abstract class AbstractConnection {
 
   public observeStateChange(): Subject<ConnectionState> {
     return this._stateChangeSubject;
+  }
+
+  public toString(): string {
+    return JSON.stringify({
+      id: this._id,
+      address: this._address.toString(),
+      state: this._state.toString()
+    });
   }
 }
