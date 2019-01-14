@@ -53,16 +53,22 @@ export class WebRTCConnection extends AbstractConnection implements IConnection 
   }
 
   protected getRTCPeerConnection(): RTCPeerConnection {
-    // @ts-ignore
-    return this._client._pc;
+    if (this._client) {
+      // @ts-ignore
+      return this._client._pc;
+    }
   }
 
   protected getStats(): Promise<Array<RTCStats>> {
+    const rtcpc = this.getRTCPeerConnection();
+    if (!rtcpc) {
+      return Promise.reject();
+    }
     return new Promise<Array<RTCStats>>(resolve => {
-      this.getRTCPeerConnection().getStats()
+      rtcpc.getStats()
         .then((report: RTCStatsReport) => {
-          const statsArray: Array<RTCStatsReport> = [];
-          report.forEach((stats: RTCStatsReport) => {
+          const statsArray: Array<RTCStats> = [];
+          report.forEach((stats: RTCStats) => {
             statsArray.push(stats);
           });
           resolve(statsArray);
