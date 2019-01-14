@@ -6,13 +6,50 @@
   <title>Nucleus</title>
 </head>
 <body>
-<div class="flex-container">
-  <textarea rows="10" id="inTextArea"></textarea>
-  <button id="createOffer">Create Offer</button>
-  <button id="createAnser">Create Answer</button>
-  <button id="establish">Establish</button>
-  <textarea rows="10" id="outTextArea"></textarea>
+<h2>WebRTC Streamchannel</h2>
+<div class="stream-rtc flex-container">
+  <div class="left flex-container column">
+    <textarea rows="10"
+              class="in-text-area">
+    </textarea>
+    <button class="create-offer-btn">Create Offer</button>
+    <button class="create-answer-btn">Create Answer</button>
+    <button class="establish-btn">Establish</button>
+    <textarea rows="10"
+              class="out-text-area"></textarea>
+  </div>
+  <div class="right">
+    <video controls autoplay id="video"></video>
+  </div>
 </div>
-<video controls autoplay id="video"></video>
+
+<hr>
+<h2>WebRTC Datachannel</h2>
+<div class="data-rtc flex-container">
+  <div class="left flex-container column">
+    <textarea rows="10"
+              class="in-text-area">
+    </textarea>
+    <button class="create-offer-btn">Create Offer</button>
+    <button class="create-answer-btn">Create Answer</button>
+    <button class="establish-btn">Establish</button>
+    <textarea rows="10"
+              class="out-text-area"></textarea>
+  </div>
+  <div class="right">
+    <fieldset>
+      <legend>Incoming</legend>
+      <textarea class="in-messages"
+                readonly
+                rows="10"></textarea>
+    </fieldset>
+    <fieldset>
+      <legend>Send</legend>
+      <textarea class="out-message"></textarea>
+      <button class="send-msg-btn">Send</button>
+    </fieldset>
+  </div>
+</div>
+
 </body>
 </html>

@@ -5,6 +5,12 @@ html, body {
 
 .flex-container {
   display: flex;
-  width: 300px;
-  flex-direction: column;
+
+  &.column{
+    flex-direction: column;
+  }
+}
+
+.left{
+  width: 50%;
 }
