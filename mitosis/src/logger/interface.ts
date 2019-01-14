@@ -15,6 +15,8 @@ export interface ILogEvent {
 
 export interface ILogger {
 
+  setLevel(level: LogLevel): void;
+
   log(...args: Array<any>): void;
 
   debug(...args: Array<any>): void;

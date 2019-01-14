@@ -5,6 +5,7 @@ export class Logger implements ILogger {
 
   private static _loggerMap: Map<string, ILogger> = new Map();
   private static _logLevel: LogLevel = LogLevel.DEBUG;
+  private _logLevel: LogLevel = null;
 
   private _id: string;
   private readonly _logSubject: Subject<ILogEvent>;
@@ -16,13 +17,21 @@ export class Logger implements ILogger {
     return Logger._loggerMap.get(id);
   }
 
-  public static setLogLevel(logLevel: LogLevel) {
-    this._logLevel = logLevel;
+  public static setLevel(level: LogLevel) {
+    Logger._logLevel = level;
   }
 
   private constructor(id: string) {
     this._id = id;
     this._logSubject = new Subject<ILogEvent>();
+  }
+
+  public getLevel(): LogLevel {
+    return this._logLevel || Logger._logLevel;
+  }
+
+  public setLevel(level: LogLevel): void {
+    this._logLevel = level;
   }
 
   public log(...args: Array<any>): void {
@@ -31,28 +40,28 @@ export class Logger implements ILogger {
   }
 
   public debug(...args: Array<any>): void {
-    if (Logger._logLevel <= LogLevel.DEBUG) {
+    if (this.getLevel() <= LogLevel.DEBUG) {
       console.log(`🔧 [${this._id}]`, ...args);
     }
     this._logSubject.next({level: LogLevel.DEBUG, data: args});
   }
 
   public info(...args: Array<any>): void {
-    if (Logger._logLevel <= LogLevel.INFO) {
+    if (this.getLevel() <= LogLevel.INFO) {
       console.info(`[${this._id}]`, ...args);
     }
     this._logSubject.next({level: LogLevel.INFO, data: args});
   }
 
   public warn(...args: Array<any>): void {
-    if (Logger._logLevel <= LogLevel.WARN) {
+    if (this.getLevel() <= LogLevel.WARN) {
       console.warn(`[${this._id}]`, ...args);
     }
     this._logSubject.next({level: LogLevel.WARN, data: args});
   }
 
   public error(...args: Array<any>): void {
-    if (Logger._logLevel <= LogLevel.ERROR) {
+    if (this.getLevel() <= LogLevel.ERROR) {
       console.error(`[${this._id}]`, ...args);
     }
     this._logSubject.next({level: LogLevel.ERROR, data: args});
