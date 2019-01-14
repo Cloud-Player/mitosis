@@ -1,4 +1,5 @@
 import * as SimplePeer from 'simple-peer';
+import {Address} from '../message/address';
 import {MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
 import {Ping} from '../message/ping';
@@ -11,13 +12,41 @@ export class WebRTCDataConnection extends WebRTCConnection implements IConnectio
 
   private _statsDataChannel: RTCDataChannel;
   private _pingSequence = 0;
+  private _pingInterval: any;
+
+  private dataChannelSend(message: Message) {
+    this._statsDataChannel.send(message.toString());
+  }
+
+  private sendPong(receiver: Address, sequence: number) {
+    const pong = new Pong(
+      this.getMyAddress(),
+      receiver,
+      sequence
+    );
+    this.dataChannelSend(pong);
+  }
+
+  private sendPing() {
+    console.log(`Send ping to ${this.getAddress().getId()} ${this._pingSequence}`);
+    const ping = new Ping(
+      this.getMyAddress(),
+      this.getAddress(),
+      this._pingSequence++
+    );
+    this.dataChannelSend(ping);
+  }
 
   private handlePing(message: Ping) {
     console.log(`Got ping from ${message.getSender().getId()} ${message.getBody()}`);
+    this.sendPong(message.getSender(), message.getBody());
   }
 
   private handlePong(message: Pong) {
-
+    console.log(`Got pong from ${message.getSender().getId()} ${message.getBody()}`);
+    if (message.getBody() < this._pingSequence - 1) {
+      console.error('Ping Packet get lost!');
+    }
   }
 
   private listenOnStatsDataChannel() {
@@ -35,7 +64,6 @@ export class WebRTCDataConnection extends WebRTCConnection implements IConnectio
 
   protected bindClientListeners(): void {
     super.bindClientListeners();
-    console.log(this.getRTCPeerConnection().ondatachannel);
     const superOnDataChannel = this.getRTCPeerConnection().ondatachannel;
     this.getRTCPeerConnection().ondatachannel = (event: RTCDataChannelEvent) => {
       if (event.channel.label === WebRTCDataConnection._statsDataChannelLabel) {
@@ -59,8 +87,8 @@ export class WebRTCDataConnection extends WebRTCConnection implements IConnectio
 
   public onOpen() {
     super.onOpen(this);
-    setInterval(() => {
-      this._statsDataChannel.send(new Ping(this.getMyAddress(), this.getAddress(), this._pingSequence++).toString());
+    this._pingInterval = setInterval(() => {
+      this.sendPing();
     }, 1000);
   }
 
