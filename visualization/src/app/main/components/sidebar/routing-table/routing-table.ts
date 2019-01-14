@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {IConnection, Protocol, RemotePeer} from 'mitosis';
+import {ConnectionState, IConnection, Protocol, RemotePeer} from 'mitosis';
 import {Node, Simulation} from 'mitosis-simulation';
 
 @Component({
@@ -18,7 +18,8 @@ export class RoutingTableComponent implements OnInit {
   }
 
   public getConnectionText(peer: RemotePeer) {
-    let directConnections = 0;
+    let openDirectConnections = 0;
+    let openingDirectConnections = 0;
     let viaConnections = 0;
     peer.getConnectionTable()
       .asArray()
@@ -26,10 +27,17 @@ export class RoutingTableComponent implements OnInit {
         if (connection.getAddress().getProtocol() === Protocol.VIA) {
           viaConnections++;
         } else {
-          directConnections++;
+          if (connection.getState() === ConnectionState.OPEN) {
+            openDirectConnections++;
+          } else if (connection.getState() === ConnectionState.OPENING) {
+            openingDirectConnections++;
+          }
         }
       });
-    return `Dir ${directConnections} / Via ${viaConnections}`;
+    const openDirText = `Dir ${openDirectConnections}`;
+    const openeningText = openingDirectConnections > 0 ? `(${openingDirectConnections}?)` : '';
+    const viaText = `Via ${viaConnections}`;
+    return `${openDirText} ${openeningText}/ ${viaText}`;
   }
 
   ngOnInit(): void {
