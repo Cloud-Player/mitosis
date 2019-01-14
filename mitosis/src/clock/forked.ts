@@ -17,6 +17,10 @@ export class ForkedClock extends AbstractClock implements IClock {
     return forked;
   }
 
+  public setSpeed(speed: number): void {
+    this._masterClock.setSpeed(speed);
+  }
+
   public startClock(): void {
     this._cancelId = this._masterClock.setInterval(this.tick.bind(this));
   }

@@ -58,6 +58,11 @@ export abstract class AbstractClock {
     this._timeouts.length = 0;
   }
 
+  public restart(): void {
+    this.pauseClock();
+    this.startClock();
+  }
+
   public setInterval(callback: () => void, interval: number = 1): number {
     interval = Math.max(interval, 1);
     this._lastCancelId = (this._lastCancelId + 1) % this._maxCancelId;

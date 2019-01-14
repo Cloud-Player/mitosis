@@ -6,6 +6,7 @@ import {RemoveConnection} from './remove-connection';
 import {RemovePeer} from './remove-peer';
 import {StartClock} from './start-clock';
 import {StopClock} from './stop-clock';
+import {SetClockSpeed} from './set-clock-speed';
 
 export enum InstructionType {
   ADD_PEER = 'add-peer',
@@ -13,7 +14,8 @@ export enum InstructionType {
   REMOVE_CONNECTION = 'remove-connection',
   START_CLOCK = 'start-clock',
   PAUSE_CLOCK = 'pause-clock',
-  STOP_CLOCK = 'stop-clock'
+  STOP_CLOCK = 'stop-clock',
+  SET_CLOCK_SPEED = 'set-clock-speed'
 }
 
 export type IInstructionConstructor = new(...args: Array<any>) => IInstruction;
@@ -24,13 +26,15 @@ export const InstructionTypeMap: Map<InstructionType, IInstructionConstructor> =
   [InstructionType.REMOVE_CONNECTION, RemoveConnection],
   [InstructionType.START_CLOCK, StartClock],
   [InstructionType.PAUSE_CLOCK, PauseClock],
-  [InstructionType.STOP_CLOCK, StopClock]
+  [InstructionType.STOP_CLOCK, StopClock],
+  [InstructionType.SET_CLOCK_SPEED, SetClockSpeed]
 ]);
 
 export interface IConfiguration {
   address?: string;
   signal?: string;
   target?: string;
+  speed?: number;
   roles?: Array<RoleType>;
 }
 

@@ -5,11 +5,11 @@ import {IClock} from './interface';
 export class MasterClock extends AbstractClock implements IClock {
 
   private _masterCancelId: any;
-  private _msPerTick: number;
+  private _speed: number;
 
-  public constructor(msPerTick: number = 1000) {
+  public constructor(speed: number = 1000) {
     super();
-    this._msPerTick = msPerTick;
+    this._speed = speed;
   }
 
   public fork(): IClock {
@@ -18,8 +18,12 @@ export class MasterClock extends AbstractClock implements IClock {
     return forked;
   }
 
+  public setSpeed(speed: number) {
+    this._speed = speed;
+  }
+
   public startClock(): void {
-    this._masterCancelId = setInterval(this.tick.bind(this), this._msPerTick);
+    this._masterCancelId = setInterval(this.tick.bind(this), this._speed);
   }
 
   public pauseClock(): void {

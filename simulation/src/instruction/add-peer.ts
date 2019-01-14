@@ -1,4 +1,4 @@
-import {Mitosis} from 'mitosis';
+import {Logger, Mitosis} from 'mitosis';
 import {MockEnclave} from '../enclave/mock';
 import {Simulation} from '../simulation';
 import {AbstractInstruction} from './instruction';
@@ -14,7 +14,7 @@ export class AddPeer extends AbstractInstruction implements IInstruction {
       config.address,
       config.signal,
       config.roles);
-    console.info('👍 add peer', peer.getMyAddress().getId());
+    Logger.getLogger('simulation').info('add peer', peer.getMyAddress().getId());
     simulation.addNode(peer);
   }
 }
