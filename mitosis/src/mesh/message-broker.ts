@@ -7,7 +7,6 @@ import {
   Protocol,
   WebRTCConnectionOptionsPayloadType
 } from '../connection/interface';
-import {ViaConnection} from '../connection/via';
 import {WebRTCConnection} from '../connection/webrtc';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
@@ -181,7 +180,7 @@ export class MessageBroker {
     let directPeer;
     if (!connection) {
       Logger.getLogger(this._routingTable.getMyId()).error('all connections lost to', receiverPeer.getId());
-    } else if (connection instanceof ViaConnection) {
+    } else if (connection.getAddress().getProtocol() === Protocol.VIA) {
       const directPeerId = connection.getAddress().getLocation();
       directPeer = this._routingTable.getPeerById(directPeerId);
       directPeer.send(message);

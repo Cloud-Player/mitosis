@@ -3,8 +3,6 @@ import {MockConnection} from './mock';
 
 export class WebSocketMockConnection extends MockConnection implements IConnection {
 
-  protected _quality = (Math.floor(Math.random() * 50) / 100);
-
   protected openClient(): void {
     this._client.addConnection(this._options.mitosisId, this._address.getId(), this);
     const remoteEdgeKey = [this._address.getId(), this._options.mitosisId].join('-');
@@ -27,5 +25,9 @@ export class WebSocketMockConnection extends MockConnection implements IConnecti
         this._client.establishConnection(this._options.mitosisId, this._address.getId());
       }, this.getConnectionDelay());
     }
+  }
+
+  public getQuality(): number {
+    return 0.1;
   }
 }

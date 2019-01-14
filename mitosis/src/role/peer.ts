@@ -15,7 +15,13 @@ export class Peer implements IRole {
   private satisfyConnectionGoal(routingTable: RoutingTable): void {
     const directConnections: Array<IConnection> = [];
     const indirectPeers: Array<RemotePeer> = [];
-    routingTable.getPeers().map(
+
+    const peersRankedByQuality = routingTable.getPeers()
+      .sort((a, b) => {
+        return b.getConnectionTable().getAverageQuality() - a.getConnectionTable().getAverageQuality();
+      });
+
+    peersRankedByQuality.map(
       peer => {
         const connectionTable = peer.getConnectionTable()
           .filterByStates(ConnectionState.OPEN, ConnectionState.OPENING)
@@ -27,7 +33,9 @@ export class Peer implements IRole {
         }
       }
     );
+
     const insufficientConnections = directConnections.length < Peer.connectionGoal;
+
     if (insufficientConnections && indirectPeers.length) {
       const address = new Address(indirectPeers.shift().getId(), Protocol.WEBRTC);
       routingTable.connectTo(address);

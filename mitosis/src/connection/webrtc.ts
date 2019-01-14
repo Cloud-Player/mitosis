@@ -52,6 +52,24 @@ export class WebRTCConnection extends AbstractConnection implements IConnection 
     });
   }
 
+  protected getRTCPeerConnection(): RTCPeerConnection {
+    // @ts-ignore
+    return this._client._pc;
+  }
+
+  protected getStats(): Promise<Array<RTCStats>> {
+    return new Promise<Array<RTCStats>>(resolve => {
+      this.getRTCPeerConnection().getStats()
+        .then((report: RTCStatsReport) => {
+          const statsArray: Array<RTCStatsReport> = [];
+          report.forEach((stats: RTCStatsReport) => {
+            statsArray.push(stats);
+          });
+          resolve(statsArray);
+        });
+    });
+  }
+
   protected closeClient(): void {
     this._client.destroy();
     this._client = null;

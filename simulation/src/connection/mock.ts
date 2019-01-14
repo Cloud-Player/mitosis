@@ -19,7 +19,9 @@ export abstract class MockConnection extends AbstractConnection implements IConn
     this._client.removeConnection(this._options.mitosisId, this._address.getId());
     const remoteEdgeKey = [this._address.getId(), this._options.mitosisId].join('-');
     const remoteEdge = this._client.getEdgeMap().get(remoteEdgeKey);
-    remoteEdge.getConnection().closeClient();
+    if (remoteEdge) {
+      remoteEdge.getConnection().closeClient();
+    }
   }
 
   public send(message: Message): void {

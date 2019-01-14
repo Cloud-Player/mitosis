@@ -1,5 +1,4 @@
-import {ConnectionState, IConnection} from './interface';
-import {ViaConnection} from './via';
+import {ConnectionState, IConnection, Protocol} from './interface';
 
 export class ConnectionTable {
 
@@ -24,7 +23,7 @@ export class ConnectionTable {
   public filterDirect(): ConnectionTable {
     return new ConnectionTable(
       this._connections.filter(
-        connection => !(connection instanceof ViaConnection)
+        connection => connection.getAddress().getProtocol() !== Protocol.VIA
       )
     );
   }
@@ -33,6 +32,13 @@ export class ConnectionTable {
     return new ConnectionTable(
       this._connections.sort((a, b) => a.getQuality() - b.getQuality())
     );
+  }
+
+  public getAverageQuality(): number {
+    return this._connections
+        .map(connection => connection.getQuality())
+        .reduce((previous, current) => previous + current) /
+      this.length;
   }
 
   public asArray(): Array<IConnection> {

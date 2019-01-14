@@ -14,16 +14,17 @@ export class Message {
       Address.fromString(messageJSON.sender),
       Address.fromString(messageJSON.receiver),
       messageJSON.subject as MessageSubject,
-      messageJSON.body
+      messageJSON.body,
+      messageJSON.id
     );
   }
 
-  public constructor(sender: Address, receiver: Address, subject: MessageSubject, body: any) {
+  public constructor(sender: Address, receiver: Address, subject: MessageSubject, body: any, id?: string) {
     this._sender = sender;
     this._receiver = receiver;
     this._subject = subject;
     this._body = body;
-    this._id = `m${Math.round(100 + Math.random() * 899)}`;
+    this._id = id || `m${Math.round(100 + Math.random() * 899)}`;
   }
 
   public getReceiver(): Address {
