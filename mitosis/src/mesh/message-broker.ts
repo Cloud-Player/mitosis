@@ -145,7 +145,6 @@ export class MessageBroker {
   private negotiateConnection(connectionNegotiation: ConnectionNegotiation): void {
     const senderAddress = connectionNegotiation.getSender();
     const options: IWebRTCConnectionOptions = {
-      protocol: Protocol.WEBRTC,
       mitosisId: this._routingTable.getMyId(),
       payload: {
         type: connectionNegotiation.getBody().type as unknown as WebRTCConnectionOptionsPayloadType,
