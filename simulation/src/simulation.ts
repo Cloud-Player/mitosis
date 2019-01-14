@@ -21,7 +21,7 @@ export class Simulation {
       Simulation._instance = new Simulation();
       ProtocolConnectionMap.set(Protocol.WEBSOCKET_UNSECURE, WebSocketMockConnection);
       ProtocolConnectionMap.set(Protocol.WEBSOCKET, WebSocketMockConnection);
-      ProtocolConnectionMap.set(Protocol.WEBRTC, WebRTCMockConnection);
+      ProtocolConnectionMap.set(Protocol.WEBRTC_DATA, WebRTCMockConnection);
       ProtocolConnectionMap.set(Protocol.VIA, ViaMockConnection);
     }
     return Simulation._instance;

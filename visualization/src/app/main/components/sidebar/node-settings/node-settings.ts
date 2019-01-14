@@ -38,7 +38,7 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
   }
 
   public updateWebRtcDelay(delay: number) {
-    this.updateDelayForProtocol(Protocol.WEBRTC, delay);
+    this.updateDelayForProtocol(Protocol.WEBRTC_STREAM, delay);
   }
 
   public getRoles() {
@@ -58,7 +58,7 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
         peer.getConnectionTable()
           .asArray()
           .forEach((c) => {
-            if (c.getAddress().getProtocol() === Protocol.WEBRTC) {
+            if (c.getAddress().getProtocol() === Protocol.WEBRTC_DATA) {
               this.webRTCDelay = (c as MockConnection).getDelay();
             }
             if (c.getAddress().getProtocol() === Protocol.WEBSOCKET) {

@@ -40,7 +40,7 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
         sdp: this._lastOffer++
       };
       const offerMsg = new Message(
-        new Address(mitosisId, Protocol.WEBRTC, this.getId()),
+        new Address(mitosisId, Protocol.WEBRTC_DATA, this.getId()),
         this.getAddress(),
         MessageSubject.CONNECTION_NEGOTIATION,
         offer
@@ -58,7 +58,7 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
         sdp: this._lastAnswer++
       };
       const answerMsg = new Message(
-        new Address(mitosisId, Protocol.WEBRTC, this.getId()),
+        new Address(mitosisId, Protocol.WEBRTC_DATA, this.getId()),
         new Address(this.getAddress().getId()),
         MessageSubject.CONNECTION_NEGOTIATION,
         answer
