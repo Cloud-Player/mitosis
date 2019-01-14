@@ -4,6 +4,7 @@ import {MasterClock} from './clock/master';
 import {IEnclave} from './enclave/interface';
 import {SecureEnclave} from './enclave/secure';
 import {Logger} from './logger/logger';
+import {Configuration} from './mesh/configuration';
 import {MessageBroker} from './mesh/message-broker';
 import {RemotePeer} from './mesh/remote-peer';
 import {RoleManager} from './mesh/role-manager';
@@ -14,9 +15,6 @@ import {Message} from './message/message';
 import {RoleType} from './role/interface';
 
 export class Mitosis {
-
-  private static readonly defaultSignal = 'mitosis/v1/p007/ws/localhost:8040/websocket';
-  private static readonly defaultRoles = [RoleType.NEWBIE];
 
   private _enclave: IEnclave;
   private _routingTable: RoutingTable;
@@ -52,11 +50,11 @@ export class Mitosis {
       this._myAddress = new Address(this._myId);
     }
     if (!signal) {
-      signal = Mitosis.defaultSignal;
+      signal = Configuration.DEFAULT_SIGNAL_ADDRESS;
     }
     this._signalAddress = Address.fromString(signal);
     if (!roles || !roles.length) {
-      roles = Mitosis.defaultRoles;
+      roles = [RoleType.NEWBIE];
     }
     this._roleManager = new RoleManager(roles);
 

@@ -2,7 +2,7 @@ import {Address, ConnectionState, IConnectionOptions, Message, Protocol, WebRTCS
 
 class Nucleus {
 
-  private static _address: Address = Address.fromString('mitosis/v1/nuclus/webrtc-stream');
+  private static _address: Address = Address.fromString('mitosis/v1/nucleus/webrtc-stream');
 
   private _connections: Array<WebRTCStreamConnection>;
   private _videoElement: HTMLVideoElement;

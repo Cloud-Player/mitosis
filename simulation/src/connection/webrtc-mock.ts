@@ -1,36 +1,10 @@
-import {
-  Address,
-  ConnectionState,
-  IConnection,
-  Logger,
-  Message,
-  MessageSubject,
-  Protocol,
-  WebRTCConnectionOptionsPayloadType
-} from 'mitosis';
-import {filter} from 'rxjs/operators';
+import {Address, IConnection, Logger, Message, MessageSubject, Protocol, WebRTCConnectionOptionsPayloadType} from 'mitosis';
 import {MockConnection} from './mock';
 
 export class WebRTCMockConnection extends MockConnection implements IConnection {
 
   private _lastOffer = 1;
   private _lastAnswer = 1;
-  private _timeout: number;
-
-  private expectOpenWithinTimeout(): void {
-    this._timeout = this._client.getClock().setTimeout(
-      () => {
-        Logger.getLogger(this._options.mitosisId).warn('opening took too long', this.getAddress().toString());
-        this.onError();
-      },
-      20
-    );
-    this.observeStateChange().pipe(
-      filter(ev => ev !== ConnectionState.OPENING)
-    ).subscribe(
-      () => this._client.getClock().clearTimeout(this._timeout)
-    );
-  }
 
   private createOffer(mitosisId: string) {
     this._client.getClock().setTimeout(() => {
@@ -91,7 +65,6 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
     } else {
       this.createOffer(this._options.mitosisId);
     }
-    this.expectOpenWithinTimeout();
   }
 
   public establish(answer: number) {

@@ -4,6 +4,7 @@ import {IConnectionOptions} from '../connection/interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
+import {Configuration} from './configuration';
 import {ChurnType, IPeerChurnEvent} from './interface';
 import {RemotePeer} from './remote-peer';
 
@@ -20,10 +21,9 @@ export class RoutingTable {
   }
 
   private listenOnConnectionRemoved(remotePeer: RemotePeer): void {
-    if (remotePeer.getConnectionTable().length === 0) {
-      this._peers = this._peers.filter(
-        peer => peer.getId() !== remotePeer.getId()
-      );
+    const index = this._peers.indexOf(remotePeer);
+    if (remotePeer.getConnectionTable().length === 0 && index > -1) {
+      this._peers.splice(index, 1);
     }
   }
 
@@ -33,8 +33,18 @@ export class RoutingTable {
 
   public connectTo(address: Address, options?: IConnectionOptions): Promise<RemotePeer> {
     let peer = this.getPeerById(address.getId());
+
     if (peer && peer.getConnectionForAddress(address)) {
       return Promise.resolve(peer);
+    }
+
+    const directPeers = this.getPeers()
+      .filter(
+        remotePeer => remotePeer.getConnectionTable().filterDirect().length > 0
+      );
+    if (directPeers.length >= Configuration.DIRECT_CONNECTIONS_MAX) {
+      Logger.getLogger(this._myId).warn(`max direct connections reached ${address.toString()}`);
+      return Promise.reject(peer);
     }
 
     if (!peer) {
@@ -54,9 +64,9 @@ export class RoutingTable {
       .then(() => {
         return peer;
       })
-      .catch(() => {
-        Logger.getLogger(this._myId).warn(`cannot open connection to peer ${peer.getId()}`);
-        return Promise.reject(peer);
+      .catch(reason => {
+        Logger.getLogger(this._myId).warn(`cannot open connection to ${address.toString()}`, reason);
+        return Promise.reject(reason);
       });
   }
 
@@ -65,7 +75,7 @@ export class RoutingTable {
     if (existingPeer) {
       existingPeer.send(message);
     } else {
-      Logger.getLogger(this._myId).error(`cannot send message because ${message.getReceiver().toString()} does not exist`);
+      Logger.getLogger(this._myId).error(`cannot send message because ${message.getReceiver().toString()} has left`);
     }
   }
 
