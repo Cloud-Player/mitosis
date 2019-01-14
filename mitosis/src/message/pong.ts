@@ -4,11 +4,11 @@ import {Address} from './address';
 import {MessageSubject} from './interface';
 import {Message} from './message';
 
-export class AppContent extends Message {
+export class Pong extends Message {
   protected _body: Array<RoleType>;
 
-  public constructor(sender: Address, receiver: Address, message: string) {
-    super(sender, receiver, MessageSubject.APP_CONTENT, message);
+  public constructor(sender: Address, receiver: Address) {
+    super(sender, receiver, MessageSubject.PONG, null);
   }
 
   public getBody(): Array<RoleType> {

@@ -30,7 +30,7 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
   const insufficientConnections = directConnections.length < Configuration.DIRECT_CONNECTIONS_GOAL;
 
   if (insufficientConnections && indirectPeers.length) {
-    const address = new Address(indirectPeers.shift().getId(), Protocol.WEBRTC);
+    const address = new Address(indirectPeers.shift().getId(), Protocol.WEBRTC_DATA);
     mitosis.getRoutingTable().connectTo(address);
   } else if (directConnections.length > Configuration.DIRECT_CONNECTIONS_GOAL) {
     const worstConnection = new ConnectionTable(directConnections)

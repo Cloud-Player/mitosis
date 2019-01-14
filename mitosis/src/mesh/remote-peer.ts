@@ -100,7 +100,6 @@ export class RemotePeer {
   private createConnection(address: Address, options?: IConnectionOptions): IConnection {
     if (!options) {
       options = {
-        protocol: address.getProtocol(),
         mitosisId: this._mitosisId
       };
     }

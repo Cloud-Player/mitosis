@@ -1,7 +1,7 @@
 import {Subject} from 'rxjs';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
-import {ConnectionState, IConnection, IConnectionOptions} from './interface';
+import {ConnectionState, IConnection, IConnectionOptions, Protocol} from './interface';
 
 export abstract class AbstractConnection {
 

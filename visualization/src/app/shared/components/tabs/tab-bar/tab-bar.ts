@@ -9,14 +9,15 @@ import {isUndefined} from 'underscore';
 })
 export class TabBarComponent implements OnInit, OnChanges {
   private _selectedTabIndex;
+  private _savedSelectedTabIndex;
 
   public tabs: TabPaneComponent[];
 
   @Input()
-  public activeTabId: string;
+  public id: string;
 
   @Input()
-  public activeTabIndex: number;
+  public activeTabId: string;
 
   @Input()
   public showTabBar = true;
@@ -29,11 +30,30 @@ export class TabBarComponent implements OnInit, OnChanges {
     this.tabChange = new EventEmitter();
   }
 
+  private static saveSavedTabIndex(id: string, selectedTab: boolean) {
+    if (!id) {
+      return;
+    }
+    return localStorage.setItem(`tab-${id}`, JSON.stringify(selectedTab));
+  }
+
+  private static getSavedTabIndex(id: string) {
+    if (!id) {
+      return;
+    }
+    const selectedTab = localStorage.getItem(`tab-${id}`);
+    if (!isUndefined(selectedTab)) {
+      return JSON.parse(selectedTab);
+    }
+  }
+
   private setInitialSelectedTab() {
-    if (this.activeTabId) {
+    if (!isUndefined(this._savedSelectedTabIndex)) {
+      console.warn('SELECT TAB ', this._savedSelectedTabIndex);
+      this.activeTabId = this._savedSelectedTabIndex;
+      this.selectTabByIndex(this._savedSelectedTabIndex);
+    } else if (this.activeTabId) {
       this.selectTabById(this.activeTabId);
-    } else if (!isUndefined(this.activeTabIndex)) {
-      this.selectTabByIndex(this.activeTabIndex);
     } else {
       this.selectTabByIndex(0);
     }
@@ -64,6 +84,7 @@ export class TabBarComponent implements OnInit, OnChanges {
 
       tab.select();
       this._selectedTabIndex = this.tabs.indexOf(tab);
+      TabBarComponent.saveSavedTabIndex(this.id, this._selectedTabIndex);
       this.tabChange.emit(tab);
     }
   }
@@ -86,6 +107,7 @@ export class TabBarComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
+    this._savedSelectedTabIndex = TabBarComponent.getSavedTabIndex(this.id);
     this.setInitialSelectedTab();
   }
 

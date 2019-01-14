@@ -9,13 +9,11 @@ import {
   IConnection,
   IConnectionOptions,
   IWebRTCConnectionOptions,
-  Protocol,
   WebRTCConnectionOptionsPayloadType
 } from './interface';
 
-export class WebRTCConnection extends AbstractConnection implements IConnection {
+export abstract class WebRTCConnection extends AbstractConnection implements IConnection {
 
-  protected static protocol: Protocol = Protocol.WEBRTC;
   protected _client: SimplePeer.Instance;
   protected _options: IWebRTCConnectionOptions;
   protected _simplePeerOptions: SimplePeer.Options;
@@ -30,7 +28,7 @@ export class WebRTCConnection extends AbstractConnection implements IConnection 
     this._client.on('signal', (offer: SimplePeer.SignalData) => {
       Logger.getLogger(mitosisId).debug('webrtc offer ready');
       this.onMessage(new Message(
-        new Address(mitosisId, WebRTCConnection.protocol, this.getId()),
+        this.getMyAddress(),
         this.getAddress(),
         MessageSubject.CONNECTION_NEGOTIATION,
         offer
@@ -44,12 +42,16 @@ export class WebRTCConnection extends AbstractConnection implements IConnection 
     this._client.on('signal', (answer: SimplePeer.SignalData) => {
       Logger.getLogger(mitosisId).debug('webrtc answer ready');
       this.onMessage(new Message(
-        new Address(mitosisId, WebRTCConnection.protocol, this.getId()),
+        this.getMyAddress(),
         new Address(this.getAddress().getId()),
         MessageSubject.CONNECTION_NEGOTIATION,
         answer
       ));
     });
+  }
+
+  protected getMyAddress(): Address {
+    return new Address(this._options.mitosisId, this.getAddress().getProtocol(), this.getId());
   }
 
   protected getRTCPeerConnection(): RTCPeerConnection {
@@ -85,7 +87,7 @@ export class WebRTCConnection extends AbstractConnection implements IConnection 
     this._client.on('connect', () => {
       this.onOpen(this);
     });
-    this._client.on('data', (data) => {
+    this._client.on('data', (data: string) => {
       this.onMessage(Message.fromString(data));
     });
     this._client.on('close', () => {
