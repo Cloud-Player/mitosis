@@ -7,19 +7,17 @@ export type IConnectionConstructor = new(address: Address, options?: IConnection
 export enum Protocol {
   WEBSOCKET_UNSECURE = 'ws',
   WEBSOCKET = 'wss',
-  WEBRTC = 'webrtc',
+  WEBRTC_DATA = 'webrtc-data',
   WEBRTC_STREAM = 'webrtc-stream',
   VIA = 'via'
 }
 
 export interface IConnectionOptions {
-  protocol: Protocol;
   mitosisId?: string;
   payload?: any;
 }
 
 export interface IWebRTCConnectionOptions extends IConnectionOptions {
-  protocol: Protocol.WEBRTC;
   payload?: IWebRTCConnectionOptionsPayload;
 }
 

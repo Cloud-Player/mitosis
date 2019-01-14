@@ -3,8 +3,6 @@ import {IConnection, Protocol} from './interface';
 import {WebRTCConnection} from './webrtc';
 
 export class WebRTCStreamConnection extends WebRTCConnection implements IConnection {
-
-  protected static protocol: Protocol = Protocol.WEBRTC_STREAM;
   private _onStreamResolver: (stream: MediaStream) => void;
   private _onStreamPromise: Promise<MediaStream>;
   private _stream: MediaStream;
@@ -20,6 +18,15 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
   protected bindClientListeners(): void {
     super.bindClientListeners();
     this._client.on('track', (track: MediaStreamTrack, stream: MediaStream) => {
+      console.log('GOT TRACK');
+      this._stream = stream;
+      if (this._onStreamResolver) {
+        this._onStreamResolver(this._stream);
+      }
+    });
+
+    this._client.on('stream', (stream: MediaStream) => {
+      console.log('GOT STREAM');
       this._stream = stream;
       if (this._onStreamResolver) {
         this._onStreamResolver(this._stream);
