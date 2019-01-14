@@ -6,11 +6,20 @@ html, body {
 .flex-container {
   display: flex;
 
-  &.column{
+  &.column {
     flex-direction: column;
   }
 }
 
-.left{
+button,
+fieldset {
+  transition: opacity 0.5s ease;
+
+  &[disabled] {
+    opacity: 0.3;
+  }
+}
+
+.left {
   width: 50%;
 }

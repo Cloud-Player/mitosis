@@ -10,12 +10,14 @@
 <div class="stream-rtc flex-container">
   <div class="left flex-container column">
     <textarea rows="10"
+              placeholder="Paste offer or answer here"
               class="in-text-area">
     </textarea>
     <button class="create-offer-btn">Create Offer</button>
     <button class="create-answer-btn">Create Answer</button>
     <button class="establish-btn">Establish</button>
     <textarea rows="10"
+              readonly
               class="out-text-area"></textarea>
   </div>
   <div class="right">
@@ -28,22 +30,24 @@
 <div class="data-rtc flex-container">
   <div class="left flex-container column">
     <textarea rows="10"
+              placeholder="Paste offer or answer here"
               class="in-text-area">
     </textarea>
     <button class="create-offer-btn">Create Offer</button>
     <button class="create-answer-btn">Create Answer</button>
     <button class="establish-btn">Establish</button>
     <textarea rows="10"
+              readonly
               class="out-text-area"></textarea>
   </div>
   <div class="right">
-    <fieldset>
+    <fieldset class="in">
       <legend>Incoming</legend>
       <textarea class="in-messages"
                 readonly
                 rows="10"></textarea>
     </fieldset>
-    <fieldset>
+    <fieldset class="out">
       <legend>Send</legend>
       <textarea class="out-message"></textarea>
       <button class="send-msg-btn">Send</button>
