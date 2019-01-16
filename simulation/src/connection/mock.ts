@@ -24,7 +24,7 @@ export abstract class MockConnection extends AbstractConnection implements IConn
       this._timeout = this._client.getClock().setTimeout(
         () => {
           Logger.getLogger(this._options.mitosisId).warn('opening took too long', this.getAddress().toString());
-          this.onError();
+          this.onError('took too long');
         },
         20
       );
@@ -46,8 +46,7 @@ export abstract class MockConnection extends AbstractConnection implements IConn
   public onClose(): void {
     super.onClose();
     this._client.removeConnection(this._options.mitosisId, this._address.getId());
-    const remoteEdgeKey = [this._address.getId(), this._options.mitosisId].join('-');
-    const remoteEdge = this._client.getEdgeMap().get(remoteEdgeKey);
+    const remoteEdge = this._client.getEdge(this._address.getId(), this._options.mitosisId, this._address.getLocation());
     if (remoteEdge) {
       remoteEdge.getConnection().closeClient();
     }
@@ -60,6 +59,7 @@ export abstract class MockConnection extends AbstractConnection implements IConn
       this._client.deliverMessage(
         this._options.mitosisId,
         this._address.getId(),
+        this._address.getLocation(),
         this._delay,
         message);
     }

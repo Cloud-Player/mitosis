@@ -56,7 +56,6 @@ export class RemotePeer {
     connection.observeStateChange().subscribe((ev) => {
       switch (ev) {
         case ConnectionState.CLOSED:
-          connection.close();
           this._connectionsPerAddress.delete(connection.getAddress().toString());
           break;
       }

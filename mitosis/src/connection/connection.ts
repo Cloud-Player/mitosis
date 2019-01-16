@@ -52,7 +52,7 @@ export abstract class AbstractConnection {
     this._stateChangeSubject.next(this._state);
   }
 
-  public onClose(reason?: any) {
+  public onClose(reason: any = 'closed') {
     if (this._onOpenRejector) {
       this._onOpenRejector(reason);
     }
@@ -67,7 +67,7 @@ export abstract class AbstractConnection {
     this._messageReceivedSubject.complete();
   }
 
-  public onError(reason?: any) {
+  public onError(reason: any = 'error') {
     this._state = ConnectionState.ERROR;
     this._stateChangeSubject.next(this._state);
     this.onClose(reason);

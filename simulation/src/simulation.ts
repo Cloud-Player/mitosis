@@ -33,25 +33,24 @@ export class Simulation {
     this._edges = new Map();
   }
 
-  public establishConnection(from: string, to: string) {
-    const edge1 = this._edges.get([to, from].join('-'));
-    const edge2 = this._edges.get([from, to].join('-'));
-    if (edge1) {
-      const con1 = edge1.getConnection();
-      con1.onOpen(con1);
+  public establishConnection(from: string, to: string, location: string) {
+    const inboundEdge = this.getEdge(to, from, location);
+    if (inboundEdge) {
+      const inConn = inboundEdge.getConnection();
+      inConn.onOpen(inConn);
     } else {
-      console.error(`Edge ${to}->${from} does not exist! Can not establish connection`);
+      Logger.getLogger('simulation').error(`edge ${to} to ${from} does not exist`);
     }
-
-    if (edge2) {
-      const con2 = edge2.getConnection();
-      con2.onOpen(con2);
+    const outbound = this.getEdge(from, to, location);
+    if (outbound) {
+      const outConn = outbound.getConnection();
+      outConn.onOpen(outConn);
     } else {
-      console.error(`Edge ${from}->${to} does not exist! Can not establish connection`);
+      Logger.getLogger('simulation').error(`edge ${from} to ${to} does not exist`);
     }
   }
 
-  public addConnection(from: string, to: string, connection: MockConnection): void {
+  public addConnection(from: string, to: string, location: string, connection: MockConnection): void {
     const local = this._nodes.get(from);
     const remote = this._nodes.get(to);
     if (!local) {
@@ -62,8 +61,8 @@ export class Simulation {
       return;
     }
 
-    if (!this._edges.get([from, to].join('-'))) {
-      this._edges.set([from, to].join('-'), new Edge(from, connection));
+    if (!this.getEdge(from, to, location)) {
+      this.addEdge(from, to, location, new Edge(from, connection));
     }
   }
 
@@ -75,8 +74,8 @@ export class Simulation {
     }
   }
 
-  public deliverMessage(from: string, to: string, delay: number, message: Message): void {
-    const edge = this._edges.get([to, from].join('-'));
+  public deliverMessage(from: string, to: string, location: string, delay: number, message: Message): void {
+    const edge = this.getEdge(to, from, location);
     if (edge) {
       this._clock.setTimeout(() => {
         const connection = (edge.getConnection() as MockConnection);
@@ -111,8 +110,12 @@ export class Simulation {
     return this._clock;
   }
 
-  public getEdgeMap(): Map<string, Edge> {
-    return this._edges;
+  public getEdge(from: string, to: string, location: string): Edge {
+    return this._edges.get([from, to, location].join('-'));
+  }
+
+  public addEdge(from: string, to: string, location: string, edge: Edge): void {
+    this._edges.set([from, to, location].join('-'), edge);
   }
 
   public getNodeMap(): Map<string, Node> {

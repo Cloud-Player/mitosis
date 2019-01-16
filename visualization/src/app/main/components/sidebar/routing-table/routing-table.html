@@ -14,9 +14,7 @@
                       (click)="connection.close()">
           </app-button>
           {{connection.getAddress().getProtocol()}}
-          <span *ngIf="connection.getAddress().getProtocol()==='via'">
-            {{connection.getAddress().getLocation()}}
-          </span>
+          {{connection.getAddress().getLocation()}}
         </div>
         <div class="right">
           {{connection.getState()}},

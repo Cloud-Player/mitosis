@@ -4,7 +4,7 @@
       "tick": 0,
       "type": "set-clock-speed",
       "configuration": {
-        "speed": 250
+        "speed": 200
       }
     },
     {
@@ -42,14 +42,14 @@
       }
     },
     {
-      "tick": 15,
+      "tick": 45,
       "type": "set-clock-speed",
       "configuration": {
         "speed": 1000
       }
     },
     {
-      "tick": 20,
+      "tick": 50,
       "type": "pause-clock"
     }
   ]

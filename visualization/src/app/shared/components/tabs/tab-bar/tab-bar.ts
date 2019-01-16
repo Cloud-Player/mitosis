@@ -49,7 +49,6 @@ export class TabBarComponent implements OnInit, OnChanges {
 
   private setInitialSelectedTab() {
     if (!isUndefined(this._savedSelectedTabIndex)) {
-      console.warn('SELECT TAB ', this._savedSelectedTabIndex);
       this.activeTabId = this._savedSelectedTabIndex;
       this.selectTabByIndex(this._savedSelectedTabIndex);
     } else if (this.activeTabId) {
