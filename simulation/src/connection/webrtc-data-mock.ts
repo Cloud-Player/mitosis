@@ -1,10 +1,36 @@
-import {Address, IConnection, Logger, Message, MessageSubject, Protocol, WebRTCConnectionOptionsPayloadType} from 'mitosis';
+import {
+  Address,
+  ConnectionMeter,
+  IClock,
+  IConnection,
+  IConnectionOptions,
+  Logger, MasterClock,
+  Message,
+  MessageSubject,
+  Protocol,
+  WebRTCConnectionOptionsPayloadType
+} from 'mitosis';
 import {MockConnection} from './mock';
 
 export class WebRTCDataMockConnection extends MockConnection implements IConnection {
 
   private _lastOffer = 1;
   private _lastAnswer = 1;
+  private _clock: IClock;
+  private _meter: ConnectionMeter;
+
+  constructor(address: Address, options: IConnectionOptions) {
+    super(address, options);
+    if (options.clock) {
+      this._clock = options.clock;
+    } else {
+      this._clock = new MasterClock();
+      this._clock.start();
+    }
+    this._meter = new ConnectionMeter(this.getMyAddress(), address, this._clock);
+    this._meter.observeMessages()
+      .subscribe(this.send.bind(this));
+  }
 
   private createOffer(mitosisId: string) {
     this._client.getClock().setTimeout(() => {
@@ -73,6 +99,36 @@ export class WebRTCDataMockConnection extends MockConnection implements IConnect
     } else {
       this.createOffer(this._options.mitosisId);
     }
+  }
+
+  protected getMyAddress(): Address {
+    return new Address(this._options.mitosisId, this.getAddress().getProtocol(), this.getId());
+  }
+
+  public onMessage(message: Message) {
+    Logger.getLogger(this.getMyAddress().getId()).info(`Got ${message.getSubject()} from ${message.getSender().getId()}`, message.toString())
+    if (
+      message.getSubject() === MessageSubject.PING ||
+      message.getSubject() === MessageSubject.PONG
+    ) {
+      this._meter.onMessage(message);
+    } else {
+      super.onMessage(message);
+    }
+  }
+
+  public onClose() {
+    super.onClose();
+    this._meter.stop();
+  }
+
+  public onOpen() {
+    super.onOpen(this);
+    this._meter.start();
+  }
+
+  public getQuality(): number {
+    return Math.round(this._meter.getTq() * 100) / 100;
   }
 
   public establish(answer: number) {
