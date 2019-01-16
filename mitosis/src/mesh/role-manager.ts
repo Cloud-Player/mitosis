@@ -1,5 +1,5 @@
 import {Message} from '../message/message';
-import {Mitosis} from '../mitosis';
+import {IClock, Mitosis} from '../mitosis';
 import {IRole, RoleType, RoleTypeMap} from '../role/interface';
 
 export class RoleManager {
