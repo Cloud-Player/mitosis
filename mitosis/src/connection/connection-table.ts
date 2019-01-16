@@ -37,7 +37,7 @@ export class ConnectionTable {
   public getAverageQuality(): number {
     return this._connections
         .map(connection => connection.getQuality())
-        .reduce((previous, current) => previous + current) /
+        .reduce((previous, current) => previous + current, 0) /
       this.length;
   }
 

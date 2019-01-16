@@ -1,5 +1,6 @@
 import {Subject} from 'rxjs';
 import {filter} from 'rxjs/operators';
+import {IClock} from '../clock/interface';
 import {IConnectionOptions} from '../connection/interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
@@ -10,20 +11,21 @@ import {RemotePeer} from './remote-peer';
 
 export class RoutingTable {
 
+  private _clock: IClock;
   private _peerChurnSubject: Subject<IPeerChurnEvent>;
   private _peers: Array<RemotePeer>;
   private _myId: string;
 
-  constructor(myId: string) {
+  constructor(myId: string, clock: IClock) {
     this._myId = myId;
+    this._clock = clock;
     this._peers = [];
     this._peerChurnSubject = new Subject();
   }
 
   private listenOnConnectionRemoved(remotePeer: RemotePeer): void {
-    const index = this._peers.indexOf(remotePeer);
-    if (remotePeer.getConnectionTable().length === 0 && index > -1) {
-      this._peers.splice(index, 1);
+    if (remotePeer.getConnectionTable().length === 0) {
+      this.removePeer(remotePeer);
     }
   }
 
@@ -48,7 +50,7 @@ export class RoutingTable {
     }
 
     if (!peer) {
-      peer = new RemotePeer(address.getId(), this._myId);
+      peer = new RemotePeer(address.getId(), this._myId, this._clock.fork());
       this._peers.push(peer);
       peer.observeChurn()
         .pipe(
@@ -84,18 +86,34 @@ export class RoutingTable {
   }
 
   public getPeerById(id: string): RemotePeer {
-    return this.getPeers().find(p => p.getId() === id);
+    return this._peers.find(p => p.getId() === id);
+  }
+
+  public removePeer(remotePeer: RemotePeer): void {
+    const index = this._peers.indexOf(remotePeer);
+    if (index > -1) {
+      this._peers.splice(index, 1);
+      remotePeer.destroy();
+    }
   }
 
   public observePeerChurn(): Subject<IPeerChurnEvent> {
     return this._peerChurnSubject;
   }
 
-  public destroy(): void {
-    this._peers.forEach(
-      peer => peer.getConnectionTable().asArray().forEach(
-        connection => connection.close()
-      )
+  public toString() {
+    return JSON.stringify({
+        count: this._peers.length,
+        remotePeers: this._peers
+      },
+      undefined,
+      2
     );
+  }
+
+  public destroy(): void {
+    this._peerChurnSubject.complete();
+    this._peers.forEach(remotePeer => this.removePeer(remotePeer));
+    this._clock.stop();
   }
 }

@@ -1,3 +1,4 @@
+import {IConnection} from '../connection/interface';
 import {RemotePeer} from './remote-peer';
 
 export enum ChurnType {
@@ -8,4 +9,9 @@ export enum ChurnType {
 export interface IPeerChurnEvent {
   type: ChurnType;
   peer: RemotePeer;
+}
+
+export interface IConnectionChurnEvent {
+  type: ChurnType;
+  connection: IConnection;
 }

@@ -1,7 +1,7 @@
 import {Subject} from 'rxjs';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
-import {ConnectionState, IConnection, IConnectionOptions, Protocol} from './interface';
+import {ConnectionState, IConnection, IConnectionOptions} from './interface';
 
 export abstract class AbstractConnection {
 
@@ -56,6 +56,9 @@ export abstract class AbstractConnection {
     if (this._onOpenRejector) {
       this._onOpenRejector(reason);
     }
+    if (this._options.clock) {
+      this._options.clock.stop();
+    }
     this._onOpenResolver = null;
     this._onOpenRejector = null;
     this._state = ConnectionState.CLOSED;
@@ -76,13 +79,13 @@ export abstract class AbstractConnection {
 
   public close() {
     this._state = ConnectionState.CLOSING;
-    this._stateChangeSubject.next(ConnectionState.CLOSING);
+    this._stateChangeSubject.next(this._state);
     this.closeClient();
   }
 
   public open(): Promise<IConnection> {
     this._state = ConnectionState.OPENING;
-    this._stateChangeSubject.next(ConnectionState.CLOSING);
+    this._stateChangeSubject.next(this._state);
     return new Promise<IConnection>((resolve, reject) => {
       this._onOpenResolver = resolve;
       this._onOpenRejector = reject;
@@ -105,8 +108,8 @@ export abstract class AbstractConnection {
   public toString(): string {
     return JSON.stringify({
       id: this._id,
-      address: this._address.toString(),
-      state: this._state.toString()
+      address: this._address,
+      state: this._state
     });
   }
 }

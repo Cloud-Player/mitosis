@@ -48,12 +48,11 @@ export class Message {
   }
 
   public toString(): string {
-    return JSON.stringify(
-      {
+    return JSON.stringify({
         id: this._id,
         receiver: this.getReceiver().toString(),
         sender: this.getSender().toString(),
-        subject: this.getSubject() as string,
+        subject: this.getSubject(),
         body: this.getBody()
       },
       undefined,

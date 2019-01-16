@@ -1,35 +1,39 @@
 import * as SimplePeer from 'simple-peer';
+import {MasterClock} from '../clock/master';
+import {Address} from '../message/address';
 import {Message} from '../message/message';
 import {ConnectionMeter} from '../metering/connection-meter';
 import {IConnection, IConnectionOptions} from './interface';
 import {WebRTCConnection} from './webrtc';
-import {Address} from '../message/address';
 
 export class WebRTCDataConnection extends WebRTCConnection implements IConnection {
+
   private static _statsDataChannelLabel = 'stats';
   private _unreliableChannel: RTCDataChannel;
   private _connectionMeter: ConnectionMeter;
 
   constructor(address: Address, options: IConnectionOptions) {
     super(address, options);
-    this._connectionMeter = new ConnectionMeter(this.getMyAddress(), this.getAddress());
+    this._connectionMeter = new ConnectionMeter(
+      this.getMyAddress(),
+      this.getAddress(),
+      this._options.clock || new MasterClock());
     this._connectionMeter
       .observeMessages()
       .subscribe(
         this.sendMessageOverUnreliableChannel.bind(this)
       );
-    (window as any).meter = this._connectionMeter;
   }
 
-  private sendMessageOverUnreliableChannel(message: Message) {
+  private sendMessageOverUnreliableChannel(message: Message): void {
     if (this._unreliableChannel && this._unreliableChannel.readyState === 'open') {
       this._unreliableChannel.send(message.toString());
     }
   }
 
-  private listenOnUnreliableChannel() {
+  private listenOnUnreliableChannel(): void {
     this._unreliableChannel.onopen = () => {
-      this._connectionMeter.startMetering();
+      this._connectionMeter.start();
     };
 
     this._unreliableChannel.onmessage = (event: MessageEvent) => {
@@ -51,16 +55,16 @@ export class WebRTCDataConnection extends WebRTCConnection implements IConnectio
     };
   }
 
-  public onClose() {
+  public onClose(): void {
     super.onClose();
-    this._connectionMeter.stopMetering();
+    this._connectionMeter.stop();
   }
 
-  public onOpen() {
+  public onOpen(): void {
     super.onOpen(this);
   }
 
-  public establish(answer: SimplePeer.SignalData) {
+  public establish(answer: SimplePeer.SignalData): void {
     super.establish(answer);
     this._unreliableChannel = super.getRTCPeerConnection()
       .createDataChannel(

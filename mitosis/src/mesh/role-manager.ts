@@ -1,9 +1,10 @@
 import {Message} from '../message/message';
-import {IClock, Mitosis} from '../mitosis';
+import {Mitosis} from '../mitosis';
 import {IRole, RoleType, RoleTypeMap} from '../role/interface';
 
 export class RoleManager {
-  private _roles: Map<RoleType, IRole>;
+
+  private readonly _roles: Map<RoleType, IRole>;
 
   public constructor(roles: Array<RoleType>) {
     this._roles = new Map();
@@ -23,7 +24,6 @@ export class RoleManager {
   }
 
   public updateRoles(roleTypes: Array<RoleType>): void {
-
     this._roles.forEach((role, roleType) => {
       if (roleTypes.indexOf(roleType) === -1) {
         this.removeRole(roleType);
@@ -44,5 +44,19 @@ export class RoleManager {
 
   public getRoles() {
     return this._roles;
+  }
+
+  public toString() {
+    return JSON.stringify({
+        count: this._roles.size,
+        roleTypes: Array.from(this._roles.keys())
+      },
+      undefined,
+      2
+    );
+  }
+
+  public destroy() {
+    this._roles.clear();
   }
 }

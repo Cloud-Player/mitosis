@@ -34,14 +34,22 @@
       }
     },
     {
-      "tick": 12,
+      "tick": 3,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/chloe/webrtc",
+        "signal": "mitosis/v1/signal/wss"
+      }
+    },
+    {
+      "tick": 15,
       "type": "set-clock-speed",
       "configuration": {
         "speed": 1000
       }
     },
     {
-      "tick": 15,
+      "tick": 20,
       "type": "pause-clock"
     }
   ]

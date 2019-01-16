@@ -5,10 +5,11 @@
   </header>
 
   <app-collapsible *ngFor="let event of getMessageLog()"
-                   [isCollapsed]="true"
-                   title="{{event.level}} {{event.data[0]}}">
-    <pre *ngFor="let data of event.data">
-      {{data.toString()}}
+                   [isCollapsed]="event.data.length > 1"
+                   class="level-{{event.level}}"
+                   title="{{event.data[0]}}">
+    <pre *ngFor="let data of event.data.slice(1)">
+      {{data}}
     </pre>
   </app-collapsible>
 </section>

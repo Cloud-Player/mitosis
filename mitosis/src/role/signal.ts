@@ -1,9 +1,14 @@
+import {ConnectionState} from '../connection/interface';
+import {RemotePeer} from '../mesh/remote-peer';
 import {RoutingTable} from '../mesh/routing-table';
+import {Address} from '../message/address';
+import {MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
 import {PeerUpdate} from '../message/peer-update';
 import {RoleUpdate} from '../message/role-update';
-import {Address, ConnectionState, MessageSubject, Mitosis, RemotePeer, RoleType} from '../mitosis';
-import {IRole} from './interface';
+import {Mitosis} from '../mitosis';
+import {IRole, RoleType} from './interface';
+
 import {satisfyConnectionGoal} from './task/satisfy-connection-goal';
 
 export class Signal implements IRole {
@@ -12,13 +17,13 @@ export class Signal implements IRole {
     satisfyConnectionGoal(mitosis);
   }
 
-  private getRouters(routingTable: RoutingTable) {
+  private getRouters(routingTable: RoutingTable): Array<RemotePeer> {
     return routingTable
       .getPeers()
       .filter(
-        peer => {
-          return peer.hasRole(RoleType.ROUTER) &&
-            peer.getConnectionTable()
+        remotePeer => {
+          return remotePeer.hasRole(RoleType.ROUTER) &&
+            remotePeer.getConnectionTable()
               .filterDirect()
               .filterByStates(ConnectionState.OPEN)
               .length;
@@ -26,10 +31,10 @@ export class Signal implements IRole {
       );
   }
 
-  private promoteNewbie(newbieAddress: Address, routers: Array<RemotePeer>, mitosis: Mitosis) {
+  private promoteNewbie(newbieAddress: Address, routers: Array<RemotePeer>, mitosis: Mitosis): void {
     const existingPeer = mitosis.getRoutingTable()
       .getPeers()
-      .find(peer => peer.getId() === newbieAddress.getId());
+      .find(remotePeer => remotePeer.getId() === newbieAddress.getId());
 
     const roles = [RoleType.PEER];
     if (routers.length === 0) {
@@ -45,7 +50,7 @@ export class Signal implements IRole {
     mitosis.getRoutingTable().sendMessage(roleUpdate);
   }
 
-  private sendExistingRouters(address: Address, routers: Array<RemotePeer>, mitosis: Mitosis) {
+  private sendExistingRouters(address: Address, routers: Array<RemotePeer>, mitosis: Mitosis): void {
     const tableUpdate = new PeerUpdate(
       mitosis.getMyAddress(),
       address,

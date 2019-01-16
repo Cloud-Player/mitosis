@@ -38,6 +38,7 @@ export class Mitosis {
       clock = new MasterClock();
       clock.start();
     }
+    this._clock = clock;
     if (!enclave) {
       enclave = new SecureEnclave();
     }
@@ -56,19 +57,17 @@ export class Mitosis {
     if (!roles || !roles.length) {
       roles = [RoleType.NEWBIE];
     }
-    this._roleManager = new RoleManager(roles);
 
-    this._routingTable = new RoutingTable(this._myId);
+    this._roleManager = new RoleManager(roles);
+    this._routingTable = new RoutingTable(this._myId, this._clock.fork());
     this._messageBroker = new MessageBroker(this._routingTable, this._roleManager);
     this._inbox = new Subject<AppContent>();
     this._internalMessages = new Subject<Message>();
     this.listenOnMessages();
     this.listenOnAppContentMessages();
 
-    Logger.getLogger(this._myId).info(`👋 hi i am a ${roles.join(' and a ')}`);
-
-    clock.setInterval(this.onTick.bind(this));
-    this._clock = clock;
+    this._clock.setInterval(this.onTick.bind(this));
+    Logger.getLogger(this._myId).info(`i am a ${roles.join(' and a ')}`);
   }
 
   private listenOnAppContentMessages() {
@@ -128,7 +127,11 @@ export class Mitosis {
   }
 
   public destroy() {
+    this._inbox.complete();
+    this._internalMessages.complete();
     this._routingTable.destroy();
+    this._roleManager.destroy();
+    this._messageBroker.destroy();
     this._clock.stop();
   }
 }

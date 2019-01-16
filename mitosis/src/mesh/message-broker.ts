@@ -209,4 +209,10 @@ export class MessageBroker {
   public observeIncomingMessages() {
     return this._incomingMessageSubject;
   }
+
+  public destroy() {
+    this._appContentMessagesSubject.complete();
+    this._messagesSubject.complete();
+    this._incomingMessageSubject.complete();
+  }
 }

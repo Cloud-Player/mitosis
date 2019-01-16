@@ -1,8 +1,8 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {Edge, MockConnection, Simulation} from 'mitosis-simulation';
-import {D3Model} from '../d3-directed-graph/models/d3';
-import {D3DirectedGraphComponent} from '../d3-directed-graph/d3-directed-graph';
 import {ConnectionState, Protocol} from 'mitosis';
+import {Edge, MockConnection, Simulation} from 'mitosis-simulation';
+import {D3DirectedGraphComponent} from '../d3-directed-graph/d3-directed-graph';
+import {D3Model} from '../d3-directed-graph/models/d3';
 
 const scenario = require('./scenario/hello-world.json');
 

@@ -1,4 +1,5 @@
 import {Subject} from 'rxjs';
+import {IClock} from '../clock/interface';
 import {ConnectionTable} from '../connection/connection-table';
 import {ConnectionState, IConnection, IConnectionOptions} from '../connection/interface';
 import {ProtocolConnectionMap} from '../connection/protocol-map';
@@ -6,15 +7,12 @@ import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
 import {RoleType} from '../role/interface';
-import {ChurnType} from './interface';
-
-export interface IConnectionChurnEvent {
-  type: ChurnType;
-  connection: IConnection;
-}
+import {ChurnType, IConnectionChurnEvent} from './interface';
 
 export class RemotePeer {
+
   private _id: string;
+  private _clock: IClock;
   private _mitosisId: string;
   private _publicKey: string;
   private _roleTypes: Array<RoleType>;
@@ -22,9 +20,10 @@ export class RemotePeer {
   private _openConnectionPromises: Map<IConnection, Promise<RemotePeer>>;
   private _connectionChurnSubject: Subject<IConnectionChurnEvent>;
 
-  public constructor(id: string, mitosisId: string) {
+  public constructor(id: string, mitosisId: string, clock: IClock) {
     this._id = id;
     this._mitosisId = mitosisId;
+    this._clock = clock;
     this._roleTypes = [RoleType.PEER];
     this._connectionsPerAddress = new Map();
     this._openConnectionPromises = new Map();
@@ -57,6 +56,7 @@ export class RemotePeer {
     connection.observeStateChange().subscribe((ev) => {
       switch (ev) {
         case ConnectionState.CLOSED:
+          connection.close();
           this._connectionsPerAddress.delete(connection.getAddress().toString());
           break;
       }
@@ -81,8 +81,8 @@ export class RemotePeer {
               .then(() => {
                 resolve(this);
               })
-              .catch(() => {
-                reject(this);
+              .catch((reason: any) => {
+                reject(reason);
               })
               .finally(() => {
                 this._openConnectionPromises.delete(connection);
@@ -98,11 +98,9 @@ export class RemotePeer {
   }
 
   private createConnection(address: Address, options?: IConnectionOptions): IConnection {
-    if (!options) {
-      options = {
-        mitosisId: this._mitosisId
-      };
-    }
+    options = options || {mitosisId: this._mitosisId};
+    options.clock = options.clock || this._clock.fork();
+
     const connectionClass = ProtocolConnectionMap.get(address.getProtocol());
     if (!connectionClass) {
       throw new Error(`unsupported protocol ${address.getProtocol()}`);
@@ -146,5 +144,24 @@ export class RemotePeer {
 
   public observeChurn(): Subject<IConnectionChurnEvent> {
     return this._connectionChurnSubject;
+  }
+
+  public toString() {
+    return JSON.stringify({
+        id: this._id,
+        roles: this._roleTypes,
+        connections: Array.from(this._connectionsPerAddress.values())
+      },
+      undefined,
+      2
+    );
+  }
+
+  public destroy(): void {
+    this._connectionChurnSubject.complete();
+    this._connectionsPerAddress.forEach(
+      connection => connection.close()
+    );
+    this._clock.stop();
   }
 }

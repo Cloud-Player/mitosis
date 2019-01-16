@@ -1,9 +1,11 @@
+import {ConnectionState} from '../connection/interface';
 import {Configuration} from '../mesh/configuration';
 import {RoutingTable} from '../mesh/routing-table';
+import {MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
 import {PeerUpdate} from '../message/peer-update';
-import {ConnectionState, MessageSubject, Mitosis, RoleType} from '../mitosis';
-import {IRole} from './interface';
+import {Mitosis} from '../mitosis';
+import {IRole, RoleType} from './interface';
 
 export class Router implements IRole {
 

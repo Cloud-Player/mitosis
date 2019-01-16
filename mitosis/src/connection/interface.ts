@@ -1,4 +1,5 @@
 import {Subject} from 'rxjs';
+import {IClock} from '../clock/interface';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
 
@@ -13,6 +14,7 @@ export enum Protocol {
 }
 
 export interface IConnectionOptions {
+  clock?: IClock,
   mitosisId?: string;
   payload?: any;
 }
@@ -49,6 +51,7 @@ export enum ConnectionState {
 }
 
 export interface IConnection {
+
   getQuality(): number;
 
   getAddress(): Address;
