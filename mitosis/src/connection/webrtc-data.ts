@@ -14,10 +14,15 @@ export class WebRTCDataConnection extends WebRTCConnection implements IConnectio
 
   constructor(address: Address, options: IConnectionOptions) {
     super(address, options);
+    if (!options.clock) {
+      options.clock = new MasterClock();
+      options.clock.start();
+    }
     this._connectionMeter = new ConnectionMeter(
       this.getMyAddress(),
       this.getAddress(),
-      this._options.clock || new MasterClock());
+      options.clock
+    );
     this._connectionMeter
       .observeMessages()
       .subscribe(
@@ -62,6 +67,10 @@ export class WebRTCDataConnection extends WebRTCConnection implements IConnectio
 
   public onOpen(): void {
     super.onOpen(this);
+  }
+
+  public getQuality(): number {
+    return this._connectionMeter.getTq();
   }
 
   public establish(answer: SimplePeer.SignalData): void {
