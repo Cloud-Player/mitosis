@@ -1,4 +1,5 @@
 import {Subject} from 'rxjs';
+import {IClock} from '../clock/interface';
 import {Address} from '../message/address';
 import {MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
@@ -7,7 +8,8 @@ import {Pong} from '../message/pong';
 import {SlidingWindow} from './sliding-window';
 
 export class ConnectionMeter {
-  public static readonly PING_INTERVAL = 1000;
+  public static readonly PING_INTERVAL = 2;
+  private _clock: IClock;
   private _pingSequence = 1;
   private _receiveSlidingWindow: SlidingWindow;
   private _echoSlidingWindow: SlidingWindow;
@@ -16,12 +18,13 @@ export class ConnectionMeter {
   private _receiver: Address;
   private _messageSubject: Subject<Message>;
 
-  constructor(originator: Address, receiver: Address) {
+  constructor(originator: Address, receiver: Address, clock: IClock) {
     this._receiveSlidingWindow = new SlidingWindow();
     this._echoSlidingWindow = new SlidingWindow();
     this._originator = originator;
     this._receiver = receiver;
     this._messageSubject = new Subject<Message>();
+    this._clock = clock;
   }
 
   private emitMessage(message: Message) {
@@ -94,16 +97,16 @@ export class ConnectionMeter {
     return this._messageSubject;
   }
 
-  public startMetering(): void {
-    this._pingInterval = setInterval(() => {
+  public start(): void {
+    this._pingInterval = this._clock.setInterval(() => {
       this.sendPing();
       console.log('[TQ]', this.getTq());
     }, ConnectionMeter.PING_INTERVAL);
   }
 
-  public stopMetering(): void {
+  public stop(): void {
     if (this._pingInterval) {
-      clearInterval(this._pingInterval);
+      this._clock.clearInterval(this._pingInterval);
     }
   }
 }
