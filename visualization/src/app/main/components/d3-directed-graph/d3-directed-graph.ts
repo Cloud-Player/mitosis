@@ -91,11 +91,13 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       .attr('y2', (d: any) => {
         return d.target.y;
       })
-      .attr('stroke-dasharray', (d: Edge) => {
-        if (d.getConnection().isInState(ConnectionState.OPENING, ConnectionState.CLOSING)) {
-          return 4;
+      .attr('stroke-dasharray', (d: Edge): any => {
+        if (d.getConnection().isInState(ConnectionState.CLOSING, ConnectionState.CLOSED)) {
+          return [2, 8];
+        } else if (d.getConnection().isInState(ConnectionState.OPENING)) {
+          return [8, 8];
         } else {
-          return 0;
+          return [0];
         }
       })
       .attr('stroke-width', (d: Edge) => {
