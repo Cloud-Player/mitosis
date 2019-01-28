@@ -93,6 +93,10 @@ export abstract class AbstractConnection {
     });
   }
 
+  public isInState(...states: Array<ConnectionState>): boolean {
+    return states.indexOf(this.getState()) !== -1;
+  }
+
   public getState(): ConnectionState {
     return this._state;
   }
