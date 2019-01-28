@@ -10,6 +10,17 @@ export class RemoveConnection extends AbstractInstruction implements IInstructio
     const from = Address.fromString(config.address);
     const to = Address.fromString(config.target);
     Logger.getLogger('simulation').info(`disconnect ${from.getId()} from ${to.getId()}`);
-    simulation.removeConnection(from.getId(), to.getId());
+    simulation
+      .getNodeMap()
+      .get(from.getId())
+      .getMitosis()
+      .getRoutingTable()
+      .getPeerById(to.getId())
+      .getConnectionTable()
+      .filterDirect()
+      .asArray()
+      .forEach(
+        connection => connection.close()
+      );
   }
 }

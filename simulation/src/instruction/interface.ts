@@ -4,9 +4,9 @@ import {AddPeer} from './add-peer';
 import {PauseClock} from './pause-clock';
 import {RemoveConnection} from './remove-connection';
 import {RemovePeer} from './remove-peer';
+import {SetClockSpeed} from './set-clock-speed';
 import {StartClock} from './start-clock';
 import {StopClock} from './stop-clock';
-import {SetClockSpeed} from './set-clock-speed';
 
 export enum InstructionType {
   ADD_PEER = 'add-peer',
