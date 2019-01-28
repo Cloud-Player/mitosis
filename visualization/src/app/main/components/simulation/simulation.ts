@@ -40,7 +40,7 @@ export class SimulationComponent implements OnInit {
             p.getConnectionTable()
               .asArray()
               .forEach((c) => {
-                if (c.getAddress().getProtocol() !== Protocol.VIA && c.getState() === ConnectionState.OPEN) {
+                if (c.getAddress().getProtocol() !== Protocol.VIA) {
                   model.addEdge(new Edge(node.getId(), c as MockConnection));
                 }
               });
