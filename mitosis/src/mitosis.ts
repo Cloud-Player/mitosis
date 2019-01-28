@@ -67,6 +67,7 @@ export class Mitosis {
     this.listenOnAppContentMessages();
 
     this._clock.setInterval(this.onTick.bind(this));
+    Logger.getLogger(this._myId).setClock(this._clock);
     Logger.getLogger(this._myId).info(`i am a ${roles.join(' and a ')}`);
   }
 
