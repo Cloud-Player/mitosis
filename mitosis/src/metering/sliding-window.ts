@@ -1,20 +1,8 @@
 export class SlidingWindow extends Set<number> {
-  public static readonly WINDOW_SIZE = 4;
-  private _sequence: number;
+  public static readonly WINDOW_SIZE = 12;
+  private _sequence = 0;
 
-  slideAndAddSequence(sequence: number): void {
-    this.slideSequence(sequence);
-    this.add(sequence);
-  }
-
-  slideSequence(sequence: number) {
-    if (this.isSequenceOutOfWindow(sequence)) {
-      this._sequence = sequence;
-    }
-    this.removeOutDated();
-  }
-
-  removeOutDated(): void {
+  private removeOutDated(): void {
     const iterable = this.values();
     let next = iterable.next();
     while (!next.done) {
@@ -26,11 +14,37 @@ export class SlidingWindow extends Set<number> {
     }
   }
 
-  isSequenceOutOfWindow(sequence: number): boolean {
+  private isSequenceOutOfWindow(sequence: number): boolean {
     if (this._sequence == null) {
       return true;
     } else {
       return (sequence > this._sequence) || (sequence <= this._sequence - SlidingWindow.WINDOW_SIZE);
     }
+  }
+
+  private nextSequence() {
+    this._sequence = this._sequence + 1;
+  }
+
+  public add(sequence: number): this {
+    this.setSequence(sequence);
+    super.add(sequence);
+    return this;
+  }
+
+  public slide() {
+    this.nextSequence();
+    this.removeOutDated();
+  }
+
+  public setSequence(sequence: number) {
+    if (this.isSequenceOutOfWindow(sequence)) {
+      this._sequence = sequence;
+    }
+    this.removeOutDated();
+  }
+
+  public getSequenceNumber() {
+    return this._sequence;
   }
 }

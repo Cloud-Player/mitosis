@@ -14,7 +14,7 @@ export enum Protocol {
 }
 
 export interface IConnectionOptions {
-  clock?: IClock,
+  clock?: IClock;
   mitosisId?: string;
   payload?: any;
 }

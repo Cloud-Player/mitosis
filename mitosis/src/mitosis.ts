@@ -143,6 +143,7 @@ export * from './message/interface';
 export * from './role/interface';
 export * from './logger/interface';
 
+export {IClock} from './clock/interface';
 export {AbstractClock} from './clock/clock';
 export {MasterClock} from './clock/master';
 export {ProtocolConnectionMap} from './connection/protocol-map';
@@ -156,3 +157,4 @@ export {Address} from './message/address';
 export {Message} from './message/message';
 export {AppContent} from './message/app-content';
 export {Logger} from './logger/logger';
+export {ConnectionMeter} from './metering/connection-meter';
