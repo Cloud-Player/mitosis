@@ -1,15 +1,13 @@
 <section class="logger">
   <header>
     Log entries
-    <app-button type="icon" text="fa fa-trash" (click)="purgeMessages()"></app-button>
+    <app-button type="icon" text="fa fa-trash" (click)="purgeLog()"></app-button>
   </header>
 
-  <app-collapsible *ngFor="let event of getMessageLog()"
-                   [isCollapsed]="event.data.length > 1"
-                   class="level-{{event.level}}"
-                   title="{{event.data[0]}}">
-    <pre *ngFor="let data of event.data.slice(1)">
-      {{data}}
-    </pre>
+  <app-collapsible *ngFor="let logEvent of getLogs()"
+                   [isCollapsed]="logEvent.getEvent().data.length > 1"
+                   class="level-{{logEvent.getEvent().level}}"
+                   title="{{logEvent.getTick()}} {{logEvent.getEvent().data[0]}}">
+    <pre *ngFor="let data of logEvent.getEvent().data.slice(1)">{{data}}</pre>
   </app-collapsible>
 </section>

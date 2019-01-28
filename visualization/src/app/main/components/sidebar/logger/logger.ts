@@ -2,6 +2,9 @@ import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core'
 import {ILogEvent, Logger} from 'mitosis';
 import {Node} from 'mitosis-simulation';
 import {Subscription} from 'rxjs';
+import {MessageEventLogger} from '../../../services/message-event-logger';
+import {LogEventLogger} from '../../../services/log-event-logger';
+import {LogEvent} from '../../../src/event-logger';
 
 @Component({
   selector: 'app-logger',
@@ -9,48 +12,27 @@ import {Subscription} from 'rxjs';
   styleUrls: ['./logger.scss'],
 })
 export class LoggerComponent implements OnInit, OnChanges {
-  private maxLogs = 100;
-
   @Input()
   public selectedNode: Node;
 
-  private _messages: Array<ILogEvent> = [];
-  private _subscriptions: Subscription;
-
-  constructor() {
-    this._subscriptions = new Subscription();
+  constructor(private eventLogger: LogEventLogger) {
   }
 
-  public getMessageLog(): Array<ILogEvent> {
-    return this._messages;
+  public getLogs(): Array<LogEvent<ILogEvent>> {
+    return this.eventLogger
+      .getLogger()
+      .getEventsForNodeId(this.selectedNode.getId());
   }
 
-  private initNode() {
-    this._messages = [];
-    this._subscriptions.unsubscribe();
-    this._subscriptions = new Subscription();
-    this._subscriptions.add(
-      Logger.getLogger(this.selectedNode.getId())
-        .observeLogEvents()
-        .subscribe(
-          ev => {
-            this._messages.unshift(ev);
-            this._messages.splice(this.maxLogs);
-          })
-    );
-  }
-
-  public purgeMessages() {
-    this._messages = [];
+  public purgeLog() {
+    this.eventLogger
+      .getLogger()
+      .purgeEventsForNodeId(this.selectedNode.getId());
   }
 
   ngOnInit(): void {
-    this.initNode();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.selectedNode && changes.selectedNode.currentValue) {
-      this.initNode();
-    }
   }
 }

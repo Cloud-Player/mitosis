@@ -4,10 +4,10 @@
     <app-button type="icon" text="fa fa-trash" (click)="purgeMessages()"></app-button>
   </header>
 
-  <app-collapsible *ngFor="let message of messages"
+  <app-collapsible *ngFor="let logEvent of getMessageLog()"
                    [isCollapsed]="true"
-                   [text]="message.getReceiver().getId() !== selectedNode.getId() ? '->'+message.getReceiver().getId() : null"
-                   title="{{message.getSubject()}} from {{message.getSender().getId()}} via {{message.getSender().getProtocol()}}">
-    <pre>{{message.toString()}}</pre>
+                   [text]="logEvent.getEvent().getReceiver().getId() !== selectedNode.getId() ? '->'+logEvent.getEvent().getReceiver().getId() : null"
+                   title="{{logEvent.getTick()}} {{logEvent.getEvent().getSubject()}} from {{logEvent.getEvent().getSender().getId()}} via {{logEvent.getEvent().getSender().getProtocol()}}">
+    <pre>{{logEvent.getEvent()}}</pre>
   </app-collapsible>
 </section>
