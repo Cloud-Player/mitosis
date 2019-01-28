@@ -111,9 +111,12 @@ export abstract class AbstractConnection {
 
   public toString(): string {
     return JSON.stringify({
-      id: this._id,
-      address: this._address,
-      state: this._state
-    });
+        id: this._id,
+        address: this._address.toString(),
+        state: this._state
+      },
+      undefined,
+      2
+    );
   }
 }

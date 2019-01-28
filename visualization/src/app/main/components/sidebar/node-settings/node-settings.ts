@@ -21,7 +21,8 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
     this.selectedNode
       .getMitosis()
       .getPeerManager()
-      .getPeers()
+      .getPeerTable()
+      .asArray()
       .forEach((peer) => {
         peer.getConnectionTable()
           .asArray()
@@ -53,7 +54,8 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
     this.selectedNode
       .getMitosis()
       .getPeerManager()
-      .getPeers()
+      .getPeerTable()
+      .asArray()
       .forEach((peer) => {
         peer.getConnectionTable()
           .asArray()

@@ -73,12 +73,17 @@ export class ConnectionMeter {
   }
 
   public getTq(): number {
-    const tq = this.getEq() / this.getRq();
-    if (tq > 1) {
-      // Eq should not exceed Rq
-      return 1;
+    const rq = this.getRq();
+    if (rq === 0) {
+      return 0;
     } else {
-      return tq;
+      const tq = this.getEq() / rq;
+      if (tq > 1) {
+        // Eq should not exceed Rq
+        return 1;
+      } else {
+        return tq;
+      }
     }
   }
 

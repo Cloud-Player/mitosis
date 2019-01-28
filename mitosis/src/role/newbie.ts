@@ -1,6 +1,6 @@
 import {Introduction} from '../message/introduction';
 import {Message} from '../message/message';
-import {Mitosis} from '../mitosis';
+import {Mitosis, RemotePeer, RoleType} from '../mitosis';
 import {IRole} from './interface';
 
 export class Newbie implements IRole {
@@ -22,5 +22,9 @@ export class Newbie implements IRole {
   }
 
   public onMessage(message: Message, mitosis: Mitosis): void {
+  }
+
+  public requiresPeer(remotePeer: RemotePeer): boolean {
+    return remotePeer.hasRole(RoleType.SIGNAL);
   }
 }

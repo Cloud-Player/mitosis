@@ -1,45 +1,24 @@
-import {ConnectionState} from '../connection/interface';
 import {Configuration} from '../configuration';
-import {PeerManager} from '../peer/peer-manager';
+import {ConnectionState} from '../connection/interface';
 import {MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
 import {PeerUpdate} from '../message/peer-update';
-import {Mitosis} from '../mitosis';
-import {IRole, RoleType} from './interface';
+import {Mitosis, RemotePeer, RoleType} from '../mitosis';
+import {PeerManager} from '../peer/peer-manager';
+import {IRole} from './interface';
 
 export class Router implements IRole {
 
-  private getAlternatives(peerManager: PeerManager, count: number = 5) {
-    return peerManager
-      .getPeers()
-      .filter(
-        peer => {
-          return peer.getConnectionTable()
-            .filterDirect()
-            .filterByStates(ConnectionState.OPEN)
-            .length;
-        }
-      )
-      .sort(
-        (a, b) => {
-          return a.getConnectionTable().getAverageQuality() -
-            b.getConnectionTable().getAverageQuality();
-        }
-      )
-      .slice(0, count);
-  }
-
   private sendAlternativesAsPeerUpdate(peerManager: PeerManager, message: Message) {
-    const directPeerCount = peerManager
-      .getPeers()
-      .filter(
-        remotePeer => {
-          return remotePeer.hasRole(RoleType.PEER) &&
-            remotePeer.getConnectionTable().filterDirect().length;
-        }
-      ).length;
+    const directPeers = peerManager
+      .getPeerTable()
+      .filterConnection(
+        table => table
+          .filterDirect()
+          .filterByStates(ConnectionState.OPEN)
+      );
 
-    if (directPeerCount < Configuration.DIRECT_CONNECTIONS_MAX) {
+    if (directPeers.length < Configuration.DIRECT_CONNECTIONS_MAX) {
       // No need to send alternatives because we still have capacity.
       return;
     }
@@ -59,10 +38,15 @@ export class Router implements IRole {
       throw new Error('i shouldn\'t answer to this');
     }
 
+    const alternativePeers = directPeers
+      .sortByQuality()
+      .asArray()
+      .slice(0, Configuration.ROUTER_REDIRECT_ALTERNATIVE_COUNT);
+
     const tableUpdate = new PeerUpdate(
       message.getReceiver(),
       message.getSender(),
-      this.getAlternatives(peerManager)
+      alternativePeers
     );
     peerManager.sendMessage(tableUpdate);
   }
@@ -74,5 +58,9 @@ export class Router implements IRole {
     if (message.getSubject() === MessageSubject.CONNECTION_NEGOTIATION) {
       this.sendAlternativesAsPeerUpdate(mitosis.getPeerManager(), message);
     }
+  }
+
+  public requiresPeer(remotePeer: RemotePeer): boolean {
+    return remotePeer.hasRole(RoleType.SIGNAL);
   }
 }
