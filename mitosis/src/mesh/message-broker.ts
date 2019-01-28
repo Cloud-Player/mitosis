@@ -167,9 +167,9 @@ export class MessageBroker {
         break;
       case ConnectionNegotiationType.ANSWER:
         this._routingTable.connectTo(senderAddress).then(remotePeer => {
-          const webRTCConnecton: WebRTCConnection =
+          const webRTCConnection: WebRTCConnection =
             remotePeer.getConnectionForAddress(senderAddress) as WebRTCConnection;
-          webRTCConnecton.establish(options.payload);
+          webRTCConnection.establish(options.payload);
         });
         break;
       default:

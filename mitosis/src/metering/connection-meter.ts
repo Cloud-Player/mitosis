@@ -41,9 +41,9 @@ export class ConnectionMeter {
   }
 
   private sendPing() {
-    Logger.getLogger(this._originator.getId()).info(`TQ to ${this._receiver.getId()} ${this.getTq()}`);
     this._echoSlidingWindow.slide();
-    Logger.getLogger(this._originator.getId()).info(`Dispatch ping to ${this._receiver.getId()}`, this._echoSlidingWindow.getSequenceNumber());
+    Logger.getLogger(this._originator.getId())
+      .info(`Dispatch ping to ${this._receiver.getId()}`, this._echoSlidingWindow.getSequenceNumber());
     const ping = new Ping(
       this._originator,
       this._receiver,
@@ -53,10 +53,10 @@ export class ConnectionMeter {
   }
 
   private handlePing(message: Ping) {
-    Logger.getLogger(this._originator.getId()).info(`Handle ping from ${message.getSender().getId()}`, Array.from(this._receiveSlidingWindow.values()).join(','));
+    Logger.getLogger(this._originator.getId())
+      .info(`Handle ping from ${message.getSender().getId()}`, Array.from(this._receiveSlidingWindow.values()).join(','));
     this.sendPong(message.getSender(), message.getBody());
     this._receiveSlidingWindow.add(message.getBody());
-    Logger.getLogger(this._originator.getId()).info(`TQ to ${this._receiver.getId()} ${this.getTq()}`);
   }
 
   private handlePong(message: Pong) {
@@ -75,8 +75,7 @@ export class ConnectionMeter {
   public getTq(): number {
     const tq = this.getEq() / this.getRq();
     if (tq > 1) {
-      Logger.getLogger(this._originator.getId()).warn(`EQ ${this.getEq()} > RQ ${this.getRq()}. EQ SHOULD NOT EXCEED RQ!`);
-      // XXX Eq should not exceed Rq
+      // Eq should not exceed Rq
       return 1;
     } else {
       return tq;

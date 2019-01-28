@@ -28,6 +28,14 @@ export class ConnectionTable {
     );
   }
 
+  public filterVia(): ConnectionTable {
+    return new ConnectionTable(
+      this._connections.filter(
+        connection => connection.getAddress().getProtocol() === Protocol.VIA
+      )
+    );
+  }
+
   public sortByQuality(): ConnectionTable {
     return new ConnectionTable(
       this._connections.sort((a, b) => a.getQuality() - b.getQuality())
