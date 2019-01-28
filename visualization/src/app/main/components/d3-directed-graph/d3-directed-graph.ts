@@ -14,7 +14,7 @@ import * as d3 from 'd3';
 import {Selection} from 'd3-selection';
 import {D3Model} from './models/d3';
 import {Edge, Node} from 'mitosis-simulation';
-import {RoleType} from 'mitosis';
+import {ConnectionState, RoleType} from 'mitosis';
 import {LayoutChangeTypes, LayoutService} from '../../../shared/services/layout';
 import {filter} from 'rxjs/operators';
 
@@ -90,6 +90,20 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       })
       .attr('y2', (d: any) => {
         return d.target.y;
+      })
+      .attr('stroke-dasharray', (d: Edge) => {
+        if (d.getConnection().isInState(ConnectionState.OPENING, ConnectionState.CLOSING)) {
+          return 4;
+        } else {
+          return 0;
+        }
+      })
+      .attr('stroke-width', (d: Edge) => {
+        if (d.getConnection().isInState(ConnectionState.OPENING, ConnectionState.OPEN)) {
+          return 2;
+        } else if (d.getConnection().isInState(ConnectionState.CLOSING, ConnectionState.CLOSED)) {
+          return 1;
+        }
       });
 
     nodes
