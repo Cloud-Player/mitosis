@@ -66,14 +66,6 @@ export class Simulation {
     }
   }
 
-  public removeConnection(from: string, to: string): void {
-    const edgeKey = [from, to].join('-');
-    const edge = this._edges.get(edgeKey);
-    if (edge) {
-      this._edges.delete(edgeKey);
-    }
-  }
-
   public deliverMessage(from: string, to: string, location: string, delay: number, message: Message): void {
     const edge = this.getEdge(to, from, location);
     if (edge) {
@@ -116,6 +108,10 @@ export class Simulation {
 
   public addEdge(from: string, to: string, location: string, edge: Edge): void {
     this._edges.set([from, to, location].join('-'), edge);
+  }
+
+  public removeEdge(from: string, to: string, location: string): void {
+    this._edges.delete([from, to, location].join('-'));
   }
 
   public getNodeMap(): Map<string, Node> {
