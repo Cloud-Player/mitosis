@@ -1,4 +1,5 @@
 import {Subject} from 'rxjs';
+import {IClock} from '../clock/interface';
 
 export enum LogLevel {
   LOG = 0,
@@ -11,11 +12,14 @@ export enum LogLevel {
 export interface ILogEvent {
   level: LogLevel;
   data: Array<any>;
+  tick: number;
 }
 
 export interface ILogger {
 
   setLevel(level: LogLevel): void;
+
+  setClock(clock: IClock): void;
 
   log(...args: Array<any>): void;
 

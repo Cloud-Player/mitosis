@@ -13,6 +13,8 @@ import {PeerTableComponent} from './components/sidebar/peer-table/peer-table';
 import {SidebarComponent} from './components/sidebar/sidebar';
 import {SimulationComponent} from './components/simulation/simulation';
 import {MainRoutingModule} from './main.routes';
+import {LogEventLogger} from './services/log-event-logger';
+import {MessageEventLogger} from './services/message-event-logger';
 
 @NgModule({
   imports: [
@@ -36,7 +38,10 @@ import {MainRoutingModule} from './main.routes';
     NodeSettingsComponent,
     LoggerComponent
   ],
-  providers: [],
+  providers: [
+    LogEventLogger,
+    MessageEventLogger
+  ],
   bootstrap: [MainComponent]
 })
 export class MainModule {
