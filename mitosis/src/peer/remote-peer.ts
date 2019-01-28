@@ -48,6 +48,10 @@ export class RemotePeer {
     );
   }
 
+  public getQuality(): number {
+    return this.getConnectionTable().getAverageQuality();
+  }
+
   public getConnectionForAddress(address: Address): IConnection {
     return this._connectionsPerAddress.get(address.toString());
   }
@@ -111,8 +115,10 @@ export class RemotePeer {
     return connection;
   }
 
-  public hasRole(roleType: RoleType): boolean {
-    return this._roleTypes.indexOf(roleType) >= 0;
+  public hasRole(...roleTypes: Array<RoleType>): boolean {
+    return this._roleTypes
+      .filter(roleType => roleTypes.indexOf(roleType) >= 0)
+      .length > 0;
   }
 
   public connect(address: Address, options?: IConnectionOptions): Promise<RemotePeer> {
@@ -149,7 +155,7 @@ export class RemotePeer {
     return JSON.stringify({
         id: this._id,
         roles: this._roleTypes,
-        connections: Array.from(this._connectionsPerAddress.values())
+        connections: Array.from(this._connectionsPerAddress.keys())
       },
       undefined,
       2
@@ -157,9 +163,15 @@ export class RemotePeer {
   }
 
   public destroy(): void {
-    this._connectionChurnSubject.complete();
     this._connectionsPerAddress.forEach(
       connection => connection.close()
+    );
+    this.observeChurn().subscribe(
+      () => {
+        if (this._connectionsPerAddress.size === 0) {
+          this._connectionChurnSubject.complete();
+        }
+      }
     );
     this._clock.stop();
   }

@@ -7,18 +7,22 @@ import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
+import {RoleManager} from '../role/role-manager';
 import {IPeerChurnEvent} from './interface';
 import {RemotePeer} from './remote-peer';
+import {RemotePeerTable} from './remote-peer-table';
 
 export class PeerManager {
 
-  private _clock: IClock;
-  private _peerChurnSubject: Subject<IPeerChurnEvent>;
-  private _peers: Array<RemotePeer>;
   private _myId: string;
+  private _roleManager: RoleManager;
+  private _clock: IClock;
+  private _peers: Array<RemotePeer>;
+  private _peerChurnSubject: Subject<IPeerChurnEvent>;
 
-  constructor(myId: string, clock: IClock) {
+  constructor(myId: string, roleManager: RoleManager, clock: IClock) {
     this._myId = myId;
+    this._roleManager = roleManager;
     this._clock = clock;
     this._peers = [];
     this._peerChurnSubject = new Subject();
@@ -41,9 +45,9 @@ export class PeerManager {
       return Promise.resolve(peer);
     }
 
-    const directPeers = this.getPeers()
-      .filter(
-        remotePeer => remotePeer.getConnectionTable().filterDirect().length > 0
+    const directPeers = this.getPeerTable()
+      .filterConnection(
+        table => table.filterDirect()
       );
     if (directPeers.length >= Configuration.DIRECT_CONNECTIONS_MAX) {
       Logger.getLogger(this._myId).warn(`max direct connections reached ${address.toString()}`);
@@ -68,7 +72,8 @@ export class PeerManager {
         return peer;
       })
       .catch(reason => {
-        Logger.getLogger(this._myId).warn(`cannot open connection to ${address.toString()}`, reason);
+        Logger.getLogger(this._myId)
+          .warn(`cannot open connection to ${address.toString()}`, reason);
         return Promise.reject(reason);
       });
   }
@@ -78,12 +83,13 @@ export class PeerManager {
     if (existingPeer) {
       existingPeer.send(message);
     } else {
-      Logger.getLogger(this._myId).error(`cannot send message because ${message.getReceiver().toString()} has left`);
+      Logger.getLogger(this._myId)
+        .error(`cannot send message because ${message.getReceiver().toString()} has left`);
     }
   }
 
-  public getPeers(): Array<RemotePeer> {
-    return this._peers;
+  public getPeerTable(): RemotePeerTable {
+    return new RemotePeerTable(this._peers);
   }
 
   public getPeerById(id: string): RemotePeer {
@@ -91,10 +97,16 @@ export class PeerManager {
   }
 
   public removePeer(remotePeer: RemotePeer): void {
-    const index = this._peers.indexOf(remotePeer);
-    if (index > -1) {
-      this._peers.splice(index, 1);
-      remotePeer.destroy();
+    const rolesRequiringPeer = this._roleManager.getRolesRequiringPeer(remotePeer);
+    if (rolesRequiringPeer.length === 0) {
+      const index = this._peers.indexOf(remotePeer);
+      if (index > -1) {
+        this._peers.splice(index, 1);
+        remotePeer.destroy();
+      }
+    } else {
+      Logger.getLogger(this._myId)
+        .info(`${remotePeer.getId()} is required by ${rolesRequiringPeer.join(' and ') || 'nobody'}`);
     }
   }
 

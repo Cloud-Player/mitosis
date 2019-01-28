@@ -36,7 +36,8 @@ export class SimulationComponent implements OnInit {
         model.addNode(node);
         node.getMitosis()
           .getPeerManager()
-          .getPeers()
+          .getPeerTable()
+          .asArray()
           .forEach((p) => {
             p.getConnectionTable()
               .asArray()

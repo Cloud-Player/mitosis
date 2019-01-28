@@ -74,11 +74,14 @@ export class Simulation {
         if (connection.getState() === ConnectionState.OPEN) {
           connection.onMessage(message);
         } else {
-          throw new Error(`mock connection failed to deliver message ${message.toString()} to edge ${to} because connection is not open!`);
+          throw new Error(
+            `failed to deliver message to ${to} because connection is ${connection.getState()}: ${message.toString()}`
+          );
         }
       }, delay);
     } else {
-      throw new Error(`mock connection failed to deliver message ${message.toString()} to edge ${to} because connection does not exist!`);
+      throw new Error(
+        `failed to deliver message to ${to} because connection does not exist: ${message.toString()}`);
     }
   }
 

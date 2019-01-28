@@ -1,43 +1,69 @@
-import {ConnectionTable} from '../../connection/connection-table';
-import {ConnectionState, IConnection, Protocol} from '../../connection/interface';
 import {Configuration} from '../../configuration';
-import {RemotePeer} from '../../peer/remote-peer';
+import {ConnectionState, Protocol} from '../../connection/interface';
+import {Logger} from '../../logger/logger';
 import {Address} from '../../message/address';
 import {Mitosis} from '../../mitosis';
+import {RoleType} from '../interface';
 
 export function satisfyConnectionGoal(mitosis: Mitosis): void {
-  const directConnections: Array<IConnection> = [];
-  const indirectPeers: Array<RemotePeer> = [];
+  const peerTable = mitosis
+    .getPeerManager()
+    .getPeerTable();
 
-  const peersRankedByQuality = mitosis.getPeerManager().getPeers()
-    .sort((a, b) => {
-      return b.getConnectionTable().getAverageQuality() - a.getConnectionTable().getAverageQuality();
-    });
+  const directPeers = peerTable
+    .filterConnection(
+      table => table
+        .filterDirect()
+        .filterByStates(ConnectionState.OPEN)
+    );
 
-  peersRankedByQuality.map(
-    peer => {
-      const connectionTable = peer.getConnectionTable()
-        .filterByStates(ConnectionState.OPEN, ConnectionState.OPENING)
-        .filterDirect();
-      if (connectionTable.length) {
-        directConnections.push(...connectionTable.asArray());
-      } else {
-        indirectPeers.push(peer);
-      }
+  const viaPeers = peerTable
+    .filterConnection(
+      table => table.filterVia()
+    )
+    .exclude(
+      table => table
+        .filterConnection(
+          connectionTable => connectionTable.filterDirect()
+        )
+    )
+    .exclude(
+      table => table
+        .filterByRole(RoleType.SIGNAL)
+    );
+
+  const directConnectionCount = directPeers.countConnections();
+  const insufficientConnections = directConnectionCount < Configuration.DIRECT_CONNECTIONS_GOAL;
+  const superfluousConnections = directConnectionCount > Configuration.DIRECT_CONNECTIONS_GOAL;
+
+  if (insufficientConnections) {
+    if (viaPeers.length) {
+      Logger.getLogger(mitosis.getMyAddress().getId()).debug(
+        'insufficientConnections', viaPeers
+      );
+      const bestViaPeer = viaPeers
+        .sortByQuality()
+        .shift();
+      const address = new Address(bestViaPeer.getId(), Protocol.WEBRTC_DATA);
+      mitosis.getPeerManager().connectTo(address);
+    } else {
+      Logger.getLogger(mitosis.getMyAddress().getId()).debug(
+        'no indirectPeers', peerTable
+      );
     }
-  );
-
-  const insufficientConnections = directConnections.length < Configuration.DIRECT_CONNECTIONS_GOAL;
-
-  if (insufficientConnections && indirectPeers.length) {
-    const address = new Address(indirectPeers.shift().getId(), Protocol.WEBRTC_DATA);
-    mitosis.getPeerManager().connectTo(address);
-  } else if (directConnections.length > Configuration.DIRECT_CONNECTIONS_GOAL) {
-    const worstConnection = new ConnectionTable(directConnections)
+  } else if (superfluousConnections) {
+    const worstDirectPeer = directPeers
       .sortByQuality()
       .pop();
-    if (worstConnection.getState() !== ConnectionState.OPENING) {
-      worstConnection.close();
-    }
+    Logger.getLogger(mitosis.getMyAddress().getId()).debug(
+      'insufficientConnections', worstDirectPeer
+    );
+    mitosis
+      .getPeerManager()
+      .removePeer(worstDirectPeer);
+  } else {
+    Logger.getLogger(mitosis.getMyAddress().getId()).debug(
+      'i am satisfied'
+    );
   }
 }

@@ -11,6 +11,7 @@ import {Message} from './message/message';
 import {MessageBroker} from './message/message-broker';
 import {PeerManager} from './peer/peer-manager';
 import {RemotePeer} from './peer/remote-peer';
+import {RemotePeerTable} from './peer/remote-peer-table';
 import {RoleType} from './role/interface';
 import {RoleManager} from './role/role-manager';
 
@@ -59,7 +60,7 @@ export class Mitosis {
     }
 
     this._roleManager = new RoleManager(roles);
-    this._peerManager = new PeerManager(this._myId, this._clock.fork());
+    this._peerManager = new PeerManager(this._myId, this._roleManager, this._clock.fork());
     this._messageBroker = new MessageBroker(this._peerManager, this._roleManager);
     this._inbox = new Subject<AppContent>();
     this._internalMessages = new Subject<Message>();
@@ -97,8 +98,8 @@ export class Mitosis {
     return this._signalAddress;
   }
 
-  public getPeers(): Array<RemotePeer> {
-    return this._peerManager.getPeers();
+  public getPeerTable(): RemotePeerTable {
+    return this._peerManager.getPeerTable();
   }
 
   public getPeerManager(): PeerManager {

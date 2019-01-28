@@ -1,6 +1,8 @@
 import {Message} from '../message/message';
 import {Mitosis} from '../mitosis';
-import {IRole, RoleType, RoleTypeMap} from './interface';
+import {RemotePeer} from '../peer/remote-peer';
+import {IRole, RoleType} from './interface';
+import {RoleTypeMap} from './role-map';
 
 export class RoleManager {
 
@@ -40,6 +42,13 @@ export class RoleManager {
 
   public onMessage(message: Message, mitosis: Mitosis): void {
     this._roles.forEach(role => role.onMessage(message, mitosis));
+  }
+
+  public getRolesRequiringPeer(remotePeer: RemotePeer): Array<RoleType> {
+    return Array.from(this._roles.keys())
+      .filter(
+        roleType => this._roles.get(roleType).requiresPeer(remotePeer)
+      );
   }
 
   public getRoles() {

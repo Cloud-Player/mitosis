@@ -1,6 +1,6 @@
 import {IConnection, Mitosis} from 'mitosis';
-import {Edge} from '../edge/edge';
 import {MockConnection} from '../connection/mock';
+import {Edge} from '../edge/edge';
 
 export class Node {
   private _mitosis: Mitosis;
@@ -18,11 +18,20 @@ export class Node {
 
   public getEdges() {
     const edges: Array<Edge> = [];
-    this._mitosis.getPeerManager().getPeers().forEach((peer) => {
-      peer.getConnectionTable().filterDirect().asArray().forEach((connection: MockConnection) => {
-        edges.push(new Edge(this.getId(), connection));
-      });
-    });
+    this._mitosis
+      .getPeerTable()
+      .asArray()
+      .forEach(
+        peer => {
+          peer
+            .getConnectionTable()
+            .filterDirect()
+            .asArray()
+            .forEach(
+              (connection: MockConnection) => {
+                edges.push(new Edge(this.getId(), connection));
+              });
+        });
     return edges;
   }
 

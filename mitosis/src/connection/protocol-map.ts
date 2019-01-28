@@ -1,6 +1,5 @@
 import {IConnectionConstructor, Protocol} from './interface';
 import {ViaConnection} from './via';
-import {WebRTCConnection} from './webrtc';
 import {WebRTCDataConnection} from './webrtc-data';
 import {WebRTCStreamConnection} from './webrtc-stream';
 import {WebSocketConnection} from './websocket';
