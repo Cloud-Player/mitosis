@@ -10,7 +10,7 @@ export enum MessageSubject {
   PONG = 'pong'
 }
 
-export interface IRoutingTableUpdateEntry {
+export interface IPeerUpdateEntry {
   peerId: string;
   roles: Array<RoleType>;
   quality: number;

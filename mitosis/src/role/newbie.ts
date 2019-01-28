@@ -10,7 +10,7 @@ export class Newbie implements IRole {
       mitosis.getMyAddress(),
       mitosis.getSignalAddress()
     );
-    mitosis.getRoutingTable()
+    mitosis.getPeerManager()
       .connectTo(mitosis.getSignalAddress())
       .then(
         signal => signal.send(introduction)

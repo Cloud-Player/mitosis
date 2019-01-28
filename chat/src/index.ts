@@ -35,7 +35,7 @@ class Chat {
   }
 
   private sendMessage(peerId: string, message: string) {
-    if (!this._mitosis.getRoutingTable().getPeerById(peerId)) {
+    if (!this._mitosis.getPeerManager().getPeerById(peerId)) {
       return;
     }
     try {
@@ -55,7 +55,7 @@ class Chat {
   }
 
   private broadcastMessage(message: string) {
-    this._mitosis.getRoutingTable().getPeers().forEach((peer) => {
+    this._mitosis.getPeerManager().getPeers().forEach((peer) => {
       this.sendMessage(peer.getId(), message);
     });
   }
@@ -77,7 +77,7 @@ class Chat {
   }
 
   private listenOnPeerChurn() {
-    this._mitosis.getRoutingTable().observePeerChurn()
+    this._mitosis.getPeerManager().observePeerChurn()
       .pipe(
         filter(
           (ev: IPeerChurnEvent) => {
@@ -89,7 +89,7 @@ class Chat {
         (ev: IPeerChurnEvent) => this.addPeer(ev.peer)
       );
 
-    this._mitosis.getRoutingTable().observePeerChurn()
+    this._mitosis.getPeerManager().observePeerChurn()
       .pipe(
         filter(
           (ev: IPeerChurnEvent) => {

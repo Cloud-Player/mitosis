@@ -20,7 +20,7 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
   private updateDelayForProtocol(protocol: Protocol, delay: number) {
     this.selectedNode
       .getMitosis()
-      .getRoutingTable()
+      .getPeerManager()
       .getPeers()
       .forEach((peer) => {
         peer.getConnectionTable()
@@ -52,7 +52,7 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
   private initNode() {
     this.selectedNode
       .getMitosis()
-      .getRoutingTable()
+      .getPeerManager()
       .getPeers()
       .forEach((peer) => {
         peer.getConnectionTable()

@@ -9,7 +9,7 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
   const directConnections: Array<IConnection> = [];
   const indirectPeers: Array<RemotePeer> = [];
 
-  const peersRankedByQuality = mitosis.getRoutingTable().getPeers()
+  const peersRankedByQuality = mitosis.getPeerManager().getPeers()
     .sort((a, b) => {
       return b.getConnectionTable().getAverageQuality() - a.getConnectionTable().getAverageQuality();
     });
@@ -31,7 +31,7 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
 
   if (insufficientConnections && indirectPeers.length) {
     const address = new Address(indirectPeers.shift().getId(), Protocol.WEBRTC_DATA);
-    mitosis.getRoutingTable().connectTo(address);
+    mitosis.getPeerManager().connectTo(address);
   } else if (directConnections.length > Configuration.DIRECT_CONNECTIONS_GOAL) {
     const worstConnection = new ConnectionTable(directConnections)
       .sortByQuality()

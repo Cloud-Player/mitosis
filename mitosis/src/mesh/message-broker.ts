@@ -18,27 +18,27 @@ import {RoleUpdate} from '../message/role-update';
 import {ChurnType} from './interface';
 import {RemotePeer} from './remote-peer';
 import {RoleManager} from './role-manager';
-import {RoutingTable} from './routing-table';
+import {PeerManager} from './peer-manager';
 
 export class MessageBroker {
 
-  private _routingTable: RoutingTable;
+  private _peerManager: PeerManager;
   private _roleManager: RoleManager;
   private _appContentMessagesSubject: Subject<Message>;
   private _messagesSubject: Subject<Message>;
   private _incomingMessageSubject: Subject<Message>;
 
-  constructor(routingTable: RoutingTable, roleManager: RoleManager) {
-    this._routingTable = routingTable;
-    this.listenOnRoutingTablePeerChurn();
+  constructor(peerManager: PeerManager, roleManager: RoleManager) {
+    this._peerManager = peerManager;
+    this.listenOnPeerChurn();
     this._roleManager = roleManager;
     this._appContentMessagesSubject = new Subject();
     this._messagesSubject = new Subject();
     this._incomingMessageSubject = new Subject();
   }
 
-  private listenOnRoutingTablePeerChurn(): void {
-    this._routingTable.observePeerChurn()
+  private listenOnPeerChurn(): void {
+    this._peerManager.observePeerChurn()
       .pipe(
         filter(ev => ev.type === ChurnType.ADDED)
       )
@@ -48,7 +48,7 @@ export class MessageBroker {
   }
 
   private listenOnConnectionChurn(remotePeer: RemotePeer): void {
-    Logger.getLogger(this._routingTable.getMyId()).info(`added ${remotePeer.getId()}`);
+    Logger.getLogger(this._peerManager.getMyId()).info(`added ${remotePeer.getId()}`);
     remotePeer.observeChurn()
       .pipe(
         filter(ev => ev.type === ChurnType.ADDED)
@@ -70,20 +70,20 @@ export class MessageBroker {
   private ensureViaConnection(sender: Address, via: Address): void {
     if (
       sender.getId() !== via.getId() &&
-      sender.getId() !== this._routingTable.getMyId()
+      sender.getId() !== this._peerManager.getMyId()
     ) {
       const viaAddress = new Address(
         sender.getId(),
         Protocol.VIA,
         via.getId()
       );
-      this._routingTable.connectTo(viaAddress);
+      this._peerManager.connectTo(viaAddress);
     }
   }
 
   private handleMessage(message: Message, connection: IConnection): void {
     this._incomingMessageSubject.next(message);
-    if (message.getReceiver().getId() === this._routingTable.getMyId()) {
+    if (message.getReceiver().getId() === this._peerManager.getMyId()) {
       this.receiveMessage(message, connection);
     } else {
       this.forwardMessage(message);
@@ -121,7 +121,7 @@ export class MessageBroker {
   private updatePeers(peerUpdate: PeerUpdate, connection: IConnection): void {
     // Only accept peer updates from direct connections or peers in opening state
     if (peerUpdate.getSender().getId() !== connection.getAddress().getId()) {
-      const sender = this._routingTable.getPeerById(peerUpdate.getSender().getId());
+      const sender = this._peerManager.getPeerById(peerUpdate.getSender().getId());
       const openingConnections = sender.getConnectionTable()
         .filterDirect()
         .filterByStates(ConnectionState.OPENING);
@@ -135,7 +135,7 @@ export class MessageBroker {
     peerUpdate.getBody()
       .forEach(
         entry => {
-          if (entry.peerId !== this._routingTable.getMyId() &&
+          if (entry.peerId !== this._peerManager.getMyId() &&
             entry.peerId !== peerUpdate.getSender().getId()) {
             const address = new Address(
               entry.peerId,
@@ -146,7 +146,7 @@ export class MessageBroker {
               protocol: Protocol.VIA,
               payload: {quality: entry.quality}
             };
-            this._routingTable.connectTo(address, options);
+            this._peerManager.connectTo(address, options);
           }
         }
       );
@@ -155,7 +155,7 @@ export class MessageBroker {
   private negotiateConnection(connectionNegotiation: ConnectionNegotiation): void {
     const senderAddress = connectionNegotiation.getSender();
     const options: IWebRTCConnectionOptions = {
-      mitosisId: this._routingTable.getMyId(),
+      mitosisId: this._peerManager.getMyId(),
       payload: {
         type: connectionNegotiation.getBody().type as unknown as WebRTCConnectionOptionsPayloadType,
         sdp: connectionNegotiation.getBody().sdp
@@ -163,10 +163,10 @@ export class MessageBroker {
     };
     switch (connectionNegotiation.getBody().type) {
       case ConnectionNegotiationType.OFFER:
-        this._routingTable.connectTo(senderAddress, options);
+        this._peerManager.connectTo(senderAddress, options);
         break;
       case ConnectionNegotiationType.ANSWER:
-        this._routingTable.connectTo(senderAddress).then(remotePeer => {
+        this._peerManager.connectTo(senderAddress).then(remotePeer => {
           const webRTCConnection: WebRTCConnection =
             remotePeer.getConnectionForAddress(senderAddress) as WebRTCConnection;
           webRTCConnection.establish(options.payload);
@@ -181,17 +181,17 @@ export class MessageBroker {
 
   private forwardMessage(message: Message): void {
     const peerId = message.getReceiver().getId();
-    const receiverPeer = this._routingTable.getPeerById(peerId);
+    const receiverPeer = this._peerManager.getPeerById(peerId);
     const connection = receiverPeer.getConnectionTable()
       .filterByStates(ConnectionState.OPEN)
       .sortByQuality()
       .shift();
     let directPeer;
     if (!connection) {
-      Logger.getLogger(this._routingTable.getMyId()).error('all connections lost to', receiverPeer.getId());
+      Logger.getLogger(this._peerManager.getMyId()).error('all connections lost to', receiverPeer.getId());
     } else if (connection.getAddress().getProtocol() === Protocol.VIA) {
       const directPeerId = connection.getAddress().getLocation();
-      directPeer = this._routingTable.getPeerById(directPeerId);
+      directPeer = this._peerManager.getPeerById(directPeerId);
       directPeer.send(message);
     } else {
       receiverPeer.send(message);

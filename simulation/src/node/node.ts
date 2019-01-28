@@ -18,7 +18,7 @@ export class Node {
 
   public getEdges() {
     const edges: Array<Edge> = [];
-    this._mitosis.getRoutingTable().getPeers().forEach((peer) => {
+    this._mitosis.getPeerManager().getPeers().forEach((peer) => {
       peer.getConnectionTable().filterDirect().asArray().forEach((connection: MockConnection) => {
         edges.push(new Edge(this.getId(), connection));
       });

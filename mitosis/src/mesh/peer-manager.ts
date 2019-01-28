@@ -9,7 +9,7 @@ import {Configuration} from './configuration';
 import {ChurnType, IPeerChurnEvent} from './interface';
 import {RemotePeer} from './remote-peer';
 
-export class RoutingTable {
+export class PeerManager {
 
   private _clock: IClock;
   private _peerChurnSubject: Subject<IPeerChurnEvent>;

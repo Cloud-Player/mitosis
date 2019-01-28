@@ -1,6 +1,6 @@
 import {ConnectionState} from '../connection/interface';
 import {Configuration} from '../mesh/configuration';
-import {RoutingTable} from '../mesh/routing-table';
+import {PeerManager} from '../mesh/peer-manager';
 import {MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
 import {PeerUpdate} from '../message/peer-update';
@@ -9,8 +9,8 @@ import {IRole, RoleType} from './interface';
 
 export class Router implements IRole {
 
-  private getAlternatives(routingTable: RoutingTable, count: number = 5) {
-    return routingTable
+  private getAlternatives(peerManager: PeerManager, count: number = 5) {
+    return peerManager
       .getPeers()
       .filter(
         peer => {
@@ -29,8 +29,8 @@ export class Router implements IRole {
       .slice(0, count);
   }
 
-  private sendAlternativesAsPeerUpdate(routingTable: RoutingTable, message: Message) {
-    const directPeerCount = routingTable
+  private sendAlternativesAsPeerUpdate(peerManager: PeerManager, message: Message) {
+    const directPeerCount = peerManager
       .getPeers()
       .filter(
         remotePeer => {
@@ -44,7 +44,7 @@ export class Router implements IRole {
       return;
     }
 
-    const senderIsDirect = routingTable
+    const senderIsDirect = peerManager
       .getPeerById(message.getSender().getId())
       .getConnectionTable()
       .filterDirect()
@@ -55,16 +55,16 @@ export class Router implements IRole {
       return;
     }
 
-    if (message.getReceiver().getId() !== routingTable.getMyId()) {
+    if (message.getReceiver().getId() !== peerManager.getMyId()) {
       throw new Error('i shouldn\'t answer to this');
     }
 
     const tableUpdate = new PeerUpdate(
       message.getReceiver(),
       message.getSender(),
-      this.getAlternatives(routingTable)
+      this.getAlternatives(peerManager)
     );
-    routingTable.sendMessage(tableUpdate);
+    peerManager.sendMessage(tableUpdate);
   }
 
   public onTick(mitosis: Mitosis): void {
@@ -72,7 +72,7 @@ export class Router implements IRole {
 
   public onMessage(message: Message, mitosis: Mitosis): void {
     if (message.getSubject() === MessageSubject.CONNECTION_NEGOTIATION) {
-      this.sendAlternativesAsPeerUpdate(mitosis.getRoutingTable(), message);
+      this.sendAlternativesAsPeerUpdate(mitosis.getPeerManager(), message);
     }
   }
 }

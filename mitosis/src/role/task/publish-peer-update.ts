@@ -2,8 +2,8 @@ import {ConnectionState} from '../../connection/interface';
 import {PeerUpdate} from '../../message/peer-update';
 import {Mitosis} from '../../mitosis';
 
-export function publishRoutingTable(mitosis: Mitosis): void {
-  const directPeers = mitosis.getRoutingTable().getPeers()
+export function publishPeerUpdate(mitosis: Mitosis): void {
+  const directPeers = mitosis.getPeerManager().getPeers()
     .filter(remotePeer => {
       return remotePeer.getConnectionTable()
         .filterDirect()
@@ -17,12 +17,12 @@ export function publishRoutingTable(mitosis: Mitosis): void {
       .asArray()
       .forEach(
         connection => {
-          const tableUpdate = new PeerUpdate(
+          const peerUpdate = new PeerUpdate(
             mitosis.getMyAddress(),
             connection.getAddress(),
             directPeers
           );
-          connection.send(tableUpdate);
+          connection.send(peerUpdate);
         });
   });
 }

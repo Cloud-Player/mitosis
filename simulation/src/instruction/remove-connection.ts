@@ -14,7 +14,7 @@ export class RemoveConnection extends AbstractInstruction implements IInstructio
       .getNodeMap()
       .get(from.getId())
       .getMitosis()
-      .getRoutingTable()
+      .getPeerManager()
       .getPeerById(to.getId())
       .getConnectionTable()
       .filterDirect()

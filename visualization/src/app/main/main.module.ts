@@ -9,7 +9,7 @@ import {MainComponent} from './components/main/main';
 import {LoggerComponent} from './components/sidebar/logger/logger';
 import {MessagesComponent} from './components/sidebar/messages/messages';
 import {NodeSettingsComponent} from './components/sidebar/node-settings/node-settings';
-import {RoutingTableComponent} from './components/sidebar/routing-table/routing-table';
+import {PeerTableComponent} from './components/sidebar/peer-table/peer-table';
 import {SidebarComponent} from './components/sidebar/sidebar';
 import {SimulationComponent} from './components/simulation/simulation';
 import {MainRoutingModule} from './main.routes';
@@ -32,7 +32,7 @@ import {MainRoutingModule} from './main.routes';
     SidebarComponent,
     NodeSettingsComponent,
     MessagesComponent,
-    RoutingTableComponent,
+    PeerTableComponent,
     NodeSettingsComponent,
     LoggerComponent
   ],

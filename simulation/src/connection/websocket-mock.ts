@@ -22,7 +22,7 @@ export class WebSocketMockConnection extends MockConnection implements IConnecti
         this._address.getLocation()
       );
       this._client.getClock().setTimeout(() => {
-        remoteNode.getMitosis().getRoutingTable().connectTo(localAddress);
+        remoteNode.getMitosis().getPeerManager().connectTo(localAddress);
       }, this.getConnectionDelay());
     } else {
       this._client.getClock().setTimeout(() => {

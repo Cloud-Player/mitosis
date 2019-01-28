@@ -6,9 +6,9 @@ import {SecureEnclave} from './enclave/secure';
 import {Logger} from './logger/logger';
 import {Configuration} from './mesh/configuration';
 import {MessageBroker} from './mesh/message-broker';
+import {PeerManager} from './mesh/peer-manager';
 import {RemotePeer} from './mesh/remote-peer';
 import {RoleManager} from './mesh/role-manager';
-import {RoutingTable} from './mesh/routing-table';
 import {Address} from './message/address';
 import {AppContent} from './message/app-content';
 import {Message} from './message/message';
@@ -17,7 +17,7 @@ import {RoleType} from './role/interface';
 export class Mitosis {
 
   private _enclave: IEnclave;
-  private _routingTable: RoutingTable;
+  private _peerManager: PeerManager;
   private _roleManager: RoleManager;
   private _messageBroker: MessageBroker;
   private _myId: string;
@@ -59,8 +59,8 @@ export class Mitosis {
     }
 
     this._roleManager = new RoleManager(roles);
-    this._routingTable = new RoutingTable(this._myId, this._clock.fork());
-    this._messageBroker = new MessageBroker(this._routingTable, this._roleManager);
+    this._peerManager = new PeerManager(this._myId, this._clock.fork());
+    this._messageBroker = new MessageBroker(this._peerManager, this._roleManager);
     this._inbox = new Subject<AppContent>();
     this._internalMessages = new Subject<Message>();
     this.listenOnMessages();
@@ -98,11 +98,11 @@ export class Mitosis {
   }
 
   public getPeers(): Array<RemotePeer> {
-    return this._routingTable.getPeers();
+    return this._peerManager.getPeers();
   }
 
-  public getRoutingTable() {
-    return this._routingTable;
+  public getPeerManager(): PeerManager {
+    return this._peerManager;
   }
 
   public getInbox() {
@@ -123,13 +123,13 @@ export class Mitosis {
       new Address(peerId),
       message
     );
-    this._routingTable.sendMessage(appMessage);
+    this._peerManager.sendMessage(appMessage);
   }
 
   public destroy() {
     this._inbox.complete();
     this._internalMessages.complete();
-    this._routingTable.destroy();
+    this._peerManager.destroy();
     this._roleManager.destroy();
     this._messageBroker.destroy();
     this._clock.stop();

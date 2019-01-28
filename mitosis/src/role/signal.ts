@@ -1,6 +1,6 @@
 import {ConnectionState} from '../connection/interface';
 import {RemotePeer} from '../mesh/remote-peer';
-import {RoutingTable} from '../mesh/routing-table';
+import {PeerManager} from '../mesh/peer-manager';
 import {Address} from '../message/address';
 import {MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
@@ -17,8 +17,8 @@ export class Signal implements IRole {
     satisfyConnectionGoal(mitosis);
   }
 
-  private getRouters(routingTable: RoutingTable): Array<RemotePeer> {
-    return routingTable
+  private getRouters(peerManager: PeerManager): Array<RemotePeer> {
+    return peerManager
       .getPeers()
       .filter(
         remotePeer => {
@@ -32,7 +32,7 @@ export class Signal implements IRole {
   }
 
   private promoteNewbie(newbieAddress: Address, routers: Array<RemotePeer>, mitosis: Mitosis): void {
-    const existingPeer = mitosis.getRoutingTable()
+    const existingPeer = mitosis.getPeerManager()
       .getPeers()
       .find(remotePeer => remotePeer.getId() === newbieAddress.getId());
 
@@ -47,7 +47,7 @@ export class Signal implements IRole {
       newbieAddress,
       roles
     );
-    mitosis.getRoutingTable().sendMessage(roleUpdate);
+    mitosis.getPeerManager().sendMessage(roleUpdate);
   }
 
   private sendExistingRouters(address: Address, routers: Array<RemotePeer>, mitosis: Mitosis): void {
@@ -56,12 +56,12 @@ export class Signal implements IRole {
       address,
       routers
     );
-    mitosis.getRoutingTable().sendMessage(tableUpdate);
+    mitosis.getPeerManager().sendMessage(tableUpdate);
   }
 
   public onMessage(message: Message, mitosis: Mitosis): void {
     const sender = message.getSender();
-    const routers = this.getRouters(mitosis.getRoutingTable());
+    const routers = this.getRouters(mitosis.getPeerManager());
     const senderIsRouter = routers.find(peer => peer.getId() === sender.getId());
 
     if (!senderIsRouter && message.getSubject() === MessageSubject.INTRODUCTION) {

@@ -3,11 +3,11 @@ import {ConnectionState, RemotePeer} from 'mitosis';
 import {Node, Simulation} from 'mitosis-simulation';
 
 @Component({
-  selector: 'app-routing-table',
-  templateUrl: './routing-table.html',
-  styleUrls: ['./routing-table.scss'],
+  selector: 'app-peer-table',
+  templateUrl: './peer-table.html',
+  styleUrls: ['./peer-table.scss'],
 })
-export class RoutingTableComponent implements OnInit {
+export class PeerTableComponent implements OnInit {
   @Input()
   public selectedNode: Node;
 

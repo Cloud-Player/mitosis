@@ -34,7 +34,8 @@ export class SimulationComponent implements OnInit {
       const model = new D3Model();
       this.simulation.getNodeMap().forEach((node) => {
         model.addNode(node);
-        node.getMitosis().getRoutingTable()
+        node.getMitosis()
+          .getPeerManager()
           .getPeers()
           .forEach((p) => {
             p.getConnectionTable()
