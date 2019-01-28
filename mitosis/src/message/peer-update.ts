@@ -1,5 +1,5 @@
 import {ConnectionState, IConnection} from '../connection/interface';
-import {RemotePeer} from '../mesh/remote-peer';
+import {RemotePeer} from '../peer/remote-peer';
 import {Address} from './address';
 import {IPeerUpdateEntry, MessageSubject} from './interface';
 import {Message} from './message';

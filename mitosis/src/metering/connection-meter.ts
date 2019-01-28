@@ -1,11 +1,11 @@
 import {Subject} from 'rxjs';
 import {IClock} from '../clock/interface';
+import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
 import {Ping} from '../message/ping';
 import {Pong} from '../message/pong';
-import {Logger} from '../mitosis';
 import {SlidingWindow} from './sliding-window';
 
 export class ConnectionMeter {

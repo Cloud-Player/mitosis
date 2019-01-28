@@ -1,7 +1,7 @@
 import {ConnectionTable} from '../../connection/connection-table';
 import {ConnectionState, IConnection, Protocol} from '../../connection/interface';
-import {Configuration} from '../../mesh/configuration';
-import {RemotePeer} from '../../mesh/remote-peer';
+import {Configuration} from '../../configuration';
+import {RemotePeer} from '../../peer/remote-peer';
 import {Address} from '../../message/address';
 import {Mitosis} from '../../mitosis';
 

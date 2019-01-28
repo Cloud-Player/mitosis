@@ -1,18 +1,18 @@
 import {Subject} from 'rxjs';
 import {IClock} from './clock/interface';
 import {MasterClock} from './clock/master';
+import {Configuration} from './configuration';
 import {IEnclave} from './enclave/interface';
 import {SecureEnclave} from './enclave/secure';
 import {Logger} from './logger/logger';
-import {Configuration} from './mesh/configuration';
-import {MessageBroker} from './mesh/message-broker';
-import {PeerManager} from './mesh/peer-manager';
-import {RemotePeer} from './mesh/remote-peer';
-import {RoleManager} from './mesh/role-manager';
 import {Address} from './message/address';
 import {AppContent} from './message/app-content';
 import {Message} from './message/message';
+import {MessageBroker} from './message/message-broker';
+import {PeerManager} from './peer/peer-manager';
+import {RemotePeer} from './peer/remote-peer';
 import {RoleType} from './role/interface';
+import {RoleManager} from './role/role-manager';
 
 export class Mitosis {
 
@@ -138,10 +138,11 @@ export class Mitosis {
 
 export * from './clock/interface';
 export * from './connection/interface';
-export * from './mesh/interface';
+export * from './peer/interface';
 export * from './message/interface';
 export * from './role/interface';
 export * from './logger/interface';
+export * from './interface';
 
 export {IClock} from './clock/interface';
 export {AbstractClock} from './clock/clock';
@@ -152,7 +153,7 @@ export {AbstractConnection} from './connection/connection';
 export {WebRTCConnection} from './connection/webrtc';
 export {WebRTCStreamConnection} from './connection/webrtc-stream';
 export {WebRTCDataConnection} from './connection/webrtc-data';
-export {RemotePeer} from './mesh/remote-peer';
+export {RemotePeer} from './peer/remote-peer';
 export {Address} from './message/address';
 export {Message} from './message/message';
 export {AppContent} from './message/app-content';

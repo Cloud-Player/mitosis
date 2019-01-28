@@ -1,5 +1,6 @@
 import {Subject} from 'rxjs';
 import {IClock} from '../clock/interface';
+import {ChurnType} from '../interface';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
 
@@ -11,6 +12,11 @@ export enum Protocol {
   WEBRTC_DATA = 'webrtc-data',
   WEBRTC_STREAM = 'webrtc-stream',
   VIA = 'via'
+}
+
+export interface IConnectionChurnEvent {
+  type: ChurnType;
+  connection: IConnection;
 }
 
 export interface IConnectionOptions {

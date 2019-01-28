@@ -1,12 +1,13 @@
 import {Subject} from 'rxjs';
 import {filter} from 'rxjs/operators';
 import {IClock} from '../clock/interface';
+import {Configuration} from '../configuration';
 import {IConnectionOptions} from '../connection/interface';
+import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
-import {Configuration} from './configuration';
-import {ChurnType, IPeerChurnEvent} from './interface';
+import {IPeerChurnEvent} from './interface';
 import {RemotePeer} from './remote-peer';
 
 export class PeerManager {

@@ -8,17 +8,17 @@ import {
   WebRTCConnectionOptionsPayloadType
 } from '../connection/interface';
 import {WebRTCConnection} from '../connection/webrtc';
+import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
-import {Address} from '../message/address';
-import {ConnectionNegotiation, ConnectionNegotiationType} from '../message/connection-negotiation';
-import {MessageSubject} from '../message/interface';
-import {Message} from '../message/message';
-import {PeerUpdate} from '../message/peer-update';
-import {RoleUpdate} from '../message/role-update';
-import {ChurnType} from './interface';
-import {RemotePeer} from './remote-peer';
-import {RoleManager} from './role-manager';
-import {PeerManager} from './peer-manager';
+import {PeerManager} from '../peer/peer-manager';
+import {RemotePeer} from '../peer/remote-peer';
+import {RoleManager} from '../role/role-manager';
+import {Address} from './address';
+import {ConnectionNegotiation, ConnectionNegotiationType} from './connection-negotiation';
+import {MessageSubject} from './interface';
+import {Message} from './message';
+import {PeerUpdate} from './peer-update';
+import {RoleUpdate} from './role-update';
 
 export class MessageBroker {
 
