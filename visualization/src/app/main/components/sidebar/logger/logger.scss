@@ -1,22 +1,58 @@
 @import "variables";
 
 :host {
-  li {
-    margin: 10px;
-    .level-0 {
+
+  /deep/ app-collapsible {
+    font-size: 12px;
+    position: relative;
+
+    &:before {
+      position: absolute;
+      top: -2px;
+    }
+
+    .collapsible {
+      padding-left: 20px;
+    }
+
+    &.level-0 {
       color: gainsboro;
+
+      &:before{
+        content: "📠";
+      }
     }
-    .level-10 {
+
+    &.level-10 {
       color: lightcyan;
+
+      &:before{
+        content: "🚑";
+      }
     }
-    .level-20 {
+
+    &.level-20 {
       color: lightyellow;
+
+      &:before{
+        content: "📬";
+      }
     }
-    .level-30 {
+
+    &.level-30 {
       color: darkorange;
+
+      &:before{
+        content: "🚧";
+      }
     }
-    .level-40 {
+
+    &.level-40 {
       color: tomato;
+
+      &:before{
+        content: "🚒";
+      }
     }
   }
 }
