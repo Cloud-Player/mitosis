@@ -48,10 +48,14 @@
     }
 
     &.level-40 {
-      color: tomato;
-
       &:before{
         content: "🚒";
+      }
+
+      .title{
+        background: tomato;
+        padding: 2px 5px;
+        color: white;
       }
     }
   }
