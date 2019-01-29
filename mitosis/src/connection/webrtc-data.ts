@@ -1,8 +1,9 @@
 import * as SimplePeer from 'simple-peer';
-import {MasterClock} from '../clock/master';
+import {IClock} from '../clock/interface';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
-import {ConnectionMeter} from '../metering/connection-meter';
+import {IMeter} from '../metering/interface';
+import {TransmissionConnectionMeter} from '../metering/transmission-connection-meter';
 import {IConnection, IConnectionOptions} from './interface';
 import {WebRTCConnection} from './webrtc';
 
@@ -10,20 +11,17 @@ export class WebRTCDataConnection extends WebRTCConnection implements IConnectio
 
   private static _statsDataChannelLabel = 'stats';
   private _unreliableChannel: RTCDataChannel;
-  private _connectionMeter: ConnectionMeter;
+  protected _meter: TransmissionConnectionMeter;
 
-  constructor(address: Address, options: IConnectionOptions) {
-    super(address, options);
-    if (!options.clock) {
-      options.clock = new MasterClock();
-      options.clock.start();
-    }
-    this._connectionMeter = new ConnectionMeter(
+  constructor(address: Address, clock: IClock, options: IConnectionOptions) {
+    super(address, clock, options);
+
+    this._meter = new TransmissionConnectionMeter(
       this.getMyAddress(),
       this.getAddress(),
-      options.clock
+      this._clock
     );
-    this._connectionMeter
+    this._meter
       .observeMessages()
       .subscribe(
         this.sendMessageOverUnreliableChannel.bind(this)
@@ -37,13 +35,9 @@ export class WebRTCDataConnection extends WebRTCConnection implements IConnectio
   }
 
   private listenOnUnreliableChannel(): void {
-    this._unreliableChannel.onopen = () => {
-      this._connectionMeter.start();
-    };
-
     this._unreliableChannel.onmessage = (event: MessageEvent) => {
       const message = Message.fromString(event.data);
-      this._connectionMeter.onMessage(message);
+      this._meter.onMessage(message);
     };
   }
 
@@ -60,17 +54,8 @@ export class WebRTCDataConnection extends WebRTCConnection implements IConnectio
     };
   }
 
-  public onClose(): void {
-    super.onClose();
-    this._connectionMeter.stop();
-  }
-
-  public onOpen(): void {
-    super.onOpen(this);
-  }
-
-  public getQuality(): number {
-    return this._connectionMeter.getTq();
+  public getMeter(): IMeter {
+    return this._meter;
   }
 
   public establish(answer: SimplePeer.SignalData): void {

@@ -6,9 +6,10 @@ import {MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
 import {Ping} from '../message/ping';
 import {Pong} from '../message/pong';
+import {IMeter} from './interface';
 import {SlidingWindow} from './sliding-window';
 
-export class ConnectionMeter {
+export class TransmissionConnectionMeter implements IMeter {
   public static readonly PING_INTERVAL = 4;
   private _clock: IClock;
   private _receiveSlidingWindow: SlidingWindow;
@@ -61,7 +62,7 @@ export class ConnectionMeter {
 
   private handlePong(message: Pong) {
     this._echoSlidingWindow.add(message.getBody());
-    Logger.getLogger(this._originator.getId()).info(`TQ to ${this._receiver.getId()} ${this.getTq()}`);
+    Logger.getLogger(this._originator.getId()).info(`TQ to ${this._receiver.getId()} ${this.getQuality()}`);
   }
 
   private getEq(): number {
@@ -72,7 +73,7 @@ export class ConnectionMeter {
     return (this._receiveSlidingWindow.size) / SlidingWindow.WINDOW_SIZE;
   }
 
-  public getTq(): number {
+  public getQuality(): number {
     const rq = this.getRq();
     if (rq === 0) {
       return 0;
@@ -102,7 +103,7 @@ export class ConnectionMeter {
   public start(): void {
     this._pingInterval = this._clock.setInterval(() => {
       this.sendPing();
-    }, ConnectionMeter.PING_INTERVAL);
+    }, TransmissionConnectionMeter.PING_INTERVAL);
   }
 
   public stop(): void {

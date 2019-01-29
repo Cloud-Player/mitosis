@@ -1,14 +1,14 @@
 import {
   Address,
-  ConnectionMeter,
   IClock,
   IConnection,
   IConnectionOptions,
+  IMeter,
   Logger,
-  MasterClock,
   Message,
   MessageSubject,
   Protocol,
+  TransmissionConnectionMeter,
   WebRTCConnectionOptionsPayloadType
 } from 'mitosis';
 import {MockConnection} from './mock';
@@ -17,18 +17,14 @@ export class WebRTCDataMockConnection extends MockConnection implements IConnect
 
   private _lastOffer = 1;
   private _lastAnswer = 1;
-  private _clock: IClock;
-  private _meter: ConnectionMeter;
+  protected _meter: TransmissionConnectionMeter;
 
-  constructor(address: Address, options: IConnectionOptions) {
-    super(address, options);
-    if (options.clock) {
-      this._clock = options.clock;
-    } else {
-      this._clock = new MasterClock();
-      this._clock.start();
-    }
-    this._meter = new ConnectionMeter(this.getMyAddress(), address, this._clock);
+  constructor(address: Address, clock: IClock, options: IConnectionOptions) {
+    super(address, clock, options);
+    this._meter = new TransmissionConnectionMeter(
+      this.getMyAddress(),
+      address,
+      this._clock);
     this._meter.observeMessages()
       .subscribe(this.send.bind(this));
   }
@@ -117,20 +113,6 @@ export class WebRTCDataMockConnection extends MockConnection implements IConnect
     } else {
       super.onMessage(message);
     }
-  }
-
-  public onClose() {
-    super.onClose();
-    this._meter.stop();
-  }
-
-  public onOpen() {
-    super.onOpen(this);
-    this._meter.start();
-  }
-
-  public getQuality(): number {
-    return Math.round(this._meter.getTq() * 100) / 100;
   }
 
   public establish(answer: number) {

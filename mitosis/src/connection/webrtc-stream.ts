@@ -1,11 +1,20 @@
+import {IClock} from '../clock/interface';
+import {Address} from '../message/address';
 import {Message} from '../message/message';
-import {IConnection, Protocol} from './interface';
+import {StreamConnectionMeter} from '../metering/stream-connection-meter';
+import {IConnection, IConnectionOptions} from './interface';
 import {WebRTCConnection} from './webrtc';
 
 export class WebRTCStreamConnection extends WebRTCConnection implements IConnection {
+
   private _onStreamResolver: (stream: MediaStream) => void;
   private _onStreamPromise: Promise<MediaStream>;
   private _stream: MediaStream;
+
+  constructor(address: Address, clock: IClock, options: IConnectionOptions) {
+    super(address, clock, options);
+    this._meter = new StreamConnectionMeter();
+  }
 
   public send(message: Message): void {
     throw new Error('not implemented');

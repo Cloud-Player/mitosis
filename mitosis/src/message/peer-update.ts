@@ -15,7 +15,12 @@ export class PeerUpdate extends Message {
         .sortByQuality()
         .shift();
       if (connection) {
-        body.push({peerId: remotePeer.getId(), roles: remotePeer.getRoles(), quality: connection.getQuality()});
+        body.push(
+          {
+            peerId: remotePeer.getId(),
+            roles: remotePeer.getRoles(),
+            quality: connection.getMeter().getQuality()
+          });
       }
     });
     super(sender, receiver, MessageSubject.PEER_UPDATE, body);

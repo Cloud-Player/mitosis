@@ -3,7 +3,7 @@ import {filter} from 'rxjs/operators';
 import {
   ConnectionState,
   IConnection,
-  IViaConnectionOptions,
+  IConnectionOptions,
   IWebRTCConnectionOptions,
   Protocol,
   WebRTCConnectionOptionsPayloadType
@@ -14,7 +14,6 @@ import {Logger} from '../logger/logger';
 import {PeerManager} from '../peer/peer-manager';
 import {RemotePeer} from '../peer/remote-peer';
 import {RoleManager} from '../role/role-manager';
-import {Address} from './address';
 import {ConnectionNegotiation, ConnectionNegotiationType} from './connection-negotiation';
 import {MessageSubject} from './interface';
 import {Message} from './message';
@@ -68,31 +67,15 @@ export class MessageBroker {
       );
   }
 
-  private ensureViaConnection(sender: Address, via: Address): void {
+  private ensureViaConnection(remotePeerId: string, viaPeerId: string, quality: number = 1): void {
     if (
-      sender.getId() !== via.getId() &&
-      sender.getId() !== this._peerManager.getMyId()
+      remotePeerId !== viaPeerId &&
+      remotePeerId !== this._peerManager.getMyId()
     ) {
-      const viaAddress = new Address(
-        sender.getId(),
-        Protocol.VIA,
-        via.getId()
-      );
-      const sendingPeer = this._peerManager.getPeerById(sender.getId());
-      let parentConnection;
-      if (sendingPeer) {
-        parentConnection = sendingPeer
-          .getConnectionTable()
-          .filterDirect()
-          .shift();
-      }
-      const options: IViaConnectionOptions = {
-        protocol: Protocol.VIA,
-        payload: {
-          parent: parentConnection
-        }
+      const options: IConnectionOptions = {
+        payload: {quality: quality}
       };
-      this._peerManager.connectTo(viaAddress, options);
+      this._peerManager.connectToVia(remotePeerId, viaPeerId, options);
     }
   }
 
@@ -106,7 +89,10 @@ export class MessageBroker {
   }
 
   private receiveMessage(message: Message, connection: IConnection): void {
-    this.ensureViaConnection(message.getSender(), connection.getAddress());
+    this.ensureViaConnection(
+      message.getSender().getId(),
+      connection.getAddress().getId()
+    );
     switch (message.getSubject()) {
       case MessageSubject.ROLE_UPDATE:
         // TODO: Only accept role update from superior
@@ -150,19 +136,11 @@ export class MessageBroker {
     peerUpdate.getBody()
       .forEach(
         entry => {
-          if (entry.peerId !== this._peerManager.getMyId() &&
-            entry.peerId !== peerUpdate.getSender().getId()) {
-            const address = new Address(
-              entry.peerId,
-              Protocol.VIA,
-              peerUpdate.getSender().getId()
-            );
-            const options = {
-              protocol: Protocol.VIA,
-              payload: {quality: entry.quality}
-            };
-            this._peerManager.connectTo(address, options);
-          }
+          this.ensureViaConnection(
+            entry.peerId,
+            peerUpdate.getSender().getId(),
+            entry.quality
+          );
         }
       );
   }

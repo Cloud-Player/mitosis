@@ -1,6 +1,5 @@
 import {ConnectionState, IClock, Logger, LogLevel, MasterClock, Message, Mitosis, Protocol, ProtocolConnectionMap} from 'mitosis';
 import {MockConnection} from './connection/mock';
-import {ViaMockConnection} from './connection/via-mock';
 import {WebRTCDataMockConnection} from './connection/webrtc-data-mock';
 import {WebSocketMockConnection} from './connection/websocket-mock';
 import {Edge} from './edge/edge';
@@ -22,7 +21,6 @@ export class Simulation {
       ProtocolConnectionMap.set(Protocol.WEBSOCKET_UNSECURE, WebSocketMockConnection);
       ProtocolConnectionMap.set(Protocol.WEBSOCKET, WebSocketMockConnection);
       ProtocolConnectionMap.set(Protocol.WEBRTC_DATA, WebRTCDataMockConnection);
-      ProtocolConnectionMap.set(Protocol.VIA, ViaMockConnection);
     }
     return Simulation._instance;
   }

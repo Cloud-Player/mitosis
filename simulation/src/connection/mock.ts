@@ -1,19 +1,19 @@
-import {AbstractConnection, Address, ConnectionState, IConnection, IConnectionOptions, Logger, Message} from 'mitosis';
+import {AbstractConnection, Address, ConnectionState, IClock, IConnection, IConnectionOptions, Logger, Message} from 'mitosis';
 import {filter} from 'rxjs/operators';
+import {MockMeter} from '../metering/mock-meter';
 import {Simulation} from '../simulation';
 
 export abstract class MockConnection extends AbstractConnection implements IConnection {
 
   protected _delay = 1;
   protected readonly _client: Simulation = Simulation.getInstance();
-  protected _quality = 1;
   protected _connectionDelay = 1;
   private _timeout: number;
 
   protected abstract openClient(): void;
 
-  public constructor(address: Address, options?: IConnectionOptions) {
-    super(address, options);
+  public constructor(address: Address, clock: IClock, options?: IConnectionOptions) {
+    super(address, clock, options);
     this.expectOpenWithinTimeout();
   }
 
@@ -71,10 +71,6 @@ export abstract class MockConnection extends AbstractConnection implements IConn
 
   public getDelay() {
     return this._delay;
-  }
-
-  public getQuality(): number {
-    return this._quality;
   }
 
   public getConnectionDelay() {

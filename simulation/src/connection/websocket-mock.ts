@@ -1,7 +1,13 @@
-import {Address, IConnection} from 'mitosis';
+import {Address, IClock, IConnection, IConnectionOptions} from 'mitosis';
+import {MockMeter} from '../metering/mock-meter';
 import {MockConnection} from './mock';
 
 export class WebSocketMockConnection extends MockConnection implements IConnection {
+
+  public constructor(address: Address, clock: IClock, options?: IConnectionOptions) {
+    super(address, clock, options);
+    this._meter = new MockMeter(1);
+  }
 
   protected openClient(): void {
     this._client.addConnection(
@@ -29,9 +35,5 @@ export class WebSocketMockConnection extends MockConnection implements IConnecti
         this._client.establishConnection(this._options.mitosisId, this._address.getId(), this._address.getLocation());
       }, this.getConnectionDelay());
     }
-  }
-
-  public getQuality(): number {
-    return 0.1;
   }
 }

@@ -1,9 +1,18 @@
+import {IClock} from '../clock/interface';
+import {Address} from '../message/address';
 import {Message} from '../message/message';
+import {NoopConnectionMeter} from '../metering/noop-connection-meter';
 import {AbstractConnection} from './connection';
-import {ConnectionState, IConnection} from './interface';
+import {ConnectionState, IConnection, IConnectionOptions} from './interface';
 
 export class WebSocketConnection extends AbstractConnection implements IConnection {
+
   private _client: WebSocket;
+
+  constructor(address: Address, clock: IClock, options: IConnectionOptions) {
+    super(address, clock, options);
+    this._meter = new NoopConnectionMeter();
+  }
 
   public send(message: Message): void {
     if (!this._client) {
@@ -44,9 +53,5 @@ export class WebSocketConnection extends AbstractConnection implements IConnecti
     this._client.onclose = this.onSocketClose.bind(this);
     this._client.onmessage = this.onSocketMessage.bind(this);
     this._client.onerror = this.onSocketError.bind(this);
-  }
-
-  public getQuality(): number {
-    return 0.5;
   }
 }

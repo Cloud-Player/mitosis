@@ -14,8 +14,6 @@ export interface IClock {
 
   stop(): void;
 
-  restart(): void;
-
   setSpeed(speed: number): void;
 
   setInterval(callback: () => void, interval?: number): number;

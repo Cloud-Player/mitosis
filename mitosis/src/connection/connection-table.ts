@@ -38,15 +38,9 @@ export class ConnectionTable {
 
   public sortByQuality(): ConnectionTable {
     return new ConnectionTable(
-      this._connections.sort((a, b) => a.getQuality() - b.getQuality())
+      this._connections.sort(
+        (a, b) => a.getMeter().getQuality() - b.getMeter().getQuality())
     );
-  }
-
-  public getAverageQuality(): number {
-    return this._connections
-        .map(connection => connection.getQuality())
-        .reduce((previous, current) => previous + current, 0) /
-      this.length;
   }
 
   public asArray(): Array<IConnection> {

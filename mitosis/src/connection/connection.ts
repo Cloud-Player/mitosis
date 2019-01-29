@@ -1,6 +1,8 @@
 import {Subject} from 'rxjs';
+import {IClock} from '../clock/interface';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
+import {IMeter} from '../metering/interface';
 import {ConnectionState, IConnection, IConnectionOptions} from './interface';
 
 export abstract class AbstractConnection {
@@ -9,18 +11,21 @@ export abstract class AbstractConnection {
   private _onOpenRejector: (error?: any) => void;
   private _state: ConnectionState;
   protected _id: string;
+  protected _meter: IMeter;
+  protected _clock: IClock;
   protected _options: IConnectionOptions;
   protected _address: Address;
   protected _stateChangeSubject: Subject<ConnectionState>;
   protected _messageReceivedSubject: Subject<Message>;
 
-  public constructor(address: Address, options?: IConnectionOptions) {
+  public constructor(address: Address, clock: IClock, options: IConnectionOptions) {
     if (!address.getLocation()) {
       address.setLocation(`c${Math.round(10000 + Math.random() * 89999)}`);
     }
     this._id = address.getLocation();
     this._options = options;
     this._address = address;
+    this._clock = clock;
     this._state = ConnectionState.CLOSED;
     this._stateChangeSubject = new Subject();
     this._messageReceivedSubject = new Subject();
@@ -30,8 +35,8 @@ export abstract class AbstractConnection {
 
   protected abstract closeClient(): void;
 
-  public getQuality(): number {
-    return 1.0;
+  public getMeter(): IMeter {
+    return this._meter;
   }
 
   public getAddress(): Address {
@@ -50,15 +55,15 @@ export abstract class AbstractConnection {
     this._onOpenRejector = null;
     this._state = ConnectionState.OPEN;
     this._stateChangeSubject.next(this._state);
+    this.getMeter().start();
   }
 
   public onClose(reason: any = 'closed') {
+    this.getMeter().stop();
     if (this._onOpenRejector) {
       this._onOpenRejector(reason);
     }
-    if (this._options.clock) {
-      this._options.clock.stop();
-    }
+    this._clock.stop();
     this._onOpenResolver = null;
     this._onOpenRejector = null;
     this._state = ConnectionState.CLOSED;

@@ -7,12 +7,14 @@ import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
+import {RemotePeerMeter} from '../metering/remote-peer-meter';
 import {RoleType} from '../role/interface';
 
 export class RemotePeer {
 
   private _id: string;
   private _clock: IClock;
+  private _meter: RemotePeerMeter;
   private _mitosisId: string;
   private _publicKey: string;
   private _roleTypes: Array<RoleType>;
@@ -24,6 +26,7 @@ export class RemotePeer {
     this._id = id;
     this._mitosisId = mitosisId;
     this._clock = clock;
+    this._meter = new RemotePeerMeter(clock.fork());
     this._roleTypes = [RoleType.PEER];
     this._connectionsPerAddress = new Map();
     this._openConnectionPromises = new Map();
@@ -53,7 +56,7 @@ export class RemotePeer {
   }
 
   public getQuality(): number {
-    return this.getConnectionTable().getAverageQuality();
+    return this._meter.getQuality();
   }
 
   public getConnectionForAddress(address: Address): IConnection {
@@ -107,13 +110,12 @@ export class RemotePeer {
   private createConnection(address: Address, options?: IConnectionOptions): IConnection {
     options = options || {};
     options.mitosisId = options.mitosisId || this._mitosisId;
-    options.clock = options.clock || this._clock.fork();
 
     const connectionClass = ProtocolConnectionMap.get(address.getProtocol());
     if (!connectionClass) {
       throw new Error(`unsupported protocol ${address.getProtocol()}`);
     }
-    const connection = new connectionClass(address, options);
+    const connection = new connectionClass(address, this._clock.fork(), options);
     this._connectionsPerAddress.set(address.toString(), connection);
     this._connectionChurnSubject.next({connection: connection, type: ChurnType.ADDED});
     this.listenOnConnectionChanges(connection);
@@ -169,6 +171,7 @@ export class RemotePeer {
   }
 
   public destroy(): void {
+    this._meter.stop();
     this._connectionsPerAddress.forEach(
       connection => connection.close()
     );

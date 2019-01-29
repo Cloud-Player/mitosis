@@ -1,6 +1,8 @@
 import {Subscription} from 'rxjs';
+import {IClock} from '../clock/interface';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
+import {ViaConnectionMeter} from '../metering/via-connection-meter';
 import {AbstractConnection} from './connection';
 import {ConnectionState, IConnection, IViaConnectionOptions} from './interface';
 
@@ -9,9 +11,9 @@ export class ViaConnection extends AbstractConnection implements IConnection {
   private _parentSubscription: Subscription;
   protected _options: IViaConnectionOptions;
 
-  constructor(address: Address, options: IViaConnectionOptions) {
-    super(address, options);
-    this._options = options;
+  constructor(address: Address, clock: IClock, options: IViaConnectionOptions) {
+    super(address, clock, options);
+    this._meter = new ViaConnectionMeter();
   }
 
   private parentStateChanged(connectionState: ConnectionState): void {
@@ -43,10 +45,6 @@ export class ViaConnection extends AbstractConnection implements IConnection {
     this._parentSubscription = parent
       .observeStateChange()
       .subscribe(this.parentStateChanged.bind(this));
-  }
-
-  public getQuality(): number {
-    return 1;
   }
 
   public send(message: Message): void {

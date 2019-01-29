@@ -56,11 +56,7 @@ export abstract class AbstractClock {
     this.pause();
     this._intervals.length = 0;
     this._timeouts.length = 0;
-  }
-
-  public restart(): void {
-    this.pauseClock();
-    this.startClock();
+    this._tickCounter = 0;
   }
 
   public setInterval(callback: () => void, interval: number = 1): number {

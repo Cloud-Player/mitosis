@@ -2,7 +2,7 @@ import {Subject} from 'rxjs';
 import {filter} from 'rxjs/operators';
 import {IClock} from '../clock/interface';
 import {Configuration} from '../configuration';
-import {IConnectionOptions} from '../connection/interface';
+import {IConnectionOptions, IViaConnectionOptions, Protocol} from '../connection/interface';
 import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
@@ -76,6 +76,25 @@ export class PeerManager {
           .warn(`cannot open connection to ${address.toString()}`, reason);
         return Promise.reject(reason);
       });
+  }
+
+  public connectToVia(remotePeerId: string, viaPeerId: string, options?: IConnectionOptions): Promise<RemotePeer> {
+    const viaAddress = new Address(
+      remotePeerId,
+      Protocol.VIA,
+      viaPeerId
+    );
+    const remotePeer = this.getPeerById(remotePeerId);
+    if (remotePeer) {
+      options.payload.parent = remotePeer
+        .getConnectionTable()
+        .filterDirect()
+        .shift();
+      return this.connectTo(viaAddress, options as IViaConnectionOptions);
+    } else {
+      return Promise.reject(
+        `cannot connect to via ${viaPeerId} because ${remotePeerId} is missing`);
+    }
   }
 
   public sendMessage(message: Message) {

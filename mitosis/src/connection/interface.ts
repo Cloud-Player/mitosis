@@ -3,8 +3,13 @@ import {IClock} from '../clock/interface';
 import {ChurnType} from '../interface';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
+import {IMeter} from '../metering/interface';
 
-export type IConnectionConstructor = new(address: Address, options?: IConnectionOptions) => IConnection;
+export type IConnectionConstructor = new (
+  address: Address,
+  clock: IClock,
+  options?: IConnectionOptions
+) => IConnection;
 
 export enum Protocol {
   WEBSOCKET_UNSECURE = 'ws',
@@ -20,14 +25,12 @@ export interface IConnectionChurnEvent {
 }
 
 export interface IConnectionOptions {
-  clock?: IClock;
   mitosisId?: string;
   payload?: any;
 }
 
 export interface IViaConnectionOptions extends IConnectionOptions {
-  protocol: Protocol.VIA;
-  payload?: IViaConnectionOptionsPayload;
+  payload: IViaConnectionOptionsPayload;
 }
 
 export interface IViaConnectionOptionsPayload {
@@ -58,7 +61,7 @@ export enum ConnectionState {
 
 export interface IConnection {
 
-  getQuality(): number;
+  getMeter(): IMeter;
 
   getAddress(): Address;
 

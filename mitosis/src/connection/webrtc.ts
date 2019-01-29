@@ -1,16 +1,11 @@
 import * as SimplePeer from 'simple-peer';
+import {IClock} from '../clock/interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
 import {AbstractConnection} from './connection';
-import {
-  ConnectionState,
-  IConnection,
-  IConnectionOptions,
-  IWebRTCConnectionOptions,
-  WebRTCConnectionOptionsPayloadType
-} from './interface';
+import {ConnectionState, IConnection, IConnectionOptions, IWebRTCConnectionOptions, WebRTCConnectionOptionsPayloadType} from './interface';
 
 export abstract class WebRTCConnection extends AbstractConnection implements IConnection {
 
@@ -18,8 +13,8 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
   protected _options: IWebRTCConnectionOptions;
   protected _simplePeerOptions: SimplePeer.Options;
 
-  constructor(address: Address, options: IConnectionOptions) {
-    super(address, options);
+  constructor(address: Address, clock: IClock, options: IConnectionOptions) {
+    super(address, clock, options);
     this._simplePeerOptions = {initiator: true, trickle: false};
   }
 
@@ -129,10 +124,6 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
     } else {
       this._client.send(message.toString());
     }
-  }
-
-  public getQuality(): number {
-    return 1.0;
   }
 
   public establish(answer: SimplePeer.SignalData) {
