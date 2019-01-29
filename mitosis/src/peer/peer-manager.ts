@@ -123,6 +123,7 @@ export class PeerManager {
       const index = this._peers.indexOf(remotePeer);
       if (index > -1) {
         this._peers.splice(index, 1);
+        this._peerChurnSubject.next({peer: remotePeer, type: ChurnType.REMOVED});
         remotePeer.destroy();
         return true;
       }
