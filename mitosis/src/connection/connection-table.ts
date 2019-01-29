@@ -36,6 +36,15 @@ export class ConnectionTable {
     );
   }
 
+  public exclude(filterFunction: (table: ConnectionTable) => ConnectionTable): ConnectionTable {
+    const excludedConnections = filterFunction(this).asArray();
+    return new ConnectionTable(
+      this._connections.filter(
+        connection => excludedConnections.indexOf(connection) === -1
+      )
+    );
+  }
+
   public sortByQuality(): ConnectionTable {
     return new ConnectionTable(
       this._connections.sort(

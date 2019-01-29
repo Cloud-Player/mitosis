@@ -39,7 +39,7 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
   if (insufficientConnections) {
     if (viaPeers.length) {
       Logger.getLogger(mitosis.getMyAddress().getId()).debug(
-        'GOAL insufficient connections', viaPeers, directConnectionCount
+        `need to acquire ${Configuration.DIRECT_CONNECTIONS_GOAL - directConnectionCount} peers`
       );
       const bestViaPeer = viaPeers
         .sortByQuality()
@@ -47,28 +47,24 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
       const address = new Address(bestViaPeer.getId(), Protocol.WEBRTC_DATA);
       mitosis.getPeerManager().connectTo(address);
     } else {
-      Logger.getLogger(mitosis.getMyAddress().getId()).debug(
-        'GOAL no indirect peers', peerTable, directConnectionCount
-      );
+      // No indirect peers to connect to: do nothing
     }
   } else if (superfluousConnections) {
+    Logger.getLogger(mitosis.getMyAddress().getId()).debug(
+      `need to loose ${directConnectionCount - Configuration.DIRECT_CONNECTIONS_GOAL} peers`
+    );
     const worstDirectPeers = directPeers.sortByQuality();
-
     while (worstDirectPeers.length) {
       const worstDirectPeer = worstDirectPeers.pop();
       const success = mitosis
         .getPeerManager()
         .removePeer(worstDirectPeer);
       if (success) {
-        Logger.getLogger(mitosis.getMyAddress().getId()).debug(
-          'GOAL kicking worst peer', worstDirectPeer, directConnectionCount
-        );
+        Logger.getLogger(mitosis.getMyAddress().getId()).debug(`removing worst peer ${worstDirectPeer.getId()}`);
         break;
       }
     }
   } else {
-    Logger.getLogger(mitosis.getMyAddress().getId()).debug(
-      'GOAL i am satisfied', directConnectionCount
-    );
+    // Connection goal reached: do nothing
   }
 }

@@ -67,7 +67,7 @@ export class MessageBroker {
       );
   }
 
-  private ensureViaConnection(remotePeerId: string, viaPeerId: string, quality: number = 1): void {
+  private ensureViaConnection(remotePeerId: string, viaPeerId: string, quality: number = 1): Promise<RemotePeer> {
     if (
       remotePeerId !== viaPeerId &&
       remotePeerId !== this._peerManager.getMyId()
@@ -75,8 +75,9 @@ export class MessageBroker {
       const options: IConnectionOptions = {
         payload: {quality: quality}
       };
-      this._peerManager.connectToVia(remotePeerId, viaPeerId, options);
+      return this._peerManager.connectToVia(remotePeerId, viaPeerId, options);
     }
+    return Promise.reject('via connection not ensured');
   }
 
   private handleMessage(message: Message, connection: IConnection): void {
@@ -92,6 +93,8 @@ export class MessageBroker {
     this.ensureViaConnection(
       message.getSender().getId(),
       connection.getAddress().getId()
+    ).catch(
+      reason => Logger.getLogger(this._peerManager.getMyId()).debug(reason)
     );
     switch (message.getSubject()) {
       case MessageSubject.ROLE_UPDATE:
@@ -140,6 +143,13 @@ export class MessageBroker {
             entry.peerId,
             peerUpdate.getSender().getId(),
             entry.quality
+          ).then(
+            remotePeer => {
+              // TODO: Only set roles if roleUpdate from superior
+              remotePeer.setRoles(entry.roles);
+            }
+          ).catch(
+            reason => Logger.getLogger(this._peerManager.getMyId()).debug(reason)
           );
         }
       );
@@ -175,14 +185,20 @@ export class MessageBroker {
   private forwardMessage(message: Message): void {
     const peerId = message.getReceiver().getId();
     const receiverPeer = this._peerManager.getPeerById(peerId);
+    if (!receiverPeer) {
+      Logger.getLogger(this._peerManager.getMyId()).error(`no idea how to reach ${peerId}`);
+      return;
+    }
     const connection = receiverPeer.getConnectionTable()
       .filterByStates(ConnectionState.OPEN)
       .sortByQuality()
       .shift();
     let directPeer;
     if (!connection) {
-      Logger.getLogger(this._peerManager.getMyId()).error('all connections lost to', receiverPeer.getId());
-    } else if (connection.getAddress().getProtocol() === Protocol.VIA) {
+      Logger.getLogger(this._peerManager.getMyId()).error(`all connections lost to ${peerId}`);
+      return;
+    }
+    if (connection.getAddress().getProtocol() === Protocol.VIA) {
       const directPeerId = connection.getAddress().getLocation();
       directPeer = this._peerManager.getPeerById(directPeerId);
       directPeer.send(message);

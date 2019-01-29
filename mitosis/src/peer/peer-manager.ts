@@ -50,8 +50,7 @@ export class PeerManager {
         table => table.filterDirect()
       );
     if (directPeers.length >= Configuration.DIRECT_CONNECTIONS_MAX) {
-      Logger.getLogger(this._myId).warn(`max direct connections reached ${address.toString()}`);
-      return Promise.reject(peer);
+      return Promise.reject(`max direct connections reached ${address.toString()}`);
     }
 
     if (!peer) {

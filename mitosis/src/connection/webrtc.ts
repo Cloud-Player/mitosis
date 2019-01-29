@@ -59,7 +59,7 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
   protected getStats(): Promise<Array<RTCStats>> {
     const rtcpc = this.getRTCPeerConnection();
     if (!rtcpc) {
-      return Promise.reject();
+      return Promise.reject('no stats for missing peer connection');
     }
     return new Promise<Array<RTCStats>>(resolve => {
       rtcpc.getStats()

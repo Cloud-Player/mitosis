@@ -84,7 +84,7 @@ export class RemotePeer {
           break;
         case ConnectionState.CLOSING:
         case ConnectionState.ERROR:
-          promise = Promise.reject(this);
+          promise = Promise.reject(`will not connect to connection in ${connection.getState()}`);
           break;
         case ConnectionState.CLOSED:
           promise = new Promise<RemotePeer>((resolve, reject) => {

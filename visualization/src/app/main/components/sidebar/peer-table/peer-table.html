@@ -4,7 +4,7 @@
                    id="rtbl-{{selectedNode.getId()+'-'+remotePeer.getId()}}"
                    [isCollapsed]="true"
                    [title]="remotePeer.getId()"
-                   [text]="getConnectionText(remotePeer)">
+                   [text]="getPeerAnnotation(remotePeer)">
     <ul class="connections">
       <li *ngFor="let connection of remotePeer.getConnectionTable().asArray()">
         <div class="left">
