@@ -84,7 +84,7 @@ export class PeerManager {
       Protocol.VIA,
       viaPeerId
     );
-    const remotePeer = this.getPeerById(remotePeerId);
+    const remotePeer = this.getPeerById(viaPeerId);
     if (remotePeer) {
       options.payload.parent = remotePeer
         .getConnectionTable()
@@ -93,7 +93,7 @@ export class PeerManager {
       return this.connectTo(viaAddress, options as IViaConnectionOptions);
     } else {
       return Promise.reject(
-        `cannot connect to via ${viaPeerId} because ${remotePeerId} is missing`);
+        `cannot connect to ${remotePeerId} because via ${viaPeerId} is missing`);
     }
   }
 

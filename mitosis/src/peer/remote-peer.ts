@@ -18,19 +18,19 @@ export class RemotePeer {
   private _mitosisId: string;
   private _publicKey: string;
   private _roleTypes: Array<RoleType>;
-  private _connectionsPerAddress: Map<string, IConnection>;
-  private _openConnectionPromises: Map<IConnection, Promise<RemotePeer>>;
-  private _connectionChurnSubject: Subject<IConnectionChurnEvent>;
+  private readonly _connectionsPerAddress: Map<string, IConnection>;
+  private readonly _openConnectionPromises: Map<IConnection, Promise<RemotePeer>>;
+  private readonly _connectionChurnSubject: Subject<IConnectionChurnEvent>;
 
   public constructor(id: string, mitosisId: string, clock: IClock) {
     this._id = id;
     this._mitosisId = mitosisId;
     this._clock = clock;
-    this._meter = new RemotePeerMeter(clock.fork());
     this._roleTypes = [RoleType.PEER];
     this._connectionsPerAddress = new Map();
     this._openConnectionPromises = new Map();
     this._connectionChurnSubject = new Subject();
+    this._meter = new RemotePeerMeter(this._connectionsPerAddress, clock.fork());
   }
 
   public getId(): string {
@@ -68,6 +68,7 @@ export class RemotePeer {
       switch (ev) {
         case ConnectionState.CLOSED:
           this._connectionsPerAddress.delete(connection.getAddress().toString());
+          this._connectionChurnSubject.next({connection: connection, type: ChurnType.REMOVED});
           break;
       }
       Logger.getLogger(this._mitosisId).debug(`connection ${ev.toString()}`, connection);
