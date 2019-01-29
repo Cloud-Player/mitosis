@@ -58,7 +58,7 @@ export abstract class AbstractConnection {
     this.getMeter().start();
   }
 
-  public onClose(reason: any = 'closed') {
+  public onClose(reason: any = 'connection closed without reason') {
     this.getMeter().stop();
     if (this._onOpenRejector) {
       this._onOpenRejector(reason);
@@ -72,7 +72,7 @@ export abstract class AbstractConnection {
     this._messageReceivedSubject.complete();
   }
 
-  public onError(reason: any = 'error') {
+  public onError(reason: any = 'connection error without reason') {
     this._state = ConnectionState.ERROR;
     this._stateChangeSubject.next(this._state);
     this.onClose(reason);

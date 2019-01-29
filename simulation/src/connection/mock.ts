@@ -40,11 +40,11 @@ export abstract class MockConnection extends AbstractConnection implements IConn
   }
 
   protected closeClient(): void {
-    this.onClose();
+    this.onClose('mock connection close client');
   }
 
-  public onClose(): void {
-    super.onClose();
+  public onClose(reason: any = 'mock connection on close'): void {
+    super.onClose(reason);
     this._client.removeEdge(this._options.mitosisId, this._address.getId(), this._address.getLocation());
     const remoteEdge = this._client.getEdge(this._address.getId(), this._options.mitosisId, this._address.getLocation());
     if (remoteEdge) {

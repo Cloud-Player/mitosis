@@ -86,7 +86,7 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
       this.onMessage(Message.fromString(data));
     });
     this._client.on('close', () => {
-      this.onClose();
+      this.onClose('webrtc peer connection close');
     });
     this._client.on('error', (error) => {
       this.onError(error);
