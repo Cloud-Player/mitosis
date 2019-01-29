@@ -45,10 +45,13 @@ export class RemotePeerTable {
     );
   }
 
-  public countConnections(): number {
+  public countDirectConnections(): number {
     let connections = 0;
     this._remotePeers.forEach(
-      peer => connections += peer.getConnectionTable().length
+      peer => connections += peer
+        .getConnectionTable()
+        .filterDirect()
+        .length
     );
     return connections;
   }

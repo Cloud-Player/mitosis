@@ -32,14 +32,14 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
         .filterByRole(RoleType.SIGNAL)
     );
 
-  const directConnectionCount = directPeers.countConnections();
+  const directConnectionCount = directPeers.countDirectConnections();
   const insufficientConnections = directConnectionCount < Configuration.DIRECT_CONNECTIONS_GOAL;
   const superfluousConnections = directConnectionCount > Configuration.DIRECT_CONNECTIONS_GOAL;
 
   if (insufficientConnections) {
     if (viaPeers.length) {
       Logger.getLogger(mitosis.getMyAddress().getId()).debug(
-        'insufficientConnections', viaPeers
+        'GOAL insufficient connections', viaPeers, directConnectionCount
       );
       const bestViaPeer = viaPeers
         .sortByQuality()
@@ -48,22 +48,27 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
       mitosis.getPeerManager().connectTo(address);
     } else {
       Logger.getLogger(mitosis.getMyAddress().getId()).debug(
-        'no indirectPeers', peerTable
+        'GOAL no indirect peers', peerTable, directConnectionCount
       );
     }
   } else if (superfluousConnections) {
-    const worstDirectPeer = directPeers
-      .sortByQuality()
-      .pop();
-    Logger.getLogger(mitosis.getMyAddress().getId()).debug(
-      'insufficientConnections', worstDirectPeer
-    );
-    mitosis
-      .getPeerManager()
-      .removePeer(worstDirectPeer);
+    const worstDirectPeers = directPeers.sortByQuality();
+
+    while (worstDirectPeers.length) {
+      const worstDirectPeer = worstDirectPeers.pop();
+      const success = mitosis
+        .getPeerManager()
+        .removePeer(worstDirectPeer);
+      if (success) {
+        Logger.getLogger(mitosis.getMyAddress().getId()).debug(
+          'GOAL kicking worst peer', worstDirectPeer, directConnectionCount
+        );
+        break;
+      }
+    }
   } else {
     Logger.getLogger(mitosis.getMyAddress().getId()).debug(
-      'i am satisfied'
+      'GOAL i am satisfied', directConnectionCount
     );
   }
 }

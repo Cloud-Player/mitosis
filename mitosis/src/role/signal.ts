@@ -16,20 +16,16 @@ export class Signal implements IRole {
     satisfyConnectionGoal(mitosis);
   }
 
-  private promoteNewbie(newbieAddress: Address, routers: Array<RemotePeer>, mitosis: Mitosis): void {
+  private promoteToRoles(address: Address, roles: Array<RoleType>, mitosis: Mitosis): void {
     const existingPeer = mitosis
       .getPeerManager()
-      .getPeerById(newbieAddress.getId());
+      .getPeerById(address.getId());
 
-    const roles = [RoleType.PEER];
-    if (routers.length === 0) {
-      existingPeer.getRoles().push(RoleType.ROUTER);
-      routers.push(existingPeer);
-      roles.push(RoleType.ROUTER);
-    }
+    existingPeer.setRoles(roles);
+
     const roleUpdate = new RoleUpdate(
       mitosis.getMyAddress(),
-      newbieAddress,
+      address,
       roles
     );
     mitosis.getPeerManager().sendMessage(roleUpdate);
@@ -58,10 +54,12 @@ export class Signal implements IRole {
       .asArray();
     const senderIsRouter = routers.find(peer => peer.getId() === sender.getId());
 
-    if (!senderIsRouter && message.getSubject() === MessageSubject.INTRODUCTION) {
-      this.promoteNewbie(sender, routers, mitosis);
-      this.sendExistingRouters(sender, routers, mitosis);
-    } else if (senderIsRouter && message.getSubject() === MessageSubject.PEER_UPDATE) {
+    if (message.getSubject() === MessageSubject.INTRODUCTION) {
+      if (senderIsRouter || routers.length === 0) {
+        this.promoteToRoles(sender, [RoleType.PEER, RoleType.ROUTER], mitosis);
+      } else {
+        this.promoteToRoles(sender, [RoleType.PEER], mitosis);
+      }
       this.sendExistingRouters(sender, routers, mitosis);
     }
   }

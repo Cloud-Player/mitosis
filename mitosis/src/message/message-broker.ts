@@ -3,6 +3,7 @@ import {filter} from 'rxjs/operators';
 import {
   ConnectionState,
   IConnection,
+  IViaConnectionOptions,
   IWebRTCConnectionOptions,
   Protocol,
   WebRTCConnectionOptionsPayloadType
@@ -77,7 +78,21 @@ export class MessageBroker {
         Protocol.VIA,
         via.getId()
       );
-      this._peerManager.connectTo(viaAddress);
+      const sendingPeer = this._peerManager.getPeerById(sender.getId());
+      let parentConnection;
+      if (sendingPeer) {
+        parentConnection = sendingPeer
+          .getConnectionTable()
+          .filterDirect()
+          .shift();
+      }
+      const options: IViaConnectionOptions = {
+        protocol: Protocol.VIA,
+        payload: {
+          parent: parentConnection
+        }
+      };
+      this._peerManager.connectTo(viaAddress, options);
     }
   }
 

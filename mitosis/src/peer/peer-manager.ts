@@ -96,18 +96,19 @@ export class PeerManager {
     return this._peers.find(p => p.getId() === id);
   }
 
-  public removePeer(remotePeer: RemotePeer): void {
+  public removePeer(remotePeer: RemotePeer): boolean {
     const rolesRequiringPeer = this._roleManager.getRolesRequiringPeer(remotePeer);
+    Logger.getLogger(this._myId)
+      .info(`${remotePeer.getId()} is required by ${rolesRequiringPeer.join(' and ') || 'nobody'}`);
     if (rolesRequiringPeer.length === 0) {
       const index = this._peers.indexOf(remotePeer);
       if (index > -1) {
         this._peers.splice(index, 1);
         remotePeer.destroy();
+        return true;
       }
-    } else {
-      Logger.getLogger(this._myId)
-        .info(`${remotePeer.getId()} is required by ${rolesRequiringPeer.join(' and ') || 'nobody'}`);
     }
+    return false;
   }
 
   public observePeerChurn(): Subject<IPeerChurnEvent> {

@@ -38,6 +38,10 @@ export class RemotePeer {
     return this._roleTypes;
   }
 
+  public setRoles(roleTypes: Array<RoleType>): void {
+    this._roleTypes = roleTypes;
+  }
+
   public getPublicKey(): string {
     return this._publicKey;
   }
@@ -101,7 +105,8 @@ export class RemotePeer {
   }
 
   private createConnection(address: Address, options?: IConnectionOptions): IConnection {
-    options = options || {mitosisId: this._mitosisId};
+    options = options || {};
+    options.mitosisId = options.mitosisId || this._mitosisId;
     options.clock = options.clock || this._clock.fork();
 
     const connectionClass = ProtocolConnectionMap.get(address.getProtocol());
@@ -143,7 +148,8 @@ export class RemotePeer {
         connection.close();
       }
     } else {
-      Logger.getLogger(this._mitosisId).error(`no direct connection to ${message.getReceiver()}`);
+      Logger.getLogger(this._mitosisId)
+        .error(`no direct connection to ${message.getReceiver().getId()}`, message);
     }
   }
 

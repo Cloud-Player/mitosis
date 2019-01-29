@@ -31,7 +31,7 @@ export interface IViaConnectionOptions extends IConnectionOptions {
 }
 
 export interface IViaConnectionOptionsPayload {
-  quality: number;
+  parent: IConnection;
 }
 
 export interface IWebRTCConnectionOptions extends IConnectionOptions {
@@ -73,4 +73,6 @@ export interface IConnection {
   observeStateChange(): Subject<ConnectionState>;
 
   getState(): ConnectionState;
+
+  isInState(...states: Array<ConnectionState>): boolean;
 }
