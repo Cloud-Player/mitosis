@@ -27,4 +27,6 @@ export interface IClock {
   isRunning(): boolean;
 
   getTick(): number;
+
+  reset(): void;
 }
