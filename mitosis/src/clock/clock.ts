@@ -59,6 +59,10 @@ export abstract class AbstractClock {
     this._tickCounter = 0;
   }
 
+  public reset(): void {
+    this._tickCounter = 0;
+  }
+
   public setInterval(callback: () => void, interval: number = 1): number {
     interval = Math.max(interval, 1);
     this._lastCancelId = (this._lastCancelId + 1) % this._maxCancelId;
