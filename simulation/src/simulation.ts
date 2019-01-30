@@ -1,4 +1,14 @@
-import {ConnectionState, IClock, Logger, LogLevel, MasterClock, Message, Mitosis, Protocol, ProtocolConnectionMap} from 'mitosis';
+import {
+  ConnectionState,
+  IClock,
+  Logger,
+  LogLevel,
+  MasterClock,
+  Message,
+  Mitosis,
+  Protocol,
+  ProtocolConnectionMap
+} from 'mitosis';
 import {MockConnection} from './connection/mock';
 import {WebRTCDataMockConnection} from './connection/webrtc-data-mock';
 import {WebSocketMockConnection} from './connection/websocket-mock';
@@ -130,6 +140,12 @@ export class Simulation {
         this._clock.setTimeout(instr.execute.bind(instr, this), instr.getTick());
       });
     this._clock.start();
+  }
+
+  public reset() {
+    this._clock.stop();
+    this._edges.clear();
+    this._nodes.clear();
   }
 }
 
