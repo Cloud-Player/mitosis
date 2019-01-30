@@ -1,4 +1,6 @@
-import {ConnectionState, Mitosis, RoleType} from '../../mitosis';
+import {ConnectionState} from '../../connection/interface';
+import {Mitosis} from '../../mitosis';
+import {RoleType} from '../interface';
 
 export function removeSignal(mitosis: Mitosis): void {
   const peerTable = mitosis

@@ -4,6 +4,7 @@ import {MasterClock} from './clock/master';
 import {Configuration} from './configuration';
 import {IEnclave} from './enclave/interface';
 import {SecureEnclave} from './enclave/secure';
+import {ILogger} from './logger/interface';
 import {Logger} from './logger/logger';
 import {Address} from './message/address';
 import {AppContent} from './message/app-content';
@@ -14,7 +15,6 @@ import {RemotePeer} from './peer/remote-peer';
 import {RemotePeerTable} from './peer/remote-peer-table';
 import {RoleType} from './role/interface';
 import {RoleManager} from './role/role-manager';
-import {ILogger} from './logger/interface';
 
 export class Mitosis {
 
@@ -75,14 +75,14 @@ export class Mitosis {
     this._logger.info(`i am a ${roles.join(' and a ')}`);
   }
 
-  private listenOnAppContentMessages() {
+  private listenOnAppContentMessages(): void {
     this._messageBroker.observeAppContentMessages()
       .subscribe(
         (message: AppContent) => this._inbox.next(message)
       );
   }
 
-  private listenOnMessages() {
+  private listenOnMessages(): void {
     this._messageBroker.observeMessages()
       .subscribe(message => this._roleManager.onMessage(message, this));
 
@@ -115,19 +115,19 @@ export class Mitosis {
     return this._peerManager;
   }
 
-  public getInbox() {
+  public getInbox(): Subject<AppContent> {
     return this._inbox;
   }
 
-  public observeInternalMessages() {
+  public observeInternalMessages(): Subject<Message> {
     return this._internalMessages;
   }
 
-  public getRoles() {
+  public getRoles(): Array<RoleType> {
     return this._roleManager.getRoles();
   }
 
-  public sendMessageTo(peerId: string, message: any) {
+  public sendMessageTo(peerId: string, message: any): void {
     const appMessage = new AppContent(
       this.getMyAddress(),
       new Address(peerId),
@@ -136,7 +136,7 @@ export class Mitosis {
     this._peerManager.sendMessage(appMessage);
   }
 
-  public destroy() {
+  public destroy(): void {
     this._inbox.complete();
     this._internalMessages.complete();
     this._peerManager.destroy();

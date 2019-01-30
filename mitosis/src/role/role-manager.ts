@@ -58,7 +58,7 @@ export class RoleManager {
     return this._roles;
   }
 
-  public toString() {
+  public toString(): string {
     return JSON.stringify({
         count: this._roles.size,
         roleTypes: Array.from(this._roles.keys())
@@ -68,7 +68,7 @@ export class RoleManager {
     );
   }
 
-  public destroy() {
+  public destroy(): void {
     this._roles.clear();
   }
 }

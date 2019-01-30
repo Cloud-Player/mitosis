@@ -3,9 +3,10 @@ import {ConnectionState} from '../connection/interface';
 import {MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
 import {PeerUpdate} from '../message/peer-update';
-import {Mitosis, RemotePeer, RoleType} from '../mitosis';
+import {Mitosis} from '../mitosis';
 import {PeerManager} from '../peer/peer-manager';
-import {IRole} from './interface';
+import {RemotePeer} from '../peer/remote-peer';
+import {IRole, RoleType} from './interface';
 
 export class Router implements IRole {
 

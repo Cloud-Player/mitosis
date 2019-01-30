@@ -1,6 +1,7 @@
 import {ConnectionState} from '../../connection/interface';
 import {PeerUpdate} from '../../message/peer-update';
-import {Mitosis, RoleType} from '../../mitosis';
+import {Mitosis} from '../../mitosis';
+import {RoleType} from '../interface';
 
 export function publishPeerUpdate(mitosis: Mitosis): void {
   const directPeers = mitosis

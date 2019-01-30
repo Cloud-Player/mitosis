@@ -1,5 +1,6 @@
 import {Introduction} from '../../message/introduction';
-import {Mitosis, RoleType} from '../../mitosis';
+import {Mitosis} from '../../mitosis';
+import {RoleType} from '../interface';
 
 export function sendIntroduction(mitosis: Mitosis): void {
   const introduction = new Introduction(
