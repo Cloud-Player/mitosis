@@ -1,7 +1,7 @@
 import {IClock} from '../clock/interface';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
-import {NoopConnectionMeter} from '../metering/noop-connection-meter';
+import {NoopConnectionMeter} from '../metering/connection-meter/noop-connection-meter';
 import {AbstractConnection} from './connection';
 import {ConnectionState, IConnection, IConnectionOptions} from './interface';
 
@@ -11,7 +11,7 @@ export class WebSocketConnection extends AbstractConnection implements IConnecti
 
   constructor(address: Address, clock: IClock, options: IConnectionOptions) {
     super(address, clock, options);
-    this._meter = new NoopConnectionMeter();
+    this._meter = new NoopConnectionMeter(this);
   }
 
   public send(message: Message): void {

@@ -3,9 +3,9 @@ import {IClock} from '../clock/interface';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
 import {IMeter} from '../metering/interface';
-import {TransmissionConnectionMeter} from '../metering/transmission-connection-meter';
 import {IConnection, IConnectionOptions} from './interface';
 import {WebRTCConnection} from './webrtc';
+import {TransmissionConnectionMeter} from '../metering/connection-meter/transmission-connection-meter';
 
 export class WebRTCDataConnection extends WebRTCConnection implements IConnection {
 
@@ -17,6 +17,7 @@ export class WebRTCDataConnection extends WebRTCConnection implements IConnectio
     super(address, clock, options);
 
     this._meter = new TransmissionConnectionMeter(
+      this,
       this.getMyAddress(),
       this.getAddress(),
       this._clock

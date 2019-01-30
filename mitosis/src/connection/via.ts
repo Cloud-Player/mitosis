@@ -2,7 +2,7 @@ import {Subscription} from 'rxjs';
 import {IClock} from '../clock/interface';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
-import {ViaConnectionMeter} from '../metering/via-connection-meter';
+import {ViaConnectionMeter} from '../metering/connection-meter/via-connection-meter';
 import {AbstractConnection} from './connection';
 import {ConnectionState, IConnection, IViaConnectionOptions} from './interface';
 
@@ -13,7 +13,7 @@ export class ViaConnection extends AbstractConnection implements IConnection {
 
   constructor(address: Address, clock: IClock, options: IViaConnectionOptions) {
     super(address, clock, options);
-    this._meter = new ViaConnectionMeter();
+    this._meter = new ViaConnectionMeter(this);
   }
 
   private parentStateChanged(connectionState: ConnectionState): void {
