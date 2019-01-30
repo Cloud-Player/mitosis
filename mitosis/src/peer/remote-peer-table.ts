@@ -65,6 +65,14 @@ export class RemotePeerTable {
     return connections;
   }
 
+  public sortById(): RemotePeerTable {
+    return new RemotePeerTable(
+      this._remotePeers.sort(
+        (a, b) => a.getId().localeCompare(b.getId())
+      )
+    );
+  }
+
   public asArray(): Array<RemotePeer> {
     return this._remotePeers.slice();
   }
