@@ -118,8 +118,9 @@ export class PeerManager {
         .shift();
       return this.connectTo(address, options as IViaConnectionOptions);
     } else {
-      return Promise.reject(
-        `cannot connect to ${remotePeerId} because via ${viaPeerId} is missing`);
+      const reason =  `cannot connect to ${remotePeerId} because via ${viaPeerId} is missing`;
+      Logger.getLogger(this._myId).error(reason);
+      return Promise.reject(reason);
     }
   }
 

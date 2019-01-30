@@ -9,6 +9,7 @@ import {Address} from '../message/address';
 import {Message} from '../message/message';
 import {RemotePeerMeter} from '../metering/remote-peer-meter';
 import {RoleType} from '../role/interface';
+import {ConnectionsPerAddress} from './connections-per-address';
 
 export class RemotePeer {
 
@@ -18,7 +19,7 @@ export class RemotePeer {
   private _mitosisId: string;
   private _publicKey: string;
   private _roleTypes: Array<RoleType>;
-  private readonly _connectionsPerAddress: Map<string, IConnection>;
+  private readonly _connectionsPerAddress: ConnectionsPerAddress;
   private readonly _openConnectionPromises: Map<IConnection, Promise<RemotePeer>>;
   private readonly _connectionChurnSubject: Subject<IConnectionChurnEvent>;
 
@@ -27,7 +28,7 @@ export class RemotePeer {
     this._mitosisId = mitosisId;
     this._clock = clock;
     this._roleTypes = [RoleType.PEER];
-    this._connectionsPerAddress = new Map();
+    this._connectionsPerAddress = new ConnectionsPerAddress();
     this._openConnectionPromises = new Map();
     this._connectionChurnSubject = new Subject();
     this._meter = new RemotePeerMeter(this._connectionsPerAddress, clock.fork());
@@ -53,6 +54,10 @@ export class RemotePeer {
     return ConnectionTable.fromIterable(
       this._connectionsPerAddress.values()
     );
+  }
+
+  public getMeter(): RemotePeerMeter {
+    return this._meter;
   }
 
   public getQuality(): number {
@@ -134,7 +139,12 @@ export class RemotePeer {
     if (!connection) {
       connection = this.createConnection(address, options);
     }
-    return this.openConnection(connection);
+    return this.openConnection(connection).catch(
+      e => {
+        Logger.getLogger(this._mitosisId).error('can not open connection!', e);
+        return Promise.reject(e);
+      }
+    );
   }
 
   public send(message: Message): void {
@@ -147,7 +157,7 @@ export class RemotePeer {
       try {
         connection.send(message);
       } catch (error) {
-        Logger.getLogger(this._mitosisId).error(error);
+        Logger.getLogger(this._mitosisId).error('message can not be send!', error);
         connection.close();
       }
     } else {

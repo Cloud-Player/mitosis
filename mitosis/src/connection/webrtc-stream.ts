@@ -1,7 +1,7 @@
 import {IClock} from '../clock/interface';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
-import {StreamConnectionMeter} from '../metering/stream-connection-meter';
+import {StreamConnectionMeter} from '../metering/connection-meter/stream-connection-meter';
 import {IConnection, IConnectionOptions} from './interface';
 import {WebRTCConnection} from './webrtc';
 
@@ -13,7 +13,7 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
 
   constructor(address: Address, clock: IClock, options: IConnectionOptions) {
     super(address, clock, options);
-    this._meter = new StreamConnectionMeter();
+    this._meter = new StreamConnectionMeter(this);
   }
 
   public send(message: Message): void {
