@@ -1,0 +1,34 @@
+{
+  "instructions": [
+    {
+      "tick": 0,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/signal/wss",
+        "roles": [
+          "signal"
+        ]
+      }
+    },
+    {
+      "tick": 0,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/alice/webrtc",
+        "signal": "mitosis/v1/signal/wss"
+      }
+    },
+    {
+      "tick": 0,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/bob/webrtc",
+        "signal": "mitosis/v1/signal/wss"
+      }
+    },
+    {
+      "tick": 0,
+      "type": "pause-clock"
+    }
+  ]
+}
