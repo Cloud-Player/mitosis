@@ -3,6 +3,7 @@ import {filter} from 'rxjs/operators';
 import {IClock} from '../clock/interface';
 import {Configuration} from '../configuration';
 import {
+  IConnection,
   IConnectionOptions,
   IViaConnectionOptions,
   IWebRTCConnectionOptions,
@@ -37,9 +38,24 @@ export class PeerManager {
     this._peerChurnSubject = new Subject();
   }
 
-  private listenOnConnectionRemoved(remotePeer: RemotePeer): void {
+  private listenOnConnectionRemoved(remotePeer: RemotePeer, connection: IConnection): void {
     if (remotePeer.getConnectionTable().length === 0) {
+      // Remove the peer entirely if no connections are left
       this.removePeer(remotePeer);
+    }
+    if (remotePeer.getConnectionTable().filterDirect().length === 0) {
+      // Remove all via connections that went over this peer
+      this.getPeerTable()
+        .asArray()
+        .forEach(
+          peer => peer
+            .getConnectionTable()
+            .filterVia(remotePeer.getId())
+            .asArray()
+            .forEach(
+              viaConnection => viaConnection.close()
+            )
+        );
     }
   }
 
@@ -70,7 +86,7 @@ export class PeerManager {
           filter(ev => ev.type === ChurnType.REMOVED)
         )
         .subscribe(
-          ev => this.listenOnConnectionRemoved(peer)
+          ev => this.listenOnConnectionRemoved(peer, ev.connection)
         );
       this._peerChurnSubject.next({peer: peer, type: ChurnType.ADDED});
     }
@@ -116,6 +132,8 @@ export class PeerManager {
         return Promise.reject(
           `direct connection to ${remotePeerId} disappeared`);
       }
+    } else if (remotePeerId === this._myId) {
+      return Promise.reject('will not connect to myself');
     } else {
       return this.connectToVia(remotePeerId, viaPeerId, options);
     }
@@ -123,6 +141,7 @@ export class PeerManager {
 
   public updatePeers(peerUpdate: PeerUpdate, viaPeerId: string): void {
     const senderId = peerUpdate.getSender().getId();
+    const sender = this.getPeerById(senderId);
 
     if (senderId !== viaPeerId) {
       throw new Error(
@@ -130,9 +149,13 @@ export class PeerManager {
       );
     }
 
-    peerUpdate.getBody()
+    const updatedPeerIds: Array<string> = [];
+
+    peerUpdate
+      .getBody()
       .forEach(
         entry => {
+          updatedPeerIds.push(entry.peerId);
           this.ensureConnection(
             entry.peerId,
             senderId,
@@ -147,6 +170,22 @@ export class PeerManager {
             reason => Logger.getLogger(this.getMyId()).debug(reason)
           );
         }
+      );
+
+    this.getPeerTable()
+      .asArray()
+      .forEach(
+        peer => peer
+          .getConnectionTable()
+          .filterVia(senderId)
+          .filterConnection(
+            connection =>
+              updatedPeerIds.indexOf(connection.getAddress().getId()) === -1
+          )
+          .asArray()
+          .forEach(
+            connection => connection.close()
+          )
       );
   }
 

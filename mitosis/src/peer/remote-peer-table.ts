@@ -10,11 +10,11 @@ export class RemotePeerTable {
     this._remotePeers = remotePeers.slice();
   }
 
-  public filterConnection(filterFunction: (table: ConnectionTable) => ConnectionTable): RemotePeerTable {
+  public filterConnection(callbackfn: (table: ConnectionTable) => ConnectionTable): RemotePeerTable {
     return new RemotePeerTable(
       this._remotePeers.filter(
         peer =>
-          filterFunction(peer.getConnectionTable()).length > 0
+          callbackfn(peer.getConnectionTable()).length > 0
       )
     );
   }
@@ -28,8 +28,8 @@ export class RemotePeerTable {
     );
   }
 
-  public exclude(filterFunction: (table: RemotePeerTable) => RemotePeerTable): RemotePeerTable {
-    const excludedPeers = filterFunction(this).asArray();
+  public exclude(callbackfn: (table: RemotePeerTable) => RemotePeerTable): RemotePeerTable {
+    const excludedPeers = callbackfn(this).asArray();
     return new RemotePeerTable(
       this._remotePeers.filter(
         peer => excludedPeers.indexOf(peer) === -1

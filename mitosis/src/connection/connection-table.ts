@@ -28,16 +28,28 @@ export class ConnectionTable {
     );
   }
 
-  public filterVia(): ConnectionTable {
+  public filterVia(viaPeerId?: string): ConnectionTable {
     return new ConnectionTable(
       this._connections.filter(
-        connection => connection.getAddress().getProtocol() === Protocol.VIA
+        connection => {
+          if (viaPeerId && viaPeerId !== connection.getAddress().getLocation()) {
+            return false;
+          } else {
+            return connection.getAddress().getProtocol() === Protocol.VIA;
+          }
+        }
       )
     );
   }
 
-  public exclude(filterFunction: (table: ConnectionTable) => ConnectionTable): ConnectionTable {
-    const excludedConnections = filterFunction(this).asArray();
+  public filterConnection(callbackfn: (connection: IConnection) => boolean): ConnectionTable {
+    return new ConnectionTable(
+      this._connections.filter(callbackfn)
+    );
+  }
+
+  public exclude(callbackfn: (table: ConnectionTable) => ConnectionTable): ConnectionTable {
+    const excludedConnections = callbackfn(this).asArray();
     return new ConnectionTable(
       this._connections.filter(
         connection => excludedConnections.indexOf(connection) === -1
