@@ -23,7 +23,8 @@ export abstract class MockConnection extends AbstractConnection implements IConn
     ).subscribe(() => {
       this._timeout = this._client.getClock().setTimeout(
         () => {
-          Logger.getLogger(this._options.mitosisId).warn('opening took too long', this.getAddress().toString());
+          Logger.getLogger(this._options.mitosisId).warn(
+            `connecting to ${this.getAddress().toString()} took too long`, this);
           this.onError('took too long');
         },
         20

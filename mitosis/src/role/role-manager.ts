@@ -1,3 +1,4 @@
+import {Logger} from '../logger/logger';
 import {Message} from '../message/message';
 import {RoleUpdate} from '../message/role-update';
 import {Mitosis} from '../mitosis';
@@ -7,9 +8,11 @@ import {RoleTypeMap} from './role-map';
 
 export class RoleManager {
 
+  private readonly _myId: string;
   private readonly _roles: Map<RoleType, IRole>;
 
-  public constructor(roles: Array<RoleType>) {
+  public constructor(myId: string, roles: Array<RoleType>) {
+    this._myId = myId;
     this._roles = new Map();
     roles.forEach((r) => this.addRole(r));
   }
@@ -19,11 +22,13 @@ export class RoleManager {
       const roleClass = RoleTypeMap.get(roleType);
       const role: IRole = new roleClass();
       this._roles.set(roleType, role);
+      Logger.getLogger(this._myId).info(`added role ${roleType}`, this.getRoles());
     }
   }
 
   public removeRole(roleType: RoleType): void {
     this._roles.delete(roleType);
+    Logger.getLogger(this._myId).info(`removed role ${roleType}`, this.getRoles());
   }
 
   public updateRoles(roleUpdate: RoleUpdate): void {

@@ -21,7 +21,7 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
   private createOffer(mitosisId: string) {
     this._client = new SimplePeer(this._simplePeerOptions);
     this._client.on('signal', (offer: SimplePeer.SignalData) => {
-      Logger.getLogger(mitosisId).debug('webrtc offer ready');
+      Logger.getLogger(mitosisId).debug('webrtc offer ready', JSON.stringify(offer));
       this.onMessage(new Message(
         this.getMyAddress(),
         this.getAddress(),
@@ -35,7 +35,7 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
     this._client = new SimplePeer({initiator: false, trickle: false});
     this._client.signal(offer);
     this._client.on('signal', (answer: SimplePeer.SignalData) => {
-      Logger.getLogger(mitosisId).debug('webrtc answer ready');
+      Logger.getLogger(mitosisId).debug('webrtc answer ready', JSON.stringify(answer));
       this.onMessage(new Message(
         this.getMyAddress(),
         new Address(this.getAddress().getId()),
@@ -127,7 +127,7 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
   }
 
   public establish(answer: SimplePeer.SignalData) {
-    Logger.getLogger(this._options.mitosisId).debug('webrtc connection negotiating');
+    Logger.getLogger(this._options.mitosisId).debug('webrtc connection negotiating', JSON.stringify(answer));
     this._client.signal(answer);
   }
 }

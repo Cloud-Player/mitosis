@@ -18,32 +18,27 @@ export class PeerTableComponent implements OnInit {
   }
 
   public getPeerAnnotation(peer: RemotePeer) {
-    let text = '';
+    const roles = peer.getRoles()
+      .filter(roleType => roleType !== RoleType.PEER)
+      .map(roleType => roleType.toString()[0].toUpperCase());
+    const roleTag = roles.length ? `[${roles.join(', ')}]` : '';
 
-    const roles = peer.getRoles().filter(role => role !== RoleType.PEER);
-    if (roles.length) {
-      text = `[${roles.join(', ')}]`;
-    }
+    const quality = peer.getQuality()
+      .toFixed(2)
+      .toString();
 
-    const directConnections = peer.getConnectionTable().filterDirect();
-    if (directConnections.length > 0) {
-      let directText = `${directConnections.length}`;
-      const nonOpenConnections = directConnections
-        .exclude(
-          table => table.filterByStates(ConnectionState.OPEN)
-        ).length;
-      if (nonOpenConnections > 0) {
-        directText = `${nonOpenConnections}/${directText}`;
-      }
-      text = `${text} direct ${directText}`;
-    }
+    const directConnections = peer.getConnectionTable()
+      .filterDirect();
+    const nonOpenConnections = directConnections
+      .exclude(table => table.filterByStates(ConnectionState.OPEN));
+    const directText = `${directConnections.length - nonOpenConnections.length}/${directConnections.length}`;
 
-    const viaConnections = peer.getConnectionTable().filterVia();
-    if (viaConnections.length > 0) {
-      text = `${text} via ${viaConnections.length}`;
-    }
+    const viaText = peer.getConnectionTable()
+      .filterVia()
+      .length
+      .toString();
 
-    return text;
+    return `${roleTag} ${quality}✫ ${directText}← ${viaText}⤺`;
   }
 
   ngOnInit(): void {

@@ -68,7 +68,7 @@ export class RemotePeer {
     return this._connectionsPerAddress.get(address.toString());
   }
 
-  private listenOnConnectionChanges(connection: IConnection) {
+  private listenOnConnectionChanges(connection: IConnection): void {
     connection.observeStateChange().subscribe((ev) => {
       switch (ev) {
         case ConnectionState.CLOSED:
@@ -170,7 +170,7 @@ export class RemotePeer {
     return this._connectionChurnSubject;
   }
 
-  public toString() {
+  public toString(): string {
     return JSON.stringify({
         id: this._id,
         roles: this._roleTypes,

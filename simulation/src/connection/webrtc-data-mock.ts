@@ -80,15 +80,15 @@ export class WebRTCDataMockConnection extends MockConnection implements IConnect
     if (this._options.payload) {
       switch (this._options.payload.type) {
         case WebRTCConnectionOptionsPayloadType.OFFER:
-          Logger.getLogger(this._options.mitosisId).debug('create answer for', this._address.getId());
+          Logger.getLogger(this._options.mitosisId).debug(`create answer for ${this._address.getId()}`, this);
           this.createAnswer(this._options.mitosisId, this._options.payload);
           break;
         case WebRTCConnectionOptionsPayloadType.ANSWER:
-          Logger.getLogger(this._options.mitosisId).debug('establish connection to', this._address.getId());
+          Logger.getLogger(this._options.mitosisId).debug(`establish connection to ${this._address.getId()}`, this);
           this.establish(this._options.payload);
           break;
         default:
-          Logger.getLogger(this._options.mitosisId).debug('no type found', this._options.payload.type);
+          Logger.getLogger(this._options.mitosisId).debug(`payload type ${this._options.payload.type} not found`, this);
           throw new Error(
             `webrtc options unsupported ${this._options.payload.type}`
           );
@@ -103,8 +103,6 @@ export class WebRTCDataMockConnection extends MockConnection implements IConnect
   }
 
   public onMessage(message: Message) {
-    Logger.getLogger(this.getMyAddress().getId())
-      .info(`got ${message.getSubject()} from ${message.getSender().getId()}`, message.toString());
     if (
       message.getSubject() === MessageSubject.PING ||
       message.getSubject() === MessageSubject.PONG

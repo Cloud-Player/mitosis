@@ -13,14 +13,16 @@
       background: none;
       margin-left: auto;
 
-      .text{
+      .text {
         display: inline-block;
         margin-right: 5px;
+        font-family: monospace;
+        white-space: pre;
       }
     }
 
     &:hover {
-      //color: $brand-primary;
+      color: $clickable-color-hover;
     }
   }
 

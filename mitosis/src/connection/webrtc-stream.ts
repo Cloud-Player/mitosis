@@ -27,7 +27,6 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
   protected bindClientListeners(): void {
     super.bindClientListeners();
     this._client.on('track', (track: MediaStreamTrack, stream: MediaStream) => {
-      console.log('GOT TRACK');
       this._stream = stream;
       if (this._onStreamResolver) {
         this._onStreamResolver(this._stream);
@@ -35,7 +34,6 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
     });
 
     this._client.on('stream', (stream: MediaStream) => {
-      console.log('GOT STREAM');
       this._stream = stream;
       if (this._onStreamResolver) {
         this._onStreamResolver(this._stream);

@@ -3,7 +3,6 @@ import {filter} from 'rxjs/operators';
 import {IClock} from '../clock/interface';
 import {Configuration} from '../configuration';
 import {
-  IConnection,
   IConnectionOptions,
   IViaConnectionOptions,
   IWebRTCConnectionOptions,
@@ -24,7 +23,7 @@ import {RemotePeerTable} from './remote-peer-table';
 
 export class PeerManager {
 
-  private _myId: string;
+  private readonly _myId: string;
   private _roleManager: RoleManager;
   private _clock: IClock;
   private _peers: Array<RemotePeer>;
@@ -38,7 +37,7 @@ export class PeerManager {
     this._peerChurnSubject = new Subject();
   }
 
-  private listenOnConnectionRemoved(remotePeer: RemotePeer, connection: IConnection): void {
+  private listenOnConnectionRemoved(remotePeer: RemotePeer): void {
     if (remotePeer.getConnectionTable().length === 0) {
       // Remove the peer entirely if no connections are left
       this.removePeer(remotePeer);
@@ -85,8 +84,7 @@ export class PeerManager {
         .pipe(
           filter(ev => ev.type === ChurnType.REMOVED)
         )
-        .subscribe(
-          ev => this.listenOnConnectionRemoved(peer, ev.connection)
+        .subscribe(() => this.listenOnConnectionRemoved(peer)
         );
       this._peerChurnSubject.next({peer: peer, type: ChurnType.ADDED});
     }
@@ -118,7 +116,7 @@ export class PeerManager {
         .shift();
       return this.connectTo(address, options as IViaConnectionOptions);
     } else {
-      const reason =  `cannot connect to ${remotePeerId} because via ${viaPeerId} is missing`;
+      const reason = `cannot connect to ${remotePeerId} because via ${viaPeerId} is missing`;
       Logger.getLogger(this._myId).error(reason);
       return Promise.reject(reason);
     }
@@ -257,7 +255,7 @@ export class PeerManager {
     return this._peerChurnSubject;
   }
 
-  public toString() {
+  public toString(): string {
     return JSON.stringify({
         count: this._peers.length,
         remotePeers: this._peers

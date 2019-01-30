@@ -60,7 +60,7 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
         .getPeerManager()
         .removePeer(worstDirectPeer);
       if (success) {
-        Logger.getLogger(mitosis.getMyAddress().getId()).debug(`removing worst peer ${worstDirectPeer.getId()}`);
+        Logger.getLogger(mitosis.getMyAddress().getId()).debug(`removing worst peer ${worstDirectPeer.getId()}`, worstDirectPeer);
         break;
       }
     }

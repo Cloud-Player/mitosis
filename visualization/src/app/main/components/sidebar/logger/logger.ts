@@ -1,8 +1,6 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {ILogEvent, Logger} from 'mitosis';
+import {ILogEvent} from 'mitosis';
 import {Node} from 'mitosis-simulation';
-import {Subscription} from 'rxjs';
-import {MessageEventLogger} from '../../../services/message-event-logger';
 import {LogEventLogger} from '../../../services/log-event-logger';
 import {LogEvent} from '../../../src/event-logger';
 

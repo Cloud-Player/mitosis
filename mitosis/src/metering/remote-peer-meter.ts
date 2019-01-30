@@ -1,10 +1,10 @@
 import {filter} from 'rxjs/operators';
 import {IClock} from '../clock/interface';
+import {Configuration} from '../configuration';
 import {Logger} from '../logger/logger';
 import {ConnectionsPerAddress, ConnectionsPerAddressEventType} from '../peer/connections-per-address';
 import {IConnectionEventType, IConnectionMeter, IConnectionMeterEvent} from './connection-meter/interface';
 import {IMeter} from './interface';
-import {Configuration} from '../configuration';
 
 export class RemotePeerMeter implements IMeter {
 
@@ -38,7 +38,7 @@ export class RemotePeerMeter implements IMeter {
     switch (event.type) {
       case IConnectionEventType.PUNISHED:
         Logger.getLogger(event.connection.getAddress().getId())
-          .warn('punish connection', event.connection.getAddress().toString());
+          .warn(`punish connection to ${event.connection.getAddress().getId()}`, event.connection);
         this._punishedConnections++;
         this._clock.setTimeout(() => {
           this._punishedConnections--;

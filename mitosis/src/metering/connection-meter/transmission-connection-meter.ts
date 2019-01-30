@@ -47,7 +47,7 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
   private sendPing() {
     this._echoSlidingWindow.slide();
     Logger.getLogger(this._originator.getId())
-      .info(`Dispatch ping to ${this._receiver.getId()}`, this._echoSlidingWindow.getSequenceNumber());
+      .info(`send ping to ${this._receiver.getId()}`, this._echoSlidingWindow.getSequenceNumber());
     const ping = new Ping(
       this._originator,
       this._receiver,
@@ -58,14 +58,14 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
 
   private handlePing(message: Ping) {
     Logger.getLogger(this._originator.getId())
-      .info(`Handle ping from ${message.getSender().getId()}`, Array.from(this._receiveSlidingWindow.values()).join(','));
+      .info(`handle ping from ${message.getSender().getId()}`, Array.from(this._receiveSlidingWindow.values()).join(','));
     this.sendPong(message.getSender(), message.getBody());
     this._receiveSlidingWindow.add(message.getBody());
   }
 
   private handlePong(message: Pong) {
     this._echoSlidingWindow.add(message.getBody());
-    Logger.getLogger(this._originator.getId()).info(`TQ to ${this._receiver.getId()} ${this.getQuality()}`);
+    Logger.getLogger(this._originator.getId()).info(`quality to ${this._receiver.getId()} is ${this.getQuality()}`, message);
   }
 
   private getEq(): number {

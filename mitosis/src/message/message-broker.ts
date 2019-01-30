@@ -67,9 +67,9 @@ export class MessageBroker {
       } else {
         this.forwardMessage(message);
       }
-    } catch (e) {
-      Logger.getLogger(message.getReceiver().getId()).error(e.message, e);
-      throw e;
+    } catch (error) {
+      Logger.getLogger(message.getReceiver().getId()).error(error.message, error);
+      throw error;
     }
   }
 
@@ -77,11 +77,14 @@ export class MessageBroker {
     const viaPeerId = connection.getAddress().getId();
     const senderId = message.getSender().getId();
 
+    Logger.getLogger(this._peerManager.getMyId())
+      .info(`receive ${message.getSubject()} from ${message.getSender().getId()}`, message);
+
     this._peerManager
       .ensureConnection(senderId, viaPeerId)
       .catch(
         reason =>
-          Logger.getLogger(this._peerManager.getMyId()).warn(reason)
+          Logger.getLogger(this._peerManager.getMyId()).warn(reason, message)
       );
 
     switch (message.getSubject()) {
@@ -107,10 +110,13 @@ export class MessageBroker {
   }
 
   private forwardMessage(message: Message): void {
+    Logger.getLogger(this._peerManager.getMyId())
+      .info(`send ${message.getSubject()} to ${message.getReceiver().getId()}`, message);
+
     const peerId = message.getReceiver().getId();
     const receiverPeer = this._peerManager.getPeerById(peerId);
     if (!receiverPeer) {
-      Logger.getLogger(this._peerManager.getMyId()).error(`no idea how to reach ${peerId}`);
+      Logger.getLogger(this._peerManager.getMyId()).error(`no idea how to reach ${peerId}`, message);
       return;
     }
     const connection = receiverPeer.getConnectionTable()
@@ -119,7 +125,7 @@ export class MessageBroker {
       .shift();
     let directPeer;
     if (!connection) {
-      Logger.getLogger(this._peerManager.getMyId()).error(`all connections lost to ${peerId}`);
+      Logger.getLogger(this._peerManager.getMyId()).error(`all connections lost to ${peerId}`, message);
       return;
     }
     if (connection.getAddress().getProtocol() === Protocol.VIA) {

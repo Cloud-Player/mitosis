@@ -61,7 +61,7 @@ export class Mitosis {
       roles = [RoleType.NEWBIE];
     }
 
-    this._roleManager = new RoleManager(roles);
+    this._roleManager = new RoleManager(this._myId, roles);
     this._peerManager = new PeerManager(this._myId, this._roleManager, this._clock.fork());
     this._messageBroker = new MessageBroker(this._peerManager, this._roleManager);
     this._inbox = new Subject<AppContent>();
