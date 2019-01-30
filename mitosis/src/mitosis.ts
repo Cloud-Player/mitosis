@@ -14,6 +14,7 @@ import {RemotePeer} from './peer/remote-peer';
 import {RemotePeerTable} from './peer/remote-peer-table';
 import {RoleType} from './role/interface';
 import {RoleManager} from './role/role-manager';
+import {ILogger} from './logger/interface';
 
 export class Mitosis {
 
@@ -27,6 +28,7 @@ export class Mitosis {
   private _inbox: Subject<AppContent>;
   private _internalMessages: Subject<Message>;
   private _clock: IClock;
+  private _logger: ILogger;
 
   public constructor(
     clock: IClock = null,
@@ -68,8 +70,9 @@ export class Mitosis {
     this.listenOnAppContentMessages();
 
     this._clock.setInterval(this.onTick.bind(this));
-    Logger.getLogger(this._myId).setClock(this._clock);
-    Logger.getLogger(this._myId).info(`i am a ${roles.join(' and a ')}`);
+    this._logger = Logger.getLogger(this._myId);
+    this._logger.setClock(this._clock);
+    this._logger.info(`i am a ${roles.join(' and a ')}`);
   }
 
   private listenOnAppContentMessages() {
@@ -88,7 +91,12 @@ export class Mitosis {
   }
 
   private onTick(): void {
-    this._roleManager.onTick(this);
+    try {
+      this._roleManager.onTick(this);
+    } catch (e) {
+      this._logger.error(e.message, e);
+      throw e;
+    }
   }
 
   public getMyAddress(): Address {
@@ -146,6 +154,7 @@ export * from './role/interface';
 export * from './logger/interface';
 export * from './interface';
 export * from './metering/interface';
+export * from './metering/connection-meter/interface';
 
 export {IClock} from './clock/interface';
 export {AbstractClock} from './clock/clock';
@@ -161,4 +170,5 @@ export {Address} from './message/address';
 export {Message} from './message/message';
 export {AppContent} from './message/app-content';
 export {Logger} from './logger/logger';
-export {TransmissionConnectionMeter} from './metering/transmission-connection-meter';
+export {ConnectionMeter} from './metering/connection-meter/connection-meter';
+export {TransmissionConnectionMeter} from './metering/connection-meter/transmission-connection-meter';
