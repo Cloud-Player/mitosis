@@ -1,17 +1,19 @@
 import {Subject} from 'rxjs';
-import {IClock} from '../clock/interface';
-import {Logger} from '../logger/logger';
-import {Address} from '../message/address';
-import {MessageSubject} from '../message/interface';
-import {Message} from '../message/message';
-import {Ping} from '../message/ping';
-import {Pong} from '../message/pong';
-import {IMeter} from './interface';
-import {SlidingWindow} from './sliding-window';
+import {IClock} from '../../clock/interface';
+import {Configuration} from '../../configuration';
+import {Logger} from '../../logger/logger';
+import {Address} from '../../message/address';
+import {MessageSubject} from '../../message/interface';
+import {Message} from '../../message/message';
+import {Ping} from '../../message/ping';
+import {Pong} from '../../message/pong';
+import {SlidingWindow} from '../sliding-window';
+import {ConnectionMeter} from './connection-meter';
+import {IConnectionMeter} from './interface';
+import {IConnection} from '../../connection/interface';
 
-export class TransmissionConnectionMeter implements IMeter {
-  public static readonly PING_INTERVAL = 4;
-  private _clock: IClock;
+export class TransmissionConnectionMeter extends ConnectionMeter implements IConnectionMeter {
+  protected _clock: IClock;
   private _receiveSlidingWindow: SlidingWindow;
   private _echoSlidingWindow: SlidingWindow;
   private _pingInterval: any;
@@ -19,7 +21,8 @@ export class TransmissionConnectionMeter implements IMeter {
   private _receiver: Address;
   private _messageSubject: Subject<Message>;
 
-  constructor(originator: Address, receiver: Address, clock: IClock) {
+  constructor(connection: IConnection, originator: Address, receiver: Address, clock: IClock) {
+    super(connection);
     this._receiveSlidingWindow = new SlidingWindow();
     this._echoSlidingWindow = new SlidingWindow();
     this._originator = originator;
@@ -66,11 +69,11 @@ export class TransmissionConnectionMeter implements IMeter {
   }
 
   private getEq(): number {
-    return (this._echoSlidingWindow.size) / SlidingWindow.WINDOW_SIZE;
+    return (this._echoSlidingWindow.size) / Configuration.SLIDING_WINDOW_SIZE;
   }
 
   private getRq(): number {
-    return (this._receiveSlidingWindow.size) / SlidingWindow.WINDOW_SIZE;
+    return (this._receiveSlidingWindow.size) / Configuration.SLIDING_WINDOW_SIZE;
   }
 
   public getQuality(): number {
@@ -101,12 +104,14 @@ export class TransmissionConnectionMeter implements IMeter {
   }
 
   public start(): void {
+    super.start();
     this._pingInterval = this._clock.setInterval(() => {
       this.sendPing();
-    }, TransmissionConnectionMeter.PING_INTERVAL);
+    }, Configuration.TRANSMISSION_PING_INTERVAL);
   }
 
   public stop(): void {
+    super.stop();
     if (this._pingInterval) {
       this._clock.clearInterval(this._pingInterval);
     }
