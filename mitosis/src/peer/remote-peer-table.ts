@@ -28,6 +28,15 @@ export class RemotePeerTable {
     );
   }
 
+  public filterIsProtected(isProtected: boolean): RemotePeerTable {
+    return new RemotePeerTable(
+      this._remotePeers.filter(
+        peer =>
+          peer.getMeter().getConnectionProtection() === (isProtected ? 1 : 0)
+      )
+    );
+  }
+
   public exclude(callbackfn: (table: RemotePeerTable) => RemotePeerTable): RemotePeerTable {
     const excludedPeers = callbackfn(this).asArray();
     return new RemotePeerTable(
