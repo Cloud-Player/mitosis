@@ -13,7 +13,7 @@ export class Router implements IRole {
   private sendAlternativesAsPeerUpdate(peerManager: PeerManager, message: Message) {
     const directPeers = peerManager
       .getPeerTable()
-      .filterConnection(
+      .filterConnections(
         table => table
           .filterDirect()
           .filterByStates(ConnectionState.OPEN)

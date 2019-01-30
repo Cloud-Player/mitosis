@@ -8,7 +8,7 @@ export function publishPeerUpdate(mitosis: Mitosis): void {
     .getPeerManager()
     .getPeerTable()
     .filterByRole(RoleType.PEER)
-    .filterConnection(
+    .filterConnections(
       table => table
         .filterDirect()
         .filterByStates(ConnectionState.OPEN)

@@ -10,7 +10,7 @@ export class RemotePeerTable {
     this._remotePeers = remotePeers.slice();
   }
 
-  public filterConnection(callbackfn: (table: ConnectionTable) => ConnectionTable): RemotePeerTable {
+  public filterConnections(callbackfn: (table: ConnectionTable) => ConnectionTable): RemotePeerTable {
     return new RemotePeerTable(
       this._remotePeers.filter(
         peer =>
