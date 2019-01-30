@@ -1,6 +1,7 @@
 <div class="scenario-selector">
   <app-selector [(ngModel)]="scenario"
                 [options]="scenarios"
-                (ngModelChange)="selectScenario($event)">
+                (ngModelChange)="selectScenario($event)"
+                [required]="true">
   </app-selector>
 </div>
