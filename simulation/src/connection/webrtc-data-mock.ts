@@ -22,6 +22,7 @@ export class WebRTCDataMockConnection extends MockConnection implements IConnect
   constructor(address: Address, clock: IClock, options: IConnectionOptions) {
     super(address, clock, options);
     this._meter = new TransmissionConnectionMeter(
+      this,
       this.getMyAddress(),
       address,
       this._clock);

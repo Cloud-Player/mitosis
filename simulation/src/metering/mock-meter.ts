@@ -1,10 +1,12 @@
-import {IMeter} from 'mitosis';
+import {ConnectionMeter, IClock, IConnection, IConnectionMeter} from 'mitosis';
 
-export class MockMeter implements IMeter {
+export class MockMeter extends ConnectionMeter implements IConnectionMeter {
 
   private _quality: number;
+  protected _clock: IClock;
 
-  public constructor(quality: number = 1) {
+  public constructor(connection: IConnection, quality: number = 1) {
+    super(connection);
     this._quality = quality;
   }
 
