@@ -12,11 +12,11 @@ import {
 } from '@angular/core';
 import * as d3 from 'd3';
 import {Selection} from 'd3-selection';
-import {D3Model} from './models/d3';
-import {Edge, Node} from 'mitosis-simulation';
 import {ConnectionState, RoleType} from 'mitosis';
-import {LayoutChangeTypes, LayoutService} from '../../../shared/services/layout';
+import {Edge, Node} from 'mitosis-simulation';
 import {filter} from 'rxjs/operators';
+import {LayoutChangeTypes, LayoutService} from '../../../shared/services/layout';
+import {D3Model} from './models/d3';
 
 @Component({
   selector: 'app-d3-directed-graph',
@@ -116,11 +116,11 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
     nodes
       .select('circle')
       .attr('fill', (d: Node) => {
-        const roles = d.getMitosis().getRoles();
+        const roles = d.getMitosis().getRoleManager().getRoles();
 
-        if (roles.get(RoleType.SIGNAL)) {
+        if (roles.indexOf(RoleType.SIGNAL) >= 0) {
           return 'red';
-        } else if (roles.get(RoleType.ROUTER)) {
+        } else if (roles.indexOf(RoleType.ROUTER) >= 0) {
           return 'green';
         } else {
           return '#ccc';

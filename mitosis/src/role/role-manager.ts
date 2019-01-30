@@ -14,7 +14,7 @@ export class RoleManager {
     roles.forEach((r) => this.addRole(r));
   }
 
-  private addRole(roleType: RoleType): void {
+  public addRole(roleType: RoleType): void {
     if (!this._roles.has(roleType)) {
       const roleClass = RoleTypeMap.get(roleType);
       const role: IRole = new roleClass();
@@ -22,7 +22,7 @@ export class RoleManager {
     }
   }
 
-  private removeRole(roleType: RoleType): void {
+  public removeRole(roleType: RoleType): void {
     this._roles.delete(roleType);
   }
 
@@ -48,14 +48,20 @@ export class RoleManager {
   }
 
   public getRolesRequiringPeer(remotePeer: RemotePeer): Array<RoleType> {
-    return Array.from(this._roles.keys())
+    return this.getRoles()
       .filter(
         roleType => this._roles.get(roleType).requiresPeer(remotePeer)
       );
   }
 
-  public getRoles() {
-    return this._roles;
+  public getRoles(): Array<RoleType> {
+    return Array.from(this._roles.keys());
+  }
+
+  public hasRole(...roleTypes: Array<RoleType>): boolean {
+    return this.getRoles()
+      .filter(roleType => roleTypes.indexOf(roleType) >= 0)
+      .length > 0;
   }
 
   public toString(): string {

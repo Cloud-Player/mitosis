@@ -44,7 +44,7 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
 
   public getRoles() {
     if (this.selectedNode) {
-      return Array.from(this.selectedNode.getMitosis().getRoles().keys());
+      return this.selectedNode.getMitosis().getRoleManager().getRoles();
     } else {
       return [];
     }

@@ -123,8 +123,8 @@ export class Mitosis {
     return this._internalMessages;
   }
 
-  public getRoles(): Array<RoleType> {
-    return this._roleManager.getRoles();
+  public getRoleManager(): RoleManager {
+    return this._roleManager;
   }
 
   public sendMessageTo(peerId: string, message: any): void {
