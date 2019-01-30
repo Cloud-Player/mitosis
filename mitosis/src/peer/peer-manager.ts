@@ -2,11 +2,20 @@ import {Subject} from 'rxjs';
 import {filter} from 'rxjs/operators';
 import {IClock} from '../clock/interface';
 import {Configuration} from '../configuration';
-import {IConnectionOptions, IViaConnectionOptions, Protocol} from '../connection/interface';
+import {
+  IConnectionOptions,
+  IViaConnectionOptions,
+  IWebRTCConnectionOptions,
+  Protocol,
+  WebRTCConnectionOptionsPayloadType
+} from '../connection/interface';
+import {WebRTCConnection} from '../connection/webrtc';
 import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
+import {ConnectionNegotiation, ConnectionNegotiationType} from '../message/connection-negotiation';
 import {Message} from '../message/message';
+import {PeerUpdate} from '../message/peer-update';
 import {RoleManager} from '../role/role-manager';
 import {IPeerChurnEvent} from './interface';
 import {RemotePeer} from './remote-peer';
@@ -50,8 +59,7 @@ export class PeerManager {
         table => table.filterDirect()
       );
     if (directPeers.length >= Configuration.DIRECT_CONNECTIONS_MAX) {
-      Logger.getLogger(this._myId).warn(`max direct connections reached ${address.toString()}`);
-      return Promise.reject(peer);
+      return Promise.reject(`max direct connections reached ${address.toString()}`);
     }
 
     if (!peer) {
@@ -79,22 +87,96 @@ export class PeerManager {
   }
 
   public connectToVia(remotePeerId: string, viaPeerId: string, options?: IConnectionOptions): Promise<RemotePeer> {
-    const viaAddress = new Address(
-      remotePeerId,
-      Protocol.VIA,
-      viaPeerId
-    );
-    const remotePeer = this.getPeerById(viaPeerId);
-    if (remotePeer) {
-      options.payload.parent = remotePeer
+    const viaPeer = this.getPeerById(viaPeerId);
+    if (viaPeer) {
+      const address = new Address(
+        remotePeerId,
+        Protocol.VIA,
+        viaPeerId
+      );
+      options = options || {payload: {}};
+      options.payload.quality = options.payload.quality || 1;
+      options.payload.parent = viaPeer
         .getConnectionTable()
         .filterDirect()
         .shift();
-      return this.connectTo(viaAddress, options as IViaConnectionOptions);
+      return this.connectTo(address, options as IViaConnectionOptions);
     } else {
       const reason =  `cannot connect to ${remotePeerId} because via ${viaPeerId} is missing`;
       Logger.getLogger(this._myId).error(reason);
       return Promise.reject(reason);
+    }
+  }
+
+  public ensureConnection(remotePeerId: string, viaPeerId: string, options?: IConnectionOptions): Promise<RemotePeer> {
+    if (remotePeerId === viaPeerId) {
+      const remotePeer = this.getPeerById(remotePeerId);
+      if (remotePeer) {
+        return Promise.resolve(remotePeer);
+      } else {
+        return Promise.reject(
+          `direct connection to ${remotePeerId} disappeared`);
+      }
+    } else {
+      return this.connectToVia(remotePeerId, viaPeerId, options);
+    }
+  }
+
+  public updatePeers(peerUpdate: PeerUpdate, viaPeerId: string): void {
+    const senderId = peerUpdate.getSender().getId();
+
+    if (senderId !== viaPeerId) {
+      throw new Error(
+        `will not accept peer update from ${senderId} via ${viaPeerId}`
+      );
+    }
+
+    peerUpdate.getBody()
+      .forEach(
+        entry => {
+          this.ensureConnection(
+            entry.peerId,
+            senderId,
+            {payload: {quality: entry.quality}}
+          )
+            .then(
+              remotePeer => {
+                // TODO: Only set roles if peerUpdate from superior
+                remotePeer.setRoles(entry.roles);
+              }
+            ).catch(
+            reason => Logger.getLogger(this.getMyId()).debug(reason)
+          );
+        }
+      );
+  }
+
+  public negotiateConnection(connectionNegotiation: ConnectionNegotiation) {
+    const senderAddress = connectionNegotiation.getSender();
+    const options: IWebRTCConnectionOptions = {
+      mitosisId: this._myId,
+      payload: {
+        type: connectionNegotiation.getBody().type as unknown as WebRTCConnectionOptionsPayloadType,
+        sdp: connectionNegotiation.getBody().sdp
+      }
+    };
+    switch (connectionNegotiation.getBody().type) {
+      case ConnectionNegotiationType.OFFER:
+        this.connectTo(senderAddress, options);
+        break;
+      case ConnectionNegotiationType.ANSWER:
+        this.connectTo(senderAddress).then(
+          remotePeer => {
+            const webRTCConnection: WebRTCConnection =
+              remotePeer.getConnectionForAddress(senderAddress) as WebRTCConnection;
+            webRTCConnection.establish(options.payload);
+          }
+        );
+        break;
+      default:
+        throw new Error(
+          `unsupported connection negotiation type ${connectionNegotiation.getType()}`
+        );
     }
   }
 

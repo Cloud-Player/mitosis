@@ -72,13 +72,13 @@ export class Simulation {
         if (connection.getState() === ConnectionState.OPEN) {
           connection.onMessage(message);
         } else {
-          throw new Error(
+          Logger.getLogger('simulation').error(
             `failed to deliver message to ${to} because connection is ${connection.getState()}: ${message.toString()}`
           );
         }
       }, delay);
     } else {
-      throw new Error(
+      Logger.getLogger('simulation').error(
         `failed to deliver message to ${to} because connection does not exist: ${message.toString()}`);
     }
   }

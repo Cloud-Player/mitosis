@@ -42,14 +42,14 @@
       }
     },
     {
-      "tick": 14,
+      "tick": 20,
       "type": "set-clock-speed",
       "configuration": {
         "speed": 1000
       }
     },
     {
-      "tick": 21,
+      "tick": 30,
       "type": "pause-clock"
     }
   ]

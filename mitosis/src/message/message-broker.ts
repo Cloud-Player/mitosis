@@ -1,20 +1,12 @@
 import {Subject} from 'rxjs';
 import {filter} from 'rxjs/operators';
-import {
-  ConnectionState,
-  IConnection,
-  IConnectionOptions,
-  IWebRTCConnectionOptions,
-  Protocol,
-  WebRTCConnectionOptionsPayloadType
-} from '../connection/interface';
-import {WebRTCConnection} from '../connection/webrtc';
+import {ConnectionState, IConnection, Protocol} from '../connection/interface';
 import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {PeerManager} from '../peer/peer-manager';
 import {RemotePeer} from '../peer/remote-peer';
 import {RoleManager} from '../role/role-manager';
-import {ConnectionNegotiation, ConnectionNegotiationType} from './connection-negotiation';
+import {ConnectionNegotiation} from './connection-negotiation';
 import {MessageSubject} from './interface';
 import {Message} from './message';
 import {PeerUpdate} from './peer-update';
@@ -67,18 +59,6 @@ export class MessageBroker {
       );
   }
 
-  private ensureViaConnection(remotePeerId: string, viaPeerId: string, quality: number = 1): void {
-    if (
-      remotePeerId !== viaPeerId &&
-      remotePeerId !== this._peerManager.getMyId()
-    ) {
-      const options: IConnectionOptions = {
-        payload: {quality: quality}
-      };
-      this._peerManager.connectToVia(remotePeerId, viaPeerId, options);
-    }
-  }
-
   private handleMessage(message: Message, connection: IConnection): void {
     try {
       this._incomingMessageSubject.next(message);
@@ -94,25 +74,31 @@ export class MessageBroker {
   }
 
   private receiveMessage(message: Message, connection: IConnection): void {
-    this.ensureViaConnection(
-      message.getSender().getId(),
-      connection.getAddress().getId()
-    );
+    const viaPeerId = connection.getAddress().getId();
+    const senderId = message.getSender().getId();
+
+    this._peerManager
+      .ensureConnection(senderId, viaPeerId)
+      .catch(
+        reason =>
+          Logger.getLogger(this._peerManager.getMyId()).warn(reason)
+      );
+
     switch (message.getSubject()) {
       case MessageSubject.ROLE_UPDATE:
-        // TODO: Only accept role update from superior
-        this.updateRoles(message as RoleUpdate);
+        this._roleManager.updateRoles(message as RoleUpdate);
         break;
       case MessageSubject.PEER_UPDATE:
-        this.updatePeers(message as PeerUpdate, connection);
+        this._peerManager.updatePeers(message as PeerUpdate, viaPeerId);
         break;
       case MessageSubject.CONNECTION_NEGOTIATION:
-        this.negotiateConnection(message as ConnectionNegotiation);
+        this._peerManager.negotiateConnection(message as ConnectionNegotiation);
         break;
       case MessageSubject.APP_CONTENT:
         this._appContentMessagesSubject.next(message);
         break;
       case MessageSubject.INTRODUCTION:
+        // Do nothing, role manager will forward this to signal role if needed
         break;
       default:
         throw new Error(`unsupported subject ${message.getSubject()}`);
@@ -120,74 +106,23 @@ export class MessageBroker {
     this._messagesSubject.next(message);
   }
 
-  private updateRoles(roleUpdate: RoleUpdate): void {
-    this._roleManager.updateRoles(roleUpdate.getBody());
-  }
-
-  private updatePeers(peerUpdate: PeerUpdate, connection: IConnection): void {
-    // Only accept peer updates from direct connections or peers in opening state
-    if (peerUpdate.getSender().getId() !== connection.getAddress().getId()) {
-      const sender = this._peerManager.getPeerById(peerUpdate.getSender().getId());
-      const openingConnections = sender.getConnectionTable()
-        .filterDirect()
-        .filterByStates(ConnectionState.OPENING);
-      if (openingConnections.length === 0) {
-        throw new Error(
-          `${peerUpdate.getReceiver()} will not accept peer update from ` +
-          `${peerUpdate.getSender()} via ${connection.getAddress()}`
-        );
-      }
-    }
-    peerUpdate.getBody()
-      .forEach(
-        entry => {
-          this.ensureViaConnection(
-            entry.peerId,
-            peerUpdate.getSender().getId(),
-            entry.quality
-          );
-        }
-      );
-  }
-
-  private negotiateConnection(connectionNegotiation: ConnectionNegotiation): void {
-    const senderAddress = connectionNegotiation.getSender();
-    const options: IWebRTCConnectionOptions = {
-      mitosisId: this._peerManager.getMyId(),
-      payload: {
-        type: connectionNegotiation.getBody().type as unknown as WebRTCConnectionOptionsPayloadType,
-        sdp: connectionNegotiation.getBody().sdp
-      }
-    };
-    switch (connectionNegotiation.getBody().type) {
-      case ConnectionNegotiationType.OFFER:
-        this._peerManager.connectTo(senderAddress, options);
-        break;
-      case ConnectionNegotiationType.ANSWER:
-        this._peerManager.connectTo(senderAddress).then(remotePeer => {
-          const webRTCConnection: WebRTCConnection =
-            remotePeer.getConnectionForAddress(senderAddress) as WebRTCConnection;
-          webRTCConnection.establish(options.payload);
-        });
-        break;
-      default:
-        throw new Error(
-          `unsupported connection negotiation type ${connectionNegotiation.getType()}`
-        );
-    }
-  }
-
   private forwardMessage(message: Message): void {
     const peerId = message.getReceiver().getId();
     const receiverPeer = this._peerManager.getPeerById(peerId);
+    if (!receiverPeer) {
+      Logger.getLogger(this._peerManager.getMyId()).error(`no idea how to reach ${peerId}`);
+      return;
+    }
     const connection = receiverPeer.getConnectionTable()
       .filterByStates(ConnectionState.OPEN)
       .sortByQuality()
       .shift();
     let directPeer;
     if (!connection) {
-      Logger.getLogger(this._peerManager.getMyId()).error('all connections lost to', receiverPeer.getId());
-    } else if (connection.getAddress().getProtocol() === Protocol.VIA) {
+      Logger.getLogger(this._peerManager.getMyId()).error(`all connections lost to ${peerId}`);
+      return;
+    }
+    if (connection.getAddress().getProtocol() === Protocol.VIA) {
       const directPeerId = connection.getAddress().getLocation();
       directPeer = this._peerManager.getPeerById(directPeerId);
       directPeer.send(message);

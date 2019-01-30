@@ -1,4 +1,5 @@
 import {Message} from '../message/message';
+import {RoleUpdate} from '../message/role-update';
 import {Mitosis} from '../mitosis';
 import {RemotePeer} from '../peer/remote-peer';
 import {IRole, RoleType} from './interface';
@@ -25,7 +26,9 @@ export class RoleManager {
     this._roles.delete(roleType);
   }
 
-  public updateRoles(roleTypes: Array<RoleType>): void {
+  public updateRoles(roleUpdate: RoleUpdate): void {
+    // TODO: Only accept role update from superior
+    const roleTypes: Array<RoleType> = roleUpdate.getBody();
     this._roles.forEach((role, roleType) => {
       if (roleTypes.indexOf(roleType) === -1) {
         this.removeRole(roleType);

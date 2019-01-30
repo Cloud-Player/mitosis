@@ -3,8 +3,8 @@
   <app-collapsible *ngFor="let remotePeer of selectedNode.getMitosis().getPeerTable().asArray()"
                    id="rtbl-{{selectedNode.getId()+'-'+remotePeer.getId()}}"
                    [isCollapsed]="true"
-                   [title]="remotePeer.getId()+' PQ: '+remotePeer.getQuality().toFixed(2)"
-                   [text]="getConnectionText(remotePeer)">
+                   [title]="remotePeer.getId() +' PQ: '+remotePeer.getQuality().toFixed(2)"
+                   [text]="getPeerAnnotation(remotePeer)">
     <ul class="connections">
       <div class="meter">
         <small>

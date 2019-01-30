@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {ConnectionState, RemotePeer} from 'mitosis';
+import {ConnectionState, RemotePeer, RoleType} from 'mitosis';
 import {Node, Simulation} from 'mitosis-simulation';
 
 @Component({
@@ -17,16 +17,33 @@ export class PeerTableComponent implements OnInit {
   constructor() {
   }
 
-  public getConnectionText(peer: RemotePeer) {
+  public getPeerAnnotation(peer: RemotePeer) {
+    let text = '';
+
+    const roles = peer.getRoles().filter(role => role !== RoleType.PEER);
+    if (roles.length) {
+      text = `[${roles.join(', ')}]`;
+    }
+
     const directConnections = peer.getConnectionTable().filterDirect();
-    const allDirectConnections = directConnections.length;
-    const openDirectConnections = directConnections.filterByStates(ConnectionState.OPEN).length;
-    const directText = `direct ${openDirectConnections}/${allDirectConnections}`;
+    if (directConnections.length > 0) {
+      let directText = `${directConnections.length}`;
+      const nonOpenConnections = directConnections
+        .exclude(
+          table => table.filterByStates(ConnectionState.OPEN)
+        ).length;
+      if (nonOpenConnections > 0) {
+        directText = `${nonOpenConnections}/${directText}`;
+      }
+      text = `${text} direct ${directText}`;
+    }
 
-    const viaConnections = peer.getConnectionTable().filterVia().length;
-    const viaText = `via ${viaConnections}`;
+    const viaConnections = peer.getConnectionTable().filterVia();
+    if (viaConnections.length > 0) {
+      text = `${text} via ${viaConnections.length}`;
+    }
 
-    return `${directText}, ${viaText}`;
+    return text;
   }
 
   ngOnInit(): void {

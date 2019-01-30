@@ -32,7 +32,7 @@ export class ViaConnection extends AbstractConnection implements IConnection {
 
   protected closeClient(): void {
     this._parentSubscription.unsubscribe();
-    this.onClose();
+    this.onClose('via connection close client');
   }
 
   protected openClient(): void {
