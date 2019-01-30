@@ -3,7 +3,6 @@ import {
   IClock,
   IConnection,
   IConnectionOptions,
-  IMeter,
   Logger,
   Message,
   MessageSubject,
@@ -32,11 +31,11 @@ export class WebRTCDataMockConnection extends MockConnection implements IConnect
 
   private createOffer(mitosisId: string) {
     this._client.getClock().setTimeout(() => {
-      Logger.getLogger(mitosisId).debug('webrtc offer ready');
       const offer = {
         type: 'offer',
         sdp: this._lastOffer++
       };
+      Logger.getLogger(mitosisId).debug('webrtc offer ready', JSON.stringify(offer));
       const offerMsg = new Message(
         new Address(mitosisId, Protocol.WEBRTC_DATA, this.getId()),
         this.getAddress(),
@@ -54,11 +53,11 @@ export class WebRTCDataMockConnection extends MockConnection implements IConnect
 
   private createAnswer(mitosisId: string, offer: number) {
     this._client.getClock().setTimeout(() => {
-      Logger.getLogger(mitosisId).debug('webrtc answer ready');
       const answer = {
         type: 'answer',
         sdp: this._lastAnswer++
       };
+      Logger.getLogger(mitosisId).debug('webrtc answer ready', JSON.stringify(answer));
       const answerMsg = new Message(
         new Address(mitosisId, Protocol.WEBRTC_DATA, this.getId()),
         new Address(this.getAddress().getId()),
@@ -116,8 +115,8 @@ export class WebRTCDataMockConnection extends MockConnection implements IConnect
     }
   }
 
-  public establish(answer: number) {
-    Logger.getLogger(this._options.mitosisId).debug('establish connection', answer);
+  public establish(answer: { type: string, sdp: number }) {
+    Logger.getLogger(this._options.mitosisId).debug('establish mock connection', JSON.stringify(answer));
     this._client.getClock().setTimeout(() => {
       this._client.establishConnection(this._address.getId(), this._options.mitosisId, this._address.getLocation());
     }, this.getConnectionDelay());
