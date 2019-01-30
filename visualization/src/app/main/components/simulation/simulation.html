@@ -10,6 +10,8 @@
        [minHeight]="false">
     <app-sidebar [selectedNode]="selectedNode"
                  [graph]="graph"
-                 [simulation]="simulation"></app-sidebar>
+                 [simulation]="simulation"
+                 (scenarioChange)="updateScenario($event)">
+    </app-sidebar>
   </div>
 </div>

@@ -1,7 +1,7 @@
 <div class="sidebar">
-  <section>
-    Clock {{getClock().getTick()}}
-    <p>
+  <section class="scenario-setup">
+    <header>Clock {{getClock().getTick()}}</header>
+    <div>
       <app-button *ngIf="!getClock().isRunning()"
                   text="Start"
                   (click)="getClock().start()">
@@ -14,7 +14,14 @@
                   text="Pause"
                   (click)="getClock().pause()">
       </app-button>
-    </p>
+      <app-button *ngIf="getClock().isRunning()"
+                  text="Restart"
+                  (click)="restart()">
+      </app-button>
+      <app-scenario-selector
+        (scenarioChange)="updateScenario($event)">
+      </app-scenario-selector>
+    </div>
   </section>
 
   <section>
