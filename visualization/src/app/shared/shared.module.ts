@@ -21,13 +21,14 @@ import {
   MatAutocompleteModule,
   MatButtonModule,
   MatFormFieldModule,
-  MatInputModule,
+  MatInputModule, MatSelectModule,
   MatSliderModule
 } from '@angular/material';
 import {ButtonComponent} from './components/ui/inputs/button/button';
 import {CollapsibleComponent} from './components/collapsible/collapsible';
 import {FormFieldComponent} from './components/ui/form/form-field/form-field';
 import {SliderComponent} from './components/ui/inputs/slider/slider';
+import {SelectorComponent} from './components/ui/inputs/selector/selector';
 
 @NgModule({
   imports: [
@@ -38,7 +39,8 @@ import {SliderComponent} from './components/ui/inputs/slider/slider';
     MatButtonModule,
     MatAutocompleteModule,
     MatSliderModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatSelectModule
   ],
   exports: [
     ScrollViewComponent,
@@ -54,6 +56,7 @@ import {SliderComponent} from './components/ui/inputs/slider/slider';
     SearchInputComponent,
     ButtonComponent,
     SliderComponent,
+    SelectorComponent,
     FormFieldComponent,
 
     FillHeightDirective,
@@ -75,6 +78,7 @@ import {SliderComponent} from './components/ui/inputs/slider/slider';
     SearchInputComponent,
     ButtonComponent,
     SliderComponent,
+    SelectorComponent,
     FormFieldComponent,
 
     FillHeightDirective,

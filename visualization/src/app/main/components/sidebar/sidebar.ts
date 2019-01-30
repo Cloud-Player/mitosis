@@ -1,7 +1,9 @@
-import {Component, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {Node, Simulation} from 'mitosis-simulation';
 import {SearchInputComponent} from '../../../shared/components/ui/inputs/search/search';
 import {D3DirectedGraphComponent} from '../d3-directed-graph/d3-directed-graph';
+import {ISelectorOption} from '../../../shared/components/ui/inputs/selector/selector';
+import {HttpClient} from '@angular/common/http';
 
 @Component({
   selector: 'app-sidebar',
@@ -10,6 +12,7 @@ import {D3DirectedGraphComponent} from '../d3-directed-graph/d3-directed-graph';
 })
 export class SidebarComponent implements OnInit {
   private searchNode: string;
+  private selectedScenario: any;
   public nodeQuery: string;
   public availableNodeIds: Array<string> = [];
 
@@ -22,15 +25,30 @@ export class SidebarComponent implements OnInit {
   @Input()
   public graph: D3DirectedGraphComponent;
 
+  @Output()
+  public scenarioChange: EventEmitter<any>;
+
   @ViewChild('searchInput')
   public searchEl: SearchInputComponent;
 
-  constructor() {
+  constructor(private _http: HttpClient) {
+    this.scenarioChange = new EventEmitter();
   }
 
   public search(nodeId: string) {
     this.searchNode = nodeId;
     this.graph.selectNode(nodeId);
+  }
+
+  public updateScenario(scenario) {
+    this.scenarioChange.emit(scenario);
+    this.selectedScenario = scenario;
+  }
+
+  public restart() {
+    if (this.selectedScenario) {
+      this.scenarioChange.emit(this.selectedScenario);
+    }
   }
 
   public getClock() {

@@ -7,8 +7,6 @@ import {MessageEventLogger} from '../../services/message-event-logger';
 import {D3DirectedGraphComponent} from '../d3-directed-graph/d3-directed-graph';
 import {D3Model} from '../d3-directed-graph/models/d3';
 
-const scenario = require('./scenario/large-crowd.json');
-
 @Component({
   selector: 'app-simulation',
   templateUrl: './simulation.html',
@@ -28,11 +26,29 @@ export class SimulationComponent implements OnInit {
     this.simulation = Simulation.getInstance();
   }
 
+  private toggleClock() {
+    if (this.simulation) {
+      const clock = this.simulation.getClock();
+      if (clock.isRunning()) {
+        clock.pause();
+      } else {
+        clock.start();
+      }
+    }
+  }
+
+  private nextTick() {
+    if (this.simulation) {
+      this.simulation.getClock().tick();
+    }
+  }
+
   public selectNode(node: Node) {
     this.selectedNode = node;
   }
 
-  ngOnInit(): void {
+  public updateScenario(scenario: any) {
+    this.simulation.reset();
     this.simulation.start(scenario);
     let subscriptions: Subscription = new Subscription();
     this.logEventLogger.getLogger().setClock(this.simulation.getClock());
@@ -80,6 +96,25 @@ export class SimulationComponent implements OnInit {
           });
       });
       this.model = model;
+    });
+  }
+
+  ngOnInit(): void {
+    window.addEventListener('keyup', (ev: KeyboardEvent) => {
+      const key = ev.code;
+      switch (key) {
+        case 'Space':
+          const activeEl = document.activeElement;
+          const inputs = ['input', 'select', 'button', 'textarea'];
+          if (activeEl && inputs.indexOf(activeEl.tagName.toLowerCase()) !== -1) {
+            return false;
+          } else {
+            this.toggleClock();
+          }
+          break;
+        case 'ArrowRight':
+          this.nextTick();
+      }
     });
   }
 }

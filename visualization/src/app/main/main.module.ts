@@ -15,6 +15,7 @@ import {SimulationComponent} from './components/simulation/simulation';
 import {MainRoutingModule} from './main.routes';
 import {LogEventLogger} from './services/log-event-logger';
 import {MessageEventLogger} from './services/message-event-logger';
+import {ScenarioSelectorComponent} from './components/sidebar/scenario-selector/scenario-selector';
 
 @NgModule({
   imports: [
@@ -31,6 +32,7 @@ import {MessageEventLogger} from './services/message-event-logger';
     MainComponent,
     D3DirectedGraphComponent,
     SimulationComponent,
+    ScenarioSelectorComponent,
     SidebarComponent,
     NodeSettingsComponent,
     MessagesComponent,

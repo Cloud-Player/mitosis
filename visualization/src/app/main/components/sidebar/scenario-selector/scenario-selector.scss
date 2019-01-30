@@ -1,0 +1,62 @@
+@import "variables";
+
+:host {
+
+  /deep/ app-collapsible {
+    font-size: 12px;
+    position: relative;
+
+    &:before {
+      position: absolute;
+      top: -2px;
+    }
+
+    .collapsible {
+      padding-left: 20px;
+    }
+
+    &.level-0 {
+      color: gainsboro;
+
+      &:before{
+        content: "📠";
+      }
+    }
+
+    &.level-10 {
+      color: lightcyan;
+
+      &:before{
+        content: "🚑";
+      }
+    }
+
+    &.level-20 {
+      color: lightyellow;
+
+      &:before{
+        content: "📬";
+      }
+    }
+
+    &.level-30 {
+      color: darkorange;
+
+      &:before{
+        content: "🚧";
+      }
+    }
+
+    &.level-40 {
+      &:before{
+        content: "🚒";
+      }
+
+      .title{
+        background: tomato;
+        padding: 2px 5px;
+        color: white;
+      }
+    }
+  }
+}

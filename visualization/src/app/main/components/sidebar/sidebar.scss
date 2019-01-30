@@ -6,7 +6,7 @@
 
     /deep/ section,
     section {
-      padding: 15px 24px;
+      padding: 15px;
       border-top: 2px solid;
       border-color: rgba(255, 255, 255, 0.5);
 
@@ -34,11 +34,26 @@
     app-button {
       margin: 0 5px;
     }
+
     app-button:first-child {
       margin-left: 0;
     }
+
     app-button:last-child {
       margin-right: 0;
+    }
+
+    .scenario-setup {
+      padding-bottom: 0;
+      
+      header {
+        margin-bottom: 0;
+      }
+
+      app-scenario-selector {
+        display: inline-block;
+        margin-left: 5px;
+      }
     }
 
     /deep/ app-tab-bar {
@@ -82,6 +97,7 @@
       label {
         color: white !important;
       }
+
       .mat-form-field-underline {
         background: rgba(255, 255, 255, 0.5);
       }
@@ -95,6 +111,7 @@
       .mat-checkbox-frame {
         border-color: rgba(255, 255, 255, 0.5);
       }
+
       &.mat-checkbox-checked {
         .mat-checkbox-background {
           background: white;
