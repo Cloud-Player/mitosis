@@ -1,5 +1,6 @@
+import {Configuration} from '../configuration';
+
 export class SlidingWindow extends Set<number> {
-  public static readonly WINDOW_SIZE = 12;
   private _sequence = 0;
 
   private removeOutDated(): void {
@@ -18,7 +19,7 @@ export class SlidingWindow extends Set<number> {
     if (this._sequence == null) {
       return true;
     } else {
-      return (sequence > this._sequence) || (sequence <= this._sequence - SlidingWindow.WINDOW_SIZE);
+      return (sequence > this._sequence) || (sequence <= this._sequence - Configuration.SLIDING_WINDOW_SIZE);
     }
   }
 
