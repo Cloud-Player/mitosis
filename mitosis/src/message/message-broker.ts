@@ -80,11 +80,16 @@ export class MessageBroker {
   }
 
   private handleMessage(message: Message, connection: IConnection): void {
-    this._incomingMessageSubject.next(message);
-    if (message.getReceiver().getId() === this._peerManager.getMyId()) {
-      this.receiveMessage(message, connection);
-    } else {
-      this.forwardMessage(message);
+    try {
+      this._incomingMessageSubject.next(message);
+      if (message.getReceiver().getId() === this._peerManager.getMyId()) {
+        this.receiveMessage(message, connection);
+      } else {
+        this.forwardMessage(message);
+      }
+    } catch (e) {
+      Logger.getLogger(message.getReceiver().getId()).error(e.message, e);
+      throw e;
     }
   }
 
