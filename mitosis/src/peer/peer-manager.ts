@@ -70,7 +70,7 @@ export class PeerManager {
     }
 
     const directPeers = this.getPeerTable()
-      .filterConnection(
+      .filterConnections(
         table => table.filterDirect()
       );
     if (directPeers.length >= Configuration.DIRECT_CONNECTIONS_MAX) {

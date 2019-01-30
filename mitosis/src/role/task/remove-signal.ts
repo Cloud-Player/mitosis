@@ -9,7 +9,7 @@ export function removeSignal(mitosis: Mitosis): void {
 
   const signals = peerTable
     .filterByRole(RoleType.SIGNAL)
-    .filterConnection(
+    .filterConnections(
       table => table
         .filterDirect()
         .filterByStates(ConnectionState.OPEN)
@@ -21,7 +21,7 @@ export function removeSignal(mitosis: Mitosis): void {
 
   const routers = peerTable
     .filterByRole(RoleType.ROUTER)
-    .filterConnection(
+    .filterConnections(
       table => table
         .filterDirect()
         .filterByStates(ConnectionState.OPEN)

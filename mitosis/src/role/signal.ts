@@ -46,7 +46,7 @@ export class Signal implements IRole {
       .getPeerManager()
       .getPeerTable()
       .filterByRole(RoleType.ROUTER)
-      .filterConnection(
+      .filterConnections(
         table => table
           .filterDirect()
           .filterByStates(ConnectionState.OPEN)

@@ -11,19 +11,19 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
     .getPeerTable();
 
   const directPeers = peerTable
-    .filterConnection(
+    .filterConnections(
       table => table
         .filterDirect()
         .filterByStates(ConnectionState.OPEN)
     );
 
   const viaPeers = peerTable
-    .filterConnection(
+    .filterConnections(
       table => table.filterVia()
     )
     .exclude(
       table => table
-        .filterConnection(
+        .filterConnections(
           connectionTable => connectionTable.filterDirect()
         )
     )
