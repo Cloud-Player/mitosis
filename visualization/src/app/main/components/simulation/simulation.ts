@@ -109,11 +109,20 @@ export class SimulationComponent implements OnInit {
           if (activeEl && inputs.indexOf(activeEl.tagName.toLowerCase()) !== -1) {
             return false;
           } else {
+            ev.preventDefault();
+            ev.stopPropagation();
+            ev.stopImmediatePropagation();
             this.toggleClock();
           }
           break;
         case 'ArrowRight':
           this.nextTick();
+      }
+    });
+
+    window.addEventListener('keydown', function (e) {
+      if (e.code === 'Space' && e.target === document.body) {
+        e.preventDefault();
       }
     });
   }
