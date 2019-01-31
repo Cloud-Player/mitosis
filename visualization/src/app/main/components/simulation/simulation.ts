@@ -6,6 +6,7 @@ import {LogEventLogger} from '../../services/log-event-logger';
 import {MessageEventLogger} from '../../services/message-event-logger';
 import {D3DirectedGraphComponent} from '../d3-directed-graph/d3-directed-graph';
 import {D3Model} from '../d3-directed-graph/models/d3';
+import {SidebarComponent} from '../sidebar/sidebar';
 
 @Component({
   selector: 'app-simulation',
@@ -13,12 +14,16 @@ import {D3Model} from '../d3-directed-graph/models/d3';
   styleUrls: ['./simulation.scss'],
 })
 export class SimulationComponent implements OnInit {
+  private simulation: Simulation;
+
   public model: D3Model;
   public selectedNode: Node;
-  public simulation: Simulation;
 
   @ViewChild('graph')
   public graph: D3DirectedGraphComponent;
+
+  @ViewChild('sidebar')
+  public sidebar: SidebarComponent;
 
   constructor(private logEventLogger: LogEventLogger,
               private messageEventLogger: MessageEventLogger) {
@@ -97,6 +102,25 @@ export class SimulationComponent implements OnInit {
       });
       this.model = model;
     });
+    this.sidebar.updateSimulation(this.simulation);
+  }
+
+  public getClockEmoji() {
+    const clock = ['🕛', '🕜', '🕐', '🕝', '🕑', '🕞', '🕒', '🕟', '🕓', '🕠', '🕔', '🕡', '🕕', '🕢', '🕖', '🕣', '🕗', '🕤', '🕘', '🕥', '🕙', '🕦', '🕚', '🕧'];
+    if (this.getClock()) {
+      if (this.getClock().isRunning()) {
+        const tick = this.getClock().getTick() % 24;
+        return clock[tick];
+      } else {
+        return '⏸';
+      }
+    }
+  }
+
+  public getClock() {
+    if (this.simulation) {
+      return this.simulation.getClock();
+    }
   }
 
   ngOnInit(): void {

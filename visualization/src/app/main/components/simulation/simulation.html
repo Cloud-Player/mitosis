@@ -1,4 +1,9 @@
 <div class="simulation">
+  <div *ngIf="getClock()"
+       class="clock">
+    {{getClockEmoji()}}
+    {{getClock().getTick()}}
+  </div>
   <div class="graph">
     <app-d3-directed-graph #graph
                            [model]="model"
@@ -8,9 +13,9 @@
   <div class="sidebar scrollable"
        appFillHeight
        [minHeight]="false">
-    <app-sidebar [selectedNode]="selectedNode"
+    <app-sidebar #sidebar
+                 [selectedNode]="selectedNode"
                  [graph]="graph"
-                 [simulation]="simulation"
                  (scenarioChange)="updateScenario($event)">
     </app-sidebar>
   </div>
