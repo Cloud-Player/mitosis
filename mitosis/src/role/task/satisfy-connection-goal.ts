@@ -53,7 +53,11 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
     Logger.getLogger(mitosis.getMyAddress().getId()).debug(
       `need to loose ${directConnectionCount - Configuration.DIRECT_CONNECTIONS_GOAL} peers`
     );
-    const worstDirectPeers = directPeers.sortByQuality();
+    const worstDirectPeers = directPeers
+      .exclude(
+        table => table.filterIsProtected(true)
+      )
+      .sortByQuality();
     while (worstDirectPeers.length) {
       const worstDirectPeer = worstDirectPeers.pop();
       const success = mitosis
