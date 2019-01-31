@@ -220,6 +220,16 @@ export class PeerManager {
   }
 
   public negotiateConnection(connectionNegotiation: ConnectionNegotiation) {
+    const directConnectionCount = this.getPeerTable()
+      .countConnections(
+        table => table.filterDirect()
+      );
+
+    if (directConnectionCount > Configuration.DIRECT_CONNECTIONS_MAX) {
+      Logger.getLogger(this._myId)
+        .info('too many connections already', connectionNegotiation);
+      return;
+    }
     const senderAddress = connectionNegotiation.getSender();
     const options: IWebRTCConnectionOptions = {
       mitosisId: this._myId,
