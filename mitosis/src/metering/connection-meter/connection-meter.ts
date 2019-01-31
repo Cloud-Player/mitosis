@@ -1,8 +1,11 @@
 import {Subject} from 'rxjs';
 import {IClock} from '../../clock/interface';
-import {IConnection} from '../../connection/interface';
-import {IConnectionEventType, IConnectionMeterEvent} from './interface';
 import {Configuration} from '../../configuration';
+import {IConnection} from '../../connection/interface';
+import {Logger} from '../../logger/logger';
+import {MessageSubject} from '../../message/interface';
+import {Message} from '../../message/message';
+import {IConnectionEventType, IConnectionMeterEvent} from './interface';
 
 export abstract class ConnectionMeter {
 
@@ -10,12 +13,25 @@ export abstract class ConnectionMeter {
   private _protected = false;
   private _connection: IConnection;
   private _subject: Subject<IConnectionMeterEvent>;
+  private _lastSeenTick = 0;
 
   protected abstract _clock: IClock;
 
   constructor(connection: IConnection) {
     this._connection = connection;
     this._subject = new Subject();
+    this.listenOnMessages();
+  }
+
+  private listenOnMessages() {
+    this._connection.observeMessageReceived()
+      .subscribe(
+        this.onMessage.bind(this)
+      );
+  }
+
+  protected onMessage(message: Message) {
+    this._lastSeenTick = this._clock.getTick();
   }
 
   private setProtected(isProtected: boolean) {
@@ -42,6 +58,10 @@ export abstract class ConnectionMeter {
         this._subject.next({type: IConnectionEventType.UNPUNISHED, connection: this._connection});
       }
     }
+  }
+
+  public getLastSeen(): number {
+    return this._lastSeenTick;
   }
 
   public isPunished() {

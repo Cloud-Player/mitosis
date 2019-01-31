@@ -19,5 +19,7 @@ export interface IConnectionMeter extends IMeter {
 
   isPunished(): boolean;
 
+  getLastSeen(): number;
+
   observe(): Subject<IConnectionMeterEvent>;
 }

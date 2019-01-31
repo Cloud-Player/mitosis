@@ -12,6 +12,14 @@
       border-bottom: 1px solid white;
       padding-bottom: 10px;
       margin-bottom: 5px;
+
+      pre{
+        display: inline-block;
+        margin-right: 5px;
+        font-family: monospace;
+        white-space: nowrap;
+        font-size: 10px;
+      }
     }
 
     li{

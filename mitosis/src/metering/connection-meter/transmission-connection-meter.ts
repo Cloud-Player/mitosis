@@ -93,6 +93,7 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
   }
 
   public onMessage(message: Message): void {
+    super.onMessage(message);
     if (message.getSubject() === MessageSubject.PING) {
       this.handlePing(message as Ping);
     } else if (message.getSubject() === MessageSubject.PONG) {
