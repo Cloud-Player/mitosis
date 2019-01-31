@@ -1,7 +1,61 @@
 @import "variables";
 
 :host {
-  app-collapsible{
+
+  /deep/ app-collapsible {
     font-size: 12px;
+    position: relative;
+
+    &:before {
+      position: absolute;
+      top: -2px;
+    }
+
+    .collapsible {
+      padding-left: 20px;
+    }
+
+    &.subject-introduction {
+      color: gainsboro;
+    }
+
+    &.subject-peer-update {
+      color: #ffdde9;
+    }
+
+    &.subject-role-update {
+      color: lightcyan;
+    }
+
+    &.subject-connection-negotiation {
+      color: #ffd4b8;
+    }
+
+    &.subject-app-content {
+      color: lightyellow;
+    }
+
+    &.subject-ping,
+    &.subject-pong {
+      color: #b7eeb7;
+    }
+
+    &.message-receive {
+      &:before {
+        content: "↘️";
+      }
+    }
+
+    &.message-send {
+      &:before {
+        content: "↗️️";
+      }
+    }
+
+    &.message-forward {
+      &:before {
+        content: "↔️";
+      }
+    }
   }
 }

@@ -77,9 +77,6 @@ export class MessageBroker {
     const viaPeerId = connection.getAddress().getId();
     const senderId = message.getSender().getId();
 
-    Logger.getLogger(this._peerManager.getMyId())
-      .info(`receive ${message.getSubject()} from ${message.getSender().getId()}`, message);
-
     this._peerManager
       .ensureConnection(senderId, viaPeerId)
       .catch(
@@ -110,9 +107,6 @@ export class MessageBroker {
   }
 
   private forwardMessage(message: Message): void {
-    Logger.getLogger(this._peerManager.getMyId())
-      .info(`send ${message.getSubject()} to ${message.getReceiver().getId()}`, message);
-
     const peerId = message.getReceiver().getId();
     const receiverPeer = this._peerManager.getPeerById(peerId);
     if (!receiverPeer) {

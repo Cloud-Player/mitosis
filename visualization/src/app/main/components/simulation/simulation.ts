@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {Logger, Protocol} from 'mitosis';
+import {Logger} from 'mitosis';
 import {Edge, MockConnection, Simulation} from 'mitosis-simulation';
 import {Subscription} from 'rxjs';
 import {LogEventLogger} from '../../services/log-event-logger';
@@ -85,14 +85,17 @@ export class SimulationComponent implements OnInit {
           .getPeerManager()
           .getPeerTable()
           .asArray()
-          .forEach((p) => {
-            p.getConnectionTable()
+          .forEach(remotePeer => {
+            remotePeer
+              .getConnectionTable()
+              .exclude(
+                table => table.filterVia()
+              )
               .asArray()
-              .forEach((c) => {
-                if (c.getAddress().getProtocol() !== Protocol.VIA) {
-                  model.addEdge(new Edge(node.getId(), c as MockConnection));
-                }
-              });
+              .forEach(
+                connection =>
+                  model.addEdge(new Edge(node.getId(), connection as MockConnection))
+              );
           });
       });
       this.model = model;
