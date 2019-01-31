@@ -1,6 +1,5 @@
 import {AbstractConnection, Address, ConnectionState, IClock, IConnection, IConnectionOptions, Logger, Message} from 'mitosis';
 import {filter} from 'rxjs/operators';
-import {MockMeter} from '../metering/mock-meter';
 import {Simulation} from '../simulation';
 
 export abstract class MockConnection extends AbstractConnection implements IConnection {
@@ -23,9 +22,9 @@ export abstract class MockConnection extends AbstractConnection implements IConn
     ).subscribe(() => {
       this._timeout = this._client.getClock().setTimeout(
         () => {
-          Logger.getLogger(this._options.mitosisId).warn(
-            `connecting to ${this.getAddress().toString()} took too long`, this);
-          this.onError('took too long');
+          const reason = `connecting to ${this.getAddress().getId()} took too long`;
+          Logger.getLogger(this._options.mitosisId).warn(reason, this);
+          this.onError(reason);
         },
         20
       );

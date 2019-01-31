@@ -98,7 +98,7 @@ export class PeerManager {
       })
       .catch(reason => {
         Logger.getLogger(this._myId)
-          .warn(`cannot open connection to ${address.toString()}`, reason);
+          .warn(`cannot open connection to ${address.getId()}`, reason);
         return Promise.reject(reason);
       });
   }

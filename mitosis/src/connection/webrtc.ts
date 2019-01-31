@@ -5,13 +5,7 @@ import {Address} from '../message/address';
 import {MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
 import {AbstractConnection} from './connection';
-import {
-  ConnectionState,
-  IConnection,
-  IConnectionOptions,
-  IWebRTCConnectionOptions,
-  WebRTCConnectionOptionsPayloadType
-} from './interface';
+import {ConnectionState, IConnection, IConnectionOptions, IWebRTCConnectionOptions, WebRTCConnectionOptionsPayloadType} from './interface';
 
 export abstract class WebRTCConnection extends AbstractConnection implements IConnection {
 
@@ -27,7 +21,8 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
   private createOffer(mitosisId: string) {
     this._client = new SimplePeer(this._simplePeerOptions);
     this._client.on('signal', (offer: SimplePeer.SignalData) => {
-      Logger.getLogger(mitosisId).debug('webrtc offer ready', JSON.stringify(offer));
+      Logger.getLogger(mitosisId)
+        .debug(`webrtc offer for ${this.getAddress().getId()} ready`, JSON.stringify(offer));
       this.onMessage(new Message(
         this.getMyAddress(),
         this.getAddress(),
@@ -41,7 +36,8 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
     this._client = new SimplePeer({initiator: false, trickle: false});
     this._client.signal(offer);
     this._client.on('signal', (answer: SimplePeer.SignalData) => {
-      Logger.getLogger(mitosisId).debug('webrtc answer ready', JSON.stringify(answer));
+      Logger.getLogger(mitosisId)
+        .debug(`webrtc answer for ${this.getAddress().getId()} ready`, JSON.stringify(answer));
       this.onMessage(new Message(
         this.getMyAddress(),
         new Address(this.getAddress().getId()),
@@ -65,7 +61,7 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
   protected getStats(): Promise<Array<RTCStats>> {
     const rtcpc = this.getRTCPeerConnection();
     if (!rtcpc) {
-      return Promise.reject('no stats for missing peer connection');
+      return Promise.reject(`no stats for missing connection to ${this.getMyAddress().getId()}`);
     }
     return new Promise<Array<RTCStats>>(resolve => {
       rtcpc.getStats()
@@ -124,16 +120,17 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
 
   public send(message: Message): void {
     if (!this._client) {
-      throw new Error('webrtc client not initialized');
+      throw new Error(`webrtc client not initialized`);
     } else if (this.getState() !== ConnectionState.OPEN) {
-      throw new Error(`webrtc connection not in open state (${this.getState()})`);
+      throw new Error(`webrtc cannot send to ${this.getState()} connection`);
     } else {
       this._client.send(message.toString());
     }
   }
 
   public establish(answer: SimplePeer.SignalData) {
-    Logger.getLogger(this._options.mitosisId).debug('webrtc connection negotiating', JSON.stringify(answer));
+    Logger.getLogger(this._options.mitosisId)
+      .debug(`webrtc answer for ${this.getAddress().getId()} negotiating`, JSON.stringify(answer));
     this._client.signal(answer);
   }
 }

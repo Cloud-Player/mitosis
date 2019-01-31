@@ -1,3 +1,4 @@
+import {Logger} from 'mitosis';
 import {IConfiguration, IInstruction, InstructionType, InstructionTypeMap} from './interface';
 
 export class InstructionFactory {
@@ -15,7 +16,8 @@ export class InstructionFactory {
 
   public static fromParameters(parameters: any): IInstruction {
     if (!parameters.type) {
-      console.error('🤜 could not parse instruction from', parameters);
+      Logger.getLogger('simulation')
+        .error('could not parse instruction from', parameters);
       return null;
     }
     const instructionClass = InstructionTypeMap.get(parameters.type as InstructionType);

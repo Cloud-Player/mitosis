@@ -93,9 +93,9 @@ export class Mitosis {
   private onTick(): void {
     try {
       this._roleManager.onTick(this);
-    } catch (e) {
-      this._logger.error(e.message, e);
-      throw e;
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
     }
   }
 
