@@ -9,7 +9,7 @@ export class Address {
 
   public constructor(
     id: string,
-    protocol?: Protocol,
+    protocol: Protocol,
     location?: string,
     version: string = 'v1'
   ) {
