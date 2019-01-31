@@ -5,6 +5,7 @@ import {Logger} from '../logger/logger';
 import {ConnectionsPerAddress, ConnectionsPerAddressEventType} from '../peer/connections-per-address';
 import {IConnectionEventType, IConnectionMeter, IConnectionMeterEvent} from './connection-meter/interface';
 import {IMeter} from './interface';
+import {ConnectionMeter} from './connection-meter/connection-meter';
 
 export class RemotePeerMeter implements IMeter {
 
@@ -53,6 +54,13 @@ export class RemotePeerMeter implements IMeter {
         this._protectedConnections--;
         break;
     }
+  }
+
+  public getLastSeen() {
+    return Array
+      .from(this._connectionsPerAddress.values())
+      .map(connection => (connection.getMeter() as IConnectionMeter).getLastSeen())
+      .reduce((previous, current) => previous >= current ? previous : current, 0);
   }
 
   // returns value between 0 and 1 which is the average tq of all connections

@@ -12,6 +12,7 @@
           ⌀TQ: {{remotePeer.getMeter().getAverageConnectionQuality().toFixed(2)}},
           ⌀PunQ: {{remotePeer.getMeter().getAverageConnectionPunishment().toFixed(2)}},
           ProQ: {{remotePeer.getMeter().getConnectionProtection()}}
+          LastSeen: {{remotePeer.getMeter().getLastSeen()}}
         </small>
       </div>
       <li *ngFor="let connection of remotePeer.getConnectionTable().asArray()">
