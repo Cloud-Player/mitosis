@@ -18,65 +18,45 @@
     &.level-0 {
       color: gainsboro;
 
-      &:before{
+      &:before {
         content: "📠";
       }
     }
 
     &.level-10 {
-      color: gainsboro;
-
-      &:before{
-        content: "🔬";
-      }
-    }
-
-    &.level-20 {
       color: lightcyan;
 
-      &:before{
+      &:before {
         content: "🛠";
       }
     }
 
-    &.level-30 {
+    &.level-20 {
       color: lightyellow;
 
-      &:before{
+      &:before {
         content: "📬";
       }
     }
 
-    &.level-40 {
+    &.level-30 {
       color: #ffb88f;
 
-      &:before{
+      &:before {
         content: "🚧";
       }
     }
 
-    &.level-50 {
-      &:before{
+    &.level-40 {
+      &:before {
         content: "🚒";
       }
 
-      .title{
+      .title {
         background: tomato;
         padding: 2px 5px;
         color: white;
       }
-    }
-  }
-
-  &.level-60 {
-    &:before{
-      content: "💣";
-    }
-
-    .title{
-      background: darkslategrey;
-      padding: 2px 5px;
-      color: tomato;
     }
   }
 }

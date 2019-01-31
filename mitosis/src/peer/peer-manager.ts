@@ -3,6 +3,8 @@ import {filter} from 'rxjs/operators';
 import {IClock} from '../clock/interface';
 import {Configuration} from '../configuration';
 import {
+  ConnectionState,
+  IConnection,
   IConnectionOptions,
   IViaConnectionOptions,
   IWebRTCConnectionOptions,
@@ -16,6 +18,7 @@ import {Address} from '../message/address';
 import {ConnectionNegotiation, ConnectionNegotiationType} from '../message/connection-negotiation';
 import {Message} from '../message/message';
 import {PeerUpdate} from '../message/peer-update';
+import {RoleType} from '../role/interface';
 import {RoleManager} from '../role/role-manager';
 import {IPeerChurnEvent} from './interface';
 import {RemotePeer} from './remote-peer';
@@ -136,6 +139,31 @@ export class PeerManager {
     } else {
       return this.connectToVia(remotePeerId, viaPeerId, options);
     }
+  }
+
+  public sendPeerUpdate(connection: IConnection): void {
+    const directPeers = this
+      .getPeerTable()
+      .filterByRole(RoleType.PEER)
+      .filterConnections(
+        table => table
+          .filterDirect()
+          .filterByStates(ConnectionState.OPEN)
+      )
+      .asArray();
+
+    const myAddress = new Address(
+      this.getMyId(),
+      connection.getAddress().getProtocol(),
+      connection.getAddress().getLocation()
+    );
+
+    const peerUpdate = new PeerUpdate(
+      myAddress,
+      connection.getAddress(),
+      directPeers
+    );
+    this.sendMessage(peerUpdate);
   }
 
   public updatePeers(peerUpdate: PeerUpdate, viaPeerId: string): void {

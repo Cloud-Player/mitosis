@@ -65,7 +65,7 @@ export class MessageBroker {
       if (message.getReceiver().getId() === this._peerManager.getMyId()) {
         this.receiveMessage(message, connection);
       } else {
-        this.forwardMessage(message);
+        this.forwardMessage(message, connection);
       }
     } catch (error) {
       Logger.getLogger(message.getReceiver().getId()).error(error.message, error);
@@ -106,11 +106,12 @@ export class MessageBroker {
     this._messagesSubject.next(message);
   }
 
-  private forwardMessage(message: Message): void {
+  private forwardMessage(message: Message, receivingConnection: IConnection): void {
     const peerId = message.getReceiver().getId();
     const receiverPeer = this._peerManager.getPeerById(peerId);
     if (!receiverPeer) {
-      Logger.getLogger(this._peerManager.getMyId()).error(`no idea how to reach ${peerId}`, message);
+      Logger.getLogger(this._peerManager.getMyId()).debug(`no idea how to reach ${peerId}`, message);
+      this._peerManager.sendPeerUpdate(receivingConnection);
       return;
     }
     const connection = receiverPeer.getConnectionTable()
