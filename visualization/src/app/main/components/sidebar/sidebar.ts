@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
 import {Node, Simulation} from 'mitosis-simulation';
 import {SearchInputComponent} from '../../../shared/components/ui/inputs/search/search';
 import {D3DirectedGraphComponent} from '../d3-directed-graph/d3-directed-graph';
@@ -13,14 +13,11 @@ import {HttpClient} from '@angular/common/http';
 export class SidebarComponent implements OnInit {
   private searchNode: string;
   private selectedScenario: any;
-  public nodeQuery: string;
   public availableNodeIds: Array<string> = [];
+  public simulation: Simulation;
 
   @Input()
   public selectedNode: Node;
-
-  @Input()
-  public simulation: Simulation;
 
   @Input()
   public graph: D3DirectedGraphComponent;
@@ -33,6 +30,21 @@ export class SidebarComponent implements OnInit {
 
   constructor(private _http: HttpClient) {
     this.scenarioChange = new EventEmitter();
+    this.simulation = Simulation.getInstance();
+  }
+
+  public updateSimulation(simulation: Simulation) {
+    this.simulation = simulation;
+    this.selectedNode = null;
+    this.simulation.onUpdate(() => {
+      this.availableNodeIds = [];
+      this.simulation.getNodeMap().forEach((node) => {
+        this.availableNodeIds.push(node.getId());
+      });
+      if (this.searchNode && !this.selectedNode) {
+        this.graph.selectNode(this.searchNode);
+      }
+    });
   }
 
   public search(nodeId: string) {
@@ -56,16 +68,6 @@ export class SidebarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.simulation.onUpdate(() => {
-      this.availableNodeIds = [];
-      this.simulation.getNodeMap().forEach((node) => {
-        this.availableNodeIds.push(node.getId());
-      });
-      if (this.searchNode && !this.selectedNode) {
-        this.graph.selectNode(this.searchNode);
-      }
-    });
-
     this.graph.selectedNodeChange
       .subscribe((node: Node) => {
         if (node && !this.searchEl.isActive()) {
