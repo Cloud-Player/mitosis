@@ -1,6 +1,7 @@
 import {Subject} from 'rxjs';
 import {IClock} from '../../clock/interface';
 import {Configuration} from '../../configuration';
+import {IConnection} from '../../connection/interface';
 import {Logger} from '../../logger/logger';
 import {Address} from '../../message/address';
 import {MessageSubject} from '../../message/interface';
@@ -10,7 +11,6 @@ import {Pong} from '../../message/pong';
 import {SlidingWindow} from '../sliding-window';
 import {ConnectionMeter} from './connection-meter';
 import {IConnectionMeter} from './interface';
-import {IConnection} from '../../connection/interface';
 
 export class TransmissionConnectionMeter extends ConnectionMeter implements IConnectionMeter {
   protected _clock: IClock;
@@ -47,7 +47,7 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
   private sendPing() {
     this._echoSlidingWindow.slide();
     Logger.getLogger(this._originator.getId())
-      .info(`send ping to ${this._receiver.getId()}`, this._echoSlidingWindow.getSequenceNumber());
+      .debug(`send ping to ${this._receiver.getId()}`, this._echoSlidingWindow.getSequenceNumber());
     const ping = new Ping(
       this._originator,
       this._receiver,
@@ -58,14 +58,15 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
 
   private handlePing(message: Ping) {
     Logger.getLogger(this._originator.getId())
-      .info(`handle ping from ${message.getSender().getId()}`, Array.from(this._receiveSlidingWindow.values()).join(','));
+      .debug(`handle ping from ${message.getSender().getId()}`, Array.from(this._receiveSlidingWindow.values()).join(','));
     this.sendPong(message.getSender(), message.getBody());
     this._receiveSlidingWindow.add(message.getBody());
   }
 
   private handlePong(message: Pong) {
     this._echoSlidingWindow.add(message.getBody());
-    Logger.getLogger(this._originator.getId()).info(`quality to ${this._receiver.getId()} is ${this.getQuality()}`, message);
+    Logger.getLogger(this._originator.getId())
+      .debug(`quality to ${this._receiver.getId()} is ${this.getQuality()}`, message);
   }
 
   private getEq(): number {

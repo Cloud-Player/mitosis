@@ -152,6 +152,9 @@ export class PeerManager {
 
     peerUpdate
       .getBody()
+      .filter(
+        entry => entry.peerId !== this._myId
+      )
       .forEach(
         entry => {
           updatedPeerIds.push(entry.peerId);

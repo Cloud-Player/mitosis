@@ -6,8 +6,8 @@
 
   <app-collapsible *ngFor="let logEvent of getMessageLog()"
                    [isCollapsed]="true"
-                   [text]="logEvent.getEvent().getReceiver().getId() !== selectedNode.getId() ? '->'+logEvent.getEvent().getReceiver().getId() : null"
-                   title="{{logEvent.getTick()}} {{logEvent.getEvent().getSubject()}} from {{logEvent.getEvent().getSender().getId()}} via {{logEvent.getEvent().getSender().getProtocol()}}">
+                   class="subject-{{logEvent.getEvent().getSubject()}} message-{{getDirection(logEvent.getEvent(), selectedNode)}}"
+                   title="{{logEvent.getTick()}} {{getTitle(logEvent.getEvent(), selectedNode)}}">
     <pre>{{logEvent.getEvent()}}</pre>
   </app-collapsible>
 </section>
