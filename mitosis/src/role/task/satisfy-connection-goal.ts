@@ -32,7 +32,10 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
         .filterByRole(RoleType.SIGNAL)
     );
 
-  const directConnectionCount = directPeers.countDirectConnections();
+  const directConnectionCount = directPeers
+    .countConnections(
+      table => table.filterDirect()
+    );
   const insufficientConnections = directConnectionCount < Configuration.DIRECT_CONNECTIONS_GOAL;
   const superfluousConnections = directConnectionCount > Configuration.DIRECT_CONNECTIONS_GOAL;
 

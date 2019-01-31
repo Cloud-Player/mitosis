@@ -54,15 +54,15 @@ export class RemotePeerTable {
     );
   }
 
-  public countDirectConnections(): number {
-    let connections = 0;
-    this._remotePeers.forEach(
-      peer => connections += peer
-        .getConnectionTable()
-        .filterDirect()
-        .length
-    );
-    return connections;
+  public countConnections(callbackfn: (table: ConnectionTable) => ConnectionTable = t => t): number {
+    return this._remotePeers
+      .map(
+        peer => callbackfn(peer.getConnectionTable()).length
+      )
+      .reduce(
+        (previous, current) => previous + current,
+        0
+      );
   }
 
   public sortById(): RemotePeerTable {

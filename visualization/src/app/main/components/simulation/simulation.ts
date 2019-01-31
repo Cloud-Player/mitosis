@@ -109,10 +109,10 @@ export class SimulationComponent implements OnInit {
   }
 
   public getClockEmoji() {
-    const clock = ['🕛', '🕜', '🕐', '🕝', '🕑', '🕞', '🕒', '🕟', '🕓', '🕠', '🕔', '🕡', '🕕', '🕢', '🕖', '🕣', '🕗', '🕤', '🕘', '🕥', '🕙', '🕦', '🕚', '🕧'];
+    const clock = ['🕛', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚'];
     if (this.getClock()) {
       if (this.getClock().isRunning()) {
-        const tick = this.getClock().getTick() % 24;
+        const tick = this.getClock().getTick() % clock.length;
         return clock[tick];
       } else {
         return '⏸';
