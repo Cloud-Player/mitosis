@@ -37,6 +37,14 @@ export class RemotePeerTable {
     );
   }
 
+  public filterById(peerId: string): RemotePeerTable {
+    return new RemotePeerTable(
+      this._remotePeers.filter(
+        peer => peer.getId() === peerId
+      )
+    );
+  }
+
   public exclude(callbackfn: (table: RemotePeerTable) => RemotePeerTable): RemotePeerTable {
     const excludedPeers = callbackfn(this).asArray();
     return new RemotePeerTable(
