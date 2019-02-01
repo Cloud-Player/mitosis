@@ -1,6 +1,4 @@
 import {Configuration} from '../../configuration';
-import {ConnectionState} from '../../connection/interface';
-import {Logger} from '../../logger/logger';
 import {Address} from '../../message/address';
 import {RouterAlive} from '../../message/router-alive';
 import {Mitosis} from '../../mitosis';
