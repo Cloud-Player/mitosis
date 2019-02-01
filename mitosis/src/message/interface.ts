@@ -1,4 +1,6 @@
 import {RoleType} from '../role/interface';
+import {Address} from './address';
+import {IConnection} from '../connection/interface';
 
 export enum MessageSubject {
   INTRODUCTION = 'introduction',
@@ -7,7 +9,8 @@ export enum MessageSubject {
   CONNECTION_NEGOTIATION = 'connection-negotiation',
   APP_CONTENT = 'app-content',
   PING = 'ping',
-  PONG = 'pong'
+  PONG = 'pong',
+  ROUTER_ALIVE = 'router-alive'
 }
 
 export interface IPeerUpdateEntry {
@@ -15,6 +18,7 @@ export interface IPeerUpdateEntry {
   roles: Array<RoleType>;
   quality: number;
 }
+
 export interface IMessage {
   getReceiver(): Address;
 
@@ -29,4 +33,11 @@ export interface IMessage {
   getId(): string;
 
   setInboundAddress(address: Address): void;
+}
+
+export interface IFloodableMessage extends IMessage {
+  getBody(): {
+    sequence: number;
+    [key: string]: any;
+  };
 }
