@@ -1,7 +1,7 @@
 import {Logger} from '../logger/logger';
 import {Message} from '../message/message';
 import {RoleUpdate} from '../message/role-update';
-import {Mitosis} from '../mitosis';
+import {IMessage, Mitosis} from '../mitosis';
 import {RemotePeer} from '../peer/remote-peer';
 import {IRole, RoleType} from './interface';
 import {RoleTypeMap} from './role-map';
@@ -48,7 +48,7 @@ export class RoleManager {
     this._roles.forEach(role => role.onTick(mitosis));
   }
 
-  public onMessage(message: Message, mitosis: Mitosis): void {
+  public onMessage(message: IMessage, mitosis: Mitosis): void {
     this._roles.forEach(role => role.onMessage(message, mitosis));
   }
 
