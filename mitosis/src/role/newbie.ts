@@ -10,7 +10,7 @@ export class Newbie implements IRole {
     sendIntroduction(mitosis);
   }
 
-  public onMessage(message: Message, mitosis: Mitosis): void {
+  public onMessage(mitosis: Mitosis, message: Message): void {
   }
 
   public requiresPeer(remotePeer: RemotePeer): boolean {

@@ -84,7 +84,7 @@ export class Mitosis {
 
   private listenOnMessages(): void {
     this._messageBroker.observeMessages()
-      .subscribe(message => this._roleManager.onMessage(message, this));
+      .subscribe(message => this._roleManager.onMessage(this, message));
 
     this._messageBroker.observeIncomingMessages()
       .subscribe(message => this._internalMessages.next(message));

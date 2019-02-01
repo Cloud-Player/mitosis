@@ -15,7 +15,7 @@ export interface IRole {
 
   onTick(mitosis: Mitosis): void;
 
-  onMessage(message: Message, mitosis: Mitosis): void;
+  onMessage(mitosis: Mitosis, message: Message): void;
 
   requiresPeer(remotePeer: RemotePeer): boolean;
 }

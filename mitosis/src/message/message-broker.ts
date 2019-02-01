@@ -118,14 +118,13 @@ export class MessageBroker {
       .filterByStates(ConnectionState.OPEN)
       .sortByQuality()
       .shift();
-    let directPeer;
     if (!connection) {
       Logger.getLogger(this._peerManager.getMyId()).error(`all connections lost to ${peerId}`, message);
       return;
     }
     if (connection.getAddress().getProtocol() === Protocol.VIA) {
       const directPeerId = connection.getAddress().getLocation();
-      directPeer = this._peerManager.getPeerById(directPeerId);
+      const directPeer = this._peerManager.getPeerById(directPeerId);
       directPeer.send(message);
     } else {
       receiverPeer.send(message);

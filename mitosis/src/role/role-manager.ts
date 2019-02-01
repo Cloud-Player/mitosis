@@ -48,8 +48,8 @@ export class RoleManager {
     this._roles.forEach(role => role.onTick(mitosis));
   }
 
-  public onMessage(message: Message, mitosis: Mitosis): void {
-    this._roles.forEach(role => role.onMessage(message, mitosis));
+  public onMessage(mitosis: Mitosis, message: Message): void {
+    this._roles.forEach(role => role.onMessage(mitosis, message));
   }
 
   public getRolesRequiringPeer(remotePeer: RemotePeer): Array<RoleType> {
