@@ -11,7 +11,7 @@ export class WebSocketConnection extends AbstractConnection implements IConnecti
 
   constructor(address: Address, clock: IClock, options: IConnectionOptions) {
     super(address, clock, options);
-    this._meter = new NoopConnectionMeter(this);
+    this._meter = new NoopConnectionMeter(this, clock);
   }
 
   public send(message: Message): void {

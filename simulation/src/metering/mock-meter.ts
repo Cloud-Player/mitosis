@@ -5,8 +5,8 @@ export class MockMeter extends ConnectionMeter implements IConnectionMeter {
   private _quality: number;
   protected _clock: IClock;
 
-  public constructor(connection: IConnection, quality: number = 1) {
-    super(connection);
+  public constructor(connection: IConnection, clock: IClock, quality: number = 1) {
+    super(connection, clock);
     this._quality = quality;
   }
 

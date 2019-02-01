@@ -13,7 +13,7 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
 
   constructor(address: Address, clock: IClock, options: IConnectionOptions) {
     super(address, clock, options);
-    this._meter = new StreamConnectionMeter(this);
+    this._meter = new StreamConnectionMeter(this, clock);
   }
 
   public send(message: Message): void {

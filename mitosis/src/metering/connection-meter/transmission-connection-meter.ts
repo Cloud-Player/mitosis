@@ -13,7 +13,6 @@ import {ConnectionMeter} from './connection-meter';
 import {IConnectionMeter} from './interface';
 
 export class TransmissionConnectionMeter extends ConnectionMeter implements IConnectionMeter {
-  protected _clock: IClock;
   private _receiveSlidingWindow: SlidingWindow;
   private _echoSlidingWindow: SlidingWindow;
   private _pingInterval: any;
@@ -22,13 +21,12 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
   private _messageSubject: Subject<Message>;
 
   constructor(connection: IConnection, originator: Address, receiver: Address, clock: IClock) {
-    super(connection);
+    super(connection, clock);
     this._receiveSlidingWindow = new SlidingWindow();
     this._echoSlidingWindow = new SlidingWindow();
     this._originator = originator;
     this._receiver = receiver;
     this._messageSubject = new Subject<Message>();
-    this._clock = clock;
   }
 
   private emitMessage(message: Message) {

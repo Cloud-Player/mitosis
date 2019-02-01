@@ -6,7 +6,7 @@ export class WebSocketMockConnection extends MockConnection implements IConnecti
 
   public constructor(address: Address, clock: IClock, options?: IConnectionOptions) {
     super(address, clock, options);
-    this._meter = new MockMeter(this, 1);
+    this._meter = new MockMeter(this, clock, 1);
   }
 
   protected openClient(): void {

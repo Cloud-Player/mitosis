@@ -13,7 +13,7 @@ export class ViaConnection extends AbstractConnection implements IConnection {
 
   constructor(address: Address, clock: IClock, options: IViaConnectionOptions) {
     super(address, clock, options);
-    this._meter = new ViaConnectionMeter(this);
+    this._meter = new ViaConnectionMeter(this, clock);
   }
 
   private parentStateChanged(connectionState: ConnectionState): void {

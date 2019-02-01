@@ -1,10 +1,9 @@
 import {IClock} from '../../clock/interface';
+import {IConnection} from '../../connection/interface';
 import {ConnectionMeter} from './connection-meter';
 import {IConnectionMeter} from './interface';
 
 export class NoopConnectionMeter extends ConnectionMeter implements IConnectionMeter {
-  protected _clock: IClock;
-
   public getQuality(): number {
     return 1;
   }

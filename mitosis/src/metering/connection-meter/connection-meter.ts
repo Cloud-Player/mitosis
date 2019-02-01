@@ -8,18 +8,18 @@ import {Message} from '../../message/message';
 import {IConnectionEventType, IConnectionMeterEvent} from './interface';
 
 export abstract class ConnectionMeter {
-
   private _punished = false;
   private _protected = false;
   private _connection: IConnection;
   private _subject: Subject<IConnectionMeterEvent>;
   private _lastSeenTick = 0;
 
-  protected abstract _clock: IClock;
+  protected _clock: IClock;
 
-  constructor(connection: IConnection) {
+  constructor(connection: IConnection, clock: IClock) {
     this._connection = connection;
     this._subject = new Subject();
+    this._clock = clock;
     this.listenOnMessages();
   }
 
@@ -31,7 +31,11 @@ export abstract class ConnectionMeter {
   }
 
   protected onMessage(message: Message) {
-    this._lastSeenTick = this._clock.getTick();
+    if (!this._clock) {
+      Logger.getLogger(this._connection.getAddress().getId()).error(`can not read clock for message`, message);
+    } else {
+      this._lastSeenTick = this._clock.getTick();
+    }
   }
 
   private setProtected(isProtected: boolean) {
