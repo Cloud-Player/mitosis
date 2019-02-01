@@ -7,8 +7,10 @@ import {Mitosis} from '../mitosis';
 import {PeerManager} from '../peer/peer-manager';
 import {RemotePeer} from '../peer/remote-peer';
 import {IRole, RoleType} from './interface';
+import {sendRouterAlive} from './task/send-router-alive';
 
 export class Router implements IRole {
+  private sequenceNumber = 1;
 
   private sendAlternativesAsPeerUpdate(peerManager: PeerManager, message: Message) {
     const directPeers = peerManager
@@ -53,6 +55,7 @@ export class Router implements IRole {
   }
 
   public onTick(mitosis: Mitosis): void {
+    sendRouterAlive(mitosis, this.sequenceNumber++);
   }
 
   public onMessage(message: Message, mitosis: Mitosis): void {
