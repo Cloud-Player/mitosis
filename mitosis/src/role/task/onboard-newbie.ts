@@ -47,11 +47,11 @@ export function onboardNewbie(mitosis: Mitosis, message: Message): void {
   const senderIsRouter = routers.some(peer => peer.getId() === sender.getId());
 
   if (message.getSubject() === MessageSubject.INTRODUCTION) {
-    if (senderIsRouter || routers.length <= 3) {
-      this.promoteToRoles(sender, [RoleType.PEER, RoleType.ROUTER], mitosis);
+    if (senderIsRouter || routers.length === 0) {
+      promoteToRoles(sender, [RoleType.PEER, RoleType.ROUTER], mitosis);
     } else {
-      this.promoteToRoles(sender, [RoleType.PEER], mitosis);
+      promoteToRoles(sender, [RoleType.PEER], mitosis);
     }
-    this.sendExistingRouters(sender, routers, mitosis);
+    sendExistingRouters(sender, routers, mitosis);
   }
 }
