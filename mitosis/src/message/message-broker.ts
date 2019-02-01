@@ -80,8 +80,8 @@ export class MessageBroker {
     }
   }
 
-  private receiveMessage(message: Message, connection: IConnection): void {
-    const viaPeerId = connection.getAddress().getId();
+  private receiveMessage(message: IMessage): void {
+    const viaPeerId = message.getInboundAddress().getId();
     const senderId = message.getSender().getId();
 
     this._peerManager
@@ -122,11 +122,13 @@ export class MessageBroker {
         throw new Error(`message from type ${message.getSubject()} can not be broadcasted`);
     }
   }
+
+  private forwardMessage(message: IMessage): void {
     const peerId = message.getReceiver().getId();
     const receiverPeer = this._peerManager.getPeerById(peerId);
     if (!receiverPeer) {
       Logger.getLogger(this._peerManager.getMyId()).debug(`no idea how to reach ${peerId}`, message);
-      this._peerManager.sendPeerUpdate(receivingConnection);
+      this._peerManager.sendPeerUpdate(message.getInboundAddress());
       return;
     }
     const connection = receiverPeer.getConnectionTable()
