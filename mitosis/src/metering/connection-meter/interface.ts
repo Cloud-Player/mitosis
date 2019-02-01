@@ -15,6 +15,7 @@ export interface IConnectionMeterEvent {
 }
 
 export interface IConnectionMeter extends IMeter {
+
   isProtected(): boolean;
 
   isPunished(): boolean;

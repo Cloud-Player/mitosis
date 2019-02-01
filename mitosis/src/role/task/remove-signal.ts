@@ -3,6 +3,11 @@ import {Mitosis} from '../../mitosis';
 import {RoleType} from '../interface';
 
 export function removeSignal(mitosis: Mitosis): void {
+  if (mitosis.getRoleManager().hasRole(RoleType.ROUTER)) {
+    // Do not abandon signal if we are router.
+    return;
+  }
+
   const peerTable = mitosis
     .getPeerManager()
     .getPeerTable();
@@ -31,7 +36,6 @@ export function removeSignal(mitosis: Mitosis): void {
   }
 
   signals
-    .asArray()
     .forEach(
       signal => signal.destroy()
     );

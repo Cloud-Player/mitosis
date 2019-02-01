@@ -22,10 +22,12 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
       table => table.filterVia()
     )
     .exclude(
-      table => table
-        .filterConnections(
-          connectionTable => connectionTable.filterDirect()
-        )
+      table => {
+        return table
+          .filterConnections(
+            connectionTable => connectionTable.filterDirect()
+          );
+      }
     )
     .exclude(
       table => table

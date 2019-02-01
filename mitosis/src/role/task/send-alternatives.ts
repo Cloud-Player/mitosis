@@ -5,12 +5,13 @@ import {Message} from '../../message/message';
 import {PeerUpdate} from '../../message/peer-update';
 import {Mitosis} from '../../mitosis';
 
-
 export function sendAlternatives(mitosis: Mitosis, message: Message) {
-  if (message.getSubject() !== MessageSubject.CONNECTION_NEGOTIATION) {
+  const peerManager = mitosis.getPeerManager();
+  if (message.getSubject() !== MessageSubject.CONNECTION_NEGOTIATION ||
+    message.getReceiver().getId() !== peerManager.getMyId()) {
     return;
   }
-  const peerManager = mitosis.getPeerManager();
+
   const directPeers = peerManager
     .getPeerTable()
     .filterConnections(
@@ -35,13 +36,10 @@ export function sendAlternatives(mitosis: Mitosis, message: Message) {
     return;
   }
 
-  if (message.getReceiver().getId() !== peerManager.getMyId()) {
-    throw new Error('i should not answer this');
-  }
-
   const alternativePeers = directPeers
-    .sortByQuality()
-    .asArray()
+    .sortByQuality(
+      meter => meter.getLastSeen()
+    )
     .slice(0, Configuration.ROUTER_REDIRECT_ALTERNATIVE_COUNT);
 
   const tableUpdate = new PeerUpdate(

@@ -12,15 +12,13 @@ export function publishPeerUpdate(mitosis: Mitosis): void {
       table => table
         .filterDirect()
         .filterByStates(ConnectionState.OPEN)
-    )
-    .asArray();
+    );
 
   directPeers
     .forEach(peer => {
       peer.getConnectionTable()
         .filterDirect()
         .filterByStates(ConnectionState.OPEN)
-        .asArray()
         .forEach(
           connection => {
             const peerUpdate = new PeerUpdate(

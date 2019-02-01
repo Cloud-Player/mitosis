@@ -4,7 +4,6 @@ import {Mitosis} from '../../mitosis';
 export function closeDuplicateConnections(mitosis: Mitosis): void {
   mitosis
     .getPeerTable()
-    .asArray()
     .forEach(
       remotePeer => {
         const direct = remotePeer
@@ -18,12 +17,11 @@ export function closeDuplicateConnections(mitosis: Mitosis): void {
           .forEach(
             protocol => {
               direct
-                .filterConnection(
+                .filter(
                   connection => connection.getAddress().getProtocol() === protocol
                 )
-                .asArray()
-                .sort(
-                  (a, b) => a.getAddress().getLocation().localeCompare(b.getAddress().getLocation())
+                .sortBy(
+                  connection => connection.getAddress().getLocation()
                 )
                 .slice(1)
                 .forEach(

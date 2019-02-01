@@ -1,6 +1,5 @@
 import {RoleType} from '../role/interface';
 import {Address} from './address';
-import {IConnection} from '../connection/interface';
 
 export enum MessageSubject {
   INTRODUCTION = 'introduction',

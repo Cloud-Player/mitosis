@@ -5,7 +5,6 @@ import {Logger} from '../logger/logger';
 import {ConnectionsPerAddress, ConnectionsPerAddressEventType} from '../peer/connections-per-address';
 import {IConnectionEventType, IConnectionMeter, IConnectionMeterEvent} from './connection-meter/interface';
 import {IMeter} from './interface';
-import {ConnectionMeter} from './connection-meter/connection-meter';
 
 export class RemotePeerMeter implements IMeter {
 
