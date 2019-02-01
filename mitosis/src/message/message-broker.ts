@@ -107,6 +107,17 @@ export class MessageBroker {
       case MessageSubject.INTRODUCTION:
         // Do nothing, role manager will forward this to signal role if needed
         break;
+      case MessageSubject.ROUTER_ALIVE:
+        if (this._routerAliveFloodingHandler.isFirstMessage(message)) {
+          // TODO handle router alive message
+          Logger.getLogger(this._peerManager.getMyId())
+            .warn(
+              `got alive message from router via ${message.getInboundAddress().getId()}`,
+              message.getInboundAddress(),
+              message
+            );
+        }
+        break;
       default:
         throw new Error(`unsupported subject ${message.getSubject()}`);
     }
