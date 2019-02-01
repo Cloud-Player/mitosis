@@ -15,6 +15,7 @@ import {RemotePeer} from './peer/remote-peer';
 import {RemotePeerTable} from './peer/remote-peer-table';
 import {RoleType} from './role/interface';
 import {RoleManager} from './role/role-manager';
+import {IMessage} from './message/interface';
 
 export class Mitosis {
 
@@ -26,7 +27,7 @@ export class Mitosis {
   private _myAddress: Address;
   private _signalAddress: Address;
   private _inbox: Subject<AppContent>;
-  private _internalMessages: Subject<Message>;
+  private _internalMessages: Subject<IMessage>;
   private _clock: IClock;
   private _logger: ILogger;
 
@@ -119,7 +120,7 @@ export class Mitosis {
     return this._inbox;
   }
 
-  public observeInternalMessages(): Subject<Message> {
+  public observeInternalMessages(): Subject<IMessage> {
     return this._internalMessages;
   }
 

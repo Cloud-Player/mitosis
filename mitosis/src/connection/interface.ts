@@ -2,7 +2,7 @@ import {Subject} from 'rxjs';
 import {IClock} from '../clock/interface';
 import {ChurnType} from '../interface';
 import {Address} from '../message/address';
-import {Message} from '../message/message';
+import {IMessage} from '../message/interface';
 import {IMeter} from '../metering/interface';
 
 export type IConnectionConstructor = new (
@@ -69,9 +69,9 @@ export interface IConnection {
 
   close(): void;
 
-  send(message: Message): void;
+  send(message: IMessage): void;
 
-  observeMessageReceived(): Subject<Message>;
+  observeMessageReceived(): Subject<IMessage>;
 
   observeStateChange(): Subject<ConnectionState>;
 

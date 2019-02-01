@@ -10,6 +10,7 @@ import {Message} from '../message/message';
 import {RemotePeerMeter} from '../metering/remote-peer-meter';
 import {RoleType} from '../role/interface';
 import {ConnectionsPerAddress} from './connections-per-address';
+import {IMessage} from '../message/interface';
 
 export class RemotePeer {
 
@@ -147,7 +148,7 @@ export class RemotePeer {
     );
   }
 
-  public send(message: Message): void {
+  public send(message: IMessage): void {
     const connection: IConnection = this.getConnectionTable()
       .filterByStates(ConnectionState.OPEN)
       .filterDirect()
