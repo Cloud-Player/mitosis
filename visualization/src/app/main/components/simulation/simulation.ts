@@ -89,14 +89,12 @@ export class SimulationComponent implements OnInit {
         node.getMitosis()
           .getPeerManager()
           .getPeerTable()
-          .asArray()
           .forEach(remotePeer => {
             remotePeer
               .getConnectionTable()
               .exclude(
                 table => table.filterVia()
               )
-              .asArray()
               .forEach(
                 connection =>
                   model.addEdge(new Edge(node.getId(), connection as MockConnection))

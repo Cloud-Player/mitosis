@@ -8,6 +8,7 @@ import {ensureRouterConnection} from './task/ensure-router-connection';
 import {publishPeerUpdate} from './task/publish-peer-update';
 import {removeSignal} from './task/remove-signal';
 import {satisfyConnectionGoal} from './task/satisfy-connection-goal';
+import {sendAlternatives} from './task/send-alternatives';
 
 export class Peer implements IRole {
 
@@ -21,6 +22,7 @@ export class Peer implements IRole {
   }
 
   public onMessage(mitosis: Mitosis, message: Message): void {
+    sendAlternatives(mitosis, message);
   }
 
   public requiresPeer(remotePeer: RemotePeer): boolean {

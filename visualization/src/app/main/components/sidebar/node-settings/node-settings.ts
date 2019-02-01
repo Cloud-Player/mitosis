@@ -22,10 +22,8 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
       .getMitosis()
       .getPeerManager()
       .getPeerTable()
-      .asArray()
       .forEach((peer) => {
         peer.getConnectionTable()
-          .asArray()
           .forEach((c) => {
             if (c.getAddress().getProtocol() === protocol) {
               (c as MockConnection).setDelay(delay);
@@ -55,10 +53,8 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
       .getMitosis()
       .getPeerManager()
       .getPeerTable()
-      .asArray()
       .forEach((peer) => {
         peer.getConnectionTable()
-          .asArray()
           .forEach((c) => {
             if (c.getAddress().getProtocol() === Protocol.WEBRTC_DATA) {
               this.webRTCDelay = (c as MockConnection).getDelay();

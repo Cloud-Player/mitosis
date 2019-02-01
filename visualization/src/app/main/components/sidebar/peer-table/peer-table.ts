@@ -23,7 +23,7 @@ export class PeerTableComponent implements OnInit {
       .map(roleType => roleType.toString()[0].toUpperCase());
     const roleTag = roles.length ? `[${roles.join(', ')}]` : '';
 
-    const quality = peer.getQuality()
+    const quality = peer.getMeter().getQuality()
       .toFixed(2)
       .toString();
 

@@ -8,6 +8,7 @@ import {ILogger} from './logger/interface';
 import {Logger} from './logger/logger';
 import {Address} from './message/address';
 import {AppContent} from './message/app-content';
+import {IMessage} from './message/interface';
 import {Message} from './message/message';
 import {MessageBroker} from './message/message-broker';
 import {PeerManager} from './peer/peer-manager';
@@ -15,7 +16,6 @@ import {RemotePeer} from './peer/remote-peer';
 import {RemotePeerTable} from './peer/remote-peer-table';
 import {RoleType} from './role/interface';
 import {RoleManager} from './role/role-manager';
-import {IMessage} from './message/interface';
 
 export class Mitosis {
 

@@ -1,3 +1,4 @@
+import {Configuration} from '../../configuration';
 import {ConnectionState} from '../../connection/interface';
 import {Address} from '../../message/address';
 import {MessageSubject} from '../../message/interface';
@@ -5,7 +6,7 @@ import {Message} from '../../message/message';
 import {PeerUpdate} from '../../message/peer-update';
 import {RoleUpdate} from '../../message/role-update';
 import {Mitosis} from '../../mitosis';
-import {RemotePeer} from '../../peer/remote-peer';
+import {RemotePeerTable} from '../../peer/remote-peer-table';
 import {RoleType} from '../interface';
 
 function promoteToRoles(address: Address, roles: Array<RoleType>, mitosis: Mitosis): void {
@@ -23,7 +24,7 @@ function promoteToRoles(address: Address, roles: Array<RoleType>, mitosis: Mitos
   mitosis.getPeerManager().sendMessage(roleUpdate);
 }
 
-function sendExistingRouters(address: Address, routers: Array<RemotePeer>, mitosis: Mitosis): void {
+function sendExistingRouters(address: Address, routers: RemotePeerTable, mitosis: Mitosis): void {
   const tableUpdate = new PeerUpdate(
     mitosis.getMyAddress(),
     address,
@@ -41,13 +42,12 @@ export function onboardNewbie(mitosis: Mitosis, message: Message): void {
     .filterConnections(
       table => table
         .filterDirect()
-        .filterByStates(ConnectionState.OPEN)
-    )
-    .asArray();
-  const senderIsRouter = routers.some(peer => peer.getId() === sender.getId());
+        .filterByStates(ConnectionState.OPEN, ConnectionState.OPENING)
+    );
+  const senderIsRouter = routers.filter(peer => peer.getId() === sender.getId()).length;
 
   if (message.getSubject() === MessageSubject.INTRODUCTION) {
-    if (senderIsRouter || routers.length === 0) {
+    if (senderIsRouter || routers.length < Configuration.MAX_ROUTERS_PER_SIGNAL) {
       promoteToRoles(sender, [RoleType.PEER, RoleType.ROUTER], mitosis);
     } else {
       promoteToRoles(sender, [RoleType.PEER], mitosis);

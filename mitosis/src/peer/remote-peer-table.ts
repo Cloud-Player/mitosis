@@ -1,18 +1,14 @@
 import {ConnectionTable} from '../connection/connection-table';
+import {RemotePeerMeter} from '../metering/remote-peer-meter';
 import {RoleType} from '../role/interface';
+import {Table} from '../util/table';
 import {RemotePeer} from './remote-peer';
 
-export class RemotePeerTable {
-
-  private _remotePeers: Array<RemotePeer>;
-
-  public constructor(remotePeers: Array<RemotePeer>) {
-    this._remotePeers = remotePeers.slice();
-  }
+export class RemotePeerTable extends Table<RemotePeer, RemotePeerTable> {
 
   public filterConnections(callbackfn: (table: ConnectionTable) => ConnectionTable): RemotePeerTable {
     return new RemotePeerTable(
-      this._remotePeers.filter(
+      this._values.filter(
         peer =>
           callbackfn(peer.getConnectionTable()).length > 0
       )
@@ -21,7 +17,7 @@ export class RemotePeerTable {
 
   public filterByRole(...roles: Array<RoleType>): RemotePeerTable {
     return new RemotePeerTable(
-      this._remotePeers.filter(
+      this._values.filter(
         peer =>
           peer.hasRole(...roles)
       )
@@ -30,7 +26,7 @@ export class RemotePeerTable {
 
   public filterIsProtected(isProtected: boolean): RemotePeerTable {
     return new RemotePeerTable(
-      this._remotePeers.filter(
+      this._values.filter(
         peer =>
           peer.getMeter().getConnectionProtection() === (isProtected ? 1 : 0)
       )
@@ -39,31 +35,18 @@ export class RemotePeerTable {
 
   public filterById(peerId: string): RemotePeerTable {
     return new RemotePeerTable(
-      this._remotePeers.filter(
+      this._values.filter(
         peer => peer.getId() === peerId
       )
     );
   }
 
-  public exclude(callbackfn: (table: RemotePeerTable) => RemotePeerTable): RemotePeerTable {
-    const excludedPeers = callbackfn(this).asArray();
-    return new RemotePeerTable(
-      this._remotePeers.filter(
-        peer => excludedPeers.indexOf(peer) === -1
-      )
-    );
+  public sortByQuality(callbackfn: (meter: RemotePeerMeter) => number = meter => meter.getQuality()): RemotePeerTable {
+    return this.sortBy(peer => callbackfn(peer.getMeter()));
   }
 
-  public sortByQuality(): RemotePeerTable {
-    return new RemotePeerTable(
-      this._remotePeers.sort(
-        (a, b) => a.getQuality() - b.getQuality()
-      )
-    );
-  }
-
-  public countConnections(callbackfn: (table: ConnectionTable) => ConnectionTable = t => t): number {
-    return this._remotePeers
+  public countConnections(callbackfn: (table: ConnectionTable) => ConnectionTable = table => table): number {
+    return this._values
       .map(
         peer => callbackfn(peer.getConnectionTable()).length
       )
@@ -74,33 +57,15 @@ export class RemotePeerTable {
   }
 
   public sortById(): RemotePeerTable {
-    return new RemotePeerTable(
-      this._remotePeers.sort(
-        (a, b) => a.getId().localeCompare(b.getId())
-      )
+    return this.sortBy(
+      peer => peer.getId()
     );
-  }
-
-  public asArray(): Array<RemotePeer> {
-    return this._remotePeers.slice();
-  }
-
-  public shift(): RemotePeer {
-    return this._remotePeers.shift();
-  }
-
-  public pop(): RemotePeer {
-    return this._remotePeers.pop();
-  }
-
-  public get length(): number {
-    return this._remotePeers.length;
   }
 
   public toString(): string {
     return JSON.stringify(
-      this.asArray()
-        .map(remotePeer => remotePeer.getId()),
+      this._values
+        .map(peer => peer.getId()),
       undefined,
       2
     );

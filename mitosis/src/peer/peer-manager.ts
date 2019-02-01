@@ -4,7 +4,6 @@ import {IClock} from '../clock/interface';
 import {Configuration} from '../configuration';
 import {
   ConnectionState,
-  IConnection,
   IConnectionOptions,
   IViaConnectionOptions,
   IWebRTCConnectionOptions,
@@ -48,12 +47,10 @@ export class PeerManager {
     if (remotePeer.getConnectionTable().filterDirect().length === 0) {
       // Remove all via connections that went over this peer
       this.getPeerTable()
-        .asArray()
         .forEach(
           peer => peer
             .getConnectionTable()
             .filterVia(remotePeer.getId())
-            .asArray()
             .forEach(
               viaConnection => viaConnection.close()
             )
@@ -84,7 +81,6 @@ export class PeerManager {
         );
       }
       forwardPeers
-        .asArray()
         .forEach(
           peer => peer.send(message)
         );
@@ -181,8 +177,7 @@ export class PeerManager {
         table => table
           .filterDirect()
           .filterByStates(ConnectionState.OPEN)
-      )
-      .asArray();
+      );
 
     const myAddress = new Address(
       this.getMyId(),
@@ -235,16 +230,14 @@ export class PeerManager {
       );
 
     this.getPeerTable()
-      .asArray()
       .forEach(
         peer => peer
           .getConnectionTable()
           .filterVia(senderId)
-          .filterConnection(
+          .filter(
             connection =>
               updatedPeerIds.indexOf(connection.getAddress().getId()) === -1
           )
-          .asArray()
           .forEach(
             connection => connection.close()
           )

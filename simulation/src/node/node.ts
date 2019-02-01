@@ -20,13 +20,11 @@ export class Node {
     const edges: Array<Edge> = [];
     this._mitosis
       .getPeerTable()
-      .asArray()
       .forEach(
         peer => {
           peer
             .getConnectionTable()
             .filterDirect()
-            .asArray()
             .forEach(
               (connection: MockConnection) => {
                 edges.push(new Edge(this.getId(), connection));

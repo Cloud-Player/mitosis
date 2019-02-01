@@ -18,7 +18,6 @@ export class RemoveConnection extends AbstractInstruction implements IInstructio
       .getPeerById(to.getId())
       .getConnectionTable()
       .filterDirect()
-      .asArray()
       .forEach(
         connection => connection.close()
       );
