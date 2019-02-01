@@ -62,13 +62,17 @@ export class MessageBroker {
       );
   }
 
-  private handleMessage(message: Message, connection: IConnection): void {
+  private handleMessage(message: IMessage, connection: IConnection): void {
     try {
+      message.setInboundAddress(connection.getAddress());
       this._incomingMessageSubject.next(message);
       if (message.getReceiver().getId() === this._peerManager.getMyId()) {
-        this.receiveMessage(message, connection);
+        this.receiveMessage(message);
+      } else if (message.getReceiver().getId() === Configuration.BROADCAST_ADDRESS) {
+        this.receiveMessage(message);
+        this.broadcastMessage(message);
       } else {
-        this.forwardMessage(message, connection);
+        this.forwardMessage(message);
       }
     } catch (error) {
       Logger.getLogger(message.getReceiver().getId()).error(error.message, error);
@@ -109,7 +113,15 @@ export class MessageBroker {
     this._messagesSubject.next(message);
   }
 
-  private forwardMessage(message: Message, receivingConnection: IConnection): void {
+  private broadcastMessage(message: IMessage): void {
+    switch (message.getSubject()) {
+      case MessageSubject.ROUTER_ALIVE:
+        this._routerAliveFloodingHandler.floodMessage(message);
+        break;
+      default:
+        throw new Error(`message from type ${message.getSubject()} can not be broadcasted`);
+    }
+  }
     const peerId = message.getReceiver().getId();
     const receiverPeer = this._peerManager.getPeerById(peerId);
     if (!receiverPeer) {
