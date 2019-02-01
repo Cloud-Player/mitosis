@@ -15,16 +15,16 @@ export class SlidingWindow extends Set<number> {
     }
   }
 
-  private isSequenceOutOfWindow(sequence: number): boolean {
+  private nextSequence() {
+    this._sequence = this._sequence + 1;
+  }
+
+  public isSequenceOutOfWindow(sequence: number): boolean {
     if (this._sequence == null) {
       return true;
     } else {
       return (sequence > this._sequence) || (sequence <= this._sequence - Configuration.SLIDING_WINDOW_SIZE);
     }
-  }
-
-  private nextSequence() {
-    this._sequence = this._sequence + 1;
   }
 
   public add(sequence: number): this {
