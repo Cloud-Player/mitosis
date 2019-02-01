@@ -1,9 +1,10 @@
 import {Address} from './address';
-import {MessageSubject} from './interface';
+import {IMessage, MessageSubject} from './interface';
 
-export class Message {
+export class Message implements IMessage {
   private _receiver: Address;
   private _sender: Address;
+  private _inboundAddress: Address;
   private _subject: MessageSubject;
   private _id: string;
   protected _body: any;
@@ -35,6 +36,10 @@ export class Message {
     return this._sender;
   }
 
+  public getInboundAddress(): Address {
+    return this._inboundAddress;
+  }
+
   public getSubject(): MessageSubject {
     return this._subject;
   }
@@ -45,6 +50,10 @@ export class Message {
 
   public getId(): string {
     return this._id;
+  }
+
+  public setInboundAddress(address: Address): void {
+    this._inboundAddress = address;
   }
 
   public toString(): string {

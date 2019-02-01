@@ -15,3 +15,18 @@ export interface IPeerUpdateEntry {
   roles: Array<RoleType>;
   quality: number;
 }
+export interface IMessage {
+  getReceiver(): Address;
+
+  getSender(): Address;
+
+  getInboundAddress(): Address;
+
+  getSubject(): MessageSubject;
+
+  getBody(): any;
+
+  getId(): string;
+
+  setInboundAddress(address: Address): void;
+}
