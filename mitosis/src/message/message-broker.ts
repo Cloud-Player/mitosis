@@ -7,18 +7,20 @@ import {PeerManager} from '../peer/peer-manager';
 import {RemotePeer} from '../peer/remote-peer';
 import {RoleManager} from '../role/role-manager';
 import {ConnectionNegotiation} from './connection-negotiation';
-import {MessageSubject} from './interface';
-import {Message} from './message';
+import {IMessage, MessageSubject} from './interface';
 import {PeerUpdate} from './peer-update';
 import {RoleUpdate} from './role-update';
+import {FloodingHandler} from './flooding-handler';
+import {Configuration} from '../configuration';
 
 export class MessageBroker {
 
   private _peerManager: PeerManager;
   private _roleManager: RoleManager;
-  private _appContentMessagesSubject: Subject<Message>;
-  private _messagesSubject: Subject<Message>;
-  private _incomingMessageSubject: Subject<Message>;
+  private _appContentMessagesSubject: Subject<IMessage>;
+  private _messagesSubject: Subject<IMessage>;
+  private _incomingMessageSubject: Subject<IMessage>;
+  private _routerAliveFloodingHandler: FloodingHandler;
 
   constructor(peerManager: PeerManager, roleManager: RoleManager) {
     this._peerManager = peerManager;
@@ -27,6 +29,7 @@ export class MessageBroker {
     this._appContentMessagesSubject = new Subject();
     this._messagesSubject = new Subject();
     this._incomingMessageSubject = new Subject();
+    this._routerAliveFloodingHandler = new FloodingHandler(peerManager);
   }
 
   private listenOnPeerChurn(): void {
