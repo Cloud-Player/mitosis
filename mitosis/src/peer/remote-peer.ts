@@ -77,7 +77,8 @@ export class RemotePeer {
           this._connectionChurnSubject.next({connection: connection, type: ChurnType.REMOVED});
           break;
       }
-      Logger.getLogger(this._mitosisId).debug(`connection ${ev.toString()}`, connection);
+      Logger.getLogger(this._mitosisId)
+        .debug(`connection to ${connection.getAddress().getId()} ${ev.toString()}`, connection);
     });
   }
 
@@ -141,9 +142,10 @@ export class RemotePeer {
       connection = this.createConnection(address, options);
     }
     return this.openConnection(connection).catch(
-      e => {
-        Logger.getLogger(this._mitosisId).error('can not open connection!', e);
-        return Promise.reject(e);
+      reason => {
+        Logger.getLogger(this._mitosisId)
+          .error(`can not open connection to ${address.getId()}`, reason);
+        return Promise.reject(reason);
       }
     );
   }

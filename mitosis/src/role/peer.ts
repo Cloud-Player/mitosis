@@ -17,10 +17,10 @@ export class Peer implements IRole {
     publishPeerUpdate(mitosis);
     removeSignal(mitosis);
     degradeToNewbie(mitosis);
-    // ensureRouterConnection(mitosis);
+    ensureRouterConnection(mitosis);
   }
 
-  public onMessage(message: Message, mitosis: Mitosis): void {
+  public onMessage(mitosis: Mitosis, message: Message): void {
   }
 
   public requiresPeer(remotePeer: RemotePeer): boolean {

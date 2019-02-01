@@ -130,7 +130,7 @@ export class PeerManager {
       })
       .catch(reason => {
         Logger.getLogger(this._myId)
-          .warn(`cannot open connection to ${address.toString()}`, reason);
+          .warn(`cannot open connection to ${address.getId()}`, reason);
         return Promise.reject(reason);
       });
   }
@@ -252,6 +252,16 @@ export class PeerManager {
   }
 
   public negotiateConnection(connectionNegotiation: ConnectionNegotiation) {
+    const directConnectionCount = this.getPeerTable()
+      .countConnections(
+        table => table.filterDirect()
+      );
+
+    if (directConnectionCount > Configuration.DIRECT_CONNECTIONS_MAX) {
+      Logger.getLogger(this._myId)
+        .info('too many connections already', connectionNegotiation);
+      return;
+    }
     const senderAddress = connectionNegotiation.getSender();
     const options: IWebRTCConnectionOptions = {
       mitosisId: this._myId,

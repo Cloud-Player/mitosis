@@ -2,6 +2,13 @@
   "instructions": [
     {
       "tick": 0,
+      "type": "set-clock-speed",
+      "configuration": {
+        "speed": 100
+      }
+    },
+    {
+      "tick": 0,
       "type": "add-peer",
       "configuration": {
         "address": "mitosis/v1/signal/wss",

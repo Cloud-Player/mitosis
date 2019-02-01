@@ -85,7 +85,7 @@ export class Mitosis {
 
   private listenOnMessages(): void {
     this._messageBroker.observeMessages()
-      .subscribe(message => this._roleManager.onMessage(message, this));
+      .subscribe(message => this._roleManager.onMessage(this, message));
 
     this._messageBroker.observeIncomingMessages()
       .subscribe(message => this._internalMessages.next(message));
@@ -94,9 +94,9 @@ export class Mitosis {
   private onTick(): void {
     try {
       this._roleManager.onTick(this);
-    } catch (e) {
-      this._logger.error(e.message, e);
-      throw e;
+    } catch (error) {
+      this._logger.error(error.message, error);
+      throw error;
     }
   }
 

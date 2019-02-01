@@ -1,7 +1,7 @@
 [
-  "hello-world.json",
-  "small-crowd.json",
-  "large-crowd.json",
-  "ultra-large-crowd.json",
+  "population.json",
+  "crowd.json",
+  "group.json",
+  "friends.json",
   "triangle.json"
 ]

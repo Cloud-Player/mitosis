@@ -1,5 +1,5 @@
-import {Message} from '../message/message';
-import {IMessage, Mitosis} from '../mitosis';
+import {Mitosis} from '../mitosis';
+import {IMessage} from '../message/interface';
 import {RemotePeer} from '../peer/remote-peer';
 
 export enum RoleType {
@@ -15,7 +15,7 @@ export interface IRole {
 
   onTick(mitosis: Mitosis): void;
 
-  onMessage(message: IMessage, mitosis: Mitosis): void;
+  onMessage(mitosis: Mitosis, message: IMessage): void;
 
   requiresPeer(remotePeer: RemotePeer): boolean;
 }
