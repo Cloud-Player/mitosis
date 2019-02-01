@@ -16,7 +16,7 @@ import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {ConnectionNegotiation, ConnectionNegotiationType} from '../message/connection-negotiation';
-import {Message} from '../message/message';
+import {IMessage, MessageSubject} from '../message/interface';
 import {PeerUpdate} from '../message/peer-update';
 import {RoleType} from '../role/interface';
 import {RoleManager} from '../role/role-manager';
@@ -58,6 +58,38 @@ export class PeerManager {
               viaConnection => viaConnection.close()
             )
         );
+    }
+  }
+
+  private broadcastAllowed(message: IMessage) {
+    switch (message.getSubject()) {
+      case MessageSubject.ROUTER_ALIVE:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  private broadcast(message: IMessage): void {
+    if (this.broadcastAllowed(message)) {
+      let forwardPeers = this.getPeerTable()
+        .filterConnections(
+          table => table
+            .filterDirect()
+            .filterByStates(ConnectionState.OPEN)
+        );
+      if (message.getInboundAddress()) {
+        forwardPeers = forwardPeers.exclude(
+          table => table.filterById(message.getInboundAddress().getId())
+        );
+      }
+      forwardPeers
+        .asArray()
+        .forEach(
+          peer => peer.send(message)
+        );
+    } else {
+      throw new Error(`message from type ${message.getSubject()} is not allowed to be broadcasted!`);
     }
   }
 
@@ -141,7 +173,7 @@ export class PeerManager {
     }
   }
 
-  public sendPeerUpdate(connection: IConnection): void {
+  public sendPeerUpdate(receiverAddress: Address): void {
     const directPeers = this
       .getPeerTable()
       .filterByRole(RoleType.PEER)
@@ -154,13 +186,13 @@ export class PeerManager {
 
     const myAddress = new Address(
       this.getMyId(),
-      connection.getAddress().getProtocol(),
-      connection.getAddress().getLocation()
+      receiverAddress.getProtocol(),
+      receiverAddress.getLocation()
     );
 
     const peerUpdate = new PeerUpdate(
       myAddress,
-      connection.getAddress(),
+      receiverAddress,
       directPeers
     );
     this.sendMessage(peerUpdate);
@@ -248,9 +280,11 @@ export class PeerManager {
     }
   }
 
-  public sendMessage(message: Message) {
+  public sendMessage(message: IMessage) {
     const existingPeer = this.getPeerById(message.getReceiver().getId());
-    if (existingPeer) {
+    if (message.getReceiver().getId() === Configuration.BROADCAST_ADDRESS) {
+      this.broadcast(message);
+    } else if (existingPeer) {
       existingPeer.send(message);
     } else {
       Logger.getLogger(this._myId)
