@@ -22,6 +22,7 @@ import {RoleManager} from '../role/role-manager';
 import {IPeerChurnEvent} from './interface';
 import {RemotePeer} from './remote-peer';
 import {RemotePeerTable} from './remote-peer-table';
+import {UnknownPeer} from '../message/unknown-peer';
 
 export class PeerManager {
 
@@ -43,6 +44,7 @@ export class PeerManager {
     if (remotePeer.getConnectionTable().length === 0) {
       // Remove the peer entirely if no connections are left
       this.removePeer(remotePeer);
+      this.sendUnknownPeerToDirectPeers(remotePeer.getId());
     }
     if (remotePeer.getConnectionTable().filterDirect().length === 0) {
       // Remove all via connections that went over this peer
@@ -73,6 +75,21 @@ export class PeerManager {
       default:
         return false;
     }
+  }
+
+  private sendUnknownPeerToDirectPeers(unknownPeerId: string) {
+    this.getPeerTable()
+      .filterConnections(
+        table => table
+          .filterDirect()
+          .filterByStates(ConnectionState.OPEN)
+      )
+      .forEach(peer => {
+          peer
+            .send(new UnknownPeer(new Address(this.getMyId()), new Address(peer.getId()), unknownPeerId));
+        }
+      );
+    Logger.getLogger(this.getMyId()).warn(`tell direct peers that peer ${unknownPeerId} does not exist anymore`);
   }
 
   private broadcast(message: IMessage): void {
