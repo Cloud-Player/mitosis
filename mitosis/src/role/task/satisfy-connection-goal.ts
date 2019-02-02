@@ -66,7 +66,7 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
       )
       .sortByQuality();
     while (worstDirectPeers.length) {
-      const worstDirectPeer = worstDirectPeers.pop();
+      const worstDirectPeer = worstDirectPeers.shift();
       const success = mitosis
         .getPeerManager()
         .removePeer(worstDirectPeer);
