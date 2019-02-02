@@ -11,7 +11,10 @@ import {IMessage, MessageSubject} from './interface';
 import {PeerUpdate} from './peer-update';
 import {RoleUpdate} from './role-update';
 import {FloodingHandler} from './flooding-handler';
-import {Configuration, Globals} from '../configuration';
+import {Globals} from '../configuration';
+import {Address} from './address';
+import {UnknownPeer} from './unknown-peer';
+import {RoleType} from '../role/interface';
 
 export class MessageBroker {
 
