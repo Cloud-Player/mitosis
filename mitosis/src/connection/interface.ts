@@ -36,6 +36,7 @@ export interface IViaConnectionOptions extends IConnectionOptions {
 
 export interface IViaConnectionOptionsPayload {
   parent: IConnection;
+  quality: number;
 }
 
 export interface IWebRTCConnectionOptions extends IConnectionOptions {
