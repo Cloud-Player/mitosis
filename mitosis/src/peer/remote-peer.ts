@@ -154,7 +154,7 @@ export class RemotePeer {
       .filterByStates(ConnectionState.OPEN)
       .filterDirect()
       .sortByQuality()
-      .shift();
+      .pop();
     if (connection) {
       try {
         connection.send(message);

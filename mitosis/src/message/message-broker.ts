@@ -145,7 +145,7 @@ export class MessageBroker {
     const connection = receiverPeer.getConnectionTable()
       .filterByStates(ConnectionState.OPEN)
       .sortByQuality()
-      .shift();
+      .pop();
     if (!connection) {
       Logger.getLogger(this._peerManager.getMyId()).error(`all connections lost to ${peerId}`, message);
       return;

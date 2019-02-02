@@ -48,8 +48,10 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
       );
       const bestViaPeer = viaPeers
         .sortByQuality()
-        .shift();
+        .pop();
       const address = new Address(bestViaPeer.getId(), Protocol.WEBRTC_DATA);
+      Logger.getLogger(mitosis.getMyAddress().getId())
+        .debug(`connecting to best peer ${bestViaPeer.getId()} with quality ${bestViaPeer.getMeter().getQuality()}`);
       mitosis.getPeerManager().connectTo(address);
     } else {
       // No indirect peers to connect to: do nothing
