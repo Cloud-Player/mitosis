@@ -6,11 +6,10 @@ import {ProtocolConnectionMap} from '../connection/protocol-map';
 import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
-import {Message} from '../message/message';
+import {IMessage} from '../message/interface';
 import {RemotePeerMeter} from '../metering/remote-peer-meter';
 import {RoleType} from '../role/interface';
 import {ConnectionsPerAddress} from './connections-per-address';
-import {IMessage} from '../message/interface';
 
 export class RemotePeer {
 
@@ -32,7 +31,7 @@ export class RemotePeer {
     this._connectionsPerAddress = new ConnectionsPerAddress();
     this._openConnectionPromises = new Map();
     this._connectionChurnSubject = new Subject();
-    this._meter = new RemotePeerMeter(this._connectionsPerAddress, clock.fork());
+    this._meter = new RemotePeerMeter(this._connectionsPerAddress, this._id, clock.fork());
   }
 
   public getId(): string {

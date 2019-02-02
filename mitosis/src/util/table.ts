@@ -52,6 +52,13 @@ export class Table<V, T extends Table<V, T>> implements Iterable<V> {
     return this.fromArray(this._values);
   }
 
+  public map(callbackfn: (value: V, index: number, table: T) => any): Array<any> {
+    return this._values.map(
+      (arrayValue, arrayIndex, array) =>
+        callbackfn(arrayValue, arrayIndex, this.fromArray(array))
+    );
+  }
+
   public slice(start?: number, end?: number): T {
     return this.fromArray(this._values.slice(start, end));
   }
