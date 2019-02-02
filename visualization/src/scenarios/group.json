@@ -4,7 +4,7 @@
       "tick": 0,
       "type": "set-clock-speed",
       "configuration": {
-        "speed": 250
+        "speed": 50
       }
     },
     {
@@ -96,6 +96,10 @@
         "address": "mitosis/v1/jack/webrtc",
         "signal": "mitosis/v1/signal/wss"
       }
+    },
+    {
+      "tick": 87,
+      "type": "finish-scenario"
     }
   ]
 }

@@ -58,8 +58,8 @@
       }
     },
     {
-      "tick": 50,
-      "type": "pause-clock"
+      "tick": 30,
+      "type": "finish-scenario"
     }
   ]
 }
