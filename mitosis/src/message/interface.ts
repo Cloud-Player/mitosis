@@ -7,6 +7,7 @@ export enum MessageSubject {
   ROLE_UPDATE = 'role-update',
   CONNECTION_NEGOTIATION = 'connection-negotiation',
   APP_CONTENT = 'app-content',
+  UNKNOWN_PEER = 'unknown-peer',
   PING = 'ping',
   PONG = 'pong',
   ROUTER_ALIVE = 'router-alive'
