@@ -16,7 +16,8 @@ export enum Protocol {
   WEBSOCKET = 'wss',
   WEBRTC_DATA = 'webrtc-data',
   WEBRTC_STREAM = 'webrtc-stream',
-  VIA = 'via'
+  VIA = 'via',
+  VIA_MULTI = 'via-multi'
 }
 
 export interface IConnectionChurnEvent {
