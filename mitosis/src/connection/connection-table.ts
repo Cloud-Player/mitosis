@@ -34,6 +34,14 @@ export class ConnectionTable extends Table<IConnection, ConnectionTable> {
     );
   }
 
+  public filterByProtocol(...protocols: Array<Protocol>): ConnectionTable {
+    return new ConnectionTable(
+      this._values.filter(
+        connection => connection.getAddress().isProtocol(...protocols)
+      )
+    );
+  }
+
   public sortByQuality(callbackfn: (meter: IConnectionMeter) => number = meter => meter.getQuality()): ConnectionTable {
     return this.sortBy(
       connection =>

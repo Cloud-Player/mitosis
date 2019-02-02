@@ -46,6 +46,10 @@ export class Address {
     return this._version;
   }
 
+  public isProtocol(...protocols: Array<Protocol>): boolean {
+    return protocols.indexOf(this._protocol) !== -1;
+  }
+
   public toString(): string {
     const segments = [
       'mitosis',
