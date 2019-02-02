@@ -139,7 +139,9 @@ export class MessageBroker {
     const receiverPeer = this._peerManager.getPeerById(peerId);
     if (!receiverPeer) {
       Logger.getLogger(this._peerManager.getMyId()).debug(`no idea how to reach ${peerId}`, message);
-      this._peerManager.sendPeerUpdate(message.getInboundAddress());
+      this._peerManager.sendMessage(
+        new UnknownPeer(message.getReceiver(), message.getInboundAddress(), peerId)
+      );
       return;
     }
     const connection = receiverPeer.getConnectionTable()
