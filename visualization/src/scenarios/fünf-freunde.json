@@ -4,7 +4,7 @@
       "tick": 0,
       "type": "set-clock-speed",
       "configuration": {
-        "speed": 250
+        "speed": 50
       }
     },
     {
@@ -56,6 +56,10 @@
         "address": "mitosis/v1/eve/webrtc",
         "signal": "mitosis/v1/signal/wss"
       }
+    },
+    {
+      "tick": 50,
+      "type": "pause-clock"
     }
   ]
 }
