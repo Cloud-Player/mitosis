@@ -93,9 +93,7 @@ export class SimulationComponent implements OnInit {
             console.log('CONNECTION-TABLE', remotePeer.getConnectionTable())
             remotePeer
               .getConnectionTable()
-              .exclude(
-                table => table.filterByProtocol(Protocol.VIA_SINGLE, Protocol.VIA_MULTI)
-              )
+              .filterDirect()
               .forEach(
                 connection => {
                   console.log('ADD', connection.getAddress().getProtocol(), connection.getAddress().toString());
