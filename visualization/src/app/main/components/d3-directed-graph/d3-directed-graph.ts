@@ -44,6 +44,7 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
   private simulation: any;
   private zoomHandler: any;
   private nodeColor = '#ccc';
+  private selectedNode: Node;
 
   constructor(private el: ElementRef, private layoutService: LayoutService) {
     this.selectedNodeChange = new EventEmitter();
@@ -100,11 +101,13 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
           return [0];
         }
       })
-      .attr('stroke-width', (d: Edge) => {
-        if (d.getConnection().isInState(ConnectionState.OPENING, ConnectionState.OPEN)) {
-          return 2;
-        } else if (d.getConnection().isInState(ConnectionState.CLOSING, ConnectionState.CLOSED)) {
-          return 1;
+      .attr('stroke', (d: Edge) => {
+        if (this.selectedNode && d.getConnection().getAddress().getId() === this.selectedNode.getId()) {
+          return 'blue';
+        } else if (d.getConnection().isInState(ConnectionState.OPENING, ConnectionState.CLOSING)) {
+          return 'rgba(100,100,100,0.3)';
+        } else {
+          return 'rgba(100,100,100,0.6)';
         }
       });
 
@@ -275,8 +278,10 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
 
     if (selectedNode) {
       selectedNode.setSelected(true);
+      this.selectedNode = selectedNode;
       this.selectedNodeChange.emit(selectedNode);
     } else {
+      this.selectedNode = null;
       this.selectedNodeChange.emit(null);
     }
   }
