@@ -79,6 +79,7 @@ export abstract class ConnectionMeter {
   public start(): void {
     this.setProtected(true);
     this._clock.reset();
+    // TODO: Use role specific configuration for this remote peer
     this._clock.setTimeout(() => {
       this.setPunished(false);
       this.setProtected(false);
@@ -86,6 +87,7 @@ export abstract class ConnectionMeter {
   }
 
   public stop(): void {
+    // TODO: Use role specific configuration for this remote peer
     const prematureClose = this._clock.getTick() < Configuration.CONNECTION_METER_OPEN_GRACE_PERIOD_TIME;
     this.setPunished(prematureClose);
     this.setProtected(false);

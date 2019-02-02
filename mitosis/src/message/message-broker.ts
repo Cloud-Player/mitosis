@@ -11,7 +11,7 @@ import {IMessage, MessageSubject} from './interface';
 import {PeerUpdate} from './peer-update';
 import {RoleUpdate} from './role-update';
 import {FloodingHandler} from './flooding-handler';
-import {Configuration} from '../configuration';
+import {Configuration, Globals} from '../configuration';
 
 export class MessageBroker {
 
@@ -68,7 +68,7 @@ export class MessageBroker {
       this._incomingMessageSubject.next(message);
       if (message.getReceiver().getId() === this._peerManager.getMyId()) {
         this.receiveMessage(message);
-      } else if (message.getReceiver().getId() === Configuration.BROADCAST_ADDRESS) {
+      } else if (message.getReceiver().getId() === Globals.BROADCAST_ADDRESS) {
         this.receiveMessage(message);
         this.broadcastMessage(message);
       } else {

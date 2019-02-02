@@ -1,4 +1,3 @@
-import {Configuration} from '../../configuration';
 import {ConnectionState} from '../../connection/interface';
 import {MessageSubject} from '../../message/interface';
 import {Message} from '../../message/message';
@@ -12,6 +11,8 @@ export function sendAlternatives(mitosis: Mitosis, message: Message) {
     return;
   }
 
+  const configuration = mitosis.getRoleManager().getConfiguration();
+
   const directPeers = peerManager
     .getPeerTable()
     .filterConnections(
@@ -20,7 +21,7 @@ export function sendAlternatives(mitosis: Mitosis, message: Message) {
         .filterByStates(ConnectionState.OPEN)
     );
 
-  if (directPeers.length < Configuration.DIRECT_CONNECTIONS_MAX) {
+  if (directPeers.length < configuration.DIRECT_CONNECTIONS_MAX) {
     // No need to send alternatives because we still have capacity.
     return;
   }
@@ -40,7 +41,7 @@ export function sendAlternatives(mitosis: Mitosis, message: Message) {
     .sortByQuality(
       meter => meter.getLastSeen()
     )
-    .slice(0, Configuration.ROUTER_REDIRECT_ALTERNATIVE_COUNT);
+    .slice(0, configuration.SEND_REDIRECT_ALTERNATIVE_COUNT);
 
   const tableUpdate = new PeerUpdate(
     message.getReceiver(),

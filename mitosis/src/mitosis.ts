@@ -1,7 +1,7 @@
 import {Subject} from 'rxjs';
 import {IClock} from './clock/interface';
 import {MasterClock} from './clock/master';
-import {Configuration} from './configuration';
+import {Globals} from './configuration';
 import {IEnclave} from './enclave/interface';
 import {SecureEnclave} from './enclave/secure';
 import {ILogger} from './logger/interface';
@@ -55,7 +55,7 @@ export class Mitosis {
       this._myAddress = new Address(this._myId);
     }
     if (!signal) {
-      signal = Configuration.DEFAULT_SIGNAL_ADDRESS;
+      signal = Globals.DEFAULT_SIGNAL_ADDRESS;
     }
     this._signalAddress = Address.fromString(signal);
     if (!roles || !roles.length) {

@@ -1,4 +1,5 @@
-import {Logger, Mitosis} from '../../mitosis';
+import {Logger} from '../../logger/logger';
+import {Mitosis} from '../../mitosis';
 import {RoleType} from '../interface';
 
 export function degradeToNewbie(mitosis: Mitosis): void {

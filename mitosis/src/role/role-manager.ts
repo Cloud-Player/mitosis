@@ -1,7 +1,8 @@
+import {Configuration, RoleConfigurationMap} from '../configuration';
 import {Logger} from '../logger/logger';
 import {IMessage} from '../message/interface';
 import {RoleUpdate} from '../message/role-update';
-import {Mitosis} from '../mitosis';
+import {Mitosis, RolePriorityMap} from '../mitosis';
 import {RemotePeer} from '../peer/remote-peer';
 import {IRole, RoleType} from './interface';
 import {RoleTypeMap} from './role-map';
@@ -15,6 +16,20 @@ export class RoleManager {
     this._myId = myId;
     this._roles = new Map();
     roles.forEach((r) => this.addRole(r));
+  }
+
+  public static getConfigurationForRoles(roles: Array<RoleType>): typeof Configuration {
+    return roles
+      .map(roleType => {
+        return {
+          priority: RolePriorityMap.get(roleType),
+          config: RoleConfigurationMap.get(roleType)
+        };
+      })
+      .reduce(
+        (previous, current) => previous.priority < current.priority ? current : previous,
+        {priority: 0, config: Configuration}
+      ).config;
   }
 
   public addRole(roleType: RoleType): void {
@@ -50,6 +65,10 @@ export class RoleManager {
 
   public onMessage(mitosis: Mitosis, message: IMessage): void {
     this._roles.forEach(role => role.onMessage(mitosis, message));
+  }
+
+  public getConfiguration(): typeof Configuration {
+    return RoleManager.getConfigurationForRoles(Array.from(this._roles.keys()));
   }
 
   public getRolesRequiringPeer(remotePeer: RemotePeer): Array<RoleType> {

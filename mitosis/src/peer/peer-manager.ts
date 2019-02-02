@@ -1,7 +1,7 @@
 import {Subject} from 'rxjs';
 import {filter} from 'rxjs/operators';
 import {IClock} from '../clock/interface';
-import {Configuration} from '../configuration';
+import {Configuration, Globals} from '../configuration';
 import {
   ConnectionState,
   IConnectionOptions,
@@ -58,7 +58,11 @@ export class PeerManager {
     }
   }
 
-  private broadcastAllowed(message: IMessage) {
+  private getConfiguration(): typeof Configuration {
+    return this._roleManager.getConfiguration();
+  }
+
+  private broadcastAllowed(message: IMessage): boolean {
     switch (message.getSubject()) {
       case MessageSubject.ROUTER_ALIVE:
         return true;
@@ -104,7 +108,7 @@ export class PeerManager {
       .filterConnections(
         table => table.filterDirect()
       );
-    if (directPeers.length >= Configuration.DIRECT_CONNECTIONS_MAX) {
+    if (directPeers.length >= this.getConfiguration().DIRECT_CONNECTIONS_MAX) {
       return Promise.reject(`max direct connections reached ${address.toString()}`);
     }
 
@@ -250,7 +254,7 @@ export class PeerManager {
         table => table.filterDirect()
       );
 
-    if (directConnectionCount > Configuration.DIRECT_CONNECTIONS_MAX) {
+    if (directConnectionCount > this.getConfiguration().DIRECT_CONNECTIONS_MAX) {
       Logger.getLogger(this._myId)
         .info('too many connections already', connectionNegotiation);
       return;
@@ -285,7 +289,7 @@ export class PeerManager {
 
   public sendMessage(message: IMessage) {
     const existingPeer = this.getPeerById(message.getReceiver().getId());
-    if (message.getReceiver().getId() === Configuration.BROADCAST_ADDRESS) {
+    if (message.getReceiver().getId() === Globals.BROADCAST_ADDRESS) {
       this.broadcast(message);
     } else if (existingPeer) {
       existingPeer.send(message);

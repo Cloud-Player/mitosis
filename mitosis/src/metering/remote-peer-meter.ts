@@ -44,6 +44,7 @@ export class RemotePeerMeter implements IMeter {
         Logger.getLogger(event.connection.getAddress().getId())
           .info(`punish connection to ${event.connection.getAddress().getId()}`, event.connection);
         this._punishedConnections++;
+        // TODO: Use role specific configuration for this peer
         this._clock.setTimeout(() => {
           this._punishedConnections--;
         }, Configuration.CONNECTION_METER_PUNISHMENT_TIME);
@@ -101,6 +102,7 @@ export class RemotePeerMeter implements IMeter {
   // returns 1 if peer reported too few connections and at least one connection is protected, else 0
   public getConnectionProtection(): 0 | 1 {
     Logger.getLogger('simulation').warn('connection protection should filter via-multi');
+    // TODO: Use role specific configuration for this remote peer
     const unsatisfied = this.getConnectionTable().filterVia().length < Configuration.DIRECT_CONNECTIONS_MIN_GOAL;
     if (unsatisfied) {
       if (this._protectedConnections > 0) {
@@ -117,6 +119,7 @@ export class RemotePeerMeter implements IMeter {
         table => table.filterVia(this._mitosisId)
       ) + 1;  // this is our own connection
 
+    // TODO: Use role specific configuration for this remote peer
     const saturation = ((Configuration.DIRECT_CONNECTIONS_MAX - connectionCount) / Configuration.DIRECT_CONNECTIONS_MAX_GOAL);
     return 1 - Math.min(Math.max(0, saturation), 1);
   }

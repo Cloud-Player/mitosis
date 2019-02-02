@@ -1,4 +1,3 @@
-import {Configuration} from '../../configuration';
 import {ConnectionState, Protocol} from '../../connection/interface';
 import {Logger} from '../../logger/logger';
 import {Address} from '../../message/address';
@@ -38,13 +37,14 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
     .countConnections(
       table => table.filterDirect()
     );
-  const insufficientConnections = directConnectionCount < Configuration.DIRECT_CONNECTIONS_MIN_GOAL;
-  const superfluousConnections = directConnectionCount > Configuration.DIRECT_CONNECTIONS_MAX_GOAL;
+  const configuration = mitosis.getRoleManager().getConfiguration();
+  const insufficientConnections = directConnectionCount < configuration.DIRECT_CONNECTIONS_MIN_GOAL;
+  const superfluousConnections = directConnectionCount > configuration.DIRECT_CONNECTIONS_MAX_GOAL;
 
   if (insufficientConnections) {
     if (viaPeers.length) {
       Logger.getLogger(mitosis.getMyAddress().getId()).debug(
-        `need to acquire ${Configuration.DIRECT_CONNECTIONS_MIN_GOAL - directConnectionCount} peers`
+        `need to acquire ${configuration.DIRECT_CONNECTIONS_MIN_GOAL - directConnectionCount} peers`
       );
       const bestViaPeer = viaPeers
         .sortByQuality()
@@ -56,7 +56,7 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
     }
   } else if (superfluousConnections) {
     Logger.getLogger(mitosis.getMyAddress().getId()).debug(
-      `need to loose ${directConnectionCount - Configuration.DIRECT_CONNECTIONS_MAX_GOAL} peers`
+      `need to loose ${directConnectionCount - configuration.DIRECT_CONNECTIONS_MAX_GOAL} peers`
     );
     const worstDirectPeers = directPeers
       .exclude(

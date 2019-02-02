@@ -1,4 +1,5 @@
-import {Configuration} from '../../configuration';
+import {Glob} from 'glob';
+import {Configuration, Globals} from '../../configuration';
 import {ConnectionState} from '../../connection/interface';
 import {Address} from '../../message/address';
 import {MessageSubject} from '../../message/interface';
@@ -47,7 +48,7 @@ export function onboardNewbie(mitosis: Mitosis, message: Message): void {
   const senderIsRouter = routers.filter(peer => peer.getId() === sender.getId()).length;
 
   if (message.getSubject() === MessageSubject.INTRODUCTION) {
-    if (senderIsRouter || routers.length < Configuration.MAX_ROUTERS_PER_SIGNAL) {
+    if (senderIsRouter || routers.length < Globals.MAX_ROUTERS_PER_SIGNAL) {
       promoteToRoles(sender, [RoleType.PEER, RoleType.ROUTER], mitosis);
     } else {
       promoteToRoles(sender, [RoleType.PEER], mitosis);
