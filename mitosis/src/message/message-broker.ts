@@ -98,6 +98,15 @@ export class MessageBroker {
       case MessageSubject.PEER_UPDATE:
         this._peerManager.updatePeers(message as PeerUpdate, viaPeerId);
         break;
+      case MessageSubject.UNKNOWN_PEER:
+        const existingPeer = this._peerManager.getPeerById(message.getBody());
+        if (existingPeer) {
+          existingPeer
+            .getConnectionTable()
+            .filterByLocation(message.getInboundAddress().getId())
+            .forEach(connection => connection.close());
+        }
+        break;
       case MessageSubject.CONNECTION_NEGOTIATION:
         this._peerManager.negotiateConnection(message as ConnectionNegotiation);
         break;
