@@ -156,29 +156,26 @@ export class PeerManager {
       });
   }
 
-  public connectToVia(remotePeerId: string, viaPeerId: string, options?: IConnectionOptions): Promise<RemotePeer> {
-    const viaPeer = this.getPeerById(viaPeerId);
+  public connectToVia(remoteAddress: Address, options?: IConnectionOptions): Promise<RemotePeer> {
+    const viaPeer = this.getPeerById(remoteAddress.getLocation());
     if (viaPeer) {
-      const address = new Address(
-        remotePeerId,
-        Protocol.VIA,
-        viaPeerId
-      );
       options = options || {payload: {}};
       options.payload.quality = options.payload.quality || 1;
       options.payload.parent = viaPeer
         .getConnectionTable()
         .filterDirect()
         .shift();
-      return this.connectTo(address, options as IViaConnectionOptions);
+      return this.connectTo(remoteAddress, options as IViaConnectionOptions);
     } else {
-      const reason = `cannot connect to ${remotePeerId} because via ${viaPeerId} is missing`;
+      const reason = `cannot connect to ${remoteAddress.getId()} because via ${remoteAddress.getLocation()} is missing`;
       Logger.getLogger(this._myId).error(reason);
       return Promise.reject(reason);
     }
   }
 
-  public ensureConnection(remotePeerId: string, viaPeerId: string, options?: IConnectionOptions): Promise<RemotePeer> {
+  public ensureConnection(remoteAddress: Address, options?: IConnectionOptions): Promise<RemotePeer> {
+    const remotePeerId = remoteAddress.getId();
+    const viaPeerId = remoteAddress.getLocation();
     if (remotePeerId === viaPeerId) {
       const remotePeer = this.getPeerById(remotePeerId);
       if (remotePeer) {
@@ -190,7 +187,7 @@ export class PeerManager {
     } else if (remotePeerId === this._myId) {
       return Promise.reject('will not connect to myself');
     } else {
-      return this.connectToVia(remotePeerId, viaPeerId, options);
+      return this.connectToVia(remoteAddress, options);
     }
   }
 
@@ -239,9 +236,8 @@ export class PeerManager {
         entry => {
           updatedPeerIds.push(entry.peerId);
           this.ensureConnection(
-            entry.peerId,
-            senderId,
-            {payload: {quality: entry.quality}}
+            new Address(entry.peerId, Protocol.VIA, senderId),
+            {payload: {quality: 0.5}}
           )
             .then(
               remotePeer => {
