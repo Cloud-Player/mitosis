@@ -118,6 +118,10 @@ export class MessageBroker {
         break;
       case MessageSubject.ROUTER_ALIVE:
         if (this._routerAliveFloodingHandler.isFirstMessage(message)) {
+          const routerPeer = this._peerManager.getPeerById(message.getSender().getId());
+          if (routerPeer) {
+            routerPeer.setRoles([RoleType.PEER, RoleType.ROUTER]);
+          }
           // TODO handle router alive message
           Logger.getLogger(this._peerManager.getMyId())
             .warn(
