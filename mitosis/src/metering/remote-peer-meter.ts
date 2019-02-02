@@ -7,6 +7,7 @@ import {ConnectionsPerAddress, ConnectionsPerAddressEventType} from '../peer/con
 import {RemotePeerTable} from '../peer/remote-peer-table';
 import {IConnectionEventType, IConnectionMeter, IConnectionMeterEvent} from './connection-meter/interface';
 import {IMeter} from './interface';
+import {Protocol} from '../connection/interface';
 
 export class RemotePeerMeter implements IMeter {
 
@@ -21,47 +22,6 @@ export class RemotePeerMeter implements IMeter {
     this._mitosisId = mitosisId;
     this._clock = clock;
     this.listenOnConnectionChurn();
-  }
-
-  private listenOnConnectionChurn() {
-    this._connectionsPerAddress
-      .observe()
-      .pipe(
-        filter(ev => ev.type === ConnectionsPerAddressEventType.ADD)
-      )
-      .subscribe((ev) => {
-        (ev.entity.getMeter() as IConnectionMeter)
-          .observe()
-          .subscribe(
-            this.listenOnConnectionMeter.bind(this)
-          );
-      });
-  }
-
-  private listenOnConnectionMeter(event: IConnectionMeterEvent) {
-    switch (event.type) {
-      case IConnectionEventType.PUNISHED:
-        Logger.getLogger(event.connection.getAddress().getId())
-          .info(`punish connection to ${event.connection.getAddress().getId()}`, event.connection);
-        this._punishedConnections++;
-        // TODO: Use role specific configuration for this peer
-        this._clock.setTimeout(() => {
-          this._punishedConnections--;
-        }, Configuration.CONNECTION_METER_PUNISHMENT_TIME);
-        break;
-      case IConnectionEventType.UNPUNISHED:
-        break;
-      case IConnectionEventType.PROTECTED:
-        this._protectedConnections++;
-        break;
-      case IConnectionEventType.UNPROTECTED:
-        this._protectedConnections--;
-        break;
-    }
-  }
-
-  private getConnectionTable(): ConnectionTable {
-    return ConnectionTable.fromIterable(this._connectionsPerAddress.values());
   }
 
   public getLastSeen(): number {
@@ -101,9 +61,8 @@ export class RemotePeerMeter implements IMeter {
 
   // returns 1 if peer reported too few connections and at least one connection is protected, else 0
   public getConnectionProtection(): 0 | 1 {
-    Logger.getLogger('simulation').warn('connection protection should filter via-multi');
     // TODO: Use role specific configuration for this remote peer
-    const unsatisfied = this.getConnectionTable().filterVia().length < Configuration.DIRECT_CONNECTIONS_MIN_GOAL;
+    const unsatisfied = this.getConnectionTable().filterByProtocol(Protocol.VIA).length < Configuration.DIRECT_CONNECTIONS_MIN_GOAL;
     if (unsatisfied) {
       if (this._protectedConnections > 0) {
         return 1;
@@ -116,7 +75,9 @@ export class RemotePeerMeter implements IMeter {
     // looks at the direct connections the metered peer reported and estimates its saturation
     const viaConnectionCount = remotePeers
       .countConnections(
-        table => table.filterVia(this._mitosisId)
+        table => table
+          .filterByProtocol(Protocol.VIA)
+          .filterByLocation(this._mitosisId)
       );
 
     const directConnectionCount = remotePeers
@@ -159,5 +120,46 @@ export class RemotePeerMeter implements IMeter {
 
   public stop(): void {
     this._clock.stop();
+  }
+
+  private listenOnConnectionChurn() {
+    this._connectionsPerAddress
+      .observe()
+      .pipe(
+        filter(ev => ev.type === ConnectionsPerAddressEventType.ADD)
+      )
+      .subscribe((ev) => {
+        (ev.entity.getMeter() as IConnectionMeter)
+          .observe()
+          .subscribe(
+            this.listenOnConnectionMeter.bind(this)
+          );
+      });
+  }
+
+  private listenOnConnectionMeter(event: IConnectionMeterEvent) {
+    switch (event.type) {
+      case IConnectionEventType.PUNISHED:
+        Logger.getLogger(event.connection.getAddress().getId())
+          .info(`punish connection to ${event.connection.getAddress().getId()}`, event.connection);
+        this._punishedConnections++;
+        // TODO: Use role specific configuration for this peer
+        this._clock.setTimeout(() => {
+          this._punishedConnections--;
+        }, Configuration.CONNECTION_METER_PUNISHMENT_TIME);
+        break;
+      case IConnectionEventType.UNPUNISHED:
+        break;
+      case IConnectionEventType.PROTECTED:
+        this._protectedConnections++;
+        break;
+      case IConnectionEventType.UNPROTECTED:
+        this._protectedConnections--;
+        break;
+    }
+  }
+
+  private getConnectionTable(): ConnectionTable {
+    return ConnectionTable.fromIterable(this._connectionsPerAddress.values());
   }
 }
