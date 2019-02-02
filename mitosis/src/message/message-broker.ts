@@ -85,7 +85,7 @@ export class MessageBroker {
     const senderId = message.getSender().getId();
 
     this._peerManager
-      .ensureConnection(senderId, viaPeerId)
+      .ensureConnection(new Address(senderId, Protocol.VIA_MULTI, viaPeerId), {payload: {quality: 0.1}})
       .catch(
         reason =>
           Logger.getLogger(this._peerManager.getMyId()).warn(reason, message)
