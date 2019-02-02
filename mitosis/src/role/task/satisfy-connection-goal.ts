@@ -38,13 +38,13 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
     .countConnections(
       table => table.filterDirect()
     );
-  const insufficientConnections = directConnectionCount < Configuration.DIRECT_CONNECTIONS_GOAL;
-  const superfluousConnections = directConnectionCount > Configuration.DIRECT_CONNECTIONS_GOAL;
+  const insufficientConnections = directConnectionCount < Configuration.DIRECT_CONNECTIONS_MIN_GOAL;
+  const superfluousConnections = directConnectionCount > Configuration.DIRECT_CONNECTIONS_MAX_GOAL;
 
   if (insufficientConnections) {
     if (viaPeers.length) {
       Logger.getLogger(mitosis.getMyAddress().getId()).debug(
-        `need to acquire ${Configuration.DIRECT_CONNECTIONS_GOAL - directConnectionCount} peers`
+        `need to acquire ${Configuration.DIRECT_CONNECTIONS_MIN_GOAL - directConnectionCount} peers`
       );
       const bestViaPeer = viaPeers
         .sortByQuality()
@@ -56,7 +56,7 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
     }
   } else if (superfluousConnections) {
     Logger.getLogger(mitosis.getMyAddress().getId()).debug(
-      `need to loose ${directConnectionCount - Configuration.DIRECT_CONNECTIONS_GOAL} peers`
+      `need to loose ${directConnectionCount - Configuration.DIRECT_CONNECTIONS_MAX_GOAL} peers`
     );
     const worstDirectPeers = directPeers
       .exclude(

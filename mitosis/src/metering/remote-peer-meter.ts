@@ -109,7 +109,7 @@ export class RemotePeerMeter implements IMeter {
         table => table.filterVia(this._mitosisId)
       ) + 1;  // this is our own connection
 
-    const saturation = ((Configuration.DIRECT_CONNECTIONS_MAX - connectionCount) / Configuration.DIRECT_CONNECTIONS_GOAL);
+    const saturation = ((Configuration.DIRECT_CONNECTIONS_MAX - connectionCount) / Configuration.DIRECT_CONNECTIONS_MAX_GOAL);
     return 1 - Math.min(Math.max(0, saturation), 1);
   }
 
