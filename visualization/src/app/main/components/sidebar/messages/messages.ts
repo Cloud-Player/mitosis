@@ -13,19 +13,33 @@ export class MessagesComponent implements OnInit, OnChanges {
   @Input()
   public selectedNode: Node;
 
+  private filterQuery: string;
+
   constructor(private messageEventLogger: MessageEventLogger) {
   }
 
   public getMessageLog(): Array<LogEvent<Message>> {
-    return this.messageEventLogger
+    const logs = this.messageEventLogger
       .getLogger()
       .getEventsForNodeId(this.selectedNode.getId());
+    if (this.filterQuery) {
+      return logs
+        .filter(logEntry => {
+          return this.getTitle(logEntry.getEvent(), this.selectedNode).match(this.filterQuery);
+        });
+    } else {
+      return logs;
+    }
   }
 
   public purgeMessages() {
     this.messageEventLogger
       .getLogger()
       .purgeEventsForNodeId(this.selectedNode.getId());
+  }
+
+  public filterMessages(filterQuery: string) {
+    this.filterQuery = filterQuery;
   }
 
   public getTitle(message: Message, selectedNode: Node): string {

@@ -13,19 +13,33 @@ export class LoggerComponent implements OnInit, OnChanges {
   @Input()
   public selectedNode: Node;
 
+  public filterQuery: string;
+
   constructor(private eventLogger: LogEventLogger) {
   }
 
   public getLogs(): Array<LogEvent<ILogEvent>> {
-    return this.eventLogger
+    const logs = this.eventLogger
       .getLogger()
       .getEventsForNodeId(this.selectedNode.getId());
+    if (this.filterQuery) {
+      return logs
+        .filter(log => {
+          return log.getEvent().data[0].match(this.filterQuery);
+        });
+    } else {
+      return logs;
+    }
   }
 
   public purgeLog() {
     this.eventLogger
       .getLogger()
       .purgeEventsForNodeId(this.selectedNode.getId());
+  }
+
+  public filterLog(searchQuery: string) {
+    this.filterQuery = searchQuery;
   }
 
   ngOnInit(): void {

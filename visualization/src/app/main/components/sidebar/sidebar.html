@@ -26,6 +26,7 @@
   <section>
     <app-search-input
       #searchInput
+      id="sidebar-node-filter"
       placeholder="Search for a node"
       [options]="availableNodeIds"
       (valueChange)="search($event)">

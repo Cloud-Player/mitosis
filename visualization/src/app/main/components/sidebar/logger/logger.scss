@@ -1,6 +1,12 @@
 @import "variables";
 
 :host {
+  app-search-input {
+    font-size: 12px;
+    margin-top: -20px;
+    display: block;
+    margin-bottom: 0 !important;
+  }
 
   /deep/ app-collapsible {
     font-size: 12px;

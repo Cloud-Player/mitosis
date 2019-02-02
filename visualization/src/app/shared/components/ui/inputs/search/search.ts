@@ -35,19 +35,31 @@ export class SearchInputComponent implements OnInit, OnChanges, OnDestroy {
   @Input()
   public options: string[] = [];
 
+  @Input()
+  public id: string;
+
   @Output()
   valueChange: EventEmitter<string>;
 
-  private static saveSearchTerm(searchTerm: string): void {
-    localStorage.setItem('mitosis-vis-node-search', searchTerm);
+  private static saveSearchTerm(id: string, searchTerm: string): void {
+    if (!id) {
+      return;
+    }
+    localStorage.setItem(`search-${id}`, searchTerm);
   }
 
-  private static getSearchTerm(): string {
-    return localStorage.getItem('mitosis-vis-node-search');
+  private static getSearchTerm(id: string): string {
+    if (!id) {
+      return;
+    }
+    return localStorage.getItem(`search-${id}`);
   }
 
-  private static deleteSearchTerm(): void {
-    localStorage.removeItem('mitosis-vis-node-search');
+  private static deleteSearchTerm(id): void {
+    if (!id) {
+      return;
+    }
+    localStorage.removeItem(`search-${id}`);
   }
 
   constructor() {
@@ -96,10 +108,10 @@ export class SearchInputComponent implements OnInit, OnChanges, OnDestroy {
           map(term => {
               if (term && term.length > 0) {
                 this.valueChange.emit(term);
-                SearchInputComponent.saveSearchTerm(term);
+                SearchInputComponent.saveSearchTerm(this.id, term);
               } else {
                 this.valueChange.emit(null);
-                SearchInputComponent.deleteSearchTerm();
+                SearchInputComponent.deleteSearchTerm(this.id);
               }
               return term || '';
             }
@@ -107,7 +119,7 @@ export class SearchInputComponent implements OnInit, OnChanges, OnDestroy {
         )
         .subscribe();
 
-    const existingSearchTerm = SearchInputComponent.getSearchTerm();
+    const existingSearchTerm = SearchInputComponent.getSearchTerm(this.id);
     if (existingSearchTerm) {
       this.searchOnInput(existingSearchTerm);
     }

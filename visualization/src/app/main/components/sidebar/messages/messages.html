@@ -4,6 +4,11 @@
     <app-button type="icon" text="fa fa-trash" (click)="purgeMessages()"></app-button>
   </header>
 
+  <app-search-input placeholder="Filter message entries"
+                    id="message-filter"
+                    (valueChange)="filterMessages($event)">
+  </app-search-input>
+
   <app-collapsible *ngFor="let logEvent of getMessageLog()"
                    [isCollapsed]="true"
                    class="subject-{{logEvent.getEvent().getSubject()}} message-{{getDirection(logEvent.getEvent(), selectedNode)}}"

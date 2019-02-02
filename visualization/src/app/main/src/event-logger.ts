@@ -19,7 +19,7 @@ export class LogEvent<TLog> {
 }
 
 export class NodeEventLogger<TLog> {
-  public static maxSize = 100;
+  public static maxSize = 1000;
 
   private _logs: Array<LogEvent<TLog>>;
 
