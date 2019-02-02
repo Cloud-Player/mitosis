@@ -42,7 +42,7 @@ export class RemotePeerMeter implements IMeter {
     switch (event.type) {
       case IConnectionEventType.PUNISHED:
         Logger.getLogger(event.connection.getAddress().getId())
-          .warn(`punish connection to ${event.connection.getAddress().getId()}`, event.connection);
+          .info(`punish connection to ${event.connection.getAddress().getId()}`, event.connection);
         this._punishedConnections++;
         this._clock.setTimeout(() => {
           this._punishedConnections--;
@@ -59,9 +59,12 @@ export class RemotePeerMeter implements IMeter {
     }
   }
 
+  private getConnectionTable(): ConnectionTable {
+    return ConnectionTable.fromIterable(this._connectionsPerAddress.values());
+  }
+
   public getLastSeen(): number {
-    return ConnectionTable
-      .fromIterable(this._connectionsPerAddress.values())
+    return this.getConnectionTable()
       .map(
         connection => (connection.getMeter() as IConnectionMeter).getLastSeen()
       )
@@ -73,8 +76,7 @@ export class RemotePeerMeter implements IMeter {
 
   // returns value between 0 and 1 which is the average tq of all connections
   public getAverageConnectionQuality(): number {
-    const quality = ConnectionTable
-      .fromIterable(this._connectionsPerAddress.values())
+    const quality = this.getConnectionTable()
       .map(
         connection => connection.getMeter().getQuality()
       )
@@ -86,8 +88,7 @@ export class RemotePeerMeter implements IMeter {
   }
 
   public getBestConnectionQuality(): number {
-    return ConnectionTable
-      .fromIterable(this._connectionsPerAddress.values())
+    return this.getConnectionTable()
       .map(
         connection => connection.getMeter().getQuality()
       )
@@ -97,9 +98,16 @@ export class RemotePeerMeter implements IMeter {
       );
   }
 
-  // returns 0 or 1. When at least one connection is protected it returns 1
+  // returns 1 if peer reported too few connections and at least one connection is protected, else 0
   public getConnectionProtection(): 0 | 1 {
-    return this._protectedConnections > 0 ? 1 : 0;
+    Logger.getLogger('simulation').warn('connection protection should filter via-multi');
+    const unsatisfied = this.getConnectionTable().filterVia().length < Configuration.DIRECT_CONNECTIONS_MIN_GOAL;
+    if (unsatisfied) {
+      if (this._protectedConnections > 0) {
+        return 1;
+      }
+    }
+    return 0;
   }
 
   public getConnectionSaturation(remotePeers: RemotePeerTable): number {
