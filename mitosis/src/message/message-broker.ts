@@ -161,7 +161,7 @@ export class MessageBroker {
       Logger.getLogger(this._peerManager.getMyId()).error(`all connections lost to ${peerId}`, message);
       return;
     }
-    if (connection.getAddress().getProtocol() === Protocol.VIA) {
+    if (connection.getAddress().isProtocol(Protocol.VIA, Protocol.VIA_MULTI)) {
       const directPeerId = connection.getAddress().getLocation();
       const directPeer = this._peerManager.getPeerById(directPeerId);
       directPeer.send(message);

@@ -18,7 +18,7 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
 
   const viaPeers = peerTable
     .filterConnections(
-      table => table.filterVia()
+      table => table.filterByProtocol(Protocol.VIA)
     )
     .exclude(
       table => {

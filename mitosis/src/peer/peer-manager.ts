@@ -50,9 +50,13 @@ export class PeerManager {
         .forEach(
           peer => peer
             .getConnectionTable()
-            .filterVia(remotePeer.getId())
+            .filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI)
+            .filterByLocation(remotePeer.getId())
             .forEach(
-              viaConnection => viaConnection.close()
+              viaConnection => {
+                Logger.getLogger(this._myId).warn('close via connection because parent connection was closed', viaConnection);
+                viaConnection.close();
+              }
             )
         );
     }
@@ -237,7 +241,8 @@ export class PeerManager {
       .forEach(
         peer => peer
           .getConnectionTable()
-          .filterVia(senderId)
+          .filterByProtocol(Protocol.VIA)
+          .filterByLocation(senderId)
           .filter(
             connection =>
               updatedPeerIds.indexOf(connection.getAddress().getId()) === -1
