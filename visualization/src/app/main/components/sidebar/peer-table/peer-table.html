@@ -4,7 +4,8 @@
                    id="rtbl-{{selectedNode.getId()+'-'+remotePeer.getId()}}"
                    [isCollapsed]="true"
                    [title]="remotePeer.getId()"
-                   [text]="getPeerAnnotation(remotePeer)">
+                   [text]="getPeerAnnotation(remotePeer)"
+                   [class.expired]="remotePeer.getMeter().lastSeenIsExpired()">
     <ul class="connections">
       <div class="meter">
         <pre>
@@ -12,6 +13,7 @@
           ⌀PunQ: {{remotePeer.getMeter().getAverageConnectionPunishment().toFixed(2)}},
           ProQ: {{remotePeer.getMeter().getConnectionProtection()}}
           LastSeen: {{remotePeer.getMeter().getLastSeen()}}
+          isExpired: {{remotePeer.getMeter().lastSeenIsExpired() | json}}
         </pre>
       </div>
       <li *ngFor="let connection of remotePeer.getConnectionTable()">

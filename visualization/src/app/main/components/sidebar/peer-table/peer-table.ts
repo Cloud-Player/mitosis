@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {ConnectionState, IConnection, Protocol, RemotePeer, RoleType} from 'mitosis';
+import {ConnectionState, IConnection, IConnectionMeter, Protocol, RemotePeer, RoleType} from 'mitosis';
 import {Node, Simulation} from 'mitosis-simulation';
 
 @Component({
