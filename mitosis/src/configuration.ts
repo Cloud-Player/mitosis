@@ -17,6 +17,7 @@ export class Configuration {
   public static readonly CONNECTION_METER_OPEN_GRACE_PERIOD_TIME: number = 10;
   public static readonly CONNECTION_METER_PROTECTION_TIME: number = 10;
   public static readonly CONNECTION_METER_PUNISHMENT_TIME: number = 20;
+  public static readonly LAST_SEEN_TIMEOUT: number = 30;
 }
 
 export class SignalConfiguration extends Configuration {

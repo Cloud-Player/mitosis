@@ -68,6 +68,10 @@ export abstract class ConnectionMeter {
     }
   }
 
+  public isLastSeenExpired() {
+    return (this._clock.getTick() - this._lastSeenTick) > Configuration.LAST_SEEN_TIMEOUT;
+  }
+
   public getLastSeen(): number {
     return this._lastSeenTick;
   }

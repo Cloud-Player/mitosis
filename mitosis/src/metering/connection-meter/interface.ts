@@ -22,5 +22,7 @@ export interface IConnectionMeter extends IMeter {
 
   getLastSeen(): number;
 
+  isLastSeenExpired(): boolean;
+
   observe(): Subject<IConnectionMeterEvent>;
 }

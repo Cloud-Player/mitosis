@@ -35,6 +35,14 @@ export class RemotePeerMeter implements IMeter {
       );
   }
 
+  public lastSeenIsExpired(): boolean {
+    const unExpiredConnection = this.getConnectionTable()
+      .find(
+        connection => (connection.getMeter() as IConnectionMeter).isLastSeenExpired() === false
+      );
+    return !unExpiredConnection;
+  }
+
   // returns value between 0 and 1 which is the average tq of all connections
   public getAverageConnectionQuality(): number {
     const quality = this.getConnectionTable()
