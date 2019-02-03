@@ -23,6 +23,7 @@ import {IPeerChurnEvent} from './interface';
 import {RemotePeer} from './remote-peer';
 import {RemotePeerTable} from './remote-peer-table';
 import {UnknownPeer} from '../message/unknown-peer';
+import {ViaConnectionMeter} from '../metering/connection-meter/via-connection-meter';
 
 export class PeerManager {
 
@@ -114,6 +115,17 @@ export class PeerManager {
     }
   }
 
+  private updateViaPeer(remotePeer: RemotePeer, viaPeerId: string) {
+    remotePeer
+      .getConnectionTable()
+      .filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI)
+      .filterByLocation(viaPeerId)
+      .forEach((connection) => {
+        const meter: ViaConnectionMeter = connection.getMeter() as ViaConnectionMeter;
+        meter.updateLastSeen();
+      });
+  }
+
   public getMyId(): string {
     return this._myId;
   }
@@ -174,20 +186,32 @@ export class PeerManager {
   }
 
   public ensureConnection(remoteAddress: Address, options?: IConnectionOptions): Promise<RemotePeer> {
-    const remotePeerId = remoteAddress.getId();
-    const viaPeerId = remoteAddress.getLocation();
-    if (remotePeerId === viaPeerId) {
-      const remotePeer = this.getPeerById(remotePeerId);
-      if (remotePeer) {
-        return Promise.resolve(remotePeer);
-      } else {
+    const existingRemotePeer = this.getPeerById(remoteAddress.getId());
+
+    if (!existingRemotePeer) {
+      if (remoteAddress.getId() === remoteAddress.getLocation()) {
         return Promise.reject(
-          `direct connection to ${remotePeerId} disappeared`);
+          `direct connection to ${remoteAddress.getId()} disappeared`);
+      } else {
+        return this.connectToVia(remoteAddress, options);
       }
-    } else if (remotePeerId === this._myId) {
+    }
+
+    if (existingRemotePeer.getId() === this._myId) {
+      // remote peer is me
       return Promise.reject('will not connect to myself');
-    } else {
+    }
+
+    if (!existingRemotePeer.getConnectionForAddress(remoteAddress)) {
       return this.connectToVia(remoteAddress, options);
+    } else {
+      if (remoteAddress.isProtocol(Protocol.VIA, Protocol.VIA_MULTI)) {
+        // Update ViaConnection properties like lastSeen. This must only happen for via connction not for direct
+        this.updateViaPeer(existingRemotePeer, remoteAddress.getLocation());
+        Logger.getLogger(this._myId)
+          .debug(`update ${remoteAddress.getProtocol()} connection ${existingRemotePeer.getId()}`, existingRemotePeer);
+      }
+      return Promise.resolve(existingRemotePeer);
     }
   }
 

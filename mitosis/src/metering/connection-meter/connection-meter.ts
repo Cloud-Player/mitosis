@@ -38,6 +38,10 @@ export abstract class ConnectionMeter {
     }
   }
 
+  protected updateLastSeen() {
+    this._lastSeenTick = this._clock.getTick();
+  }
+
   private setProtected(isProtected: boolean) {
     const wasProtected = this._protected;
     this._protected = isProtected;

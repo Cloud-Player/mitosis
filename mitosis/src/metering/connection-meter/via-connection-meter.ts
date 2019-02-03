@@ -11,6 +11,10 @@ export class ViaConnectionMeter extends ConnectionMeter implements IConnectionMe
     this._quality = quality;
   }
 
+  public updateLastSeen() {
+    super.updateLastSeen();
+  }
+
   public getQuality(): number {
     // TODO: Calculate quality from PUs and direct connection
     return this._quality;
