@@ -14,7 +14,6 @@ export class Configuration {
   public static readonly DIRECT_CONNECTIONS_MIN_GOAL: number = 4;
   public static readonly DIRECT_CONNECTIONS_MAX_GOAL: number = 6;
   public static readonly DIRECT_CONNECTIONS_MAX: number = 10;
-  public static readonly SEND_REDIRECT_ALTERNATIVE_COUNT: number = 5;
   public static readonly CONNECTION_METER_OPEN_GRACE_PERIOD_TIME: number = 10;
   public static readonly CONNECTION_METER_PROTECTION_TIME: number = 10;
   public static readonly CONNECTION_METER_PUNISHMENT_TIME: number = 20;

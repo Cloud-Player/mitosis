@@ -3,6 +3,7 @@ import {MessageSubject} from '../../message/interface';
 import {Message} from '../../message/message';
 import {PeerUpdate} from '../../message/peer-update';
 import {Mitosis} from '../../mitosis';
+import {SortOrder} from '../../util/table';
 
 export function sendAlternatives(mitosis: Mitosis, message: Message) {
   const peerManager = mitosis.getPeerManager();
@@ -39,9 +40,9 @@ export function sendAlternatives(mitosis: Mitosis, message: Message) {
 
   const alternativePeers = directPeers
     .sortByQuality(
-      meter => meter.getLastSeen()
-    )
-    .slice(0, configuration.SEND_REDIRECT_ALTERNATIVE_COUNT);
+      SortOrder.DESC,
+      meter => meter.getLastSeen(),
+    );
 
   const tableUpdate = new PeerUpdate(
     message.getReceiver(),
