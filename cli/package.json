@@ -1,0 +1,22 @@
+{
+  "name": "mitosis-cli",
+  "version": "0.0.1",
+  "description": "TBD",
+  "authors": [
+    "Nicolas Drebenstedt",
+    "Alexander Zarges"
+  ],
+  "license": "MIT",
+  "preferGlobal": true,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/auxdotapp/mitosis.git"
+  },
+  "main": "mitosis-cli",
+  "dependencies": {
+    "chalk": "2.4.2",
+    "cli-progress": "2.1.1",
+    "mitosis": "file:../mitosis",
+    "mitosis-simulation": "file:../simulation"
+  }
+}

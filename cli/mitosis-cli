@@ -1,0 +1,59 @@
+#!/usr/bin/env node
+
+const chalk = require('chalk');
+const simulator = require('mitosis-simulation');
+const mitosis = require('mitosis');
+const progress = require('cli-progress');
+
+const args = process.argv;
+
+const usage = function () {
+  const usageText = `
+  run mitosis simulation from the command line
+
+  usage:
+    mitosis-cli <scenario.json>
+  `;
+  console.log(chalk.green(usageText));
+};
+
+if (args.length < 3) {
+  console.log(chalk.red(`no scenario path provided`));
+  usage();
+  process.exit(1);
+} else if (args.length > 3) {
+  console.log(chalk.yellow(`ignoring arguments ${args.splice(3).join(', ')}`));
+}
+
+function evaluate(simulation) {
+  simulation.getClock().stop();
+
+  const directConnections = [];
+  simulation
+    .getNodeMap()
+    .forEach(node =>
+      node
+        .getMitosis()
+        .getPeerTable()
+        .aggregateConnections(table =>
+          table.filterDirect())
+        .forEach(
+          connection => directConnections.push(connection)
+        )
+    );
+  console.log(chalk.green(`${directConnections.length} connections`));
+  console.log(chalk.green(`${directConnections.length / simulation.getNodeMap().size} connections per peer`));
+  process.exit(0);
+}
+
+const scenario = require(args[2]);
+const simulation = simulator.Simulation.getInstance();
+mitosis.Logger.setLevel(mitosis.LogLevel.FATAL);
+mitosis.Logger.getLogger('simulation').setLevel(mitosis.LogLevel.FATAL);
+let duration = scenario.instructions[scenario.instructions.length - 1].tick;
+const bar = new progress.Bar({stopOnComplete: true}, progress.Presets.shades_classic);
+bar.start(duration, 0);
+simulation.getClock().setSpeed(1);
+simulation.getClock().setInterval(() => bar.increment());
+simulation.getClock().setTimeout(() => evaluate(simulation), duration);
+simulation.start(scenario);
