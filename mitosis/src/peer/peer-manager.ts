@@ -351,20 +351,13 @@ export class PeerManager {
     return this._peers.find(p => p.getId() === id);
   }
 
-  public removePeer(remotePeer: RemotePeer): boolean {
-    const rolesRequiringPeer = this._roleManager.getRolesRequiringPeer(remotePeer);
-    Logger.getLogger(this._myId)
-      .info(`${remotePeer.getId()} is required by ${rolesRequiringPeer.join(' and ') || 'nobody'}`);
-    if (rolesRequiringPeer.length === 0) {
-      const index = this._peers.indexOf(remotePeer);
-      if (index > -1) {
-        this._peers.splice(index, 1);
-        this._peerChurnSubject.next({peer: remotePeer, type: ChurnType.REMOVED});
-        remotePeer.destroy();
-        return true;
-      }
+  public removePeer(remotePeer: RemotePeer): void {
+    const index = this._peers.indexOf(remotePeer);
+    if (index > -1) {
+      this._peers.splice(index, 1);
     }
-    return false;
+    this._peerChurnSubject.next({peer: remotePeer, type: ChurnType.REMOVED});
+    remotePeer.destroy();
   }
 
   public observePeerChurn(): Subject<IPeerChurnEvent> {
