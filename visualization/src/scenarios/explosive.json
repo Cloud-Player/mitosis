@@ -1,0 +1,33 @@
+{
+  "instructions": [
+    {
+      "tick": 0,
+      "type": "set-clock-speed",
+      "configuration": {
+        "speed": 1
+      }
+    },
+    {
+      "tick": 1,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/signal/wss",
+        "roles": [
+          "signal"
+        ]
+      }
+    },
+    {
+      "tick": 1,
+      "type": "generate-peers",
+      "configuration": {
+        "count": 5000,
+        "signal": "mitosis/v1/signal/wss"
+      }
+    },
+    {
+      "tick": 10000,
+      "type": "finish-scenario"
+    }
+  ]
+}
