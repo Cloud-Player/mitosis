@@ -2,7 +2,7 @@ import {Subject} from 'rxjs';
 import {IClock} from '../clock/interface';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
-import {IMeter} from '../metering/interface';
+import {IConnectionMeter} from '../metering/connection-meter/interface';
 import {ConnectionState, IConnection, IConnectionOptions} from './interface';
 
 export abstract class AbstractConnection {
@@ -11,7 +11,7 @@ export abstract class AbstractConnection {
   private _onOpenRejector: (error?: any) => void;
   private _state: ConnectionState;
   protected _id: string;
-  protected _meter: IMeter;
+  protected _meter: IConnectionMeter;
   protected _clock: IClock;
   protected _options: IConnectionOptions;
   protected _address: Address;
@@ -35,7 +35,7 @@ export abstract class AbstractConnection {
 
   protected abstract closeClient(): void;
 
-  public getMeter(): IMeter {
+  public getMeter(): IConnectionMeter {
     return this._meter;
   }
 

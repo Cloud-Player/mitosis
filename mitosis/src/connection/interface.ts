@@ -3,7 +3,7 @@ import {IClock} from '../clock/interface';
 import {ChurnType} from '../interface';
 import {Address} from '../message/address';
 import {IMessage} from '../message/interface';
-import {IMeter} from '../metering/interface';
+import {IConnectionMeter} from '../metering/connection-meter/interface';
 
 export type IConnectionConstructor = new (
   address: Address,
@@ -63,7 +63,7 @@ export enum ConnectionState {
 
 export interface IConnection {
 
-  getMeter(): IMeter;
+  getMeter(): IConnectionMeter;
 
   getAddress(): Address;
 
