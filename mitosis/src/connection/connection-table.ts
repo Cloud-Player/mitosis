@@ -34,6 +34,14 @@ export class ConnectionTable extends Table<IConnection, ConnectionTable> {
     );
   }
 
+  public filterByMeter(callbackfn: (meter: IConnectionMeter) => boolean): ConnectionTable {
+    return new ConnectionTable(
+      this._values.filter(
+        connection => callbackfn(connection.getMeter())
+      )
+    );
+  }
+
   public sortByQuality(callbackfn: (meter: IConnectionMeter) => number = meter => meter.getQuality()): ConnectionTable {
     return this.sortBy(
       connection =>
