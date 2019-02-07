@@ -26,8 +26,14 @@ export function sendAlternatives(mitosis: Mitosis, message: Message) {
     return;
   }
 
-  const senderIsDirect = peerManager
-    .getPeerById(message.getSender().getId())
+  const sender = peerManager
+    .getPeerById(message.getSender().getId());
+
+  if (!sender) {
+    return;
+  }
+
+  const senderIsDirect = sender
     .getConnectionTable()
     .filterDirect()
     .length;

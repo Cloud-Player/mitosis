@@ -313,7 +313,12 @@ export class PeerManager {
     };
     switch (connectionNegotiation.getBody().type) {
       case ConnectionNegotiationType.OFFER:
-        this.connectTo(senderAddress, options);
+        this.connectTo(senderAddress, options)
+          .catch(
+            error => Logger
+              .getLogger(this._myId)
+              .warn(`offer connection to ${senderAddress} failed`, error)
+          );
         break;
       case ConnectionNegotiationType.ANSWER:
         this.connectTo(senderAddress).then(
@@ -322,6 +327,10 @@ export class PeerManager {
               remotePeer.getConnectionForAddress(senderAddress) as WebRTCConnection;
             webRTCConnection.establish(options.payload);
           }
+        ).catch(
+          error => Logger
+            .getLogger(this._myId)
+            .warn(`answer connection to ${senderAddress} failed`, error)
         );
         break;
       default:

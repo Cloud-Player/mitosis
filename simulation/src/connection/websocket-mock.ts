@@ -1,4 +1,4 @@
-import {Address, IClock, IConnection, IConnectionOptions} from 'mitosis';
+import {Address, IClock, IConnection, IConnectionOptions, Logger} from 'mitosis';
 import {MockMeter} from '../metering/mock-meter';
 import {MockConnection} from './mock';
 
@@ -28,7 +28,14 @@ export class WebSocketMockConnection extends MockConnection implements IConnecti
         this._address.getLocation()
       );
       this._client.getClock().setTimeout(() => {
-        remoteNode.getMitosis().getPeerManager().connectTo(localAddress);
+        remoteNode
+          .getMitosis()
+          .getPeerManager()
+          .connectTo(localAddress)
+          .catch(error => Logger
+            .getLogger('simulation')
+            .warn(`connection to ${localAddress} failed`, error)
+          );
       }, this.getConnectionDelay());
     } else {
       this._client.getClock().setTimeout(() => {

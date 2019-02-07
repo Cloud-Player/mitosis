@@ -52,7 +52,14 @@ export function acquireDirectConnections(mitosis: Mitosis): void {
           const address = new Address(remotePeer.getId(), Protocol.WEBRTC_DATA);
           Logger.getLogger(mitosis.getMyAddress().getId())
             .debug(`connecting to ${remotePeer.getId()} with quality ${remotePeer.getMeter().getQuality()}`, remotePeer);
-          mitosis.getPeerManager().connectTo(address);
+          mitosis
+            .getPeerManager()
+            .connectTo(address)
+            .catch(
+              error => Logger
+                .getLogger(mitosis.getMyAddress().getId())
+                .warn(`connection to ${address} failed`, error)
+            );
         }
       );
   }
