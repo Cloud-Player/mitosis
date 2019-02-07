@@ -1,16 +1,11 @@
-import {IConnection} from 'mitosis';
 import {MockConnection} from '../connection/mock';
 
 export class Edge {
+  public source: string;
+  public target: string;
   private _connection: MockConnection;
   private _sourceId: string;
   private _id: string;
-  public source: string;
-  public target: string;
-
-  private static buildId(sourceId: string, targetId: string) {
-    return `c-${sourceId}-${targetId}}`;
-  }
 
   constructor(sourceId: string, connection: MockConnection) {
     this._connection = connection;
@@ -20,19 +15,27 @@ export class Edge {
     this.target = this._connection.getAddress().getId();
   }
 
-  public getConnection() {
+  private static buildId(sourceId: string, targetId: string): string {
+    return `c-${sourceId}-${targetId}}`;
+  }
+
+  public getConnection(): MockConnection {
     return this._connection;
   }
 
-  public equals(edge: Edge) {
+  public equals(edge: Edge): boolean {
     return edge.getId() === this.getId();
   }
 
-  public equalsSourceTarget(sourceId: string, targetId: string) {
+  public equalsSourceTarget(sourceId: string, targetId: string): boolean {
     return this.getId() === sourceId && this._connection.getAddress().getId() === targetId;
   }
 
-  public getId() {
+  public getSourceId(): string {
+    return this._sourceId;
+  }
+
+  public getId(): string {
     return this._id;
   }
 }

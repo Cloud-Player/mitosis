@@ -102,7 +102,7 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
         }
       })
       .attr('stroke', (d: Edge) => {
-        if (this.selectedNode && d.getConnection().getAddress().getId() === this.selectedNode.getId()) {
+        if (this.selectedNode && d.getSourceId() === this.selectedNode.getId()) {
           return 'blue';
         } else if (d.getConnection().isInState(ConnectionState.OPENING, ConnectionState.CLOSING)) {
           return 'rgba(100,100,100,0.3)';
