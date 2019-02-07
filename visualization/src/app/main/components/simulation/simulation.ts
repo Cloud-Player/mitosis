@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {Logger, Protocol} from 'mitosis';
+import {Logger} from 'mitosis';
 import {Edge, MockConnection, Simulation} from 'mitosis-simulation';
 import {Subscription} from 'rxjs';
 import {LogEventLogger} from '../../services/log-event-logger';
@@ -14,16 +14,14 @@ import {SidebarComponent} from '../sidebar/sidebar';
   styleUrls: ['./simulation.scss'],
 })
 export class SimulationComponent implements OnInit {
-  private simulation: Simulation;
-
   public model: D3Model;
   public selectedNode: Node;
-
   @ViewChild('graph')
   public graph: D3DirectedGraphComponent;
-
   @ViewChild('sidebar')
   public sidebar: SidebarComponent;
+  private scenario: any;
+  private simulation: Simulation;
 
   constructor(private logEventLogger: LogEventLogger,
               private messageEventLogger: MessageEventLogger) {
@@ -53,6 +51,7 @@ export class SimulationComponent implements OnInit {
   }
 
   public updateScenario(scenario: any) {
+    this.scenario = scenario;
     this.simulation.reset();
     this.simulation.start(scenario);
     let subscriptions: Subscription = new Subscription();
@@ -90,15 +89,12 @@ export class SimulationComponent implements OnInit {
           .getPeerManager()
           .getPeerTable()
           .forEach(remotePeer => {
-            console.log('CONNECTION-TABLE', remotePeer.getConnectionTable())
             remotePeer
               .getConnectionTable()
               .filterDirect()
               .forEach(
-                connection => {
-                  console.log('ADD', connection.getAddress().getProtocol(), connection.getAddress().toString());
-                  model.addEdge(new Edge(node.getId(), connection as MockConnection));
-                }
+                connection =>
+                  model.addEdge(new Edge(node.getId(), connection as MockConnection))
               );
           });
       });
@@ -146,9 +142,33 @@ export class SimulationComponent implements OnInit {
       }
     });
 
-    window.addEventListener('keydown', function (e) {
+    let metaPressed = false;
+    let shiftPressed = false;
+
+    window.addEventListener('keydown', (e) => {
       if (e.code === 'Space' && e.target === document.body) {
         e.preventDefault();
+      }
+      if (e.key === 'Meta') {
+        metaPressed = true;
+      }
+      if (e.key === 'Shift') {
+        shiftPressed = true;
+      }
+      if (e.key === 'r' && metaPressed && !shiftPressed) {
+        if (this.scenario) {
+          e.preventDefault();
+          this.updateScenario(this.scenario);
+        }
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.key === 'Meta') {
+        metaPressed = false;
+      }
+      if (e.key === 'Shift') {
+        shiftPressed = false;
       }
     });
   }
