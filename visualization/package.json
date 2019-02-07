@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "npm run build:lib && ng serve",
-    "build": "ng build",
+    "build": "ng build --prod",
     "lint": "ng lint",
     "build:lib": "cd ../mitosis && npm run build && cd ../simulation && npm run build && cd ../visualization"
   },
