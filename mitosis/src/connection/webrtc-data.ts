@@ -2,10 +2,9 @@ import * as SimplePeer from 'simple-peer';
 import {IClock} from '../clock/interface';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
-import {IMeter} from '../metering/interface';
+import {TransmissionConnectionMeter} from '../metering/connection-meter/transmission-connection-meter';
 import {IConnection, IConnectionOptions} from './interface';
 import {WebRTCConnection} from './webrtc';
-import {TransmissionConnectionMeter} from '../metering/connection-meter/transmission-connection-meter';
 
 export class WebRTCDataConnection extends WebRTCConnection implements IConnection {
 
@@ -53,10 +52,6 @@ export class WebRTCDataConnection extends WebRTCConnection implements IConnectio
         superOnDataChannel.call(this._client, event);
       }
     };
-  }
-
-  public getMeter(): IMeter {
-    return this._meter;
   }
 
   public establish(answer: SimplePeer.SignalData): void {
