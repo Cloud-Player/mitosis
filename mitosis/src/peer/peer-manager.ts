@@ -72,7 +72,7 @@ export class PeerManager {
   private broadcastAllowed(message: IMessage): boolean {
     switch (message.getSubject()) {
       case MessageSubject.ROUTER_ALIVE:
-        return true;
+        return !this._roleManager.hasRole(RoleType.SIGNAL);
       default:
         return false;
     }
