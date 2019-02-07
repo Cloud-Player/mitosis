@@ -12,6 +12,11 @@ export class Logger implements ILogger {
   private _id: string;
   private readonly _logSubject: Subject<ILogEvent>;
 
+  private constructor(id: string) {
+    this._id = id;
+    this._logSubject = new Subject<ILogEvent>();
+  }
+
   public static getLogger(id: string): ILogger {
     if (!Logger._loggerMap.has(id)) {
       Logger._loggerMap.set(id, new Logger(id));
@@ -21,11 +26,6 @@ export class Logger implements ILogger {
 
   public static setLevel(level: LogLevel) {
     Logger._logLevel = level;
-  }
-
-  private constructor(id: string) {
-    this._id = id;
-    this._logSubject = new Subject<ILogEvent>();
   }
 
   private getCurrentTick() {

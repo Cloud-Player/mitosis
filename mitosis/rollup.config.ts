@@ -3,6 +3,7 @@ import json from 'rollup-plugin-json';
 import resolve from 'rollup-plugin-node-resolve';
 import sourceMaps from 'rollup-plugin-sourcemaps';
 import typescript from 'rollup-plugin-typescript2';
+
 const pkg = require('./package.json');
 
 const libraryName = 'mitosis';

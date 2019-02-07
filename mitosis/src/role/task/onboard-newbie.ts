@@ -1,5 +1,4 @@
-import {Glob} from 'glob';
-import {Configuration, Globals} from '../../configuration';
+import {Globals} from '../../configuration';
 import {ConnectionState} from '../../connection/interface';
 import {Address} from '../../message/address';
 import {MessageSubject} from '../../message/interface';

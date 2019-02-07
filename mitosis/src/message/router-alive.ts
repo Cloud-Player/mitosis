@@ -1,5 +1,3 @@
-import {RemotePeer} from '../peer/remote-peer';
-import {RoleType} from '../role/interface';
 import {Address} from './address';
 import {IFloodableMessage, MessageSubject} from './interface';
 import {Message} from './message';

@@ -1,4 +1,4 @@
-import {Configuration, Globals} from '../configuration';
+import {Globals} from '../configuration';
 
 export class SlidingWindow extends Set<number> {
   private _sequence = 0;

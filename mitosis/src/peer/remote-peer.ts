@@ -34,40 +34,6 @@ export class RemotePeer {
     this._meter = new RemotePeerMeter(this._connectionsPerAddress, this._id, clock.fork());
   }
 
-  public getId(): string {
-    return this._id;
-  }
-
-  public getRoles(): Array<RoleType> {
-    return this._roleTypes;
-  }
-
-  public setRoles(roleTypes: Array<RoleType>): void {
-    this._roleTypes = roleTypes;
-  }
-
-  public getPublicKey(): string {
-    return this._publicKey;
-  }
-
-  public getConnectionTable(): ConnectionTable {
-    return ConnectionTable.fromIterable(
-      this._connectionsPerAddress.values()
-    );
-  }
-
-  public getMeter(): RemotePeerMeter {
-    return this._meter;
-  }
-
-  public getQuality(): number {
-    return this._meter.getQuality();
-  }
-
-  public getConnectionForAddress(address: Address): IConnection {
-    return this._connectionsPerAddress.get(address.toString());
-  }
-
   private listenOnConnectionChanges(connection: IConnection): void {
     connection.observeStateChange().subscribe((ev) => {
       switch (ev) {
@@ -127,6 +93,40 @@ export class RemotePeer {
     this._connectionChurnSubject.next({connection: connection, type: ChurnType.ADDED});
     this.listenOnConnectionChanges(connection);
     return connection;
+  }
+
+  public getId(): string {
+    return this._id;
+  }
+
+  public getRoles(): Array<RoleType> {
+    return this._roleTypes;
+  }
+
+  public setRoles(roleTypes: Array<RoleType>): void {
+    this._roleTypes = roleTypes;
+  }
+
+  public getPublicKey(): string {
+    return this._publicKey;
+  }
+
+  public getConnectionTable(): ConnectionTable {
+    return ConnectionTable.fromIterable(
+      this._connectionsPerAddress.values()
+    );
+  }
+
+  public getMeter(): RemotePeerMeter {
+    return this._meter;
+  }
+
+  public getQuality(): number {
+    return this._meter.getQuality();
+  }
+
+  public getConnectionForAddress(address: Address): IConnection {
+    return this._connectionsPerAddress.get(address.toString());
   }
 
   public hasRole(...roleTypes: Array<RoleType>): boolean {

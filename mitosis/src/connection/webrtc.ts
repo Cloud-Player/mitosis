@@ -5,7 +5,13 @@ import {Address} from '../message/address';
 import {MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
 import {AbstractConnection} from './connection';
-import {ConnectionState, IConnection, IConnectionOptions, IWebRTCConnectionOptions, WebRTCConnectionOptionsPayloadType} from './interface';
+import {
+  ConnectionState,
+  IConnection,
+  IConnectionOptions,
+  IWebRTCConnectionOptions,
+  WebRTCConnectionOptionsPayloadType
+} from './interface';
 
 export abstract class WebRTCConnection extends AbstractConnection implements IConnection {
 

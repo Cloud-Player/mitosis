@@ -1,4 +1,4 @@
-import {Configuration, Globals} from '../../configuration';
+import {Globals} from '../../configuration';
 import {Address} from '../../message/address';
 import {RouterAlive} from '../../message/router-alive';
 import {Mitosis} from '../../mitosis';

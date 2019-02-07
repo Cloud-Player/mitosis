@@ -9,6 +9,14 @@ export class Message implements IMessage {
   private _id: string;
   protected _body: any;
 
+  public constructor(sender: Address, receiver: Address, subject: MessageSubject, body: any, id?: string) {
+    this._sender = sender;
+    this._receiver = receiver;
+    this._subject = subject;
+    this._body = body;
+    this._id = id || `m${Math.round(100 + Math.random() * 899)}`;
+  }
+
   public static fromString(messageString: string): Message {
     const messageJSON = JSON.parse(messageString);
     return new Message(
@@ -18,14 +26,6 @@ export class Message implements IMessage {
       messageJSON.body,
       messageJSON.id
     );
-  }
-
-  public constructor(sender: Address, receiver: Address, subject: MessageSubject, body: any, id?: string) {
-    this._sender = sender;
-    this._receiver = receiver;
-    this._subject = subject;
-    this._body = body;
-    this._id = id || `m${Math.round(100 + Math.random() * 899)}`;
   }
 
   public getReceiver(): Address {

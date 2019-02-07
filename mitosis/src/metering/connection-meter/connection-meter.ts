@@ -3,7 +3,6 @@ import {IClock} from '../../clock/interface';
 import {Configuration} from '../../configuration';
 import {IConnection} from '../../connection/interface';
 import {Logger} from '../../logger/logger';
-import {MessageSubject} from '../../message/interface';
 import {Message} from '../../message/message';
 import {IConnectionEventType, IConnectionMeterEvent} from './interface';
 
@@ -30,18 +29,6 @@ export abstract class ConnectionMeter {
       );
   }
 
-  protected onMessage(message: Message) {
-    if (!this._clock) {
-      Logger.getLogger(this._connection.getAddress().getId()).error(`can not read clock for message`, message);
-    } else {
-      this._lastSeenTick = this._clock.getTick();
-    }
-  }
-
-  protected updateLastSeen() {
-    this._lastSeenTick = this._clock.getTick();
-  }
-
   private setProtected(isProtected: boolean) {
     const wasProtected = this._protected;
     this._protected = isProtected;
@@ -66,6 +53,18 @@ export abstract class ConnectionMeter {
         this._subject.next({type: IConnectionEventType.UNPUNISHED, connection: this._connection});
       }
     }
+  }
+
+  protected onMessage(message: Message) {
+    if (!this._clock) {
+      Logger.getLogger(this._connection.getAddress().getId()).error(`can not read clock for message`, message);
+    } else {
+      this._lastSeenTick = this._clock.getTick();
+    }
+  }
+
+  protected updateLastSeen() {
+    this._lastSeenTick = this._clock.getTick();
   }
 
   public isLastSeenExpired() {

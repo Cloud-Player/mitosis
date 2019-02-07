@@ -1,7 +1,6 @@
 import {SlidingWindow} from '../metering/sliding-window';
 import {IFloodableMessage, IMessage} from './interface';
 import {PeerManager} from '../peer/peer-manager';
-import {ConnectionState, IConnection} from '../connection/interface';
 import {Logger} from '../logger/logger';
 
 export class FloodingHandler {

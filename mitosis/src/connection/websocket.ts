@@ -14,18 +14,6 @@ export class WebSocketConnection extends AbstractConnection implements IConnecti
     this._meter = new NoopConnectionMeter(this, clock);
   }
 
-  public send(message: Message): void {
-    if (!this._client) {
-      throw new Error('socket client not initialized');
-    } else if (this.getState() !== ConnectionState.OPEN) {
-      throw new Error(`socket connection not in open state (${this.getState()})`);
-    } else if (this._client.readyState !== WebSocket.OPEN) {
-      throw new Error(`socket client not in open state (${this._client.readyState})`);
-    } else {
-      this._client.send(message.toString());
-    }
-  }
-
   private onSocketOpen() {
     this.onOpen(this);
   }
@@ -45,6 +33,18 @@ export class WebSocketConnection extends AbstractConnection implements IConnecti
   protected closeClient(): void {
     this._client.close();
     this._client = null;
+  }
+
+  public send(message: Message): void {
+    if (!this._client) {
+      throw new Error('socket client not initialized');
+    } else if (this.getState() !== ConnectionState.OPEN) {
+      throw new Error(`socket connection not in open state (${this.getState()})`);
+    } else if (this._client.readyState !== WebSocket.OPEN) {
+      throw new Error(`socket client not in open state (${this._client.readyState})`);
+    } else {
+      this._client.send(message.toString());
+    }
   }
 
   public openClient() {

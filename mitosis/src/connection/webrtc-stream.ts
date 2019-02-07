@@ -16,14 +16,6 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
     this._meter = new StreamConnectionMeter(this, clock);
   }
 
-  public send(message: Message): void {
-    throw new Error('not implemented');
-  }
-
-  public addTrack(track: MediaStreamTrack): void {
-    (this._client as any).addTrack(track, this._stream);
-  }
-
   protected bindClientListeners(): void {
     super.bindClientListeners();
     this._client.on('track', (track: MediaStreamTrack, stream: MediaStream) => {
@@ -39,6 +31,14 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
         this._onStreamResolver(this._stream);
       }
     });
+  }
+
+  public send(message: Message): void {
+    throw new Error('not implemented');
+  }
+
+  public addTrack(track: MediaStreamTrack): void {
+    (this._client as any).addTrack(track, this._stream);
   }
 
   public setStream(stream: MediaStream): void {

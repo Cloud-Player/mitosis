@@ -13,7 +13,9 @@
     "outDir": "dist/lib",
     "baseUrl": ".",
     "paths": {
-      "rxjs": ["node_modules/rxjs"]
+      "rxjs": [
+        "node_modules/rxjs"
+      ]
     },
     "lib": [
       "es2018",

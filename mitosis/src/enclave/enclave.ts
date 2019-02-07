@@ -6,9 +6,9 @@ export abstract class Enclave {
     [this._publicKey, this._privateKey] = this._generateKeyPair();
   }
 
+  protected abstract _generateKeyPair(): Array<string>;
+
   public getPublicKey(): string {
     return this._publicKey;
   }
-
-  protected abstract _generateKeyPair(): Array<string>;
 }
