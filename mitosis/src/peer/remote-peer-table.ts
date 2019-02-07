@@ -15,6 +15,22 @@ export class RemotePeerTable extends Table<RemotePeer, RemotePeerTable> {
     );
   }
 
+  public aggregateConnections(callbackfn: (table: ConnectionTable) => ConnectionTable): ConnectionTable {
+    return new ConnectionTable(
+      this._values
+        .map(
+          remotePeer => remotePeer.getConnectionTable()
+        )
+        .map(
+          connectionTable => callbackfn(connectionTable).asArray()
+        )
+        .reduce(
+          (previous, current) => previous.concat(current)
+          , []
+        )
+    );
+  }
+
   public filterByRole(...roles: Array<RoleType>): RemotePeerTable {
     return new RemotePeerTable(
       this._values.filter(
