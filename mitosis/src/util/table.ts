@@ -2,16 +2,24 @@ export class Table<V, T extends Table<V, T>> implements Iterable<V> {
 
   protected readonly _values: Array<V>;
 
+  public constructor(values: Array<V> = []) {
+    this._values = values.slice();
+  }
+
+  public get length(): number {
+    return this._values.length;
+  }
+
   public static fromIterable<V, T extends Table<V, T>>(iterable: IterableIterator<V>): T {
     return new this(Array.from(iterable)) as T;
   }
 
-  public constructor(values: Array<V>) {
-    this._values = values.slice();
-  }
-
   public fromArray(array: Array<V>): T {
     return new (this.constructor as (new (values: Array<V>) => T))(array) as T;
+  }
+
+  public asArray(): Array<V> {
+    return this._values.slice();
   }
 
   public filter(callbackfn: (value: V) => boolean): T {
@@ -71,16 +79,21 @@ export class Table<V, T extends Table<V, T>> implements Iterable<V> {
     return this._values[Symbol.iterator]();
   }
 
+  public concat(table: T): T {
+    const values = this._values.concat(table._values);
+    return new (this.constructor as (new (values: Array<V>) => T))(values) as T;
+  }
+
+  public push(...items: Array<V>): number {
+    return this._values.push(...items);
+  }
+
   public shift(): V {
     return this._values.shift();
   }
 
   public pop(): V {
     return this._values.pop();
-  }
-
-  public get length(): number {
-    return this._values.length;
   }
 
   public toString(): string {
