@@ -6,7 +6,8 @@ export enum LogLevel {
   DEBUG = 10,
   INFO = 20,
   WARN = 30,
-  ERROR = 40
+  ERROR = 40,
+  FATAL = 50
 }
 
 export interface ILogEvent {
@@ -30,6 +31,8 @@ export interface ILogger {
   warn(...args: Array<any>): void;
 
   error(...args: Array<any>): void;
+
+  fatal(...args: Array<any>): void;
 
   observeLogEvents(): Subject<ILogEvent>;
 }

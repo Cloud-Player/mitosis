@@ -81,6 +81,13 @@ export class Logger implements ILogger {
     this._logSubject.next({level: LogLevel.ERROR, data: args, tick: this.getCurrentTick()});
   }
 
+  public fatal(...args: Array<any>): void {
+    if (this.getLevel() <= LogLevel.FATAL) {
+      console.error(`💣 [${this._id}]`, ...args);
+    }
+    this._logSubject.next({level: LogLevel.FATAL, data: args, tick: this.getCurrentTick()});
+  }
+
   public observeLogEvents(): Subject<ILogEvent> {
     return this._logSubject;
   }
