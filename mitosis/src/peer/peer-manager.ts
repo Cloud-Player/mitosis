@@ -111,7 +111,9 @@ export class PeerManager {
           peer => peer.send(message)
         );
     } else {
-      throw new Error(`message from type ${message.getSubject()} is not allowed to be broadcasted!`);
+      Logger.getLogger(this.getMyId()).error(
+        `message from type ${message.getSubject()} is not allowed to be broadcasted!`
+      );
     }
   }
 
