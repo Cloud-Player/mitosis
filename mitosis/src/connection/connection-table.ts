@@ -13,24 +13,8 @@ export class ConnectionTable extends Table<IConnection, ConnectionTable> {
   }
 
   public filterDirect(): ConnectionTable {
-    return new ConnectionTable(
-      this._values.filter(
-        connection => connection.getAddress().getProtocol() !== Protocol.VIA
-      )
-    );
-  }
-
-  public filterVia(viaPeerId?: string): ConnectionTable {
-    return new ConnectionTable(
-      this._values.filter(
-        connection => {
-          if (viaPeerId && viaPeerId !== connection.getAddress().getLocation()) {
-            return false;
-          } else {
-            return connection.getAddress().getProtocol() === Protocol.VIA;
-          }
-        }
-      )
+    return this.exclude(
+      table => table.filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI)
     );
   }
 
@@ -38,6 +22,14 @@ export class ConnectionTable extends Table<IConnection, ConnectionTable> {
     return new ConnectionTable(
       this._values.filter(
         connection => connection.getAddress().isProtocol(...protocols)
+      )
+    );
+  }
+
+  public filterByLocation(location: string) {
+    return new ConnectionTable(
+      this._values.filter(
+        connection => connection.getAddress().getLocation() === location
       )
     );
   }

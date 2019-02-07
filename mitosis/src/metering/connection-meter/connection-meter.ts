@@ -38,6 +38,10 @@ export abstract class ConnectionMeter {
     }
   }
 
+  protected updateLastSeen() {
+    this._lastSeenTick = this._clock.getTick();
+  }
+
   private setProtected(isProtected: boolean) {
     const wasProtected = this._protected;
     this._protected = isProtected;
@@ -62,6 +66,10 @@ export abstract class ConnectionMeter {
         this._subject.next({type: IConnectionEventType.UNPUNISHED, connection: this._connection});
       }
     }
+  }
+
+  public isLastSeenExpired() {
+    return (this._clock.getTick() - this._lastSeenTick) > Configuration.LAST_SEEN_TIMEOUT;
   }
 
   public getLastSeen(): number {

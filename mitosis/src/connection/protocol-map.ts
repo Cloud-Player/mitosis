@@ -10,3 +10,4 @@ ProtocolConnectionMap.set(Protocol.WEBSOCKET_UNSECURE, WebSocketConnection);
 ProtocolConnectionMap.set(Protocol.WEBRTC_DATA, WebRTCDataConnection);
 ProtocolConnectionMap.set(Protocol.WEBRTC_STREAM, WebRTCStreamConnection);
 ProtocolConnectionMap.set(Protocol.VIA, ViaConnection);
+ProtocolConnectionMap.set(Protocol.VIA_MULTI, ViaConnection);

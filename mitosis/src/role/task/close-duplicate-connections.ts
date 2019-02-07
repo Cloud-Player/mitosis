@@ -18,7 +18,7 @@ export function closeDuplicateConnections(mitosis: Mitosis): void {
             protocol => {
               direct
                 .filter(
-                  connection => connection.getAddress().getProtocol() === protocol
+                  connection => connection.getAddress().isProtocol(protocol)
                 )
                 .sortBy(
                   connection => connection.getAddress().getLocation()

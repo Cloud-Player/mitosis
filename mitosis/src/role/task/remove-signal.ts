@@ -1,4 +1,5 @@
 import {ConnectionState} from '../../connection/interface';
+import {Logger} from '../../logger/logger';
 import {Mitosis} from '../../mitosis';
 import {RoleType} from '../interface';
 
@@ -24,16 +25,27 @@ export function removeSignal(mitosis: Mitosis): void {
     return;
   }
 
+  if (mitosis.getRoleManager().hasRole(RoleType.NEWBIE)) {
+    return;
+  }
+
   const routers = peerTable
-    .filterByRole(RoleType.ROUTER)
+    .filterByRole(RoleType.ROUTER);
+
+  const directConnections = peerTable
     .filterConnections(
       table => table
         .filterDirect()
         .filterByStates(ConnectionState.OPEN)
     );
-  if (routers.length === 0) {
+
+  // When it does not have a router yet or less than 2 connections, meaning it is only connected via signal, do not remove
+  if (routers.length === 0 || directConnections.length < 2) {
     return;
   }
+
+  Logger.getLogger(mitosis.getMyAddress().getId())
+    .info('close connection so signal', `routers: ${routers.length}, connections: ${directConnections.length}`);
 
   signals
     .forEach(

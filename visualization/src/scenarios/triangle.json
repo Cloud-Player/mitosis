@@ -2,6 +2,13 @@
   "instructions": [
     {
       "tick": 0,
+      "type": "set-clock-speed",
+      "configuration": {
+        "speed": 50
+      }
+    },
+    {
+      "tick": 0,
       "type": "add-peer",
       "configuration": {
         "address": "mitosis/v1/signal/wss",
@@ -28,7 +35,22 @@
     },
     {
       "tick": 0,
-      "type": "pause-clock"
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/claire/webrtc",
+        "signal": "mitosis/v1/signal/wss"
+      }
+    },
+    {
+      "tick": 24,
+      "type": "set-clock-speed",
+      "configuration": {
+        "speed": 250
+      }
+    },
+    {
+      "tick": 25,
+      "type": "finish-scenario"
     }
   ]
 }

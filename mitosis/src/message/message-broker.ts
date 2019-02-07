@@ -11,7 +11,10 @@ import {IMessage, MessageSubject} from './interface';
 import {PeerUpdate} from './peer-update';
 import {RoleUpdate} from './role-update';
 import {FloodingHandler} from './flooding-handler';
-import {Configuration, Globals} from '../configuration';
+import {Globals} from '../configuration';
+import {Address} from './address';
+import {UnknownPeer} from './unknown-peer';
+import {RoleType} from '../role/interface';
 
 export class MessageBroker {
 
@@ -85,7 +88,7 @@ export class MessageBroker {
     const senderId = message.getSender().getId();
 
     this._peerManager
-      .ensureConnection(senderId, viaPeerId)
+      .ensureConnection(new Address(senderId, Protocol.VIA_MULTI, viaPeerId), {payload: {quality: 0.1}})
       .catch(
         reason =>
           Logger.getLogger(this._peerManager.getMyId()).warn(reason, message)
@@ -98,6 +101,15 @@ export class MessageBroker {
       case MessageSubject.PEER_UPDATE:
         this._peerManager.updatePeers(message as PeerUpdate, viaPeerId);
         break;
+      case MessageSubject.UNKNOWN_PEER:
+        const existingPeer = this._peerManager.getPeerById(message.getBody());
+        if (existingPeer) {
+          existingPeer
+            .getConnectionTable()
+            .filterByLocation(message.getInboundAddress().getId())
+            .forEach(connection => connection.close());
+        }
+        break;
       case MessageSubject.CONNECTION_NEGOTIATION:
         this._peerManager.negotiateConnection(message as ConnectionNegotiation);
         break;
@@ -109,6 +121,10 @@ export class MessageBroker {
         break;
       case MessageSubject.ROUTER_ALIVE:
         if (this._routerAliveFloodingHandler.isFirstMessage(message)) {
+          const routerPeer = this._peerManager.getPeerById(message.getSender().getId());
+          if (routerPeer) {
+            routerPeer.setRoles([RoleType.PEER, RoleType.ROUTER]);
+          }
           // TODO handle router alive message
           Logger.getLogger(this._peerManager.getMyId())
             .warn(
@@ -139,18 +155,20 @@ export class MessageBroker {
     const receiverPeer = this._peerManager.getPeerById(peerId);
     if (!receiverPeer) {
       Logger.getLogger(this._peerManager.getMyId()).debug(`no idea how to reach ${peerId}`, message);
-      this._peerManager.sendPeerUpdate(message.getInboundAddress());
+      this._peerManager.sendMessage(
+        new UnknownPeer(message.getReceiver(), message.getInboundAddress(), peerId)
+      );
       return;
     }
     const connection = receiverPeer.getConnectionTable()
       .filterByStates(ConnectionState.OPEN)
       .sortByQuality()
-      .shift();
+      .pop();
     if (!connection) {
       Logger.getLogger(this._peerManager.getMyId()).error(`all connections lost to ${peerId}`, message);
       return;
     }
-    if (connection.getAddress().getProtocol() === Protocol.VIA) {
+    if (connection.getAddress().isProtocol(Protocol.VIA, Protocol.VIA_MULTI)) {
       const directPeerId = connection.getAddress().getLocation();
       const directPeer = this._peerManager.getPeerById(directPeerId);
       directPeer.send(message);

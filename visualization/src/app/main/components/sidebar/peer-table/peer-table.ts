@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {ConnectionState, Protocol, RemotePeer, RoleType} from 'mitosis';
+import {ConnectionState, IConnection, IConnectionMeter, Protocol, RemotePeer, RoleType} from 'mitosis';
 import {Node, Simulation} from 'mitosis-simulation';
 
 @Component({
@@ -15,6 +15,10 @@ export class PeerTableComponent implements OnInit {
   public simulation: Simulation;
 
   constructor() {
+  }
+
+  public isDisabled(connection: IConnection) {
+    return connection.getAddress().isProtocol(Protocol.VIA, Protocol.VIA_MULTI);
   }
 
   public getPeerAnnotation(peer: RemotePeer) {
@@ -34,7 +38,7 @@ export class PeerTableComponent implements OnInit {
     const directText = `${directConnections.length - nonOpenConnections.length}/${directConnections.length}`;
 
     const viaText = peer.getConnectionTable()
-      .filterByProtocol(Protocol.VIA_SINGLE, Protocol.VIA_MULTI)
+      .filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI)
       .length
       .toString();
 

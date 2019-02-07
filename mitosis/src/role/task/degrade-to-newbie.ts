@@ -7,7 +7,7 @@ export function degradeToNewbie(mitosis: Mitosis): void {
 
   if (!roleManager.hasRole(RoleType.NEWBIE) && mitosis.getPeerTable().length === 0) {
     Logger.getLogger(mitosis.getMyAddress().getId())
-      .debug('lost all connections');
+      .debug('lost all connections, becoming a newbie!');
     roleManager
       .getRoles()
       .forEach(

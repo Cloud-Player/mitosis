@@ -20,6 +20,10 @@ export class Table<V, T extends Table<V, T>> implements Iterable<V> {
     );
   }
 
+  public find(callbackfn: (value: V) => boolean): V {
+    return this._values.find(callbackfn);
+  }
+
   public exclude(callbackfn: (table: T) => T): T {
     // const excluded = callbackfn(this as unknown as T)._values;
     const excluded = callbackfn(this.fromArray(this._values))._values;

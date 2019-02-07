@@ -22,6 +22,8 @@ import {RoleManager} from '../role/role-manager';
 import {IPeerChurnEvent} from './interface';
 import {RemotePeer} from './remote-peer';
 import {RemotePeerTable} from './remote-peer-table';
+import {UnknownPeer} from '../message/unknown-peer';
+import {ViaConnectionMeter} from '../metering/connection-meter/via-connection-meter';
 
 export class PeerManager {
 
@@ -43,6 +45,7 @@ export class PeerManager {
     if (remotePeer.getConnectionTable().length === 0) {
       // Remove the peer entirely if no connections are left
       this.removePeer(remotePeer);
+      this.sendUnknownPeerToDirectPeers(remotePeer.getId());
     }
     if (remotePeer.getConnectionTable().filterDirect().length === 0) {
       // Remove all via connections that went over this peer
@@ -50,9 +53,13 @@ export class PeerManager {
         .forEach(
           peer => peer
             .getConnectionTable()
-            .filterVia(remotePeer.getId())
+            .filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI)
+            .filterByLocation(remotePeer.getId())
             .forEach(
-              viaConnection => viaConnection.close()
+              viaConnection => {
+                Logger.getLogger(this._myId).warn('close via connection because parent connection was closed', viaConnection);
+                viaConnection.close();
+              }
             )
         );
     }
@@ -69,6 +76,21 @@ export class PeerManager {
       default:
         return false;
     }
+  }
+
+  private sendUnknownPeerToDirectPeers(unknownPeerId: string) {
+    this.getPeerTable()
+      .filterConnections(
+        table => table
+          .filterDirect()
+          .filterByStates(ConnectionState.OPEN)
+      )
+      .forEach(peer => {
+          peer
+            .send(new UnknownPeer(new Address(this.getMyId()), new Address(peer.getId()), unknownPeerId));
+        }
+      );
+    Logger.getLogger(this.getMyId()).warn(`tell direct peers that peer ${unknownPeerId} does not exist anymore`);
   }
 
   private broadcast(message: IMessage): void {
@@ -91,6 +113,17 @@ export class PeerManager {
     } else {
       throw new Error(`message from type ${message.getSubject()} is not allowed to be broadcasted!`);
     }
+  }
+
+  private updateViaPeer(remotePeer: RemotePeer, viaPeerId: string) {
+    remotePeer
+      .getConnectionTable()
+      .filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI)
+      .filterByLocation(viaPeerId)
+      .forEach((connection) => {
+        const meter: ViaConnectionMeter = connection.getMeter() as ViaConnectionMeter;
+        meter.updateLastSeen();
+      });
   }
 
   public getMyId(): string {
@@ -135,41 +168,50 @@ export class PeerManager {
       });
   }
 
-  public connectToVia(remotePeerId: string, viaPeerId: string, options?: IConnectionOptions): Promise<RemotePeer> {
-    const viaPeer = this.getPeerById(viaPeerId);
+  public connectToVia(remoteAddress: Address, options?: IConnectionOptions): Promise<RemotePeer> {
+    const viaPeer = this.getPeerById(remoteAddress.getLocation());
     if (viaPeer) {
-      const address = new Address(
-        remotePeerId,
-        Protocol.VIA,
-        viaPeerId
-      );
       options = options || {payload: {}};
       options.payload.quality = options.payload.quality || 1;
       options.payload.parent = viaPeer
         .getConnectionTable()
         .filterDirect()
         .shift();
-      return this.connectTo(address, options as IViaConnectionOptions);
+      return this.connectTo(remoteAddress, options as IViaConnectionOptions);
     } else {
-      const reason = `cannot connect to ${remotePeerId} because via ${viaPeerId} is missing`;
+      const reason = `cannot connect to ${remoteAddress.getId()} because via ${remoteAddress.getLocation()} is missing`;
       Logger.getLogger(this._myId).error(reason);
       return Promise.reject(reason);
     }
   }
 
-  public ensureConnection(remotePeerId: string, viaPeerId: string, options?: IConnectionOptions): Promise<RemotePeer> {
-    if (remotePeerId === viaPeerId) {
-      const remotePeer = this.getPeerById(remotePeerId);
-      if (remotePeer) {
-        return Promise.resolve(remotePeer);
-      } else {
+  public ensureConnection(remoteAddress: Address, options?: IConnectionOptions): Promise<RemotePeer> {
+    const existingRemotePeer = this.getPeerById(remoteAddress.getId());
+
+    if (!existingRemotePeer) {
+      if (remoteAddress.getId() === remoteAddress.getLocation()) {
         return Promise.reject(
-          `direct connection to ${remotePeerId} disappeared`);
+          `direct connection to ${remoteAddress.getId()} disappeared`);
+      } else {
+        return this.connectToVia(remoteAddress, options);
       }
-    } else if (remotePeerId === this._myId) {
+    }
+
+    if (existingRemotePeer.getId() === this._myId) {
+      // remote peer is me
       return Promise.reject('will not connect to myself');
+    }
+
+    if (!existingRemotePeer.getConnectionForAddress(remoteAddress)) {
+      return this.connectToVia(remoteAddress, options);
     } else {
-      return this.connectToVia(remotePeerId, viaPeerId, options);
+      if (remoteAddress.isProtocol(Protocol.VIA, Protocol.VIA_MULTI)) {
+        // Update ViaConnection properties like lastSeen. This must only happen for via connction not for direct
+        this.updateViaPeer(existingRemotePeer, remoteAddress.getLocation());
+        Logger.getLogger(this._myId)
+          .debug(`update ${remoteAddress.getProtocol()} connection ${existingRemotePeer.getId()}`, existingRemotePeer);
+      }
+      return Promise.resolve(existingRemotePeer);
     }
   }
 
@@ -218,9 +260,8 @@ export class PeerManager {
         entry => {
           updatedPeerIds.push(entry.peerId);
           this.ensureConnection(
-            entry.peerId,
-            senderId,
-            {payload: {quality: entry.quality}}
+            new Address(entry.peerId, Protocol.VIA, senderId),
+            {payload: {quality: 0.5}}
           )
             .then(
               remotePeer => {
@@ -237,7 +278,8 @@ export class PeerManager {
       .forEach(
         peer => peer
           .getConnectionTable()
-          .filterVia(senderId)
+          .filterByProtocol(Protocol.VIA)
+          .filterByLocation(senderId)
           .filter(
             connection =>
               updatedPeerIds.indexOf(connection.getAddress().getId()) === -1

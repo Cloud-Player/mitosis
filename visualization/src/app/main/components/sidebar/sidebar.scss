@@ -43,6 +43,20 @@
       margin-right: 0;
     }
 
+    /deep/ app-collapsible {
+      &.expired {
+        .collapsible {
+          opacity: 0.5;
+
+          .collapsible-head {
+            .title {
+              text-decoration: line-through;
+            }
+          }
+        }
+      }
+    }
+
     .scenario-setup {
       padding-bottom: 0;
 

@@ -34,10 +34,26 @@
       }
     },
     {
-      "tick": 3,
+      "tick": 2,
       "type": "add-peer",
       "configuration": {
         "address": "mitosis/v1/chloe/webrtc",
+        "signal": "mitosis/v1/signal/wss"
+      }
+    },
+    {
+      "tick": 3,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/dylan/webrtc",
+        "signal": "mitosis/v1/signal/wss"
+      }
+    },
+    {
+      "tick": 3,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/eve/webrtc",
         "signal": "mitosis/v1/signal/wss"
       }
     },

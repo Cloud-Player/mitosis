@@ -39,7 +39,7 @@ export class SelectorComponent implements ControlValueAccessor {
   @Output()
   public valueChanged = new EventEmitter();
 
-  private updateValue(value: number) {
+  public updateValue(value: number) {
     if (this._onChange) {
       this.value = value;
       this._onChange(this.value);

@@ -208,6 +208,10 @@
         "address": "mitosis/v1/zoe/webrtc",
         "signal": "mitosis/v1/signal/wss"
       }
+    },
+    {
+      "tick": 110,
+      "type": "finish-scenario"
     }
   ]
 }
