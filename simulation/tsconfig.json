@@ -22,7 +22,6 @@
     }
   },
   "include": [
-    "./src/**/*",
-    "./src/scenario/hello-world.json"
+    "./src/**/*"
   ]
 }

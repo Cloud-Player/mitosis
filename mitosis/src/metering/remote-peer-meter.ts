@@ -114,10 +114,19 @@ export class RemotePeerMeter implements IMeter {
 
   public getConnectionSaturation(remotePeers: RemotePeerTable): number {
     // looks at the direct connections the metered peer reported and estimates its saturation
-    const connectionCount = remotePeers
+    const viaConnectionCount = remotePeers
       .countConnections(
         table => table.filterVia(this._mitosisId)
-      ) + 1;  // this is our own connection
+      );
+
+    const directConnectionCount = remotePeers
+      .filterById(this._mitosisId)
+      .countConnections(
+        table => table
+          .filterDirect()
+      );
+
+    const connectionCount = viaConnectionCount + directConnectionCount;
 
     // TODO: Use role specific configuration for this remote peer
     const saturation = ((Configuration.DIRECT_CONNECTIONS_MAX - connectionCount) / Configuration.DIRECT_CONNECTIONS_MAX_GOAL);
