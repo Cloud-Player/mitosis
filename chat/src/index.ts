@@ -55,9 +55,12 @@ class Chat {
   }
 
   private broadcastMessage(message: string) {
-    this._mitosis.getPeerManager().getPeers().forEach((peer) => {
-      this.sendMessage(peer.getId(), message);
-    });
+    this._mitosis
+      .getPeerManager()
+      .getPeerTable()
+      .forEach(remotePeer => {
+        this.sendMessage(remotePeer.getId(), message);
+      });
   }
 
   private listenOnInbox() {
