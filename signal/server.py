@@ -17,7 +17,7 @@ from tornado.websocket import WebSocketHandler
 class RendezvousHandler(WebSocketHandler):
 
     ROUTER = {}
-    MY_ADDRESS = 'mitosis/v1/p007/ws/localhost:8040/websocket'
+    MY_ADDRESS = 'mitosis/v1/p000/ws/localhost:8040/websocket'
 
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
@@ -35,7 +35,7 @@ class RendezvousHandler(WebSocketHandler):
         message = json.loads(message)
         app_log.error(message)
         subject = message.get('subject')
-        if subject == 'peer-update':
+        if subject == 'introduction':
             self.on_peer_update(message)
         elif subject == 'connection-negotiation':
             self.on_connection_negotiation(message)
