@@ -1,0 +1,31 @@
+@import 'variables';
+
+:host {
+  .tab-bar {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    border-bottom: 3px solid $gray-lighter;
+    margin: 0 15px;
+
+    .tab {
+      color: $gray;
+      padding: 10px 15px;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -3px;
+      transition: all 0.5s ease;
+      flex-grow: 1;
+      text-align: center;
+      width: auto;
+
+      &.active {
+        color: $brand-primary;
+        border-bottom-color: $brand-primary;
+      }
+
+      &:hover {
+        color: $brand-primary;
+      }
+    }
+  }
+}
