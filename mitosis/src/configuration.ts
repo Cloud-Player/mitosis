@@ -4,7 +4,7 @@ import {RoleType} from './role/interface';
 
 export class Globals {
   public static readonly BROADCAST_ADDRESS = '*';
-  public static readonly DEFAULT_SIGNAL_ADDRESS = 'mitosis/v1/p000/ws/localhost:8040/websocket';
+  public static readonly DEFAULT_SIGNAL_ADDRESS = 'mitosis/v1/p000/wss/signal.aux.app/websocket';
   public static readonly SLIDING_WINDOW_SIZE: number = 12;
   public static readonly TRANSMISSION_PING_INTERVAL: number = 4;
   public static readonly MAX_ROUTERS_PER_SIGNAL: number = 1;
