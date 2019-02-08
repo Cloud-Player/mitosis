@@ -1,4 +1,14 @@
-import {ConnectionState, IClock, Logger, LogLevel, MasterClock, Message, Mitosis, Protocol, ProtocolConnectionMap} from 'mitosis';
+import {
+  ConnectionState,
+  IClock,
+  IMessage,
+  Logger,
+  LogLevel,
+  MasterClock,
+  Mitosis,
+  Protocol,
+  ProtocolConnectionMap
+} from 'mitosis';
 import {MockConnection} from './connection/mock';
 import {WebRTCDataMockConnection} from './connection/webrtc-data-mock';
 import {WebSocketMockConnection} from './connection/websocket-mock';
@@ -13,6 +23,12 @@ export class Simulation {
   private _nodes: Map<string, Node>;
   private _edges: Map<string, Edge>;
 
+  private constructor() {
+    this._clock = new MasterClock();
+    this._nodes = new Map();
+    this._edges = new Map();
+  }
+
   public static getInstance() {
     if (!Simulation._instance) {
       Logger.setLevel(LogLevel.ERROR);
@@ -23,12 +39,6 @@ export class Simulation {
       ProtocolConnectionMap.set(Protocol.WEBRTC_DATA, WebRTCDataMockConnection);
     }
     return Simulation._instance;
-  }
-
-  private constructor() {
-    this._clock = new MasterClock();
-    this._nodes = new Map();
-    this._edges = new Map();
   }
 
   public establishConnection(from: string, to: string, location: string) {
