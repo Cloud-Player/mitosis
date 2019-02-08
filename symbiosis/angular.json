@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "visualization": {
+    "symbiosis": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/visualization",
+            "outputPath": "dist/symbiosis",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -68,18 +68,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "visualization:build"
+            "browserTarget": "symbiosis:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "visualization:build:production"
+              "browserTarget": "symbiosis:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "visualization:build"
+            "browserTarget": "symbiosis:build"
           }
         },
         "lint": {
@@ -97,5 +97,5 @@
       }
     }
   },
-  "defaultProject": "visualization"
+  "defaultProject": "symbiosis"
 }
