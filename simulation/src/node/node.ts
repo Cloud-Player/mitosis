@@ -1,15 +1,19 @@
-import {IConnection, Mitosis} from 'mitosis';
+import {IMessage, Mitosis} from 'mitosis';
 import {MockConnection} from '../connection/mock';
 import {Edge} from '../edge/edge';
+import {NetworkStats} from '../statistics/network-stats';
+import {Simulation} from '../simulation';
 
 export class Node {
   private _mitosis: Mitosis;
   private _isSelected: boolean;
   public x: number;
   public y: number;
+  public networkStats: NetworkStats;
 
   constructor(mitosis: Mitosis) {
     this._mitosis = mitosis;
+    this.networkStats = new NetworkStats(Simulation.getInstance().getClock());
   }
 
   public getMitosis() {
@@ -31,6 +35,14 @@ export class Node {
               });
         });
     return edges;
+  }
+
+  public onReceiveMessage(message: IMessage) {
+    this.networkStats.addInComingMessage(message);
+  }
+
+  public onSendMessage(message: IMessage) {
+    this.networkStats.addOutGoingMessage(message);
   }
 
   public getId() {

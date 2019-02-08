@@ -74,12 +74,14 @@ export class Simulation {
     }
   }
 
-  public deliverMessage(from: string, to: string, location: string, delay: number, message: Message): void {
+  public deliverMessage(from: string, to: string, location: string, delay: number, message: IMessage): void {
     const edge = this.getEdge(to, from, location);
+    this._nodes.get(from).onSendMessage(message);
     if (edge) {
       this._clock.setTimeout(() => {
         const connection = (edge.getConnection() as MockConnection);
         if (connection.getState() === ConnectionState.OPEN) {
+          this._nodes.get(to).onReceiveMessage(message);
           connection.onMessage(message);
         } else {
           Logger.getLogger('simulation').error(
