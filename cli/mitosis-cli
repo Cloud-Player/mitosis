@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 
 const chalk = require('chalk');
+const fs = require('fs');
+const stringify = require('csv-stringify');
 const simulator = require('mitosis-simulation');
 const mitosis = require('mitosis');
+const path = require('path');
 const progress = require('cli-progress');
 
 const args = process.argv;
@@ -12,17 +15,29 @@ const usage = function () {
   run mitosis simulation from the command line
 
   usage:
-    mitosis-cli <scenario.json>
+    mitosis-cli scenario.json [outfile.csv]
   `;
   console.log(chalk.green(usageText));
 };
 
+let outpath;
 if (args.length < 3) {
   console.log(chalk.red(`no scenario path provided`));
   usage();
   process.exit(1);
+} else if (args.length === 3) {
+  outpath = path.join(
+    process.env.HOME,
+    'Desktop',
+    path.basename(args[2], '.json') +
+    '-' +
+    new Date().toISOString().replace(/[:T]/g, '-').split('.')[0] +
+    '.csv'
+  );
 } else if (args.length > 3) {
-  console.log(chalk.yellow(`ignoring arguments ${args.splice(3).join(', ')}`));
+  outpath = args[2];
+} else if (args.length > 4) {
+  console.log(chalk.yellow(`ignoring arguments ${args.splice(4).join(', ')}`));
 }
 
 function evaluate(simulation) {
@@ -43,7 +58,7 @@ function evaluate(simulation) {
     );
   console.log(chalk.green(`${directConnections.length} connections`));
   console.log(chalk.green(`${directConnections.length / simulation.getNodeMap().size} connections per peer`));
-  process.exit(0);
+  return [{'foo': 1}, {'foo': 99}];
 }
 
 const scenario = require(args[2]);
@@ -55,5 +70,21 @@ const bar = new progress.Bar({stopOnComplete: true}, progress.Presets.shades_cla
 bar.start(duration, 0);
 simulation.getClock().setSpeed(1);
 simulation.getClock().setInterval(() => bar.increment());
-simulation.getClock().setTimeout(() => evaluate(simulation), duration);
+simulation.getClock().setTimeout(() => {
+  stringify(
+    evaluate(simulation),
+    {
+      header: true
+    },
+    (error, dump) => {
+      fs.writeFile(outpath, dump, error => {
+        if (error) {
+          return console.log(chalk.red(error));
+        }
+        console.log(chalk.blue(`written to ${outpath}`));
+        simulation.reset();
+        process.exit(0);
+      });
+    });
+}, duration);
 simulation.start(scenario);

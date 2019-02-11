@@ -16,6 +16,7 @@
   "dependencies": {
     "chalk": "2.4.2",
     "cli-progress": "2.1.1",
+    "csv": "^5.1.1",
     "mitosis": "file:../mitosis",
     "mitosis-simulation": "file:../simulation"
   }

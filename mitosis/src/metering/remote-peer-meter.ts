@@ -1,13 +1,13 @@
 import {filter} from 'rxjs/operators';
 import {IClock} from '../clock/interface';
-import {Configuration} from '../configuration';
+import {ConfigurationMap} from '../configuration';
 import {ConnectionTable} from '../connection/connection-table';
+import {Protocol} from '../connection/interface';
 import {Logger} from '../logger/logger';
 import {ConnectionsPerAddress, ConnectionsPerAddressEventType} from '../peer/connections-per-address';
 import {RemotePeerTable} from '../peer/remote-peer-table';
 import {IConnectionEventType, IConnectionMeter, IConnectionMeterEvent} from './connection-meter/interface';
 import {IMeter} from './interface';
-import {Protocol} from '../connection/interface';
 
 export class RemotePeerMeter implements IMeter {
 
@@ -48,7 +48,7 @@ export class RemotePeerMeter implements IMeter {
         // TODO: Use role specific configuration for this peer
         this._clock.setTimeout(() => {
           this._punishedConnections--;
-        }, Configuration.CONNECTION_METER_PUNISHMENT_TIME);
+        }, ConfigurationMap.getDefault().CONNECTION_METER_PUNISHMENT_TIME);
         break;
       case IConnectionEventType.UNPUNISHED:
         break;
@@ -111,7 +111,8 @@ export class RemotePeerMeter implements IMeter {
   // returns 1 if peer reported too few connections and at least one connection is protected, else 0
   public getConnectionProtection(): 0 | 1 {
     // TODO: Use role specific configuration for this remote peer
-    const unsatisfied = this.getConnectionTable().filterByProtocol(Protocol.VIA).length < Configuration.DIRECT_CONNECTIONS_MIN_GOAL;
+    const unsatisfied = this.getConnectionTable().filterByProtocol(Protocol.VIA).length <
+      ConfigurationMap.getDefault().DIRECT_CONNECTIONS_MIN_GOAL;
     if (unsatisfied) {
       if (this._protectedConnections > 0) {
         return 1;
@@ -139,7 +140,8 @@ export class RemotePeerMeter implements IMeter {
     const connectionCount = viaConnectionCount + directConnectionCount;
 
     // TODO: Use role specific configuration for this remote peer
-    const saturation = ((Configuration.DIRECT_CONNECTIONS_MAX - connectionCount) / Configuration.DIRECT_CONNECTIONS_MAX_GOAL);
+    const configuration = ConfigurationMap.getDefault();
+    const saturation = ((configuration.DIRECT_CONNECTIONS_MAX - connectionCount) / configuration.DIRECT_CONNECTIONS_MAX_GOAL);
     return 1 - Math.min(Math.max(0, saturation), 1);
   }
 

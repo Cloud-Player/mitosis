@@ -2,16 +2,16 @@ import {Logger} from 'mitosis';
 import {IConfiguration, IInstruction, InstructionType, InstructionTypeMap} from './interface';
 
 export class InstructionFactory {
-  public static arrayFromJSON(scenario: { instructions: Array<any> }): Array<IInstruction> {
-    const instructions: Array<IInstruction> = [];
-    const parameters = scenario.instructions as Array<any>;
-    parameters.forEach(parameter => {
+
+  public static arrayFromJSON(instructions: Array<any> = []): Array<IInstruction> {
+    const array: Array<IInstruction> = [];
+    instructions.forEach(parameter => {
       const instruction = InstructionFactory.fromParameters(parameter);
       if (instruction) {
-        instructions.push(instruction);
+        array.push(instruction);
       }
     });
-    return instructions;
+    return array;
   }
 
   public static fromParameters(parameters: any): IInstruction {
@@ -22,6 +22,6 @@ export class InstructionFactory {
     }
     const instructionClass = InstructionTypeMap.get(parameters.type as InstructionType);
     const config = (parameters.configuration || {}) as IConfiguration;
-    return new instructionClass(parameters.tick as number, config);
+    return new instructionClass(parameters.tick as number || 0, config);
   }
 }

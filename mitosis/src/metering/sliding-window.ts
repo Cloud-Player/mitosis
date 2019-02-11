@@ -1,4 +1,4 @@
-import {Globals} from '../configuration';
+import {ConfigurationMap} from '../configuration';
 
 export class SlidingWindow extends Set<number> {
   private _sequence = 0;
@@ -23,7 +23,7 @@ export class SlidingWindow extends Set<number> {
     if (this._sequence == null) {
       return true;
     } else {
-      return (sequence > this._sequence) || (sequence <= this._sequence - Globals.SLIDING_WINDOW_SIZE);
+      return (sequence > this._sequence) || (sequence <= this._sequence - ConfigurationMap.getDefault().SLIDING_WINDOW_SIZE);
     }
   }
 

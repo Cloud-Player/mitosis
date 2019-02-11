@@ -1,4 +1,16 @@
-import {ConnectionState, IClock, Logger, LogLevel, MasterClock, Message, Mitosis, Protocol, ProtocolConnectionMap} from 'mitosis';
+import {
+  ConfigurationMap,
+  ConnectionState,
+  IClock,
+  Logger,
+  LogLevel,
+  MasterClock,
+  Message,
+  Mitosis,
+  Protocol,
+  ProtocolConnectionMap,
+  RoleType
+} from 'mitosis';
 import {MockConnection} from './connection/mock';
 import {WebRTCDataMockConnection} from './connection/webrtc-data-mock';
 import {WebSocketMockConnection} from './connection/websocket-mock';
@@ -6,12 +18,19 @@ import {Edge} from './edge/edge';
 import {InstructionFactory} from './instruction/factory';
 import {Node} from './node/node';
 
+
 export class Simulation {
 
   private static _instance: Simulation;
   private readonly _clock: IClock;
   private _nodes: Map<string, Node>;
   private _edges: Map<string, Edge>;
+
+  private constructor() {
+    this._clock = new MasterClock();
+    this._nodes = new Map();
+    this._edges = new Map();
+  }
 
   public static getInstance() {
     if (!Simulation._instance) {
@@ -25,10 +44,25 @@ export class Simulation {
     return Simulation._instance;
   }
 
-  private constructor() {
-    this._clock = new MasterClock();
-    this._nodes = new Map();
-    this._edges = new Map();
+  private configure(configuration: any): void {
+    Object.keys(configuration)
+      .filter(key =>
+        ConfigurationMap.get(key as RoleType) !== undefined
+      )
+      .forEach(
+        key => {
+          Object.keys(ConfigurationMap.get(key as RoleType))
+            .filter(
+              attrib => configuration[key][attrib] !== undefined
+            )
+            .forEach(
+              attrib => {
+                // @ts-ignore
+                ConfigurationMap.get(key as RoleType)[attrib] = configuration[key][attrib];
+              }
+            );
+        }
+      );
   }
 
   public establishConnection(from: string, to: string, location: string) {
@@ -123,8 +157,12 @@ export class Simulation {
     this._clock.setInterval(callback, 1);
   }
 
-  public start(scenarioJSON: { instructions: Array<any> }): void {
-    const instructions = InstructionFactory.arrayFromJSON(scenarioJSON);
+  public start(scenario: {
+    instructions: Array<any>;
+    configuration: { [role in RoleType | 'default']: { [key: string]: number | string } };
+  }): void {
+    this.configure(scenario.configuration || {});
+    const instructions = InstructionFactory.arrayFromJSON(scenario.instructions);
     instructions.forEach(
       instr => {
         this._clock.setTimeout(instr.execute.bind(instr, this), instr.getTick());

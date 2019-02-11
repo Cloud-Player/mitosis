@@ -1,6 +1,6 @@
 import {Subject} from 'rxjs';
 import {IClock} from '../../clock/interface';
-import {Globals} from '../../configuration';
+import {ConfigurationMap} from '../../configuration';
 import {IConnection} from '../../connection/interface';
 import {Logger} from '../../logger/logger';
 import {Address} from '../../message/address';
@@ -68,11 +68,11 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
   }
 
   private getEq(): number {
-    return (this._echoSlidingWindow.size) / Globals.SLIDING_WINDOW_SIZE;
+    return (this._echoSlidingWindow.size) / ConfigurationMap.getDefault().SLIDING_WINDOW_SIZE;
   }
 
   private getRq(): number {
-    return (this._receiveSlidingWindow.size) / Globals.SLIDING_WINDOW_SIZE;
+    return (this._receiveSlidingWindow.size) / ConfigurationMap.getDefault().SLIDING_WINDOW_SIZE;
   }
 
   public getQuality(): number {
@@ -107,7 +107,7 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
     super.start();
     this._pingInterval = this._clock.setInterval(() => {
       this.sendPing();
-    }, Globals.TRANSMISSION_PING_INTERVAL);
+    }, ConfigurationMap.getDefault().TRANSMISSION_PING_INTERVAL);
   }
 
   public stop(): void {

@@ -1,4 +1,9 @@
 {
+  "configuration": {
+    "newbie": {
+      "DEFAULT_SIGNAL_ADDRESS": "mitosis/v1/signal/wss"
+    }
+  },
   "instructions": [
     {
       "tick": 0,
@@ -21,12 +26,11 @@
       "tick": 1,
       "type": "generate-peers",
       "configuration": {
-        "count": 5000,
-        "signal": "mitosis/v1/signal/wss"
+        "count": 500
       }
     },
     {
-      "tick": 10000,
+      "tick": 1000,
       "type": "finish-scenario"
     }
   ]
