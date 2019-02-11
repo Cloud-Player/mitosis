@@ -1,0 +1,10 @@
+<header>
+  <div class="left">
+    <i *ngIf="icon" [class]="icon"></i>
+    <h2 class="title">{{title}}</h2>
+  </div>
+
+  <div class="right">
+    <ng-content></ng-content>
+  </div>
+</header>

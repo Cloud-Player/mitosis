@@ -33,6 +33,8 @@ export interface IMessage {
   getId(): string;
 
   setInboundAddress(address: Address): void;
+
+  length: number;
 }
 
 export interface IFloodableMessage extends IMessage {

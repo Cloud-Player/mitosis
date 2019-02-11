@@ -1,9 +1,9 @@
 import {Subject} from 'rxjs';
 import {IClock} from '../clock/interface';
 import {Address} from '../message/address';
-import {Message} from '../message/message';
 import {IConnectionMeter} from '../metering/connection-meter/interface';
 import {ConnectionState, IConnection, IConnectionOptions} from './interface';
+import {IMessage} from '../message/interface';
 
 export abstract class AbstractConnection {
 
@@ -16,7 +16,7 @@ export abstract class AbstractConnection {
   protected _options: IConnectionOptions;
   protected _address: Address;
   protected _stateChangeSubject: Subject<ConnectionState>;
-  protected _messageReceivedSubject: Subject<Message>;
+  protected _messageReceivedSubject: Subject<IMessage>;
 
   public constructor(address: Address, clock: IClock, options: IConnectionOptions) {
     if (!address.getLocation()) {
@@ -78,7 +78,7 @@ export abstract class AbstractConnection {
     this.onClose(reason);
   }
 
-  public onMessage(message: Message) {
+  public onMessage(message: IMessage) {
     this._messageReceivedSubject.next(message);
   }
 
@@ -106,7 +106,7 @@ export abstract class AbstractConnection {
     return this._state;
   }
 
-  public observeMessageReceived(): Subject<Message> {
+  public observeMessageReceived(): Subject<IMessage> {
     return this._messageReceivedSubject;
   }
 

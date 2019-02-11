@@ -82,8 +82,12 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
   }
 
   protected closeClient(): void {
-    this._client.destroy();
-    this._client = null;
+    if (this._client) {
+      this._client.destroy();
+      this._client = null;
+    } else {
+      this.onClose('webrtc peer connection was closed and no client exists; probably other client has closed');
+    }
   }
 
   protected bindClientListeners(): void {

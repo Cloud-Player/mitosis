@@ -1,0 +1,40 @@
+<div class="slider"
+     [class.vertical]="vertical"
+     [class.is-infinity]="isInfinity(value)"
+     [class.is-loading]="isLoading"
+     [class.is-dragging]="dragInProgress"
+     [class.show-value]="showSliderValue">
+  <div *ngIf="!hideSliderValue && min !== null"
+       class="min-value">
+    <span *ngIf="showCurrentValue">
+      {{getDisplayValue(value)}}
+    </span>
+    <span *ngIf="!showCurrentValue">
+      {{getDisplayValue(min)}}
+    </span>
+  </div>
+
+  <div #progressBar class="progress-bar">
+    <div #progressLine class="progress-line"></div>
+    <div #handle
+         class="visible-dragger"
+         [style.width]="draggerSize+'px'"
+         [style.height]="draggerSize+'px'"
+         [style.top]="draggerCenterOffset+'px'"
+         [class.display-value]="!hideSliderValue">
+      <span class="slider-value">{{getSliderDisplayValue(tmpValue)}}</span>
+      <div class="loading-spinner"></div>
+    </div>
+    <input type="range"
+           [min]="min"
+           [max]="max"
+           [step]="step"
+           [(ngModel)]="tmpValue"
+           (ngModelChange)="update()">
+  </div>
+
+  <div *ngIf="!hideSliderValue && max !== null"
+       class="max-value">
+    {{getDisplayValue(max)}}
+  </div>
+</div>

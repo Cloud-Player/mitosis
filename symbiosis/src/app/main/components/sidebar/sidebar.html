@@ -1,0 +1,13 @@
+<div class="sidebar">
+  <section>
+    <header>{{mitosis.getMyAddress().getId()}} [{{mitosis.getRoleManager().getRoles().join(',')}}]</header>
+    <!--<app-search-input-->
+      <!--#searchInput-->
+      <!--id="sidebar-node-filter"-->
+      <!--placeholder="Search for a Remote-Peer"-->
+      <!--[options]="availableNodeIds"-->
+      <!--(valueChange)="search($event)">-->
+    <!--</app-search-input>-->
+    <app-peer-table [mitosis]="mitosis"></app-peer-table>
+  </section>
+</div>

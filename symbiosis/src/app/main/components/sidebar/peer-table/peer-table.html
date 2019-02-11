@@ -1,0 +1,34 @@
+<div class="peer-table">
+  <app-collapsible *ngFor="let remotePeer of mitosis.getPeerTable().sortById()"
+                   [isCollapsed]="true"
+                   [title]="remotePeer.getId()"
+                   [text]="getPeerAnnotation(remotePeer)"
+                   [class.expired]="remotePeer.getMeter().lastSeenIsExpired()">
+    <ul class="connections">
+      <div class="meter">
+        <pre>
+          ⌀TQ: {{remotePeer.getMeter().getAverageConnectionQuality().toFixed(2)}},
+          ⌀PunQ: {{remotePeer.getMeter().getAverageConnectionPunishment().toFixed(2)}},
+          ProQ: {{remotePeer.getMeter().getConnectionProtection()}}
+          LastSeen: {{remotePeer.getMeter().getLastSeen()}}
+          isExpired: {{remotePeer.getMeter().lastSeenIsExpired() | json}}
+        </pre>
+      </div>
+      <li *ngFor="let connection of remotePeer.getConnectionTable()">
+        <div class="left">
+          <app-button type="icon"
+                      text="fa fa-trash"
+                      [disabled]="isDisabled(connection)"
+                      (click)="connection.close()">
+          </app-button>
+          {{connection.getAddress().getProtocol()}}
+          {{connection.getAddress().getLocation()}}
+        </div>
+        <div class="right">
+          {{connection.getState()}},
+          TQ {{connection.getMeter().getQuality().toFixed(2)}}
+        </div>
+      </li>
+    </ul>
+  </app-collapsible>
+</div>

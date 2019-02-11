@@ -1,0 +1,10 @@
+<div class="selector">
+  <mat-form-field>
+    <mat-select [(value)]="value" (selectionChange)="updateValue($event.value)">
+      <mat-option *ngIf="!required">None</mat-option>
+      <mat-option *ngFor="let option of options" [value]="option.value">
+        {{option.label}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>

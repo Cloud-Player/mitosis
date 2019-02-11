@@ -17,6 +17,10 @@ export class Message implements IMessage {
     this._id = id || `m${Math.round(100 + Math.random() * 899)}`;
   }
 
+  public get length() {
+    return new Blob([this.toString()]).size;
+  }
+
   public static fromString(messageString: string): Message {
     const messageJSON = JSON.parse(messageString);
     return new Message(

@@ -1,0 +1,15 @@
+@import 'variables';
+:host{
+  .search-input{
+    display: flex;
+    align-items: center;
+  }
+
+  .addon{
+    margin-right: 10px;
+  }
+
+  .search-form-field{
+    flex-grow: 1;
+  }
+}
