@@ -15,7 +15,11 @@ const usage = function () {
   run mitosis simulation from the command line
 
   usage:
-    mitosis-cli scenario.json [outfile.csv]
+    mitosis-cli [-v] scenario [outfile]
+
+    -v          Verbosity can be increased by adding more v's
+    scenario    Path to a scenario JSON file to benchmark
+    outfile     Path to file to write evaluation to
   `;
   console.log(chalk.green(usageText));
 };
@@ -116,6 +120,7 @@ function evaluate(simulation) {
             .filterDirect()
             .filterByStates(mitosis.ConnectionState.OPEN)
         )
+        .asArray()
     )
     .flat();
 
@@ -127,6 +132,7 @@ function evaluate(simulation) {
           table => table
             .filterByStates(mitosis.ConnectionState.OPEN)
         )
+        .asArray()
     )
     .flat();
 
@@ -170,6 +176,7 @@ class FinishScenario extends simulator.AbstractInstruction {
 }
 
 function finishBenchmark(results) {
+  console.log(chalk.blue('benchmarks complete'));
   stringify(
     results,
     {
@@ -265,7 +272,9 @@ const scenario = require(args[2]);
 let promise;
 if (scenario.benchmark) {
   const queue = scheduleBenchmark(sim, scenario);
-  console.log(chalk.blue(`starting ${queue.length} benchmarks`));
+  if (logLevel >= mitosis.LogLevel.FATAL) {
+    console.log(chalk.blue(`starting ${queue.length} benchmarks`));
+  }
   promise = executePromiseQueue(queue);
 } else {
   promise = simulate(sim, scenario, {})

@@ -20,7 +20,7 @@ export class WebSocketMockConnection extends MockConnection implements IConnecti
     const remoteNode = this._client.getNodeMap().get(this._address.getId());
 
     if (!remoteNode) {
-      throw new Error(`cannot connect to missing peer ${this._address.toString()}`);
+      throw new Error(`cannot connect to missing peer ${this._address.getId()}`);
     } else if (!remoteEdge) {
       const localAddress = new Address(
         this._options.mitosisId,

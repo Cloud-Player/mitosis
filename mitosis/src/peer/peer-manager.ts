@@ -144,7 +144,7 @@ export class PeerManager {
         table => table.filterDirect()
       );
     if (directPeers.length >= this.getConfiguration().DIRECT_CONNECTIONS_MAX) {
-      return Promise.reject(`max direct connections reached ${address.toString()}`);
+      return Promise.reject(`rejecting ${address.getId()} because max connections reached`);
     }
 
     if (!peer) {
