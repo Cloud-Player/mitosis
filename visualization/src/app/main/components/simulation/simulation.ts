@@ -75,16 +75,6 @@ export class SimulationComponent implements OnInit {
               })
         );
 
-        subscriptions.add(
-          node.getMitosis()
-            .observeInternalMessages()
-            .subscribe((message) => {
-              this.messageEventLogger
-                .getLogger()
-                .addEventForNodeId(node.getId(), message);
-            })
-        );
-
         node.getMitosis()
           .getPeerManager()
           .getPeerTable()
