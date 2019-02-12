@@ -1,0 +1,181 @@
+#!/usr/bin/env node
+
+const chalk = require('chalk');
+const fs = require('fs');
+const stringify = require('csv-stringify');
+const simulator = require('mitosis-simulation');
+const mitosis = require('mitosis');
+const path = require('path');
+const progress = require('cli-progress');
+
+const args = process.argv;
+
+const usage = function () {
+  const usageText = `
+  run mitosis simulation from the command line
+
+  usage:
+    mitosis-cli scenario.json [outfile.csv]
+  `;
+  console.log(chalk.green(usageText));
+};
+
+let outpath;
+if (args.length < 3) {
+  console.log(chalk.red(`no scenario path provided`));
+  usage();
+  process.exit(1);
+} else if (args.length === 3) {
+  const now = new Date();
+  const offsetMs = now.getTimezoneOffset() * 60 * 1000;
+  const localDate = new Date(now.getTime() - offsetMs);
+  outpath = path.join(
+    process.env.HOME,
+    'Desktop',
+    path.basename(args[2], '.json') +
+    '-' +
+    localDate.toISOString()
+      .replace(/[:T]/g, '-').split('.')[0] +
+    '.csv'
+  );
+} else if (args.length > 3) {
+  outpath = args[3];
+} else if (args.length > 4) {
+  console.log(chalk.yellow(`ignoring arguments ${args.splice(4).join(', ')}`));
+}
+
+function simulate(simulation, scenario, piggyback, collector) {
+  if (!collector) {
+    collector = [];
+  }
+  return new Promise(
+    (resolve, reject) => {
+      const duration = scenario.instructions[scenario.instructions.length - 1].tick;
+      bar.start(duration, 0);
+      simulation.getClock().setSpeed(1);
+      simulation.getClock().setInterval(() => bar.increment());
+      simulation.getClock().setTimeout(() => {
+          let result = evaluate(simulation);
+          result = Object.assign(result, piggyback);
+          collector.push(result);
+          return resolve(collector);
+        },
+        duration);
+      simulation.start(scenario);
+    });
+}
+
+function evaluate(simulation) {
+  simulation.getClock().stop();
+  const directConnections = [];
+  simulation
+    .getNodeMap()
+    .forEach(node =>
+      node
+        .getMitosis()
+        .getPeerTable()
+        .aggregateConnections(table =>
+          table.filterDirect())
+        .forEach(
+          connection => directConnections.push(connection)
+        )
+    );
+  const result = {
+    directConnections: directConnections.length,
+    connectionsPerPeer: directConnections.length / simulation.getNodeMap().size
+  };
+  simulation.reset();
+  return result;
+}
+
+function finish(results) {
+  console.log(JSON.stringify(results));
+  stringify(
+    results,
+    {
+      header: true
+    },
+    (error, dump) => {
+      fs.writeFile(outpath, dump, error => {
+        if (error) {
+          return console.log(chalk.red(error));
+        }
+        console.log(chalk.blue(`written to ${outpath}`));
+        process.exit(0);
+      });
+    });
+}
+
+function executePromiseQueue(fns) {
+  const executeQueue = (
+    queueFns,
+    promiseContainer,
+    isError,
+    responseValue) => {
+    const queueFn = queueFns.shift();
+    if (!promiseContainer) {
+      promiseContainer = {promise: null, resolve: null, reject: null};
+      promiseContainer.promise = new Promise((resolve, reject) => {
+        promiseContainer.resolve = resolve;
+        promiseContainer.reject = reject;
+      });
+    }
+    if (!queueFn) {
+      if (isError) {
+        promiseContainer.reject(responseValue);
+      } else {
+        promiseContainer.resolve(responseValue);
+      }
+    } else {
+      let returnValue = queueFn(responseValue);
+      if (!returnValue || !returnValue.then) {
+        if (isError) {
+          returnValue = Promise.reject();
+        } else {
+          returnValue = Promise.resolve();
+        }
+      }
+      returnValue.then(
+        (handlerResponse) => {
+          executeQueue(queueFns, promiseContainer, false, handlerResponse);
+        }, (handlerResponse) => {
+          executeQueue(queueFns, promiseContainer, true, handlerResponse);
+        });
+    }
+    return promiseContainer.promise;
+  };
+  return executeQueue(fns, null);
+}
+
+const bar = new progress.Bar({stopOnComplete: true}, progress.Presets.shades_classic);
+const simulation = simulator.Simulation.getInstance();
+mitosis.Logger.setLevel(mitosis.LogLevel.FATAL);
+mitosis.Logger.getLogger('simulation').setLevel(mitosis.LogLevel.FATAL);
+const scenario = require(args[2]);
+
+if (scenario.benchmark) {
+  const queue = [];
+  Object.keys(scenario.benchmark)
+    .forEach(
+      role => {
+        const config = mitosis.ConfigurationMap.get(scenario.benchmark[role]);
+        Object.keys(scenario.benchmark[role])
+          .forEach(
+            key => {
+              const bench = scenario.benchmark[role][key];
+              for (let i = bench.from; i <= bench.to; i += bench.step) {
+                config[key] = i;
+                queue.push(prev =>
+                  simulate(simulation, scenario, {[key]: i}, prev)
+                );
+              }
+            })
+      });
+  executePromiseQueue(queue)
+    .then(
+      result => finish(result)
+    );
+} else {
+  simulate(simulation, scenario, {})
+    .then(result => finish(result));
+}

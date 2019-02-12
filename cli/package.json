@@ -12,7 +12,10 @@
     "type": "git",
     "url": "git://github.com/auxdotapp/mitosis.git"
   },
-  "main": "mitosis-cli",
+  "scripts": {
+    "start": "./cli"
+  },
+  "main": "cli",
   "dependencies": {
     "chalk": "2.4.2",
     "cli-progress": "2.1.1",
