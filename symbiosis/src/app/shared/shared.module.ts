@@ -6,7 +6,6 @@ import {FillHeightDirective} from './directives/fill-height';
 import {LayoutService} from './services/layout';
 import {TabBarComponent} from './components/tabs/tab-bar/tab-bar';
 import {TabPaneComponent} from './components/tabs/tab-pane/tab-pane';
-import {HTTP_INTERCEPTORS} from '@angular/common/http';
 import {ModalHolderComponent} from './components/modal/modal-holder/modal-holder';
 import {ModalComponent} from './components/modal/modal/modal';
 import {Modal} from './src/modal-factory.class';
@@ -15,7 +14,6 @@ import {FormsModule} from '@angular/forms';
 import {HeaderComponent} from './components/ui/header/header';
 import {ConfirmDeleteDirective} from './directives/confirm-delete';
 import {ConfirmDeleteComponent} from './components/confirm-delete/confirm-delete';
-import {TimeAgoDirective} from './directives/time-ago.directive';
 import {SearchInputComponent} from './components/ui/inputs/search/search';
 import {
   MatAutocompleteModule,
@@ -60,8 +58,7 @@ import {SelectorComponent} from './components/ui/inputs/selector/selector';
     FormFieldComponent,
 
     FillHeightDirective,
-    ConfirmDeleteDirective,
-    TimeAgoDirective
+    ConfirmDeleteDirective
   ],
   declarations: [
     ScrollViewComponent,
@@ -82,8 +79,7 @@ import {SelectorComponent} from './components/ui/inputs/selector/selector';
     FormFieldComponent,
 
     FillHeightDirective,
-    ConfirmDeleteDirective,
-    TimeAgoDirective
+    ConfirmDeleteDirective
   ],
   providers: [
     LayoutService,

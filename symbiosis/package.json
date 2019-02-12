@@ -1,10 +1,10 @@
 {
-  "name": "visualization",
+  "name": "symbiosis",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
     "start": "npm run build:lib && ng serve",
-    "build": "ng build --prod",
+    "build": "npm run build:lib && ng build --prod",
     "lint": "ng lint",
     "build:lib": "cd ../mitosis && npm run build && npm run build && cd ../symbiosis"
   },
@@ -23,10 +23,8 @@
     "@angular/router": "~7.1.0",
     "buffer": "^5.2.1",
     "core-js": "^2.5.4",
-    "d3": "^5.7.0",
     "font-awesome": "4.7.0",
     "mitosis": "file:../mitosis",
-    "moment": "^2.23.0",
     "process": "^0.11.10",
     "rxjs": "~6.3.3",
     "simple-peer": "^9.2.0",

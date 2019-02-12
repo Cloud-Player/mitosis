@@ -11,7 +11,6 @@ export class NetworkStats {
   }
 
   public addInComingMessage(message: IMessage) {
-    console.log(`[${message.getReceiver().getId()}<-${message.getSender().getId()}] Ding!`, message.getSubject(), message.length);
     this.in.addMessage(message);
   }
 
@@ -20,7 +19,6 @@ export class NetworkStats {
   }
 
   public addOutGoingMessage(message: IMessage) {
-    console.log(`[${message.getSender().getId()}->${message.getReceiver().getId()}] Dong!`, message.getSubject(), message.length);
     this.out.addMessage(message);
   }
 

@@ -99,12 +99,14 @@ export class Simulation {
 
   public deliverMessage(from: string, to: string, location: string, delay: number, message: IMessage): void {
     const edge = this.getEdge(to, from, location);
-    this._nodes.get(from).onSendMessage(message);
     if (edge) {
+      const sender = this._nodes.get(from);
+      sender.onSendMessage(message);
       this._clock.setTimeout(() => {
         const connection = (edge.getConnection() as MockConnection);
         if (connection.getState() === ConnectionState.OPEN) {
-          this._nodes.get(to).onReceiveMessage(message);
+          const receiver = this._nodes.get(to);
+          receiver.onReceiveMessage(message);
           connection.onMessage(message);
         } else {
           Logger.getLogger('simulation').error(
@@ -184,4 +186,5 @@ export class Simulation {
 
 export {Node} from './node/node';
 export {Edge} from './edge/edge';
+export {StatLogEvent} from './statistics/stat-log-event';
 export {MockConnection} from './connection/mock';
