@@ -16,6 +16,7 @@ import {WebRTCDataMockConnection} from './connection/webrtc-data-mock';
 import {WebSocketMockConnection} from './connection/websocket-mock';
 import {Edge} from './edge/edge';
 import {InstructionFactory} from './instruction/factory';
+import {AbstractInstruction} from './instruction/instruction';
 import {Node} from './node/node';
 
 export class Simulation {
@@ -188,3 +189,5 @@ export {Node} from './node/node';
 export {Edge} from './edge/edge';
 export {StatLogEvent} from './statistics/stat-log-event';
 export {MockConnection} from './connection/mock';
+export {InstructionTypeMap} from './instruction/interface';
+export {AbstractInstruction} from './instruction/instruction';
