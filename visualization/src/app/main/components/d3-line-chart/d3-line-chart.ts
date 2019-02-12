@@ -1,0 +1,225 @@
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+  ViewEncapsulation
+} from '@angular/core';
+import * as d3 from 'd3';
+import {Selection} from 'd3-selection';
+import {ConnectionState, RoleType} from 'mitosis';
+import {Node, Simulation} from 'mitosis-simulation';
+import {filter} from 'rxjs/operators';
+import {LayoutChangeTypes, LayoutService} from '../../../shared/services/layout';
+import {D3Model} from './models/d3';
+
+@Component({
+  selector: 'app-d3-line-chart',
+  templateUrl: './d3-line-chart.html',
+  styleUrls: ['./d3-line-chart.scss'],
+  encapsulation: ViewEncapsulation.None
+})
+export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
+  private margin: {
+    top: number,
+    right: number,
+    bottom: number,
+    left: number
+  } = {top: 20, right: 20, bottom: 30, left: 40};
+  private width;
+  private height;
+  private svg: Selection<any, any, any, any>;
+  private simulation: any;
+  private zoomHandler: any;
+  private nodeColor = '#ccc';
+  private _xScale: any;
+  private _yScale: any;
+  private i = 0;
+  private isRendering = false;
+  private dirty = false;
+  private isInitialised = false;
+
+  @Input()
+  public model: any;
+
+  constructor(private el: ElementRef, private layoutService: LayoutService) {
+  }
+
+  private tick() {
+    if (Simulation.getInstance().getClock().isRunning()) {
+      this.update();
+    }
+  }
+
+  private initD3() {
+    const holderEl = this.el.nativeElement.querySelector('.d3-line-chart');
+
+    // number of datapoints
+    this._xScale = d3.scaleLinear()
+      .domain([-100, 0]) // input
+      .range([0, this.width]); // output
+
+    this._yScale = d3.scaleLinear()
+      .domain([0, 1]) // input
+      .range([this.height, 0]); // output
+
+    this.svg = d3.select(holderEl)
+      .append('svg')
+      .attr('width', this.width + this.margin.left + this.margin.right)
+      .attr('height', this.height + this.margin.top + this.margin.bottom)
+      .append('g')
+      .attr('transform', `translate(${this.margin.left},${this.margin.top})`);
+
+    this.svg.append('g')
+      .attr('class', 'x axis')
+      .attr('transform', 'translate(0,' + this.height + ')')
+      .call(d3.axisBottom(this._xScale));
+
+    this.svg.append('g')
+      .attr('class', 'y axis')
+      .call(d3.axisLeft(this._yScale));
+
+    this.svg
+      .append('defs')
+      .append('clipPath')
+      .attr('id', 'pathContainer')
+      .append('rect')
+      .attr('x', 0)
+      .attr('y', -20)
+      .attr('width', this.width + this.margin.left + this.margin.right - 60)
+      .attr('height', this.height + this.margin.top + this.margin.bottom);
+
+    this.svg
+      .append('g')
+      .attr('clip-path', 'url(#pathContainer)')
+      .append('path')
+      .attr('class', 'line');
+
+    this.isInitialised = true;
+  }
+
+  private update() {
+    let values = this.model.getValues();
+    if (!values || values.length === 0 || !this.isInitialised || this.isRendering) {
+      return;
+    }
+    this.isRendering = true;
+    if (values.length > 52) {
+      values = values.slice(this.model.getValues().length - 52);
+    }
+    let xValues = values.map(v => v.x);
+    const yValues = values.map(v => v.y);
+
+    if (xValues.length > 50) {
+      xValues = xValues.slice(xValues.length - 50);
+    }
+
+    this._xScale
+      .domain([
+        Math.max(xValues[xValues.length - 1] - 50, -50),
+        xValues[xValues.length - 1]
+      ]);
+
+    this._yScale
+      .domain([
+        0,
+        Math.max.apply(null, yValues)
+      ]);
+
+    this.svg
+      .selectAll('.x.axis')
+      .transition()
+      .duration(1000)
+      .ease(d3.easeLinear)
+      .call(d3.axisBottom(this._xScale as any) as any);
+
+    this.svg
+      .selectAll('.y.axis')
+      .transition()
+      .duration(1000)
+      .ease(d3.easeLinear)
+      .call(d3.axisLeft(this._yScale as any) as any);
+
+    const line = d3.line()
+      .x((d, i) => this._xScale(d.x)) // set the x values for the line generator
+      .y((d) => this._yScale(d.y)) // set the y values for the line generator
+      .curve(d3.curveMonotoneX); // apply smoothing to the line
+
+    this.svg.selectAll('.line')
+      .datum(values) // 10. Binds data to the line// Assign a class for styling
+      .attr('d', line)
+      .transition()
+      .duration(1000);
+
+    this.svg.selectAll('.line')
+      .attr(
+        'transform',
+        `translate(${6})`
+      )
+      .transition()
+      .ease(d3.easeLinear)
+      .duration(1000)
+      .attr(
+        'transform',
+        `translate(${0})`
+      )
+      .on('end', () => {
+        this.isRendering = false;
+        this.tick();
+      });
+  }
+
+  private resize() {
+    this.svg.attr('width', 0);
+    this.svg.attr('height', 0);
+    setTimeout(() => {
+      this.width = this.el.nativeElement.offsetWidth;
+      this.height = this.el.nativeElement.offsetHeight;
+      this.svg.attr('width', this.width + this.margin.left + this.margin.right);
+      this.svg.attr('height', this.height + this.margin.top + this.margin.bottom);
+    });
+  }
+
+  private isDifferent(previousModel: D3Model, newModel: D3Model) {
+    if (!previousModel && newModel) {
+      return true;
+    } else if (previousModel && newModel) {
+      const newValues = newModel.getValues();
+      const previousValues = previousModel.getValues();
+      const lastNewValue = newValues[newValues.length - 1];
+      const lastPreviousValue = previousValues[previousValues.length - 1];
+      return lastNewValue && lastPreviousValue && lastNewValue.x !== lastPreviousValue.x;
+    } else {
+      return false;
+    }
+  }
+
+  ngOnInit(): void {
+    this.layoutService.getObservable()
+      .pipe(
+        filter(ev => ev.changeType === LayoutChangeTypes.windowSizeChange)
+      )
+      .subscribe(
+        this.resize.bind(this)
+      );
+  }
+
+  ngAfterViewInit(): void {
+    this.width = this.el.nativeElement.offsetWidth;
+    this.height = this.el.nativeElement.offsetHeight;
+    this.initD3();
+    this.tick();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.model.currentValue) {
+      this.dirty = this.isDifferent(changes.model.previousValue, changes.model.currentValue);
+      if (this.dirty) {
+        this.update();
+      }
+    }
+  }
+}
