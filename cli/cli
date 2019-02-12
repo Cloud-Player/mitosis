@@ -80,6 +80,16 @@ function simulate(simulation, scenario, piggyback, collector) {
       } else {
         console.log(chalk.blue('evaluating next simulation'));
       }
+      if (!scenario.benchmark) {
+        simulation.getClock().setInterval(
+          () => {
+            let result = evaluate(simulation);
+            result = Object.assign(result, piggyback);
+            collector.push(result);
+          },
+          Math.max(duration / 20, Math.min(duration, 20))
+        )
+      }
       simulation.getClock().setTimeout(() => {
           let result = evaluate(simulation);
           simulation.reset();
@@ -99,19 +109,26 @@ function evaluate(simulation) {
       .values()
   );
 
-  const peers = nodes.map(
+  const mitoses = nodes.map(
     node => node
       .getMitosis()
   );
 
-  const routers = peers
+  const routers = mitoses
     .filter(
       peer => peer
         .getRoleManager()
         .hasRole(mitosis.RoleType.ROUTER)
     );
 
-  const directConnections = peers
+  const peers = mitoses
+    .filter(
+      peer => peer
+        .getRoleManager()
+        .hasRole(mitosis.RoleType.PEER)
+    );
+
+  const directConnections = mitoses
     .map(
       peer => peer
         .getPeerTable()
@@ -158,9 +175,11 @@ function evaluate(simulation) {
     );
 
   return {
+    tick: simulation.getClock().getTick(),
     totalConns: directConnections.length,
     totalNodes: nodes.length,
     routerNodes: routers.length,
+    peerNodes: peers.length,
     routerVias: routerViaConnections.length,
     totalInKB: Math.floor(totalStats.in.size / 1024),
     totalInCount: totalStats.in.count,
