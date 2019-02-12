@@ -18,7 +18,7 @@ export abstract class ConnectionMeter {
   constructor(connection: IConnection, clock: IClock) {
     this._connection = connection;
     this._subject = new Subject();
-    this._clock = clock;
+    this._clock = clock.fork();
     this.listenOnMessages();
   }
 
