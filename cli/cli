@@ -49,16 +49,16 @@ function simulate(simulation, scenario, piggyback, collector) {
     collector = [];
   }
   return new Promise(
-    (resolve, reject) => {
+    resolve => {
       const duration = scenario.instructions[scenario.instructions.length - 1].tick;
       bar.start(duration, 0);
-      simulation.getClock().setSpeed(1);
       simulation.getClock().setInterval(() => bar.increment());
       simulation.getClock().setTimeout(() => {
           let result = evaluate(simulation);
+          simulation.reset();
           result = Object.assign(result, piggyback);
           collector.push(result);
-          return resolve(collector);
+          resolve(collector);
         },
         duration);
       simulation.start(scenario);
@@ -66,29 +66,87 @@ function simulate(simulation, scenario, piggyback, collector) {
 }
 
 function evaluate(simulation) {
-  simulation.getClock().stop();
   const nodes = Array.from(
     simulation
       .getNodeMap()
       .values()
   );
-  const directConnections = nodes
-    .map(node =>
-      node
-        .getMitosis()
+
+  const peers = nodes.map(
+    node => node
+      .getMitosis()
+  );
+
+  const routers = peers
+    .filter(
+      peer => peer
+        .getRoleManager()
+        .hasRole(mitosis.RoleType.ROUTER)
+    );
+
+  const directConnections = peers
+    .map(
+      peer => peer
         .getPeerTable()
-        .aggregateConnections(table =>
-          table.filterDirect())
+        .aggregateConnections(
+          table => table
+            .filterDirect()
+            .filterByStates(mitosis.ConnectionState.OPEN)
+        )
     )
     .flat();
-  simulation.reset();
+
+  const routerViaConnections = routers
+    .map(
+      router => router
+        .getPeerTable()
+        .aggregateConnections(
+          table => table
+            .filterByStates(mitosis.ConnectionState.OPEN)
+        )
+    )
+    .flat();
+
+  const totalStats = nodes
+    .map(
+      node => {
+        return node.getNetworkStats();
+      }
+    )
+    .reduce(
+      (previous, current) => {
+        return {
+          in: {
+            count: previous.in.count + current.in.count,
+            size: previous.in.size + current.in.size
+          },
+          out: {
+            count: previous.out.count + current.out.count,
+            size: previous.out.size + current.out.size
+          }
+        }
+      }, {in: {count: 0, size: 0}, out: {count: 0, size: 0}}
+    );
+
   return {
-    directConnections: directConnections.length,
-    totalNodes: nodes.length
+    totalConns: directConnections.length,
+    totalNodes: nodes.length,
+    routerNodes: routers.length,
+    routerVias: routerViaConnections.length,
+    totalInKB: Math.floor(totalStats.in.size / 1024),
+    totalInCount: totalStats.in.count,
+    totalOutKB: Math.floor(totalStats.out.size / 1024),
+    totalOutCount: totalStats.out.count
   };
 }
 
-function finish(results) {
+class FinishScenario extends simulator.AbstractInstruction {
+  execute(simulation) {
+    simulation.getClock().pause();
+  }
+}
+
+function finishBenchmark(results) {
   stringify(
     results,
     {
@@ -101,7 +159,7 @@ function finish(results) {
         }
         const excerpt = dump
           .split('\n')
-          .map((line, index) => !index ? line : line.replace(/,/g, '\t'))
+          .map((line, index) => line.replace(/,/g, index ? '\t\t' : '\t'))
           .slice(0, 7)
           .concat(['...'])
           .join('\n');
@@ -175,23 +233,24 @@ function executePromiseQueue(fns) {
 }
 
 const bar = new progress.Bar({stopOnComplete: true}, progress.Presets.shades_classic);
-const simulation = simulator.Simulation.getInstance();
+const sim = simulator.Simulation.getInstance();
 mitosis.Logger.setLevel(mitosis.LogLevel.FATAL);
 mitosis.Logger.getLogger('simulation').setLevel(mitosis.LogLevel.FATAL);
+simulator.InstructionTypeMap['finish-scenario'] = FinishScenario;
 const scenario = require(args[2]);
 let promise;
 if (scenario.benchmark) {
-  const queue = scheduleBenchmark(simulation, scenario);
+  const queue = scheduleBenchmark(sim, scenario);
   promise = executePromiseQueue(queue);
 } else {
-  promise = simulate(simulation, scenario, {})
+  promise = simulate(sim, scenario, {})
 }
 
 promise.then(
-  result => finish(result)
+  result => finishBenchmark(result)
 ).catch(
   reason => {
-    simulation.stop();
+    sim.stop();
     console.log(chalk.red(reason));
   }
 );
