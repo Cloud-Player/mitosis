@@ -20,6 +20,25 @@ const usage = function () {
   console.log(chalk.green(usageText));
 };
 
+let logLevel = mitosis.LogLevel.FATAL;
+const verbosityMap = {
+  '-v': mitosis.LogLevel.ERROR,
+  '-vv': mitosis.LogLevel.WARN,
+  '-vvv': mitosis.LogLevel.INFO,
+  '-vvvv': mitosis.LogLevel.DEBUG,
+  '-vvvvv': mitosis.LogLevel.LOG,
+};
+args
+  .slice()
+  .forEach(
+    (arg, index) => {
+      if (verbosityMap[arg]) {
+        logLevel = verbosityMap[arg];
+        args.splice(index, 1);
+      }
+    }
+  );
+
 let outpath;
 if (args.length < 3) {
   console.log(chalk.red(`no scenario path provided`));
@@ -51,8 +70,12 @@ function simulate(simulation, scenario, piggyback, collector) {
   return new Promise(
     resolve => {
       const duration = scenario.instructions[scenario.instructions.length - 1].tick;
-      bar.start(duration, 0);
-      simulation.getClock().setInterval(() => bar.increment());
+      if (logLevel >= mitosis.LogLevel.FATAL) {
+        bar.start(duration, 0);
+        simulation.getClock().setInterval(() => bar.increment());
+      } else {
+        console.log(chalk.blue('evaluating next simulation'));
+      }
       simulation.getClock().setTimeout(() => {
           let result = evaluate(simulation);
           simulation.reset();
@@ -234,13 +257,15 @@ function executePromiseQueue(fns) {
 
 const bar = new progress.Bar({stopOnComplete: true}, progress.Presets.shades_classic);
 const sim = simulator.Simulation.getInstance();
-mitosis.Logger.setLevel(mitosis.LogLevel.FATAL);
-mitosis.Logger.getLogger('simulation').setLevel(mitosis.LogLevel.FATAL);
+mitosis.Logger.setVerbose(logLevel <= mitosis.LogLevel.DEBUG);
+mitosis.Logger.setLevel(logLevel);
+mitosis.Logger.getLogger('simulation').setLevel(logLevel);
 simulator.InstructionTypeMap['finish-scenario'] = FinishScenario;
 const scenario = require(args[2]);
 let promise;
 if (scenario.benchmark) {
   const queue = scheduleBenchmark(sim, scenario);
+  console.log(chalk.blue(`starting ${queue.length} benchmarks`));
   promise = executePromiseQueue(queue);
 } else {
   promise = simulate(sim, scenario, {})

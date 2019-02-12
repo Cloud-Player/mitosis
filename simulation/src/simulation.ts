@@ -111,13 +111,13 @@ export class Simulation {
           connection.onMessage(message);
         } else {
           Logger.getLogger('simulation').error(
-            `failed to deliver message to ${to} because connection is ${connection.getState()}: ${message.toString()}`
+            `failed to deliver ${message.getSubject()} to ${to} because connection is ${connection.getState()}`, message
           );
         }
       }, delay);
     } else {
       Logger.getLogger('simulation').error(
-        `failed to deliver message to ${to} because connection does not exist: ${message.toString()}`);
+        `failed to deliver ${message.getSubject()} to ${to} because connection does not exist`, message);
     }
   }
 
