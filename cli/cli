@@ -67,29 +67,28 @@ function simulate(simulation, scenario, piggyback, collector) {
 
 function evaluate(simulation) {
   simulation.getClock().stop();
-  const directConnections = [];
-  simulation
-    .getNodeMap()
-    .forEach(node =>
+  const nodes = Array.from(
+    simulation
+      .getNodeMap()
+      .values()
+  );
+  const directConnections = nodes
+    .map(node =>
       node
         .getMitosis()
         .getPeerTable()
         .aggregateConnections(table =>
           table.filterDirect())
-        .forEach(
-          connection => directConnections.push(connection)
-        )
-    );
-  const result = {
-    directConnections: directConnections.length,
-    connectionsPerPeer: directConnections.length / simulation.getNodeMap().size
-  };
+    )
+    .flat();
   simulation.reset();
-  return result;
+  return {
+    directConnections: directConnections.length,
+    totalNodes: nodes.length
+  };
 }
 
 function finish(results) {
-  console.log(JSON.stringify(results));
   stringify(
     results,
     {
@@ -100,10 +99,38 @@ function finish(results) {
         if (error) {
           return console.log(chalk.red(error));
         }
+        const excerpt = dump
+          .split('\n')
+          .map((line, index) => !index ? line : line.replace(/,/g, '\t'))
+          .slice(0, 7)
+          .concat(['...'])
+          .join('\n');
+        console.log(chalk.gray(excerpt));
         console.log(chalk.blue(`written to ${outpath}`));
         process.exit(0);
       });
     });
+}
+
+function scheduleBenchmark(simulation, scenario) {
+  const queue = [];
+  Object.keys(scenario.benchmark)
+    .forEach(
+      role => {
+        const config = mitosis.ConfigurationMap.get(scenario.benchmark[role]);
+        Object.keys(scenario.benchmark[role])
+          .forEach(
+            key => {
+              const bench = scenario.benchmark[role][key];
+              for (let i = bench.from; i <= bench.to; i += bench.step) {
+                config[key] = i;
+                queue.push(prev =>
+                  simulate(simulation, scenario, {[key]: i}, prev)
+                );
+              }
+            })
+      });
+  return queue;
 }
 
 function executePromiseQueue(fns) {
@@ -152,30 +179,19 @@ const simulation = simulator.Simulation.getInstance();
 mitosis.Logger.setLevel(mitosis.LogLevel.FATAL);
 mitosis.Logger.getLogger('simulation').setLevel(mitosis.LogLevel.FATAL);
 const scenario = require(args[2]);
-
+let promise;
 if (scenario.benchmark) {
-  const queue = [];
-  Object.keys(scenario.benchmark)
-    .forEach(
-      role => {
-        const config = mitosis.ConfigurationMap.get(scenario.benchmark[role]);
-        Object.keys(scenario.benchmark[role])
-          .forEach(
-            key => {
-              const bench = scenario.benchmark[role][key];
-              for (let i = bench.from; i <= bench.to; i += bench.step) {
-                config[key] = i;
-                queue.push(prev =>
-                  simulate(simulation, scenario, {[key]: i}, prev)
-                );
-              }
-            })
-      });
-  executePromiseQueue(queue)
-    .then(
-      result => finish(result)
-    );
+  const queue = scheduleBenchmark(simulation, scenario);
+  promise = executePromiseQueue(queue);
 } else {
-  simulate(simulation, scenario, {})
-    .then(result => finish(result));
+  promise = simulate(simulation, scenario, {})
 }
+
+promise.then(
+  result => finish(result)
+).catch(
+  reason => {
+    simulation.stop();
+    console.log(chalk.red(reason));
+  }
+);
