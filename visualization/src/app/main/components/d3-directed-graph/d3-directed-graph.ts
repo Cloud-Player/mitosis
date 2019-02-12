@@ -122,7 +122,7 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
         const roleManager = d.getMitosis().getRoleManager();
 
         if (roleManager.hasRole(RoleType.SIGNAL)) {
-          return 'rgb(239,51,71)';
+          return 'rgb(248,61,81)';
         } else if (roleManager.hasRole(RoleType.ROUTER)) {
           return 'rgb(51,239,125)';
         } else if (roleManager.hasRole(RoleType.NEWBIE)) {
@@ -215,7 +215,7 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
         return 0;
       })
       .attr('font-size', (d: any) => {
-        return '12px';
+        return '10px';
       })
       .attr('dy', '.35em')
       .text((d: Node) => {
