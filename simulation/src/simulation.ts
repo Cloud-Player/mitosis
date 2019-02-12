@@ -1,4 +1,5 @@
 import {
+  ConfigurationMap,
   ConnectionState,
   IClock,
   IMessage,
@@ -7,13 +8,15 @@ import {
   MasterClock,
   Mitosis,
   Protocol,
-  ProtocolConnectionMap
+  ProtocolConnectionMap,
+  RoleType
 } from 'mitosis';
 import {MockConnection} from './connection/mock';
 import {WebRTCDataMockConnection} from './connection/webrtc-data-mock';
 import {WebSocketMockConnection} from './connection/websocket-mock';
 import {Edge} from './edge/edge';
 import {InstructionFactory} from './instruction/factory';
+import {AbstractInstruction} from './instruction/instruction';
 import {Node} from './node/node';
 
 export class Simulation {
@@ -39,6 +42,27 @@ export class Simulation {
       ProtocolConnectionMap.set(Protocol.WEBRTC_DATA, WebRTCDataMockConnection);
     }
     return Simulation._instance;
+  }
+
+  private configure(configuration: any): void {
+    Object.keys(configuration)
+      .filter(key =>
+        ConfigurationMap.get(key as RoleType) !== undefined
+      )
+      .forEach(
+        key => {
+          Object.keys(ConfigurationMap.get(key as RoleType))
+            .filter(
+              attrib => configuration[key][attrib] !== undefined
+            )
+            .forEach(
+              attrib => {
+                // @ts-ignore
+                ConfigurationMap.get(key as RoleType)[attrib] = configuration[key][attrib];
+              }
+            );
+        }
+      );
   }
 
   public establishConnection(from: string, to: string, location: string) {
@@ -87,13 +111,13 @@ export class Simulation {
           connection.onMessage(message);
         } else {
           Logger.getLogger('simulation').error(
-            `failed to deliver message to ${to} because connection is ${connection.getState()}: ${message.toString()}`
+            `failed to deliver ${message.getSubject()} to ${to} because connection is ${connection.getState()}`, message
           );
         }
       }, delay);
     } else {
       Logger.getLogger('simulation').error(
-        `failed to deliver message to ${to} because connection does not exist: ${message.toString()}`);
+        `failed to deliver ${message.getSubject()} to ${to} because connection does not exist`, message);
     }
   }
 
@@ -137,8 +161,12 @@ export class Simulation {
     this._clock.setInterval(callback, 1);
   }
 
-  public start(scenarioJSON: { instructions: Array<any> }): void {
-    const instructions = InstructionFactory.arrayFromJSON(scenarioJSON);
+  public start(scenario: {
+    instructions: Array<any>;
+    configuration: { [role in RoleType | 'default']: { [key: string]: number | string } };
+  }): void {
+    this.configure(scenario.configuration || {});
+    const instructions = InstructionFactory.arrayFromJSON(scenario.instructions);
     instructions.forEach(
       instr => {
         this._clock.setTimeout(instr.execute.bind(instr, this), instr.getTick());
@@ -152,7 +180,6 @@ export class Simulation {
       node.getMitosis().destroy();
     });
     this._nodes.clear();
-    this._clock.tick();
     this._clock.stop();
   }
 }
@@ -162,3 +189,5 @@ export {Edge} from './edge/edge';
 export {LogEvent} from './node/event-logger';
 export {StatLogEvent} from './statistics/stat-log-event';
 export {MockConnection} from './connection/mock';
+export {InstructionTypeMap} from './instruction/interface';
+export {AbstractInstruction} from './instruction/instruction';

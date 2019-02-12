@@ -1,20 +1,20 @@
 import {Subject} from 'rxjs';
 import {filter} from 'rxjs/operators';
+import {ConfigurationMap} from '../configuration';
 import {ConnectionState, IConnection, Protocol} from '../connection/interface';
 import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {PeerManager} from '../peer/peer-manager';
 import {RemotePeer} from '../peer/remote-peer';
+import {RoleType} from '../role/interface';
 import {RoleManager} from '../role/role-manager';
+import {Address} from './address';
 import {ConnectionNegotiation} from './connection-negotiation';
+import {FloodingHandler} from './flooding-handler';
 import {IMessage, MessageSubject} from './interface';
 import {PeerUpdate} from './peer-update';
 import {RoleUpdate} from './role-update';
-import {FloodingHandler} from './flooding-handler';
-import {Globals} from '../configuration';
-import {Address} from './address';
 import {UnknownPeer} from './unknown-peer';
-import {RoleType} from '../role/interface';
 
 export class MessageBroker {
 
@@ -71,7 +71,7 @@ export class MessageBroker {
       this._incomingMessageSubject.next(message);
       if (message.getReceiver().getId() === this._peerManager.getMyId()) {
         this.receiveMessage(message);
-      } else if (message.getReceiver().getId() === Globals.BROADCAST_ADDRESS) {
+      } else if (message.getReceiver().getId() === ConfigurationMap.getDefault().BROADCAST_ADDRESS) {
         this.receiveMessage(message);
         this.broadcastMessage(message);
       } else {

@@ -20,8 +20,10 @@ export class MasterClock extends AbstractClock implements IClock {
 
   public setSpeed(speed: number) {
     this._speed = speed;
-    this.pauseClock();
-    this.startClock();
+    if (this.isRunning()) {
+      this.pauseClock();
+      this.startClock();
+    }
   }
 
   public startClock(): void {

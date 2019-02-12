@@ -1,6 +1,6 @@
 import {Subject} from 'rxjs';
 import {IClock} from '../../clock/interface';
-import {Configuration} from '../../configuration';
+import {ConfigurationMap} from '../../configuration';
 import {IConnection} from '../../connection/interface';
 import {Logger} from '../../logger/logger';
 import {Message} from '../../message/message';
@@ -18,7 +18,7 @@ export abstract class ConnectionMeter {
   constructor(connection: IConnection, clock: IClock) {
     this._connection = connection;
     this._subject = new Subject();
-    this._clock = clock;
+    this._clock = clock.fork();
     this.listenOnMessages();
   }
 
@@ -68,7 +68,7 @@ export abstract class ConnectionMeter {
   }
 
   public isLastSeenExpired() {
-    return (this._clock.getTick() - this._lastSeenTick) > Configuration.LAST_SEEN_TIMEOUT;
+    return (this._clock.getTick() - this._lastSeenTick) > ConfigurationMap.getDefault().LAST_SEEN_TIMEOUT;
   }
 
   public getLastSeen(): number {
@@ -85,17 +85,17 @@ export abstract class ConnectionMeter {
 
   public start(): void {
     this.setProtected(true);
-    this._clock.reset();
+    this._clock.rewind();
     // TODO: Use role specific configuration for this remote peer
     this._clock.setTimeout(() => {
       this.setPunished(false);
       this.setProtected(false);
-    }, Configuration.CONNECTION_METER_PROTECTION_TIME);
+    }, ConfigurationMap.getDefault().CONNECTION_METER_PROTECTION_TIME);
   }
 
   public stop(): void {
     // TODO: Use role specific configuration for this remote peer
-    const prematureClose = this._clock.getTick() < Configuration.CONNECTION_METER_OPEN_GRACE_PERIOD_TIME;
+    const prematureClose = this._clock.getTick() < ConfigurationMap.getDefault().CONNECTION_METER_OPEN_GRACE_PERIOD_TIME;
     this.setPunished(prematureClose);
     this.setProtected(false);
   }

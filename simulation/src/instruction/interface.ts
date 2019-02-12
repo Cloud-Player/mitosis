@@ -38,11 +38,17 @@ export const InstructionTypeMap: Map<InstructionType, IInstructionConstructor> =
 
 export interface IConfiguration {
   address?: string;
-  signal?: string;
   target?: string;
   speed?: number;
   count?: number;
   roles?: Array<RoleType>;
+  default?: any;
+  newbie?: any;
+  peer?: any;
+  router?: any;
+  signal?: any;
+
+  [key: string]: any;
 }
 
 export interface IInstruction {

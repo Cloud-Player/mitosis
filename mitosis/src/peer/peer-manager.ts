@@ -1,7 +1,7 @@
 import {Subject} from 'rxjs';
 import {filter} from 'rxjs/operators';
 import {IClock} from '../clock/interface';
-import {Configuration, Globals} from '../configuration';
+import {Configuration, ConfigurationMap} from '../configuration';
 import {
   ConnectionState,
   IConnectionOptions,
@@ -65,7 +65,7 @@ export class PeerManager {
     }
   }
 
-  private getConfiguration(): typeof Configuration {
+  private getConfiguration(): Configuration {
     return this._roleManager.getConfiguration();
   }
 
@@ -112,7 +112,7 @@ export class PeerManager {
         );
     } else {
       Logger.getLogger(this.getMyId()).error(
-        `message from type ${message.getSubject()} is not allowed to be broadcasted!`
+        `${message.getSubject()} is not allowed to be broadcast`
       );
     }
   }
@@ -144,7 +144,7 @@ export class PeerManager {
         table => table.filterDirect()
       );
     if (directPeers.length >= this.getConfiguration().DIRECT_CONNECTIONS_MAX) {
-      return Promise.reject(`max direct connections reached ${address.toString()}`);
+      return Promise.reject(`rejecting ${address.getId()} because max connections reached`);
     }
 
     if (!peer) {
@@ -342,7 +342,7 @@ export class PeerManager {
 
   public sendMessage(message: IMessage) {
     const existingPeer = this.getPeerById(message.getReceiver().getId());
-    if (message.getReceiver().getId() === Globals.BROADCAST_ADDRESS) {
+    if (message.getReceiver().getId() === ConfigurationMap.getDefault().BROADCAST_ADDRESS) {
       this.broadcast(message);
     } else if (existingPeer) {
       existingPeer.send(message);

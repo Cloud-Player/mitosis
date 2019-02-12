@@ -1,7 +1,6 @@
 import {Subject} from 'rxjs';
 import {IClock} from './clock/interface';
 import {MasterClock} from './clock/master';
-import {Globals} from './configuration';
 import {IEnclave} from './enclave/interface';
 import {SecureEnclave} from './enclave/secure';
 import {ILogger} from './logger/interface';
@@ -46,6 +45,7 @@ export class Mitosis {
     if (!enclave) {
       enclave = new SecureEnclave();
     }
+
     this._enclave = enclave;
     if (address) {
       this._myAddress = Address.fromString(address);
@@ -54,15 +54,17 @@ export class Mitosis {
       this._myId = `p${Math.round(100 + Math.random() * 899)}`;
       this._myAddress = new Address(this._myId);
     }
-    if (!signal) {
-      signal = Globals.DEFAULT_SIGNAL_ADDRESS;
-    }
-    this._signalAddress = Address.fromString(signal);
+
     if (!roles || !roles.length) {
       roles = [RoleType.NEWBIE];
     }
-
     this._roleManager = new RoleManager(this._myId, roles);
+
+    if (!signal) {
+      signal = this._roleManager.getConfiguration().DEFAULT_SIGNAL_ADDRESS;
+    }
+    this._signalAddress = Address.fromString(signal);
+
     this._peerManager = new PeerManager(this._myId, this._roleManager, this._clock.fork());
     this._messageBroker = new MessageBroker(this._peerManager, this._roleManager);
     this._inbox = new Subject<AppContent>();
@@ -154,6 +156,7 @@ export * from './message/interface';
 export * from './role/interface';
 export * from './logger/interface';
 export * from './interface';
+export * from './configuration';
 export * from './metering/interface';
 export * from './metering/connection-meter/interface';
 

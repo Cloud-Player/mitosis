@@ -25,12 +25,6 @@ import {D3Model} from './models/d3';
   encapsulation: ViewEncapsulation.None
 })
 export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChanges {
-  @Input()
-  public model: D3Model;
-
-  @Output()
-  public selectedNodeChange: EventEmitter<Node>;
-
   private margin: {
     top: number,
     right: number,
@@ -45,6 +39,10 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
   private zoomHandler: any;
   private nodeColor = '#ccc';
   private selectedNode: Node;
+  @Input()
+  public model: D3Model;
+  @Output()
+  public selectedNodeChange: EventEmitter<Node>;
 
   constructor(private el: ElementRef, private layoutService: LayoutService) {
     this.selectedNodeChange = new EventEmitter();
@@ -103,11 +101,13 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       })
       .attr('stroke', (d: Edge) => {
         if (this.selectedNode && d.getSourceId() === this.selectedNode.getId()) {
-          return 'blue';
+          return 'rgb(2,19,29)';
+        } else if (d.getConnection().isInState(ConnectionState.ERROR)) {
+          return 'rgb(239,51,71)';
         } else if (d.getConnection().isInState(ConnectionState.OPENING, ConnectionState.CLOSING)) {
-          return 'rgba(100,100,100,0.3)';
+          return 'rgba(84,111,125,0.15)';
         } else {
-          return 'rgba(100,100,100,0.6)';
+          return 'rgba(84,111,125,0.45)';
         }
       });
 
@@ -117,23 +117,26 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       });
 
     nodes
-      .select('circle')
+      .select('ellipse')
       .attr('fill', (d: Node) => {
-        const roles = d.getMitosis().getRoleManager().getRoles();
+        const roleManager = d.getMitosis().getRoleManager();
 
-        if (roles.indexOf(RoleType.SIGNAL) >= 0) {
-          return 'red';
-        } else if (roles.indexOf(RoleType.ROUTER) >= 0) {
-          return 'green';
+        if (roleManager.hasRole(RoleType.SIGNAL)) {
+          return 'rgb(248,61,81)';
+        } else if (roleManager.hasRole(RoleType.ROUTER)) {
+          return 'rgb(7,204,85)';
+        } else if (roleManager.hasRole(RoleType.NEWBIE)) {
+          return 'rgb(225,192,173)';
         } else {
-          return '#ccc';
+          return 'rgb(211,217,230)';
         }
       })
+      .attr('stroke-width', 2)
       .attr('stroke', (d: Node) => {
         if (d.isSelected()) {
-          return 'blue';
+          return 'rgb(9,77,120)';
         } else {
-          return 'white';
+          return 'rgb(250,252,253)';
         }
       });
   }
@@ -191,10 +194,9 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       .attr('class', 'node');
 
     nodeHolder
-      .append('circle')
-      .attr('r', (d: any) => {
-        return 10;
-      })
+      .append('ellipse')
+      .attr('rx', 16)
+      .attr('ry', 14)
       .attr('fill', this.nodeColor)
       .on('click', (d: Node) => {
         this.selectNode(d.getId());
@@ -208,13 +210,9 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
 
     nodeHolder
       .append('text')
+      .attr('font-size', '12px')
       .attr('text-anchor', 'middle')
-      .attr('dx', (d: any) => {
-        return 0;
-      })
-      .attr('font-size', (d: any) => {
-        return '12px';
-      })
+      .attr('dx', 0)
       .attr('dy', '.35em')
       .text((d: Node) => {
         return d.getId();
@@ -230,9 +228,7 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       .enter()
       .append('line')
       .attr('class', 'link')
-      .attr('stroke-width', (d: any) => {
-        return '2';
-      });
+      .attr('stroke-width', 2);
 
     link.exit()
       .remove();

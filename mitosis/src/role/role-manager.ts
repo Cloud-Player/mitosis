@@ -1,10 +1,10 @@
-import {Configuration, RoleConfigurationMap} from '../configuration';
+import {Configuration, ConfigurationMap} from '../configuration';
 import {Logger} from '../logger/logger';
 import {IMessage} from '../message/interface';
 import {RoleUpdate} from '../message/role-update';
-import {Mitosis, RolePriorityMap} from '../mitosis';
+import {Mitosis} from '../mitosis';
 import {RemotePeer} from '../peer/remote-peer';
-import {IRole, RoleType} from './interface';
+import {IRole, RolePriorityMap, RoleType} from './interface';
 import {RoleTypeMap} from './role-map';
 
 export class RoleManager {
@@ -18,17 +18,17 @@ export class RoleManager {
     roles.forEach((r) => this.addRole(r));
   }
 
-  public static getConfigurationForRoles(roles: Array<RoleType>): typeof Configuration {
+  public static getConfigurationForRoles(roles: Array<RoleType>): Configuration {
     return roles
       .map(roleType => {
         return {
           priority: RolePriorityMap.get(roleType),
-          config: RoleConfigurationMap.get(roleType)
+          config: ConfigurationMap.get(roleType)
         };
       })
       .reduce(
         (previous, current) => previous.priority < current.priority ? current : previous,
-        {priority: 0, config: Configuration}
+        {priority: 0, config: ConfigurationMap.getDefault()}
       ).config;
   }
 
@@ -67,7 +67,7 @@ export class RoleManager {
     this._roles.forEach(role => role.onMessage(mitosis, message));
   }
 
-  public getConfiguration(): typeof Configuration {
+  public getConfiguration(): Configuration {
     return RoleManager.getConfigurationForRoles(Array.from(this._roles.keys()));
   }
 

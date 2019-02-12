@@ -161,7 +161,8 @@ export class RemotePeer {
         Logger.getLogger(this._mitosisId)
           .debug(`sending ${message.getSubject()} to ${connection.getAddress().getId()}`, message);
       } catch (error) {
-        Logger.getLogger(this._mitosisId).error('message can not be send!', error);
+        Logger.getLogger(this._mitosisId)
+          .error(`cannot send ${message.getSubject()} to ${connection.getAddress().getId()}`, error);
         connection.close();
       }
     } else {
