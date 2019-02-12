@@ -10,8 +10,8 @@ export class Node {
   private _mitosis: Mitosis;
   private _isSelected: boolean;
   private _networkStats: NetworkStats;
-  private _inMessages: NodeEventLogger<IMessage>;
-  private _outMessages: NodeEventLogger<IMessage>;
+  private _inMessageLogger: NodeEventLogger<IMessage>;
+  private _outMessageLogger: NodeEventLogger<IMessage>;
   private _networkInLogger: NodeEventLogger<StatLogEvent>;
   private _networkOutLogger: NodeEventLogger<StatLogEvent>;
   public x: number;
@@ -20,8 +20,8 @@ export class Node {
   constructor(mitosis: Mitosis) {
     this._mitosis = mitosis;
     this._networkStats = new NetworkStats(Simulation.getInstance().getClock());
-    this._inMessages = new NodeEventLogger<IMessage>();
-    this._outMessages = new NodeEventLogger<IMessage>();
+    this._inMessageLogger = new NodeEventLogger<IMessage>();
+    this._outMessageLogger = new NodeEventLogger<IMessage>();
     this._networkInLogger = new NodeEventLogger<StatLogEvent>();
     this._networkOutLogger = new NodeEventLogger<StatLogEvent>();
   }
@@ -50,7 +50,7 @@ export class Node {
   public onReceiveMessage(message: IMessage) {
     this._networkStats.updateTs(Simulation.getInstance().getClock().getTick());
     this._networkStats.addInComingMessage(message);
-    this._inMessages.add(
+    this._inMessageLogger.add(
       new LogEvent<IMessage>(
         Simulation.getInstance().getClock().getTick(),
         message
@@ -72,7 +72,7 @@ export class Node {
   public onSendMessage(message: IMessage) {
     this._networkStats.updateTs(Simulation.getInstance().getClock().getTick());
     this._networkStats.addOutGoingMessage(message);
-    this._outMessages.add(
+    this._outMessageLogger.add(
       new LogEvent<IMessage>(
         Simulation.getInstance().getClock().getTick(),
         message
@@ -92,11 +92,11 @@ export class Node {
   }
 
   public getInbox(): NodeEventLogger<IMessage> {
-    return this._inMessages;
+    return this._inMessageLogger;
   }
 
   public getOutbox(): NodeEventLogger<IMessage> {
-    return this._outMessages;
+    return this._outMessageLogger;
   }
 
   public getNetworkInLogger(): NodeEventLogger<StatLogEvent> {
@@ -107,7 +107,7 @@ export class Node {
     return this._networkOutLogger;
   }
 
-  public getNetworkStats(): {in: IStatEv, out: IStatEv} {
+  public getNetworkStats(): { in: IStatEv, out: IStatEv } {
     return {
       in: this._networkStats.getIncomingStat().getStat(),
       out: this._networkStats.getOutgoingStat().getStat()
