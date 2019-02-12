@@ -186,6 +186,7 @@ export class Simulation {
 
 export {Node} from './node/node';
 export {Edge} from './edge/edge';
+export {LogEvent} from './node/event-logger';
 export {StatLogEvent} from './statistics/stat-log-event';
 export {MockConnection} from './connection/mock';
 export {InstructionTypeMap} from './instruction/interface';

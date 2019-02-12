@@ -1,0 +1,13 @@
+<section class="logger">
+  <header>
+    Network stats
+    <app-button type="icon" text="fa fa-trash" (click)="purgeLog()"></app-button>
+  </header>
+
+  <!--<app-collapsible *ngFor="let logEvent of getLogs()"-->
+                   <!--title="{{logEvent.getTick()}} {{logEvent.getEvent() | json}}">-->
+  <!--</app-collapsible>-->
+  <app-d3-line-chart style="width: 300px; height: 100px; display: block"
+                     [model]="getLogs()">
+  </app-d3-line-chart>
+</section>

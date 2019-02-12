@@ -1,8 +1,7 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {Message} from 'mitosis';
-import {Node} from 'mitosis-simulation';
+import {IMessage} from 'mitosis';
+import {Node, LogEvent} from 'mitosis-simulation';
 import {MessageEventLogger} from '../../../services/message-event-logger';
-import {LogEvent} from '../../../src/event-logger';
 
 @Component({
   selector: 'app-messages',
@@ -10,39 +9,32 @@ import {LogEvent} from '../../../src/event-logger';
   styleUrls: ['./messages.scss'],
 })
 export class MessagesComponent implements OnInit, OnChanges {
+  private filterQuery: string;
   @Input()
   public selectedNode: Node;
-
-  private filterQuery: string;
 
   constructor(private messageEventLogger: MessageEventLogger) {
   }
 
-  public getMessageLog(): Array<LogEvent<Message>> {
-    const logs = this.messageEventLogger
-      .getLogger()
-      .getEventsForNodeId(this.selectedNode.getId());
+  public getMessageLog(): LogEvent<IMessage>[] {
+    let logs = this.selectedNode.getOutbox().getLogs();
     if (this.filterQuery) {
-      return logs
-        .filter(logEntry => {
-          return this.getTitle(logEntry.getEvent(), this.selectedNode).match(this.filterQuery);
-        });
-    } else {
-      return logs;
+      logs = logs.filter((entry) => {
+        return this.getTitle(entry.getEvent(), this.selectedNode).match(this.filterQuery);
+      });
     }
+    return logs;
   }
 
   public purgeMessages() {
-    this.messageEventLogger
-      .getLogger()
-      .purgeEventsForNodeId(this.selectedNode.getId());
+    this.selectedNode.getInbox().flush();
   }
 
   public filterMessages(filterQuery: string) {
     this.filterQuery = filterQuery;
   }
 
-  public getTitle(message: Message, selectedNode: Node): string {
+  public getTitle(message: IMessage, selectedNode: Node): string {
     const receiver = message.getReceiver().getId();
     const sender = message.getSender().getId();
     const subject = message.getSubject();
@@ -56,7 +48,7 @@ export class MessagesComponent implements OnInit, OnChanges {
     }
   }
 
-  public getDirection(message: Message, selectedNode: Node): string {
+  public getDirection(message: IMessage, selectedNode: Node): string {
     if (message.getReceiver().getId() === selectedNode.getId()) {
       return 'receive';
     } else if (message.getSender().getId() === selectedNode.getId()) {
