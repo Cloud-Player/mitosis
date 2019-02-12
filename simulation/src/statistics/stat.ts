@@ -1,4 +1,5 @@
 import {IClock, IMessage} from 'mitosis';
+import {IStatEv} from './stat-log-event';
 
 export class Stat {
   private readonly clock: IClock;
@@ -10,7 +11,7 @@ export class Stat {
 
   constructor(clock: IClock) {
     this.clock = clock;
-    this.ts = this.clock.getTick();
+    this.ts = 0;
     this.totalMessageCount = 0;
     this.totalMessageSize = 0;
     this.messageCountForTs = 0;
@@ -37,10 +38,19 @@ export class Stat {
     return this.ts;
   }
 
+  public getStat(): IStatEv {
+    return {
+      amount: this.totalMessageCount,
+      size: this.totalMessageSize
+    };
+  }
+
   updateTs(ts: number) {
-    this.ts = ts;
-    this.messageCountForTs = 0;
-    this.messageSizeForTs = 0;
+    if (ts > this.ts) {
+      this.ts = ts;
+      this.messageCountForTs = 0;
+      this.messageSizeForTs = 0;
+    }
   }
 
   addMessage(message: IMessage) {
