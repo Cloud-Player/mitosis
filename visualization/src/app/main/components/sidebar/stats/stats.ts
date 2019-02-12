@@ -28,7 +28,7 @@ export class StatsComponent implements OnInit, OnChanges {
         val => {
           return {
             x: val.getTick(),
-            y: val.getEvent().getStat().amount
+            y: val.getEvent().getStat().count
           };
         }
       )

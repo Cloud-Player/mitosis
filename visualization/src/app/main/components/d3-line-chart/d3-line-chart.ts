@@ -10,8 +10,7 @@ import {
 } from '@angular/core';
 import * as d3 from 'd3';
 import {Selection} from 'd3-selection';
-import {ConnectionState, RoleType} from 'mitosis';
-import {Node, Simulation} from 'mitosis-simulation';
+import {Simulation} from 'mitosis-simulation';
 import {filter} from 'rxjs/operators';
 import {LayoutChangeTypes, LayoutService} from '../../../shared/services/layout';
 import {D3Model} from './models/d3';
@@ -144,8 +143,8 @@ export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
       .call(d3.axisLeft(this._yScale as any) as any);
 
     const line = d3.line()
-      .x((d, i) => this._xScale(d.x)) // set the x values for the line generator
-      .y((d) => this._yScale(d.y)) // set the y values for the line generator
+      .x((d: any, i) => this._xScale(d.x)) // set the x values for the line generator
+      .y((d: any) => this._yScale(d.y)) // set the y values for the line generator
       .curve(d3.curveMonotoneX); // apply smoothing to the line
 
     this.svg.selectAll('.line')

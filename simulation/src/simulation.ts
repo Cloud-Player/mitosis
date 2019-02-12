@@ -102,12 +102,16 @@ export class Simulation {
     const edge = this.getEdge(to, from, location);
     if (edge) {
       const sender = this._nodes.get(from);
-      sender.onSendMessage(message);
+      if (sender) {
+        sender.onSendMessage(message);
+      }
       this._clock.setTimeout(() => {
         const connection = (edge.getConnection() as MockConnection);
         if (connection.getState() === ConnectionState.OPEN) {
           const receiver = this._nodes.get(to);
-          receiver.onReceiveMessage(message);
+          if (receiver) {
+            receiver.onReceiveMessage(message);
+          }
           connection.onMessage(message);
         } else {
           Logger.getLogger('simulation').error(
