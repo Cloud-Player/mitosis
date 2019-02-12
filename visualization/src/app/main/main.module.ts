@@ -16,6 +16,8 @@ import {MainRoutingModule} from './main.routes';
 import {LogEventLogger} from './services/log-event-logger';
 import {MessageEventLogger} from './services/message-event-logger';
 import {ScenarioSelectorComponent} from './components/sidebar/scenario-selector/scenario-selector';
+import {StatsComponent} from './components/sidebar/stats/stats';
+import {D3LineChartComponent} from './components/d3-line-chart/d3-line-chart';
 
 @NgModule({
   imports: [
@@ -31,6 +33,7 @@ import {ScenarioSelectorComponent} from './components/sidebar/scenario-selector/
   declarations: [
     MainComponent,
     D3DirectedGraphComponent,
+    D3LineChartComponent,
     SimulationComponent,
     ScenarioSelectorComponent,
     SidebarComponent,
@@ -38,7 +41,8 @@ import {ScenarioSelectorComponent} from './components/sidebar/scenario-selector/
     MessagesComponent,
     PeerTableComponent,
     NodeSettingsComponent,
-    LoggerComponent
+    LoggerComponent,
+    StatsComponent
   ],
   providers: [
     LogEventLogger,
