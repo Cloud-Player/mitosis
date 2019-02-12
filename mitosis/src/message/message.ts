@@ -1,3 +1,4 @@
+import {stringByteLength} from '../util/string-byte-length';
 import {Address} from './address';
 import {IMessage, MessageSubject} from './interface';
 
@@ -18,7 +19,7 @@ export class Message implements IMessage {
   }
 
   public get length() {
-    return new Blob([this.toString()]).size;
+    return stringByteLength(this.toString());
   }
 
   public static fromString(messageString: string): Message {
