@@ -31,18 +31,14 @@ export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
   private width;
   private height;
   private svg: Selection<any, any, any, any>;
-  private simulation: any;
-  private zoomHandler: any;
-  private nodeColor = '#ccc';
   private _xScale: any;
   private _yScale: any;
-  private i = 0;
   private isRendering = false;
   private dirty = false;
   private isInitialised = false;
 
   @Input()
-  public model: any;
+  public models: Array<D3Model>;
 
   constructor(private el: ElementRef, private layoutService: LayoutService) {
   }
@@ -86,31 +82,34 @@ export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
       .append('clipPath')
       .attr('id', 'pathContainer')
       .append('rect')
-      .attr('x', 0)
+      .attr('x', 2)
       .attr('y', -20)
       .attr('width', this.width + this.margin.left + this.margin.right - 60)
       .attr('height', this.height + this.margin.top + this.margin.bottom);
 
-    this.svg
+    const pathHolder = this.svg
       .append('g')
+      .attr('class', 'path-mask')
       .attr('clip-path', 'url(#pathContainer)')
-      .append('path')
-      .attr('class', 'line');
+      .append('g')
+      .attr('class', 'path-animation-holder');
+
+    this.models.forEach((model) => {
+      pathHolder.append('path')
+        .attr('class', `line ${model.getId()}`)
+        .attr('stroke', model.getColor());
+    });
 
     this.isInitialised = true;
   }
 
   private update() {
-    let values = this.model.getValues();
-    if (!values || values.length === 0 || !this.isInitialised || this.isRendering) {
+    if (!this.isInitialised || this.isRendering) {
       return;
     }
     this.isRendering = true;
-    if (values.length > 52) {
-      values = values.slice(this.model.getValues().length - 52);
-    }
-    let xValues = values.map(v => v.x);
-    const yValues = values.map(v => v.y);
+    let xValues = this.models[0].getValues().map(v => v.x);
+    const yValues = this.models[0].getValues().map(v => v.y);
 
     if (xValues.length > 50) {
       xValues = xValues.slice(xValues.length - 50);
@@ -142,18 +141,23 @@ export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
       .ease(d3.easeLinear)
       .call(d3.axisLeft(this._yScale as any) as any);
 
-    const line = d3.line()
-      .x((d: any, i) => this._xScale(d.x)) // set the x values for the line generator
-      .y((d: any) => this._yScale(d.y)) // set the y values for the line generator
-      .curve(d3.curveMonotoneX); // apply smoothing to the line
+    this.models.forEach((model) => {
+      let values = model
+        .getValues();
+      if (values.length > 54) {
+        values = values.slice(values.length - 54);
+      }
+      const line = d3.line()
+        .x((d: any, i) => this._xScale(d.x)) // set the x values for the line generator
+        .y((d: any) => this._yScale(d.y)) // set the y values for the line generator
+        .curve(d3.curveMonotoneX); // apply smoothing to the line
 
-    this.svg.selectAll('.line')
-      .datum(values) // 10. Binds data to the line// Assign a class for styling
-      .attr('d', line)
-      .transition()
-      .duration(1000);
+      this.svg.selectAll(`.${model.getId()}`)
+        .datum(values) // 10. Binds data to the line// Assign a class for styling
+        .attr('d', line as any);
+    });
 
-    this.svg.selectAll('.line')
+    this.svg.selectAll('.path-animation-holder')
       .attr(
         'transform',
         `translate(${6})`
@@ -182,12 +186,12 @@ export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
     });
   }
 
-  private isDifferent(previousModel: D3Model, newModel: D3Model) {
-    if (!previousModel && newModel) {
+  private isDifferent(previousModels: Array<D3Model>, newModels: Array<D3Model>) {
+    if (!previousModels && newModels) {
       return true;
-    } else if (previousModel && newModel) {
-      const newValues = newModel.getValues();
-      const previousValues = previousModel.getValues();
+    } else if (previousModels && newModels) {
+      const newValues = newModels[0].getValues();
+      const previousValues = previousModels[0].getValues();
       const lastNewValue = newValues[newValues.length - 1];
       const lastPreviousValue = previousValues[previousValues.length - 1];
       return lastNewValue && lastPreviousValue && lastNewValue.x !== lastPreviousValue.x;
@@ -214,8 +218,8 @@ export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.model.currentValue) {
-      this.dirty = this.isDifferent(changes.model.previousValue, changes.model.currentValue);
+    if (changes.models.currentValue) {
+      this.dirty = this.isDifferent(changes.models.previousValue, changes.models.currentValue);
       if (this.dirty) {
         this.update();
       }

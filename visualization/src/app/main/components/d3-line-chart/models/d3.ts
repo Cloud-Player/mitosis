@@ -4,12 +4,18 @@ export interface IValue {
 }
 
 export class D3Model {
+  private _id: string;
   private _values: Array<IValue>;
   private _events: { [key: string]: Array<() => void> };
+  private _color: string;
+  private _label: string;
 
-  constructor() {
+  constructor(id, color, label) {
     this._values = [];
     this._events = {};
+    this._id = id;
+    this._color = color;
+    this._label = label;
   }
 
   private triggerEv(key) {
@@ -42,25 +48,15 @@ export class D3Model {
     this.trigger(['add']);
   }
 
-  public getMaxY() {
-    return this._values
-      .map(value => value.y)
-      .reduce(
-        (previous, current) => current > previous ? current : previous,
-        0
-      );
-  }
-
-  public getMinY() {
-    return this._values
-      .map(value => value.y)
-      .reduce(
-        (previous, current) => current < previous ? current : previous,
-        0
-      );
-  }
-
   public getValues(): Array<IValue> {
     return this._values;
+  }
+
+  public getId() {
+    return this._id;
+  }
+
+  public getColor() {
+    return this._color;
   }
 }

@@ -1,5 +1,4 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {ILogEvent} from 'mitosis';
 import {Node} from 'mitosis-simulation';
 import {LogEventLogger} from '../../../services/log-event-logger';
 import {D3Model} from '../../d3-line-chart/models/d3';
@@ -18,8 +17,8 @@ export class StatsComponent implements OnInit, OnChanges {
   constructor(private eventLogger: LogEventLogger) {
   }
 
-  public getLogs(): D3Model {
-    const model = new D3Model();
+  public getLogs(): Array<D3Model> {
+    const outgoingTrafficModel = new D3Model('network-output', 'red', 'outgoing traffic');
     this.selectedNode
       .getNetworkOutLogger()
       .getLogs()
@@ -33,9 +32,25 @@ export class StatsComponent implements OnInit, OnChanges {
         }
       )
       .forEach((val) => {
-        model.add(val.x, val.y);
+        outgoingTrafficModel.add(val.x, val.y);
       });
-    return model;
+    const incomingTrafficModel = new D3Model('network-input', 'pink', 'incoming traffic');
+    this.selectedNode
+      .getNetworkInLogger()
+      .getLogs()
+      .reverse()
+      .map(
+        val => {
+          return {
+            x: val.getTick(),
+            y: val.getEvent().getStat().count
+          };
+        }
+      )
+      .forEach((val) => {
+        incomingTrafficModel.add(val.x, val.y);
+      });
+    return [outgoingTrafficModel, incomingTrafficModel];
   }
 
   public purgeLog() {
