@@ -59,7 +59,7 @@ export abstract class AbstractClock {
     this._tickCounter = 0;
   }
 
-  public reset(): void {
+  public rewind(): void {
     this._tickCounter = 0;
   }
 

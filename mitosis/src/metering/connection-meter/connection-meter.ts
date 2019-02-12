@@ -85,7 +85,7 @@ export abstract class ConnectionMeter {
 
   public start(): void {
     this.setProtected(true);
-    this._clock.reset();
+    this._clock.rewind();
     // TODO: Use role specific configuration for this remote peer
     this._clock.setTimeout(() => {
       this.setPunished(false);
