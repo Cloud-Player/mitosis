@@ -101,13 +101,13 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       })
       .attr('stroke', (d: Edge) => {
         if (this.selectedNode && d.getSourceId() === this.selectedNode.getId()) {
-          return 'rgb(6,54,84)';
+          return 'rgb(2,19,29)';
         } else if (d.getConnection().isInState(ConnectionState.ERROR)) {
           return 'rgb(239,51,71)';
         } else if (d.getConnection().isInState(ConnectionState.OPENING, ConnectionState.CLOSING)) {
-          return 'rgba(84,111,125,0.2)';
+          return 'rgba(84,111,125,0.15)';
         } else {
-          return 'rgba(84,111,125,0.5)';
+          return 'rgba(84,111,125,0.45)';
         }
       });
 
@@ -124,11 +124,11 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
         if (roleManager.hasRole(RoleType.SIGNAL)) {
           return 'rgb(248,61,81)';
         } else if (roleManager.hasRole(RoleType.ROUTER)) {
-          return 'rgb(51,239,125)';
+          return 'rgb(7,204,85)';
         } else if (roleManager.hasRole(RoleType.NEWBIE)) {
           return 'rgb(225,192,173)';
         } else {
-          return 'rgb(208,225,236)';
+          return 'rgb(211,217,230)';
         }
       })
       .attr('stroke', (d: Node) => {
@@ -215,7 +215,7 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
         return 0;
       })
       .attr('font-size', (d: any) => {
-        return '10px';
+        return '11px';
       })
       .attr('dy', '.35em')
       .text((d: Node) => {
