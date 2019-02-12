@@ -1,5 +1,5 @@
 export interface IStatEv {
-  amount: number;
+  count: number;
   size: number;
 }
 

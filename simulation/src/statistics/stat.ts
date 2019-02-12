@@ -40,7 +40,7 @@ export class Stat {
 
   public getStat(): IStatEv {
     return {
-      amount: this.totalMessageCount,
+      count: this.totalMessageCount,
       size: this.totalMessageSize
     };
   }

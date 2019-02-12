@@ -34,7 +34,7 @@ export class WebSocketMockConnection extends MockConnection implements IConnecti
           .connectTo(localAddress)
           .catch(error => Logger
             .getLogger('simulation')
-            .warn(`connection to ${localAddress} failed`, error)
+            .warn(`connection to ${localAddress.getId()} failed`, error)
           );
       }, this.getConnectionDelay());
     } else {

@@ -61,7 +61,7 @@ export class Node {
         Simulation.getInstance().getClock().getTick(),
         new StatLogEvent(
           {
-            amount: this._networkStats.getIncomingStat().getMessageCountForTs(),
+            count: this._networkStats.getIncomingStat().getMessageCountForTs(),
             size: this._networkStats.getIncomingStat().getMessageSizeForTs()
           }
         )
@@ -83,7 +83,7 @@ export class Node {
         Simulation.getInstance().getClock().getTick(),
         new StatLogEvent(
           {
-            amount: this._networkStats.getOutgoingStat().getMessageCountForTs(),
+            count: this._networkStats.getOutgoingStat().getMessageCountForTs(),
             size: this._networkStats.getOutgoingStat().getMessageSizeForTs()
           }
         )

@@ -147,8 +147,8 @@ export class RemotePeerMeter implements IMeter {
 
   // returns value between 0 and 1. When no connection is punished it returns 1, when all are punished 0
   public getAverageConnectionPunishment(): number {
-    const punishedConnectionsAmount = this._connectionsPerAddress.size - this._punishedConnections;
-    return punishedConnectionsAmount / this._connectionsPerAddress.size;
+    const punishedConnectionCount = this._connectionsPerAddress.size - this._punishedConnections;
+    return punishedConnectionCount / this._connectionsPerAddress.size;
   }
 
   // returns the quality of this peer that is reported to our direct connections
