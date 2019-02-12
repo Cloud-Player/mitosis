@@ -117,7 +117,7 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       });
 
     nodes
-      .select('circle')
+      .select('ellipse')
       .attr('fill', (d: Node) => {
         const roleManager = d.getMitosis().getRoleManager();
 
@@ -131,6 +131,7 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
           return 'rgb(211,217,230)';
         }
       })
+      .attr('stroke-width', 2)
       .attr('stroke', (d: Node) => {
         if (d.isSelected()) {
           return 'rgb(9,77,120)';
@@ -193,10 +194,9 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       .attr('class', 'node');
 
     nodeHolder
-      .append('circle')
-      .attr('r', (d: any) => {
-        return 10;
-      })
+      .append('ellipse')
+      .attr('rx', 17)
+      .attr('ry', 13)
       .attr('fill', this.nodeColor)
       .on('click', (d: Node) => {
         this.selectNode(d.getId());
@@ -210,13 +210,9 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
 
     nodeHolder
       .append('text')
+      .attr('font-size', '12px')
       .attr('text-anchor', 'middle')
-      .attr('dx', (d: any) => {
-        return 0;
-      })
-      .attr('font-size', (d: any) => {
-        return '11px';
-      })
+      .attr('dx', 0)
       .attr('dy', '.35em')
       .text((d: Node) => {
         return d.getId();
@@ -232,9 +228,7 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       .enter()
       .append('line')
       .attr('class', 'link')
-      .attr('stroke-width', (d: any) => {
-        return '2';
-      });
+      .attr('stroke-width', 2);
 
     link.exit()
       .remove();
