@@ -195,8 +195,8 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
 
     nodeHolder
       .append('ellipse')
-      .attr('rx', 17)
-      .attr('ry', 13)
+      .attr('rx', 16)
+      .attr('ry', 14)
       .attr('fill', this.nodeColor)
       .on('click', (d: Node) => {
         this.selectNode(d.getId());
