@@ -1,4 +1,5 @@
 import {IClock} from '../clock/interface';
+import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
 import {StreamConnectionMeter} from '../metering/connection-meter/stream-connection-meter';
@@ -34,7 +35,7 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
   }
 
   public send(message: Message): void {
-    throw new Error('not implemented');
+    Logger.getLogger(message.getSender().getId()).error('stream conenction can not send messages', message);
   }
 
   public addTrack(track: MediaStreamTrack): void {
