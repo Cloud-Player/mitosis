@@ -1,5 +1,4 @@
-import {ConnectionState, Protocol} from '../../connection/interface';
-import {WebRTCStreamConnection} from '../../connection/webrtc-stream';
+import {ConnectionState, IWebRTCStreamConnectionOptions, Protocol} from '../../connection/interface';
 import {Logger} from '../../logger/logger';
 import {Address} from '../../message/address';
 import {Mitosis} from '../../mitosis';
@@ -34,15 +33,17 @@ export function broadcastStream(mitosis: Mitosis): void {
           peer.getId(),
           Protocol.WEBRTC_STREAM
         );
+        const options: IWebRTCStreamConnectionOptions = {
+          mitosisId: mitosis.getMyAddress().getId(),
+          stream: mitosis.getStream()
+        };
         mitosis
           .getPeerManager()
-          .connectTo(address)
+          .connectTo(address, options)
           .then(
             candidate => {
-              const outConnection = (candidate.getConnectionForAddress(address) as WebRTCStreamConnection);
-              outConnection.setStream(mitosis.getStream());
               Logger.getLogger(mitosis.getMyAddress().getId())
-                .info(`pushing stream to ${candidate.getId()}`, outConnection);
+                .info(`pushing stream to ${candidate.getId()}`, candidate);
             }
           )
           .catch((err) => {

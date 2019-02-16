@@ -43,6 +43,10 @@ export interface IWebRTCConnectionOptions extends IConnectionOptions {
   payload?: IWebRTCConnectionOptionsPayload;
 }
 
+export interface IWebRTCStreamConnectionOptions extends IWebRTCConnectionOptions {
+  stream: MediaStream;
+}
+
 export enum WebRTCConnectionOptionsPayloadType {
   OFFER = 'offer',
   ANSWER = 'answer'

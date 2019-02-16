@@ -1,7 +1,7 @@
-import {ConnectionState} from '../../connection/interface';
+import {ConnectionTable} from '../../connection/connection-table';
+import {ConnectionState, Protocol} from '../../connection/interface';
 import {Logger} from '../../logger/logger';
 import {Mitosis} from '../../mitosis';
-import {ConnectionTable} from '../../connection/connection-table';
 
 export function removeSuperfluousConnections(mitosis: Mitosis): void {
   const directPeers = mitosis
@@ -11,6 +11,10 @@ export function removeSuperfluousConnections(mitosis: Mitosis): void {
       table => table
         .filterDirect()
         .filterByStates(ConnectionState.OPEN)
+        .exclude(
+          excludeTable =>
+            excludeTable.filterByProtocol(Protocol.WEBRTC_STREAM)
+        )
     );
 
   const directConnectionCount = directPeers
@@ -18,6 +22,10 @@ export function removeSuperfluousConnections(mitosis: Mitosis): void {
       table => table
         .filterDirect()
         .filterByStates(ConnectionState.OPEN)
+        .exclude(
+          excludeTable =>
+            excludeTable.filterByProtocol(Protocol.WEBRTC_STREAM)
+        )
     );
 
   const configuration = mitosis.getRoleManager().getConfiguration();
@@ -38,6 +46,10 @@ export function removeSuperfluousConnections(mitosis: Mitosis): void {
         table => table
           .filterDirect()
           .filterByStates(ConnectionState.OPEN)
+          .exclude(
+            excludeTable =>
+              excludeTable.filterByProtocol(Protocol.WEBRTC_STREAM)
+          )
       )
       .sortByQuality()
       .slice(configuration.DIRECT_CONNECTIONS_MAX_GOAL)

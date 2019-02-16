@@ -3,7 +3,7 @@ import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
 import {StreamConnectionMeter} from '../metering/connection-meter/stream-connection-meter';
-import {IConnection, IConnectionOptions} from './interface';
+import {IConnection, IWebRTCStreamConnectionOptions} from './interface';
 import {WebRTCConnection} from './webrtc';
 
 export class WebRTCStreamConnection extends WebRTCConnection implements IConnection {
@@ -12,9 +12,10 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
   private _onStreamPromise: Promise<MediaStream>;
   private _stream: MediaStream;
 
-  constructor(address: Address, clock: IClock, options: IConnectionOptions) {
+  constructor(address: Address, clock: IClock, options: IWebRTCStreamConnectionOptions) {
     super(address, clock, options);
     this._meter = new StreamConnectionMeter(this, clock);
+    this._simplePeerOptions.stream = options.stream;
   }
 
   protected bindClientListeners(): void {
@@ -35,7 +36,7 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
   }
 
   public send(message: Message): void {
-    Logger.getLogger(message.getSender().getId()).error('stream conenction can not send messages', message);
+    Logger.getLogger(message.getSender().getId()).error('stream connection can not send messages', message);
   }
 
   public addTrack(track: MediaStreamTrack): void {
@@ -45,11 +46,6 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
   public setStream(stream: MediaStream): void {
     this._stream = stream;
     this._simplePeerOptions.stream = stream;
-    stream
-      .getTracks()
-      .forEach(
-        track => this.addTrack(track)
-      );
   }
 
   public getStream(): Promise<MediaStream> {
