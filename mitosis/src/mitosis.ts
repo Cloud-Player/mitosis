@@ -17,6 +17,7 @@ import {RemotePeer} from './peer/remote-peer';
 import {RemotePeerTable} from './peer/remote-peer-table';
 import {RoleType} from './role/interface';
 import {RoleManager} from './role/role-manager';
+import {IStreamChurnEvent} from './stream/interface';
 
 export class Mitosis {
 
@@ -28,6 +29,7 @@ export class Mitosis {
   private _myAddress: Address;
   private _signalAddress: Address;
   private _stream: MediaStream;
+  private _streamChurnSubject: Subject<IStreamChurnEvent>;
   private _inbox: Subject<AppContent>;
   private _internalMessages: Subject<IMessage>;
   private _clock: IClock;
@@ -72,6 +74,7 @@ export class Mitosis {
     this._messageBroker = new MessageBroker(this._peerManager, this._roleManager);
     this._inbox = new Subject<AppContent>();
     this._internalMessages = new Subject<Message>();
+    this._streamChurnSubject = new Subject<IStreamChurnEvent>();
     this.listenOnMessages();
     this.listenOnAppContentMessages();
     this.listenOnConnectionChurn();
@@ -167,15 +170,21 @@ export class Mitosis {
   public setStream(stream: MediaStream): void {
     this._stream = stream;
     this._roleManager.addRole(RoleType.STREAMER);
+    this._streamChurnSubject.next({type: ChurnType.ADDED, stream: this._stream});
   }
 
   public unsetStream(): void {
+    this._streamChurnSubject.next({type: ChurnType.REMOVED, stream: this._stream});
     this._stream = null;
     this._roleManager.removeRole(RoleType.STREAMER);
   }
 
   public getStream(): MediaStream {
     return this._stream;
+  }
+
+  public observeStreamChurn(): Subject<IStreamChurnEvent> {
+    return this._streamChurnSubject;
   }
 
   public sendMessageTo(peerId: string, message: any): void {
@@ -190,6 +199,7 @@ export class Mitosis {
   public destroy(): void {
     this._inbox.complete();
     this._internalMessages.complete();
+    this._streamChurnSubject.complete();
     this._peerManager.destroy();
     this._roleManager.destroy();
     this._messageBroker.destroy();
