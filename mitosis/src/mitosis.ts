@@ -136,6 +136,11 @@ export class Mitosis {
     this._roleManager.addRole(RoleType.STREAMER);
   }
 
+  public stopStream(): void {
+    this._stream = null;
+    this._roleManager.removeRole(RoleType.STREAMER);
+  }
+
   public getStream(): MediaStream {
     return this._stream;
   }

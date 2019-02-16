@@ -117,6 +117,16 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       });
 
     nodes
+      .select('text')
+      .attr('fill', (d: Node) =>
+        d.getMitosis().getStream() ? 'brown' : 'black'
+      )
+      .attr('font-weight', (d: Node) =>
+        d.getMitosis().getStream() ? 'bold' : 'regular'
+      )
+    ;
+
+    nodes
       .select('ellipse')
       .attr('fill', (d: Node) => {
         const roleManager = d.getMitosis().getRoleManager();

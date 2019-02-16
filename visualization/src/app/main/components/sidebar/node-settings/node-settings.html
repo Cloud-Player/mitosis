@@ -6,6 +6,12 @@
       {{role}}
     </li>
   </ul>
+  <app-button *ngIf="!isStreaming()" type="icon" text="fa fa-video-camera" (click)="startStream()">
+    Start stream
+  </app-button>
+  <app-button *ngIf="isStreaming()" type="icon" text="fa fa-trash" (click)="stopStream()">
+    Stop stream
+  </app-button>
   <!--<div class="form-field">-->
   <!--<label>WSS Deliver Timeout</label>-->
   <!--<app-slider [(ngModel)]="wssDelay"-->

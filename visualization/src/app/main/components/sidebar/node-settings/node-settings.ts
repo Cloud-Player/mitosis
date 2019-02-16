@@ -32,22 +32,6 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
       });
   }
 
-  public updateWssDelay(delay: number) {
-    this.updateDelayForProtocol(Protocol.WEBSOCKET, delay);
-  }
-
-  public updateWebRtcDelay(delay: number) {
-    this.updateDelayForProtocol(Protocol.WEBRTC_STREAM, delay);
-  }
-
-  public getRoles() {
-    if (this.selectedNode) {
-      return this.selectedNode.getMitosis().getRoleManager().getRoles();
-    } else {
-      return [];
-    }
-  }
-
   private initNode() {
     this.selectedNode
       .getMitosis()
@@ -64,6 +48,34 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
             }
           });
       });
+  }
+
+  public updateWssDelay(delay: number) {
+    this.updateDelayForProtocol(Protocol.WEBSOCKET, delay);
+  }
+
+  public updateWebRtcDelay(delay: number) {
+    this.updateDelayForProtocol(Protocol.WEBRTC_STREAM, delay);
+  }
+
+  public getRoles() {
+    if (this.selectedNode) {
+      return this.selectedNode.getMitosis().getRoleManager().getRoles();
+    } else {
+      return [];
+    }
+  }
+
+  public startStream(): void {
+    this.selectedNode.getMitosis().startStream(new MediaStream());
+  }
+
+  public stopStream(): void {
+    this.selectedNode.getMitosis().stopStream();
+  }
+
+  public isStreaming(): boolean {
+    return !!this.selectedNode.getMitosis().getStream();
   }
 
   ngOnInit(): void {
