@@ -29,19 +29,6 @@ export abstract class ConnectionMeter {
       );
   }
 
-  private setProtected(isProtected: boolean): void {
-    const wasProtected = this._protected;
-    this._protected = isProtected;
-
-    if (this._protected !== wasProtected) {
-      if (this._protected) {
-        this._subject.next({type: IConnectionEventType.PROTECTED, connection: this._connection});
-      } else {
-        this._subject.next({type: IConnectionEventType.UNPROTECTED, connection: this._connection});
-      }
-    }
-  }
-
   private setPunished(isPunished: boolean): void {
     const wasPunished = this._punished;
     this._punished = isPunished;
@@ -51,6 +38,19 @@ export abstract class ConnectionMeter {
         this._subject.next({type: IConnectionEventType.PUNISHED, connection: this._connection});
       } else {
         this._subject.next({type: IConnectionEventType.UNPUNISHED, connection: this._connection});
+      }
+    }
+  }
+
+  private setProtected(isProtected: boolean): void {
+    const wasProtected = this._protected;
+    this._protected = isProtected;
+
+    if (this._protected !== wasProtected) {
+      if (this._protected) {
+        this._subject.next({type: IConnectionEventType.PROTECTED, connection: this._connection});
+      } else {
+        this._subject.next({type: IConnectionEventType.UNPROTECTED, connection: this._connection});
       }
     }
   }
