@@ -1,6 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {Logger, Mitosis} from 'mitosis';
-import {Subscription} from 'rxjs';
+import {Mitosis} from 'mitosis';
 import {SidebarComponent} from '../sidebar/sidebar';
 
 @Component({
@@ -18,12 +17,13 @@ export class MessengerComponent implements OnInit {
     this.mitosis = new Mitosis();
   }
 
-
-  public selectNode(node: Node) {
-    this.selectedNode = node;
+  public setTitle() {
+    const titleEl = document.querySelector('title');
+    const text = `${titleEl.innerText}—${this.mitosis.getMyAddress().getId()}`;
+    titleEl.innerText = text;
   }
 
   ngOnInit(): void {
-
+    this.setTitle();
   }
 }

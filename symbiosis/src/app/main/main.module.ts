@@ -7,6 +7,7 @@ import {SharedModule} from '../shared/shared.module';
 import {MainComponent} from './components/main/main';
 import {PeerTableComponent} from './components/sidebar/peer-table/peer-table';
 import {SidebarComponent} from './components/sidebar/sidebar';
+import {StreamPlayerComponent} from './components/stream-player/stream-player';
 import {MainRoutingModule} from './main.routes';
 import {MessengerComponent} from './components/messenger/messenger';
 
@@ -25,7 +26,8 @@ import {MessengerComponent} from './components/messenger/messenger';
     MainComponent,
     SidebarComponent,
     PeerTableComponent,
-    MessengerComponent
+    MessengerComponent,
+    StreamPlayerComponent
   ],
   providers: [
   ],
