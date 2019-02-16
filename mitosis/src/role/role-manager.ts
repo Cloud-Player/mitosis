@@ -60,7 +60,7 @@ export class RoleManager {
   }
 
   public onTick(mitosis: Mitosis): void {
-    this._roles.forEach(role => role.onTick(mitosis));
+    this._roles.forEach(role => role.doTick(mitosis));
   }
 
   public onMessage(mitosis: Mitosis, message: IMessage): void {

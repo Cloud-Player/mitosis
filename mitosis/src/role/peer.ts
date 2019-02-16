@@ -1,7 +1,7 @@
 import {Message} from '../message/message';
-import {IConnection, Mitosis} from '../mitosis';
-import {RemotePeer} from '../peer/remote-peer';
+import {IConnection, Mitosis, Protocol, WebRTCStreamConnection} from '../mitosis';
 import {IRole} from './interface';
+import {AbstractRole} from './role';
 import {acquireDirectConnections} from './task/acquire-direct-connections';
 import {closeDuplicateConnections} from './task/close-duplicate-connections';
 import {degradeToNewbie} from './task/degrade-to-newbie';
@@ -12,9 +12,9 @@ import {removeSignal} from './task/remove-signal';
 import {removeSuperfluousConnections} from './task/remove-superfluous-connections';
 import {sendAlternatives} from './task/send-alternatives';
 
-export class Peer implements IRole {
+export class Peer extends AbstractRole implements IRole {
 
-  public onTick(mitosis: Mitosis): void {
+  protected onTick(mitosis: Mitosis): void {
     // Clean up connections
     closeDuplicateConnections(mitosis);
     removeExpiredConnections(mitosis);
@@ -36,13 +36,15 @@ export class Peer implements IRole {
     sendAlternatives(mitosis, message);
   }
 
-  public requiresPeer(remotePeer: RemotePeer): boolean {
-    return false;
-  }
-
-  public onConnectionClose(mitosis: Mitosis, connection: IConnection): void {
-  }
-
   public onConnectionOpen(mitosis: Mitosis, connection: IConnection): void {
+    if (connection.getAddress().getProtocol() === Protocol.WEBRTC_STREAM) {
+      if (!mitosis.getStream()) {
+        (connection as WebRTCStreamConnection)
+          .getStream()
+          .then(
+            stream => mitosis.setStream(stream)
+          );
+      }
+    }
   }
 }

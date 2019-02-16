@@ -1,8 +1,10 @@
 import {Subject} from 'rxjs';
 import {IClock} from './clock/interface';
 import {MasterClock} from './clock/master';
+import {ConnectionState, IConnection} from './connection/interface';
 import {IEnclave} from './enclave/interface';
 import {SecureEnclave} from './enclave/secure';
+import {ChurnType} from './interface';
 import {ILogger} from './logger/interface';
 import {Logger} from './logger/logger';
 import {Address} from './message/address';
@@ -15,8 +17,6 @@ import {RemotePeer} from './peer/remote-peer';
 import {RemotePeerTable} from './peer/remote-peer-table';
 import {RoleType} from './role/interface';
 import {RoleManager} from './role/role-manager';
-import {ChurnType} from './interface';
-import {ConnectionState} from './connection/interface';
 
 export class Mitosis {
 
@@ -164,12 +164,12 @@ export class Mitosis {
     return this._roleManager;
   }
 
-  public startStream(stream: MediaStream): void {
+  public setStream(stream: MediaStream): void {
     this._stream = stream;
     this._roleManager.addRole(RoleType.STREAMER);
   }
 
-  public stopStream(): void {
+  public unsetStream(): void {
     this._stream = null;
     this._roleManager.removeRole(RoleType.STREAMER);
   }

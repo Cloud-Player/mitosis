@@ -21,7 +21,7 @@ export type IRoleConstructor = new(...args: Array<any>) => IRole;
 
 export interface IRole {
 
-  onTick(mitosis: Mitosis): void;
+  doTick(mitosis: Mitosis): void;
 
   onMessage(mitosis: Mitosis, message: IMessage): void;
 

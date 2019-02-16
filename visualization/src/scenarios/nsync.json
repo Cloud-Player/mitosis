@@ -18,7 +18,7 @@
       "tick": 0,
       "type": "set-clock-speed",
       "configuration": {
-        "speed": 250
+        "speed": 50
       }
     },
     {
@@ -68,7 +68,10 @@
     },
     {
       "tick": 30,
-      "type": "finish-scenario"
+      "type": "set-clock-speed",
+      "configuration": {
+        "speed": 1500
+      }
     }
   ]
 }

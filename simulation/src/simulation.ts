@@ -40,6 +40,7 @@ export class Simulation {
       ProtocolConnectionMap.set(Protocol.WEBSOCKET_UNSECURE, WebSocketMockConnection);
       ProtocolConnectionMap.set(Protocol.WEBSOCKET, WebSocketMockConnection);
       ProtocolConnectionMap.set(Protocol.WEBRTC_DATA, WebRTCDataMockConnection);
+      ProtocolConnectionMap.set(Protocol.WEBRTC_STREAM, WebRTCDataMockConnection);
     }
     return Simulation._instance;
   }

@@ -67,11 +67,11 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
   }
 
   public startStream(): void {
-    this.selectedNode.getMitosis().startStream(new MediaStream());
+    this.selectedNode.getMitosis().setStream(new MediaStream());
   }
 
   public stopStream(): void {
-    this.selectedNode.getMitosis().stopStream();
+    this.selectedNode.getMitosis().unsetStream();
   }
 
   public isStreaming(): boolean {

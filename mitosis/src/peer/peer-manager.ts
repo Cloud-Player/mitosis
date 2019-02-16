@@ -188,7 +188,7 @@ export class PeerManager {
           filter(ev => ev.type === ChurnType.REMOVED)
         )
         .subscribe(
-          connection => this.onConnectionRemoved(connection, peer)
+          ev => this.onConnectionRemoved(ev.connection, peer)
         );
 
       peer.observeChurn()
@@ -196,7 +196,7 @@ export class PeerManager {
           filter(ev => ev.type === ChurnType.ADDED)
         )
         .subscribe(
-          connection => this.onConnectionAdded(connection, peer)
+          ev => this.onConnectionAdded(ev.connection, peer)
         );
 
       this._peers.push(peer);

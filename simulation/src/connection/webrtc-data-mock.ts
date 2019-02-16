@@ -6,7 +6,6 @@ import {
   Logger,
   Message,
   MessageSubject,
-  Protocol,
   TransmissionConnectionMeter,
   WebRTCConnectionOptionsPayloadType
 } from 'mitosis';
@@ -16,6 +15,8 @@ export class WebRTCDataMockConnection extends MockConnection implements IConnect
 
   private _lastOffer = 1;
   private _lastAnswer = 1;
+  private _initiator = true;
+  private _stream = new MediaStream();
   protected _meter: TransmissionConnectionMeter;
 
   constructor(address: Address, clock: IClock, options: IConnectionOptions) {
@@ -38,7 +39,7 @@ export class WebRTCDataMockConnection extends MockConnection implements IConnect
       Logger.getLogger(mitosisId)
         .debug(`webrtc offer for ${this.getAddress().getId()} ready`, JSON.stringify(offer));
       const offerMsg = new Message(
-        new Address(mitosisId, Protocol.WEBRTC_DATA, this.getId()),
+        this.getMyAddress(),
         this.getAddress(),
         MessageSubject.CONNECTION_NEGOTIATION,
         offer
@@ -53,6 +54,7 @@ export class WebRTCDataMockConnection extends MockConnection implements IConnect
   }
 
   private createAnswer(mitosisId: string, offer: number) {
+    this._initiator = false;
     this._client.getClock().setTimeout(() => {
       const answer = {
         type: 'answer',
@@ -61,7 +63,7 @@ export class WebRTCDataMockConnection extends MockConnection implements IConnect
       Logger.getLogger(mitosisId)
         .debug(`webrtc answer for ${this.getAddress().getId()} ready`, JSON.stringify(answer));
       const answerMsg = new Message(
-        new Address(mitosisId, Protocol.WEBRTC_DATA, this.getId()),
+        this.getMyAddress(),
         new Address(this.getAddress().getId()),
         MessageSubject.CONNECTION_NEGOTIATION,
         answer
@@ -102,6 +104,18 @@ export class WebRTCDataMockConnection extends MockConnection implements IConnect
 
   protected getMyAddress(): Address {
     return new Address(this._options.mitosisId, this.getAddress().getProtocol(), this.getId());
+  }
+
+  public isInitiator(): boolean {
+    return this._initiator;
+  }
+
+  public setStream(stream: MediaStream): void {
+    this._stream = stream;
+  }
+
+  public getStream(): Promise<MediaStream> {
+    return Promise.resolve(this._stream);
   }
 
   public onMessage(message: Message) {
