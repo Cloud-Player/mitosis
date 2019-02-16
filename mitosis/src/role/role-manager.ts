@@ -2,7 +2,7 @@ import {Configuration, ConfigurationMap} from '../configuration';
 import {Logger} from '../logger/logger';
 import {IMessage} from '../message/interface';
 import {RoleUpdate} from '../message/role-update';
-import {Mitosis} from '../mitosis';
+import {IConnection, Mitosis} from '../mitosis';
 import {RemotePeer} from '../peer/remote-peer';
 import {IRole, RolePriorityMap, RoleType} from './interface';
 import {RoleTypeMap} from './role-map';
@@ -65,6 +65,14 @@ export class RoleManager {
 
   public onMessage(mitosis: Mitosis, message: IMessage): void {
     this._roles.forEach(role => role.onMessage(mitosis, message));
+  }
+
+  public onConnectionOpen(mitosis: Mitosis, connection: IConnection): void {
+    this._roles.forEach(role => role.onConnectionOpen(mitosis, connection));
+  }
+
+  public onConnectionClose(mitosis: Mitosis, connection: IConnection): void {
+    this._roles.forEach(role => role.onConnectionClose(mitosis, connection));
   }
 
   public getConfiguration(): Configuration {
