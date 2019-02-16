@@ -44,7 +44,11 @@ export function broadcastStream(mitosis: Mitosis): void {
               Logger.getLogger(mitosis.getMyAddress().getId())
                 .info(`pushing stream to ${candidate.getId()}`, outConnection);
             }
-          );
+          )
+          .catch((err) => {
+            Logger.getLogger(mitosis.getMyAddress().getId())
+              .info(`can not open stream to ${peer.getId()}`, err);
+          });
       }
     );
 }
