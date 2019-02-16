@@ -44,6 +44,11 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
   public setStream(stream: MediaStream): void {
     this._stream = stream;
     this._simplePeerOptions.stream = stream;
+    stream
+      .getTracks()
+      .forEach(
+        track => this.addTrack(track)
+      );
   }
 
   public getStream(): Promise<MediaStream> {
