@@ -16,17 +16,20 @@ export function publishPeerUpdate(mitosis: Mitosis): void {
 
   directPeers
     .forEach(peer => {
-      peer.getConnectionTable()
-        .filterDirect()
-        .filterByStates(ConnectionState.OPEN)
-        .forEach(
-          connection => {
-            const peerUpdate = new PeerUpdate(
-              mitosis.getMyAddress(),
-              connection.getAddress(),
-              directPeers
-            );
-            connection.send(peerUpdate);
-          });
+      const bestConnection =
+        peer.getConnectionTable()
+          .filterDirect()
+          .filterByStates(ConnectionState.OPEN)
+          .sortByQuality()
+          .pop();
+
+      if (bestConnection) {
+        const peerUpdate = new PeerUpdate(
+          mitosis.getMyAddress(),
+          bestConnection.getAddress(),
+          directPeers
+        );
+        bestConnection.send(peerUpdate);
+      }
     });
 }
