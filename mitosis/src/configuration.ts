@@ -19,6 +19,8 @@ export class Configuration {
   public CONNECTION_METER_OPEN_GRACE_PERIOD_TIME = 10;
   public CONNECTION_METER_PROTECTION_TIME = 10;
   public CONNECTION_METER_PUNISHMENT_TIME = 20;
+
+  public OUTBOUND_STREAM_CONNECTIONS = 2;
 }
 
 export const ConfigurationMap: DefaultMap<RoleType, Configuration> = new DefaultMap(new Configuration());

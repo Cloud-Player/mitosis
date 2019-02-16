@@ -3,9 +3,11 @@ import {Newbie} from './newbie';
 import {Peer} from './peer';
 import {Router} from './router';
 import {Signal} from './signal';
+import {Streamer} from './streamer';
 
 export const RoleTypeMap: Map<RoleType, IRoleConstructor> = new Map();
 RoleTypeMap.set(RoleType.PEER, Peer);
 RoleTypeMap.set(RoleType.NEWBIE, Newbie);
 RoleTypeMap.set(RoleType.ROUTER, Router);
 RoleTypeMap.set(RoleType.SIGNAL, Signal);
+RoleTypeMap.set(RoleType.STREAMER, Streamer);

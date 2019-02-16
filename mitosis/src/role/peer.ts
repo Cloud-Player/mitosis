@@ -1,5 +1,5 @@
 import {Message} from '../message/message';
-import {Mitosis} from '../mitosis';
+import {IConnection, Mitosis} from '../mitosis';
 import {RemotePeer} from '../peer/remote-peer';
 import {IRole} from './interface';
 import {acquireDirectConnections} from './task/acquire-direct-connections';
@@ -38,5 +38,11 @@ export class Peer implements IRole {
 
   public requiresPeer(remotePeer: RemotePeer): boolean {
     return false;
+  }
+
+  public onConnectionClose(mitosis: Mitosis, connection: IConnection): void {
+  }
+
+  public onConnectionOpen(mitosis: Mitosis, connection: IConnection): void {
   }
 }

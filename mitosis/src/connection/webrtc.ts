@@ -5,13 +5,7 @@ import {Address} from '../message/address';
 import {MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
 import {AbstractConnection} from './connection';
-import {
-  ConnectionState,
-  IConnection,
-  IConnectionOptions,
-  IWebRTCConnectionOptions,
-  WebRTCConnectionOptionsPayloadType
-} from './interface';
+import {ConnectionState, IConnection, IConnectionOptions, IWebRTCConnectionOptions, WebRTCConnectionOptionsPayloadType} from './interface';
 
 export abstract class WebRTCConnection extends AbstractConnection implements IConnection {
 
@@ -21,10 +15,11 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
 
   constructor(address: Address, clock: IClock, options: IConnectionOptions) {
     super(address, clock, options);
-    this._simplePeerOptions = {initiator: true, trickle: false};
+    this._simplePeerOptions = {trickle: false};
   }
 
   private createOffer(mitosisId: string) {
+    this._simplePeerOptions.initiator = true;
     this._client = new SimplePeer(this._simplePeerOptions);
     this._client.on('signal', (offer: SimplePeer.SignalData) => {
       Logger.getLogger(mitosisId)
@@ -39,7 +34,8 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
   }
 
   private createAnswer(mitosisId: string, offer: SimplePeer.SignalData) {
-    this._client = new SimplePeer({initiator: false, trickle: false});
+    this._simplePeerOptions.initiator = false;
+    this._client = new SimplePeer(this._simplePeerOptions);
     this._client.signal(offer);
     this._client.on('signal', (answer: SimplePeer.SignalData) => {
       Logger.getLogger(mitosisId)
@@ -126,6 +122,10 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
       this.createOffer(this._options.mitosisId);
     }
     this.bindClientListeners();
+  }
+
+  public isInitiator(): boolean {
+    return this._simplePeerOptions.initiator;
   }
 
   public send(message: Message): void {

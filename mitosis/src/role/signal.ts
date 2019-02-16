@@ -1,5 +1,5 @@
 import {Message} from '../message/message';
-import {Mitosis} from '../mitosis';
+import {IConnection, Mitosis} from '../mitosis';
 import {RemotePeer} from '../peer/remote-peer';
 import {IRole, RoleType} from './interface';
 import {onboardNewbie} from './task/onboard-newbie';
@@ -19,5 +19,11 @@ export class Signal implements IRole {
 
   public requiresPeer(remotePeer: RemotePeer): boolean {
     return remotePeer.hasRole(RoleType.ROUTER);
+  }
+
+  public onConnectionClose(mitosis: Mitosis, connection: IConnection): void {
+  }
+
+  public onConnectionOpen(mitosis: Mitosis, connection: IConnection): void {
   }
 }

@@ -1,5 +1,5 @@
 import {Message} from '../message/message';
-import {Mitosis} from '../mitosis';
+import {IConnection, Mitosis} from '../mitosis';
 import {RemotePeer} from '../peer/remote-peer';
 import {IRole, RoleType} from './interface';
 import {degradeToPeer} from './task/degrade-to-peer';
@@ -20,5 +20,11 @@ export class Router implements IRole {
 
   public requiresPeer(remotePeer: RemotePeer): boolean {
     return remotePeer.hasRole(RoleType.SIGNAL);
+  }
+
+  public onConnectionClose(mitosis: Mitosis, connection: IConnection): void {
+  }
+
+  public onConnectionOpen(mitosis: Mitosis, connection: IConnection): void {
   }
 }

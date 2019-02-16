@@ -25,6 +25,7 @@ export class Mitosis {
   private _myId: string;
   private _myAddress: Address;
   private _signalAddress: Address;
+  private _stream: MediaStream;
   private _inbox: Subject<AppContent>;
   private _internalMessages: Subject<IMessage>;
   private _clock: IClock;
@@ -128,6 +129,15 @@ export class Mitosis {
 
   public getRoleManager(): RoleManager {
     return this._roleManager;
+  }
+
+  public startStream(stream: MediaStream): void {
+    this._stream = stream;
+    this._roleManager.addRole(RoleType.STREAMER);
+  }
+
+  public getStream(): MediaStream {
+    return this._stream;
   }
 
   public sendMessageTo(peerId: string, message: any): void {
