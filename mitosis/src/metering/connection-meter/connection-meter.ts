@@ -22,14 +22,14 @@ export abstract class ConnectionMeter {
     this.listenOnMessages();
   }
 
-  private listenOnMessages() {
+  private listenOnMessages(): void {
     this._connection.observeMessageReceived()
       .subscribe(
         this.onMessage.bind(this)
       );
   }
 
-  private setProtected(isProtected: boolean) {
+  private setProtected(isProtected: boolean): void {
     const wasProtected = this._protected;
     this._protected = isProtected;
 
@@ -42,7 +42,7 @@ export abstract class ConnectionMeter {
     }
   }
 
-  private setPunished(isPunished: boolean) {
+  private setPunished(isPunished: boolean): void {
     const wasPunished = this._punished;
     this._punished = isPunished;
 
@@ -55,7 +55,7 @@ export abstract class ConnectionMeter {
     }
   }
 
-  protected onMessage(message: Message) {
+  protected onMessage(message: Message): void {
     if (!this._clock) {
       Logger.getLogger(this._connection.getAddress().getId()).error(`can not read clock for message`, message);
     } else {
@@ -63,11 +63,11 @@ export abstract class ConnectionMeter {
     }
   }
 
-  protected updateLastSeen() {
+  protected updateLastSeen(): void {
     this._lastSeenTick = this._clock.getTick();
   }
 
-  public isLastSeenExpired() {
+  public isLastSeenExpired(): boolean {
     return (this._clock.getTick() - this._lastSeenTick) > ConfigurationMap.getDefault().LAST_SEEN_TIMEOUT;
   }
 
@@ -75,11 +75,11 @@ export abstract class ConnectionMeter {
     return this._lastSeenTick;
   }
 
-  public isPunished() {
+  public isPunished(): boolean {
     return this._punished;
   }
 
-  public isProtected() {
+  public isProtected(): boolean {
     return this._protected;
   }
 
@@ -100,7 +100,7 @@ export abstract class ConnectionMeter {
     this.setProtected(false);
   }
 
-  public observe() {
+  public observe(): Subject<IConnectionMeterEvent> {
     return this._subject;
   }
 }
