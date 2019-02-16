@@ -4,6 +4,8 @@ import {IClock} from '../clock/interface';
 import {Configuration, ConfigurationMap} from '../configuration';
 import {
   ConnectionState,
+  IConnection,
+  IConnectionChurnEvent,
   IConnectionOptions,
   IViaConnectionOptions,
   IWebRTCConnectionOptions,
@@ -17,13 +19,13 @@ import {Address} from '../message/address';
 import {ConnectionNegotiation, ConnectionNegotiationType} from '../message/connection-negotiation';
 import {IMessage, MessageSubject} from '../message/interface';
 import {PeerUpdate} from '../message/peer-update';
+import {UnknownPeer} from '../message/unknown-peer';
+import {ViaConnectionMeter} from '../metering/connection-meter/via-connection-meter';
 import {RoleType} from '../role/interface';
 import {RoleManager} from '../role/role-manager';
 import {IPeerChurnEvent} from './interface';
 import {RemotePeer} from './remote-peer';
 import {RemotePeerTable} from './remote-peer-table';
-import {UnknownPeer} from '../message/unknown-peer';
-import {ViaConnectionMeter} from '../metering/connection-meter/via-connection-meter';
 
 export class PeerManager {
 
@@ -32,6 +34,7 @@ export class PeerManager {
   private _clock: IClock;
   private _peers: Array<RemotePeer>;
   private _peerChurnSubject: Subject<IPeerChurnEvent>;
+  private _peerConnectionChurnSubject: Subject<IConnectionChurnEvent>;
 
   constructor(myId: string, roleManager: RoleManager, clock: IClock) {
     this._myId = myId;
@@ -39,9 +42,39 @@ export class PeerManager {
     this._clock = clock;
     this._peers = [];
     this._peerChurnSubject = new Subject();
+    this._peerConnectionChurnSubject = new Subject();
   }
 
-  private listenOnConnectionRemoved(remotePeer: RemotePeer): void {
+  private onConnectionRemoved(connection: IConnection, remotePeer: RemotePeer): void {
+    if (remotePeer.getConnectionTable().length === 0) {
+      // Remove the peer entirely if no connections are left
+      this.removePeer(remotePeer);
+      this.sendUnknownPeerToDirectPeers(remotePeer.getId());
+    }
+    if (remotePeer.getConnectionTable().filterDirect().length === 0) {
+      // Remove all via connections that went over this peer
+      this.getPeerTable()
+        .forEach(
+          peer => peer
+            .getConnectionTable()
+            .filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI)
+            .filterByLocation(remotePeer.getId())
+            .forEach(
+              viaConnection => {
+                Logger.getLogger(this._myId).warn('close via connection because parent connection was closed', viaConnection);
+                viaConnection.close();
+              }
+            )
+        );
+    }
+    this._peerConnectionChurnSubject.next({connection: connection, type: ChurnType.REMOVED});
+  }
+
+  private onConnectionAdded(connection: IConnection, remotePeer: RemotePeer): void {
+    this._peerConnectionChurnSubject.next({connection: connection, type: ChurnType.ADDED});
+  }
+
+  private listenOnConnectionAdded(connection: IConnection, remotePeer: RemotePeer): void {
     if (remotePeer.getConnectionTable().length === 0) {
       // Remove the peer entirely if no connections are left
       this.removePeer(remotePeer);
@@ -149,13 +182,25 @@ export class PeerManager {
 
     if (!peer) {
       peer = new RemotePeer(address.getId(), this._myId, this._clock.fork());
-      this._peers.push(peer);
+
       peer.observeChurn()
         .pipe(
           filter(ev => ev.type === ChurnType.REMOVED)
         )
-        .subscribe(() => this.listenOnConnectionRemoved(peer)
+        .subscribe(
+          connection => this.onConnectionRemoved(connection, peer)
         );
+
+      peer.observeChurn()
+        .pipe(
+          filter(ev => ev.type === ChurnType.ADDED)
+        )
+        .subscribe(
+          connection => this.onConnectionAdded(connection, peer)
+        );
+
+      this._peers.push(peer);
+
       this._peerChurnSubject.next({peer: peer, type: ChurnType.ADDED});
     }
 
@@ -371,6 +416,10 @@ export class PeerManager {
 
   public observePeerChurn(): Subject<IPeerChurnEvent> {
     return this._peerChurnSubject;
+  }
+
+  public observePeerConnectionChurn(): Subject<IConnectionChurnEvent> {
+    return this._peerConnectionChurnSubject;
   }
 
   public toString(): string {

@@ -15,6 +15,8 @@ import {RemotePeer} from './peer/remote-peer';
 import {RemotePeerTable} from './peer/remote-peer-table';
 import {RoleType} from './role/interface';
 import {RoleManager} from './role/role-manager';
+import {ChurnType} from './interface';
+import {ConnectionState} from './connection/interface';
 
 export class Mitosis {
 
@@ -71,6 +73,7 @@ export class Mitosis {
     this._internalMessages = new Subject<Message>();
     this.listenOnMessages();
     this.listenOnAppContentMessages();
+    this.listenOnConnectionChurn();
 
     this._clock.setInterval(this.onTick.bind(this));
     this._logger = Logger.getLogger(this._myId);
@@ -91,6 +94,36 @@ export class Mitosis {
 
     this._messageBroker.observeIncomingMessages()
       .subscribe(message => this._internalMessages.next(message));
+  }
+
+  private listenOnConnectionChurn(): void {
+    this._peerManager
+      .observePeerConnectionChurn()
+      .subscribe(ev => {
+        switch (ev.type) {
+          case ChurnType.ADDED:
+            this.listenOnConnectionStateChange(ev.connection);
+            break;
+          case ChurnType.REMOVED:
+            break;
+        }
+      });
+  }
+
+  private listenOnConnectionStateChange(connection: IConnection) {
+    connection.observeStateChange()
+      .subscribe(
+        state => {
+          switch (state) {
+            case ConnectionState.OPEN:
+              this._roleManager.onConnectionOpen(this, connection);
+              break;
+            case ConnectionState.CLOSED:
+              this._roleManager.onConnectionClose(this, connection);
+              break;
+          }
+        }
+      );
   }
 
   private onTick(): void {
