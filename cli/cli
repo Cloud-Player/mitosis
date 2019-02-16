@@ -67,7 +67,7 @@ if (args.length < 3) {
   console.log(chalk.yellow(`ignoring arguments ${args.splice(4).join(', ')}`));
 }
 
-function simulate(simulation, scenario, piggyback, collector) {
+function simulate(simulation, scenario, collector) {
   if (!collector) {
     collector = [];
   }
@@ -83,23 +83,49 @@ function simulate(simulation, scenario, piggyback, collector) {
       if (!scenario.benchmark) {
         simulation.getClock().setInterval(
           () => {
-            let result = evaluate(simulation);
-            result = Object.assign(result, piggyback);
+            const configDump = dumpConfig();
+            const evaluation = evaluate(simulation);
+            const result = Object.assign(evaluation, configDump);
             collector.push(result);
           },
           Math.max(duration / 20, Math.min(duration, 20))
         )
       }
       simulation.getClock().setTimeout(() => {
-          let result = evaluate(simulation);
+          const configDump = dumpConfig();
+          const evaluation = evaluate(simulation);
+          const result = Object.assign(evaluation, configDump);
           simulation.reset();
-          result = Object.assign(result, piggyback);
           collector.push(result);
           resolve(collector);
         },
         duration);
       simulation.start(scenario);
     });
+}
+
+function dumpConfig() {
+  const dump = Object.entries(mitosis.ConfigurationMap.getDefault())
+    .map(value => {
+      return {[value[0]]: value[1]};
+    })
+    .reduce(
+      (previous, current) =>
+        Object.assign(previous, current)
+      , {}
+    );
+  Object.entries(scenario.benchmark || {})
+    .forEach(
+      entry => {
+        if (entry[0] !== 'default') {
+          Object.keys(entry[1])
+            .forEach(
+              key => {
+                dump[`${entry[0].toUpperCase()}_${key}`] = mitosis.ConfigurationMap.get(entry[0])[key];
+              });
+        }
+      });
+  return dump;
 }
 
 function evaluate(simulation) {
@@ -141,11 +167,11 @@ function evaluate(simulation) {
     )
     .flat();
 
-  const routerViaConnections = routers
+  const routerPeerTable = routers
     .map(
       router => router
         .getPeerTable()
-        .aggregateConnections(
+        .filterConnections(
           table => table
             .filterByStates(mitosis.ConnectionState.OPEN)
         )
@@ -175,12 +201,12 @@ function evaluate(simulation) {
     );
 
   return {
-    tick: simulation.getClock().getTick(),
-    totalConns: directConnections.length,
-    totalNodes: nodes.length,
-    routerNodes: routers.length,
-    peerNodes: peers.length,
-    routerVias: routerViaConnections.length,
+    tickCount: simulation.getClock().getTick(),
+    allConns: directConnections.length,
+    nodesCount: nodes.length,
+    routerCount: routers.length,
+    peerCount: peers.length,
+    routerPeers: routerPeerTable.length,
     totalInKB: Math.floor(totalStats.in.size / 1024),
     totalInCount: totalStats.in.count,
     totalOutKB: Math.floor(totalStats.out.size / 1024),
@@ -208,8 +234,12 @@ function finishBenchmark(results) {
         }
         const excerpt = dump
           .split('\n')
-          .map((line, index) => line.replace(/,/g, index ? '\t\t' : '\t'))
-          .slice(0, 7)
+          .map((line, index) => line
+            .split(',')
+            .slice(0, 8)
+            .join(index ? '\t\t' : '\t')
+          )
+          .slice(0, 6)
           .concat(['...'])
           .join('\n');
         console.log(chalk.gray(excerpt));
@@ -224,15 +254,20 @@ function scheduleBenchmark(simulation, scenario) {
   Object.keys(scenario.benchmark)
     .forEach(
       role => {
-        const config = mitosis.ConfigurationMap.get(scenario.benchmark[role]);
+        let config;
+        if (role === 'default') {
+          config = mitosis.ConfigurationMap.getDefault();
+        } else {
+          config = mitosis.ConfigurationMap.get(scenario.benchmark[role]);
+        }
         Object.keys(scenario.benchmark[role])
           .forEach(
             key => {
               const bench = scenario.benchmark[role][key];
               for (let i = bench.from; i <= bench.to; i += bench.step) {
                 config[key] = i;
-                queue.push(prev =>
-                  simulate(simulation, scenario, {[key]: i}, prev)
+                queue.push(
+                  prev => simulate(simulation, scenario, prev)
                 );
               }
             })
@@ -296,7 +331,7 @@ if (scenario.benchmark) {
   }
   promise = executePromiseQueue(queue);
 } else {
-  promise = simulate(sim, scenario, {})
+  promise = simulate(sim, scenario)
 }
 
 promise.then(
