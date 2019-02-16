@@ -27,7 +27,7 @@ export function removeSuperfluousConnections(mitosis: Mitosis): void {
     Logger.getLogger(mitosis.getMyAddress().getId()).debug(
       `need to loose ${directConnectionCount - configuration.DIRECT_CONNECTIONS_MAX_GOAL} peers`
     );
-    const closableConenctions: ConnectionTable = directPeers
+    const closableConnections: ConnectionTable = directPeers
       .filter(
         remotePeer => mitosis
           .getRoleManager()
@@ -46,7 +46,7 @@ export function removeSuperfluousConnections(mitosis: Mitosis): void {
           .debug(`removing worst connection ${connection.getAddress().getId()}`, connection);
         connection.close();
       });
-    if (closableConenctions.length === 0) {
+    if (closableConnections.length === 0) {
       Logger.getLogger(mitosis.getMyAddress().getId())
         .warn(`can not loose peers because no closable connection is available`);
     }
