@@ -1,5 +1,5 @@
-import {Address, ConnectionState, IConnection, IConnectionOptions, Message, WebRTCConnection} from 'mitosis';
-import {filter} from 'rxjs/operators';
+import {Address, ConnectionState, IConnection, IConnectionOptions, MasterClock, Message, WebRTCConnection} from 'mitosis';
+import {filter, first} from 'rxjs/operators';
 
 export abstract class AbstractConnector<TConnection extends WebRTCConnection> {
   private _inAreaElement: HTMLTextAreaElement;
@@ -21,13 +21,20 @@ export abstract class AbstractConnector<TConnection extends WebRTCConnection> {
   }
 
   private createOffer(): void {
-    const connection = new this.Connection(this.address, this.connectionOptions);
+    if (this.connectionOptions && this.connectionOptions.payload) {
+      delete this.connectionOptions.payload;
+    }
+    const connection = new this.Connection(this.address, new MasterClock(), this.connectionOptions);
     this._connections.unshift(connection);
-    connection.observeMessageReceived().subscribe(
-      (message: Message) => {
-        this._outAreaElement.value = JSON.stringify(message.getBody());
-      }
-    );
+    connection.observeMessageReceived()
+      .pipe(
+        first()
+      )
+      .subscribe(
+        (message: Message) => {
+          this._outAreaElement.value = JSON.stringify(message.getBody());
+        }
+      );
 
     this.beforeCreateOffer(connection).then(() => {
       connection.open().then(this.onOpen.bind(this));
@@ -39,13 +46,17 @@ export abstract class AbstractConnector<TConnection extends WebRTCConnection> {
 
   private createAnswer(): void {
     this.connectionOptions.payload = JSON.parse(this._inAreaElement.value);
-    const connection = new this.Connection(this.address, this.connectionOptions);
+    const connection = new this.Connection(this.address, new MasterClock(), this.connectionOptions);
     this._connections.unshift(connection);
-    connection.observeMessageReceived().subscribe(
-      (message: Message) => {
-        this._outAreaElement.value = JSON.stringify(message.getBody());
-      }
-    );
+    connection.observeMessageReceived()
+      .pipe(
+        first()
+      )
+      .subscribe(
+        (message: Message) => {
+          this._outAreaElement.value = JSON.stringify(message.getBody());
+        }
+      );
 
     this.beforeCreateAnswer(connection).then(() => {
       connection.open().then(this.onOpen.bind(this, connection));
