@@ -1,0 +1,10 @@
+:host{
+  .mesh-visualizer{
+    display: flex;
+
+    app-d3-directed-graph{
+      width: 100vw;
+      height: 100vh;
+    }
+  }
+}

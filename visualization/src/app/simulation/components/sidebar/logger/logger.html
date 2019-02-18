@@ -1,0 +1,18 @@
+<section class="logger">
+  <header>
+    Log Entries
+    <app-button type="icon" text="fa fa-trash" (click)="purgeLog()"></app-button>
+  </header>
+
+  <app-search-input placeholder="Filter log entries"
+                    id="log-filter"
+                    (valueChange)="filterLog($event)">
+  </app-search-input>
+
+  <app-collapsible *ngFor="let logEvent of getLogs()"
+                   [isCollapsed]="logEvent.getEvent().data.length > 1"
+                   class="level-{{logEvent.getEvent().level}}"
+                   title="{{logEvent.getTick()}} {{logEvent.getEvent().data[0]}}">
+    <pre *ngFor="let data of logEvent.getEvent().data.slice(1)">{{data}}</pre>
+  </app-collapsible>
+</section>
