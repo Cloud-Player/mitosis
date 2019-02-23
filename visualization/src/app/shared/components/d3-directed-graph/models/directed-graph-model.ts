@@ -1,4 +1,3 @@
-import {Node, Edge} from 'mitosis-simulation';
 import {EdgeModel} from './edge-model';
 import {NodeModel} from './node-model';
 
@@ -46,7 +45,7 @@ export class DirectedGraphModel<TNode extends NodeModel, TEdge extends EdgeModel
 
   public getEdge(searchEdge: TEdge) {
     return this._edges.find((edge: TEdge) => {
-      return edge.equals(searchEdge);
+      return edge.getId() === searchEdge.getId();
     });
   }
 
@@ -76,5 +75,10 @@ export class DirectedGraphModel<TNode extends NodeModel, TEdge extends EdgeModel
 
   public getEdges() {
     return this._edges;
+  }
+
+  public reset() {
+    this._nodes = [];
+    this._edges = [];
   }
 }

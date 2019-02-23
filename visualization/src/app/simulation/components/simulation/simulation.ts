@@ -63,16 +63,24 @@ export class SimulationComponent implements OnInit {
       subscriptions.unsubscribe();
       subscriptions = new Subscription();
       this.simulation.getNodeMap().forEach((node) => {
-        const nodeModel = new SimulationNodeModel(
-          node.getMitosis(),
-          {
-            networkInLogger: node.getNetworkInLogger(),
-            networkOutLogger: node.getNetworkOutLogger(),
-            messagesInLogger: node.getMessagesInLogger(),
-            messagesOutLogger: node.getMessagesOutLogger()
-          }
-        );
-        model.addNode(nodeModel);
+        let existingNode;
+        if (this.model && this.model.getNodes().length > 0) {
+          existingNode = this.model.getNodes().find((oldNode) => {
+            return oldNode.getId() === node.getId();
+          });
+        }
+        if (!existingNode) {
+          existingNode = new SimulationNodeModel(
+            node.getMitosis(),
+            {
+              networkInLogger: node.getNetworkInLogger(),
+              networkOutLogger: node.getNetworkOutLogger(),
+              messagesInLogger: node.getMessagesInLogger(),
+              messagesOutLogger: node.getMessagesOutLogger()
+            }
+          );
+        }
+        model.addNode(existingNode);
 
         subscriptions.add(
           Logger.getLogger(node.getId())

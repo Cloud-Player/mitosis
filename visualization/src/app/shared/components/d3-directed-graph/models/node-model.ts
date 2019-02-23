@@ -10,10 +10,6 @@ export class NodeModel {
 
   public getId(): string {
     return this._id;
-  };
-
-  public equals(otherNode: NodeModel): boolean {
-    return this.getId() === otherNode.getId();
   }
 
   public isSelected(): boolean {

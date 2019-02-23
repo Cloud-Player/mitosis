@@ -15,16 +15,12 @@ export class EdgeModel {
     return `${this._sourceId}-${this._targetId}`;
   }
 
-  public equals(otherEdge: EdgeModel): boolean {
-    return this.getId() === otherEdge.getId();
-  }
-
   public getSourceId() {
     return this._sourceId;
   }
 
   public getTargetId() {
-    return this.getTargetId();
+    return this._targetId;
   }
 
   public strokeColorTransformer(): string {
