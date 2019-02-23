@@ -1,0 +1,144 @@
+@import "variables";
+
+:host {
+  .sidebar {
+    height: 100%;
+    position: relative;
+
+    /deep/ section,
+    section {
+      padding: 15px;
+      border-top: 2px solid;
+      border-color: rgba(255, 255, 255, 0.5);
+
+      &.search {
+        padding: 15px 24px 10px;
+      }
+
+      header {
+        border-bottom: none;
+        text-transform: uppercase;
+        font-size: 12px;
+        color: white;
+        font-weight: 400;
+
+        app-selector{
+          display: inline-block;
+        }
+      }
+
+      > *:not(:last-child) {
+        margin-bottom: 22px;
+      }
+
+      &.no-padding {
+        padding: 10px 0;
+      }
+    }
+
+    app-button {
+      margin: 0 5px;
+    }
+
+    app-button:first-child {
+      margin-left: 0;
+    }
+
+    app-button:last-child {
+      margin-right: 0;
+    }
+
+    /deep/ app-collapsible {
+      &.expired {
+        .collapsible {
+          opacity: 0.5;
+
+          .collapsible-head {
+            .title {
+              text-decoration: line-through;
+            }
+          }
+        }
+      }
+    }
+
+    .scenario-setup {
+      header {
+        margin-bottom: 0;
+      }
+
+      app-scenario-selector {
+        position: absolute;
+        top: 2px;
+        right: 16px;
+      }
+    }
+
+    /deep/ app-tab-bar {
+      .tab-bar {
+        border-bottom-color: transparent;
+        position: relative;
+        margin: 0;
+
+        .tab {
+          color: rgba(255, 255, 255, 0.5);
+          border-bottom-color: transparent;
+          padding: 26px 0 22px 0;
+
+          &.active,
+          &:hover {
+            color: white;
+          }
+
+          &.active {
+            border-bottom-color: white;
+          }
+        }
+      }
+    }
+
+    /deep/ app-tab-pane {
+      .tab-pane {
+        padding: 0;
+      }
+    }
+
+    /deep/ mat-select {
+      .mat-select-placeholder,
+      .mat-select-arrow,
+      .mat-select-value {
+        color: white !important;
+      }
+    }
+
+    /deep/ mat-form-field {
+      label {
+        color: white !important;
+      }
+
+      .mat-form-field-underline {
+        background: rgba(255, 255, 255, 0.5);
+      }
+
+      .mat-form-field-ripple {
+        background: white;
+      }
+    }
+
+    /deep/ mat-checkbox {
+      .mat-checkbox-frame {
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+
+      &.mat-checkbox-checked {
+        .mat-checkbox-background {
+          background: white;
+
+          svg path {
+            stroke: $brand-primary !important;
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,8 +1,6 @@
 import {MockConnection} from '../connection/mock';
 
 export class Edge {
-  public source: string;
-  public target: string;
   private _connection: MockConnection;
   private _sourceId: string;
   private _id: string;
@@ -11,8 +9,6 @@ export class Edge {
     this._connection = connection;
     this._sourceId = sourceId;
     this._id = Edge.buildId(this._sourceId, this._connection.getAddress().getId());
-    this.source = this._sourceId;
-    this.target = this._connection.getAddress().getId();
   }
 
   private static buildId(sourceId: string, targetId: string): string {

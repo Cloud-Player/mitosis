@@ -1,0 +1,11 @@
+@import 'variables';
+
+:host {
+  .file-import {
+    position: relative;
+
+    input {
+      display: none;
+    }
+  }
+}

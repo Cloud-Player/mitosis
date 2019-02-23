@@ -1,7 +1,9 @@
 <div class="button">
   <button *ngIf="!type"
           mat-raised-button [color]="color"
-          [disabled]="disabled">{{text}}
+          [disabled]="disabled">
+    {{text}}
+    <ng-content></ng-content>
   </button>
 
   <button *ngIf="type==='icon'"
