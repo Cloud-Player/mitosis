@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {Protocol} from 'mitosis';
-import {MockConnection, Node} from 'mitosis-simulation';
+import {MockConnection, MockMediaStream, Node} from 'mitosis-simulation';
 
 @Component({
   selector: 'app-node-settings',
@@ -67,15 +67,27 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
   }
 
   public startStream(): void {
-    this.selectedNode.getMitosis().setStream(new MediaStream());
+    this.selectedNode
+      .getMitosis()
+      .getStreamManager()
+      .setLocalStream(new MockMediaStream());
   }
 
   public stopStream(): void {
-    this.selectedNode.getMitosis().unsetStream();
+    this.selectedNode
+      .getMitosis()
+      .getStreamManager()
+      .unsetLocalStream();
   }
 
   public isStreaming(): boolean {
-    return !!this.selectedNode.getMitosis().getStream();
+    return this.selectedNode
+      .getMitosis()
+      .getStreamManager()
+      .getChannelTable()
+      .has(
+        channel => channel.isActive()
+      );
   }
 
   ngOnInit(): void {

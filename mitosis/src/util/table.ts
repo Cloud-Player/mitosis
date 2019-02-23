@@ -22,6 +22,14 @@ export class Table<V, T extends Table<V, T>> implements Iterable<V> {
     return this._values.slice();
   }
 
+  public has(callbackfn: (value: V) => boolean): boolean {
+    return this.count(callbackfn) > 0;
+  }
+
+  public count(callbackfn: (value: V) => boolean): number {
+    return this.filter(callbackfn).length;
+  }
+
   public filter(callbackfn: (value: V) => boolean): T {
     return this.fromArray(
       this._values.filter(callbackfn)

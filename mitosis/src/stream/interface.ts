@@ -1,6 +1,21 @@
-import {ChurnType} from '../interface';
+export interface IMediaStream {
+  id: string;
+  active: boolean;
+  ended: boolean;
+  onaddtrack: (ev: MediaStreamTrackEvent) => void;
+  onremovetrack: (ev: MediaStreamTrackEvent) => void;
 
-export interface IStreamChurnEvent {
-  type: ChurnType;
-  stream: MediaStream;
+  addTrack(track: MediaStreamTrack): void;
+
+  clone(): IMediaStream;
+
+  getAudioTracks(): Array<MediaStreamTrack>;
+
+  getTrackById(id: string): MediaStreamTrack;
+
+  getTracks(): Array<MediaStreamTrack>;
+
+  getVideoTracks(): Array<MediaStreamTrack>;
+
+  removeTrack(track: MediaStreamTrack): void;
 }

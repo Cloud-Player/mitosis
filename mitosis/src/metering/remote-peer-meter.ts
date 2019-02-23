@@ -2,10 +2,11 @@ import {filter} from 'rxjs/operators';
 import {IClock} from '../clock/interface';
 import {ConfigurationMap} from '../configuration';
 import {ConnectionTable} from '../connection/connection-table';
-import {Protocol} from '../connection/interface';
+import {IConnection, Protocol} from '../connection/interface';
+import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
-import {ConnectionsPerAddress, ConnectionsPerAddressEventType} from '../peer/connections-per-address';
 import {RemotePeerTable} from '../peer/remote-peer-table';
+import {ObservableMap} from '../util/observable-map';
 import {IConnectionEventType, IConnectionMeter, IConnectionMeterEvent} from './connection-meter/interface';
 import {IMeter} from './interface';
 
@@ -13,11 +14,11 @@ export class RemotePeerMeter implements IMeter {
 
   private readonly _clock: IClock;
   private readonly _mitosisId: string;
-  private readonly _connectionsPerAddress: ConnectionsPerAddress;
+  private readonly _connectionsPerAddress: ObservableMap<string, IConnection>;
   private _punishedConnections = 0;
   private _protectedConnections = 0;
 
-  constructor(connectionsPerAddress: ConnectionsPerAddress, mitosisId: string, clock: IClock) {
+  constructor(connectionsPerAddress: ObservableMap<string, IConnection>, mitosisId: string, clock: IClock) {
     this._connectionsPerAddress = connectionsPerAddress;
     this._mitosisId = mitosisId;
     this._clock = clock;
@@ -28,10 +29,10 @@ export class RemotePeerMeter implements IMeter {
     this._connectionsPerAddress
       .observe()
       .pipe(
-        filter(ev => ev.type === ConnectionsPerAddressEventType.ADD)
+        filter(ev => ev.type === ChurnType.ADDED)
       )
       .subscribe((ev) => {
-        (ev.entity.getMeter() as IConnectionMeter)
+        (ev.value.getMeter() as IConnectionMeter)
           .observe()
           .subscribe(
             this.listenOnConnectionMeter.bind(this)

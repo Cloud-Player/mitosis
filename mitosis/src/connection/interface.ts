@@ -4,6 +4,7 @@ import {ChurnType} from '../interface';
 import {Address} from '../message/address';
 import {IMessage} from '../message/interface';
 import {IConnectionMeter} from '../metering/connection-meter/interface';
+import {IMediaStream} from '../stream/interface';
 
 export type IConnectionConstructor = new (
   address: Address,
@@ -44,7 +45,7 @@ export interface IWebRTCConnectionOptions extends IConnectionOptions {
 }
 
 export interface IWebRTCStreamConnectionOptions extends IWebRTCConnectionOptions {
-  stream: MediaStream;
+  stream: IMediaStream;
 }
 
 export enum WebRTCConnectionOptionsPayloadType {

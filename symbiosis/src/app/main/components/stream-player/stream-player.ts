@@ -1,5 +1,5 @@
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
-import {Mitosis, IStreamChurnEvent, ChurnType} from 'mitosis';
+import {ChurnType, Mitosis} from 'mitosis';
 
 @Component({
   selector: 'app-stream-player',
@@ -15,11 +15,12 @@ export class StreamPlayerComponent implements OnInit {
 
   ngOnInit(): void {
     this.mitosis
-      .observeStreamChurn()
-      .subscribe((ev: IStreamChurnEvent) => {
+      .getStreamManager()
+      .observeChannelChurn()
+      .subscribe(ev => {
         const videoEl = this.videoEl.nativeElement as HTMLVideoElement;
         if (ev.type === ChurnType.ADDED) {
-          videoEl.srcObject = ev.stream;
+          videoEl.srcObject = ev.value.getMediaStream();
         } else if (ev.type === ChurnType.REMOVED) {
           videoEl.pause();
         }

@@ -25,6 +25,10 @@ import {D3Model} from './models/d3';
   encapsulation: ViewEncapsulation.None
 })
 export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChanges {
+  @Input()
+  public model: D3Model;
+  @Output()
+  public selectedNodeChange: EventEmitter<Node>;
   private margin: {
     top: number,
     right: number,
@@ -39,10 +43,6 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
   private zoomHandler: any;
   private nodeColor = '#ccc';
   private selectedNode: Node;
-  @Input()
-  public model: D3Model;
-  @Output()
-  public selectedNodeChange: EventEmitter<Node>;
 
   constructor(private el: ElementRef, private layoutService: LayoutService) {
     this.selectedNodeChange = new EventEmitter();
@@ -119,10 +119,10 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
     nodes
       .select('text')
       .attr('fill', (d: Node) =>
-        d.getMitosis().getStream() ? 'brown' : 'black'
+        d.getMitosis().getStreamManager().getLocalStream() ? 'brown' : 'black'
       )
       .attr('font-weight', (d: Node) =>
-        d.getMitosis().getStream() ? 'bold' : 'regular'
+        d.getMitosis().getStreamManager().getLocalStream() ? 'bold' : 'regular'
       )
     ;
 

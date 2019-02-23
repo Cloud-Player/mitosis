@@ -35,16 +35,4 @@ export class Peer extends AbstractRole implements IRole {
   public onMessage(mitosis: Mitosis, message: Message): void {
     sendAlternatives(mitosis, message);
   }
-
-  public onConnectionOpen(mitosis: Mitosis, connection: IConnection): void {
-    if (connection.getAddress().getProtocol() === Protocol.WEBRTC_STREAM) {
-      if (!mitosis.getStream()) {
-        (connection as WebRTCStreamConnection)
-          .getStream()
-          .then(
-            stream => mitosis.setStream(stream)
-          );
-      }
-    }
-  }
 }

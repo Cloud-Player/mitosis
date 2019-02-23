@@ -13,6 +13,7 @@ import {
 } from 'mitosis';
 import {MockConnection} from './connection/mock';
 import {WebRTCDataMockConnection} from './connection/webrtc-data-mock';
+import {WebRTCStreamMockConnection} from './connection/webrtc-stream-mock';
 import {WebSocketMockConnection} from './connection/websocket-mock';
 import {Edge} from './edge/edge';
 import {InstructionFactory} from './instruction/factory';
@@ -40,7 +41,7 @@ export class Simulation {
       ProtocolConnectionMap.set(Protocol.WEBSOCKET_UNSECURE, WebSocketMockConnection);
       ProtocolConnectionMap.set(Protocol.WEBSOCKET, WebSocketMockConnection);
       ProtocolConnectionMap.set(Protocol.WEBRTC_DATA, WebRTCDataMockConnection);
-      ProtocolConnectionMap.set(Protocol.WEBRTC_STREAM, WebRTCDataMockConnection);
+      ProtocolConnectionMap.set(Protocol.WEBRTC_STREAM, WebRTCStreamMockConnection);
     }
     return Simulation._instance;
   }
@@ -68,15 +69,27 @@ export class Simulation {
 
   public establishConnection(from: string, to: string, location: string) {
     const inboundEdge = this.getEdge(to, from, location);
+    let inConn;
     if (inboundEdge) {
-      const inConn = inboundEdge.getConnection();
+      inConn = inboundEdge.getConnection();
       inConn.onOpen(inConn);
     } else {
       Logger.getLogger('simulation').error(`edge ${to} to ${from} does not exist`);
+      return;
     }
     const outbound = this.getEdge(from, to, location);
     if (outbound) {
       const outConn = outbound.getConnection();
+      if (inConn &&
+        inConn.getAddress().getProtocol() === Protocol.WEBRTC_STREAM &&
+        outConn.getAddress().getProtocol() === Protocol.WEBRTC_STREAM
+      ) {
+        (inConn as WebRTCStreamMockConnection)
+          .getStream()
+          .then(
+            stream => (outConn as WebRTCStreamMockConnection).setStream(stream.clone())
+          );
+      }
       outConn.onOpen(outConn);
     } else {
       Logger.getLogger('simulation').error(`edge ${from} to ${to} does not exist`);
@@ -194,5 +207,6 @@ export {Edge} from './edge/edge';
 export {LogEvent} from './node/event-logger';
 export {StatLogEvent} from './statistics/stat-log-event';
 export {MockConnection} from './connection/mock';
+export {MockMediaStream} from './stream/mock';
 export {InstructionTypeMap} from './instruction/interface';
 export {AbstractInstruction} from './instruction/instruction';

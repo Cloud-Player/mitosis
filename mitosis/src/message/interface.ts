@@ -10,7 +10,9 @@ export enum MessageSubject {
   UNKNOWN_PEER = 'unknown-peer',
   PING = 'ping',
   PONG = 'pong',
-  ROUTER_ALIVE = 'router-alive'
+  ROUTER_ALIVE = 'router-alive',
+  CHANNEL_ANNOUNCEMENT = 'channel-announcement',
+  CHANNEL_REQUEST = 'channel-request'
 }
 
 export interface IPeerUpdateEntry {
@@ -19,7 +21,20 @@ export interface IPeerUpdateEntry {
   quality: number;
 }
 
+export interface IChannelAnnouncementBody {
+  entries: Array<IChannelAnnouncementEntry>;
+  channelId: string;
+}
+
+export interface IChannelAnnouncementEntry {
+  peerId: string;
+  capacity: number;
+}
+
 export interface IMessage {
+
+  length: number;
+
   getReceiver(): Address;
 
   getSender(): Address;
@@ -33,8 +48,6 @@ export interface IMessage {
   getId(): string;
 
   setInboundAddress(address: Address): void;
-
-  length: number;
 }
 
 export interface IFloodableMessage extends IMessage {

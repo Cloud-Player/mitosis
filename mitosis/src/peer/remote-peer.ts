@@ -9,7 +9,7 @@ import {Address} from '../message/address';
 import {IMessage} from '../message/interface';
 import {RemotePeerMeter} from '../metering/remote-peer-meter';
 import {RoleType} from '../role/interface';
-import {ConnectionsPerAddress} from './connections-per-address';
+import {ObservableMap} from '../util/observable-map';
 
 export class RemotePeer {
 
@@ -19,7 +19,7 @@ export class RemotePeer {
   private _mitosisId: string;
   private _publicKey: string;
   private _roleTypes: Array<RoleType>;
-  private readonly _connectionsPerAddress: ConnectionsPerAddress;
+  private readonly _connectionsPerAddress: ObservableMap<string, IConnection>;
   private readonly _openConnectionPromises: Map<IConnection, Promise<RemotePeer>>;
   private readonly _connectionChurnSubject: Subject<IConnectionChurnEvent>;
 
@@ -28,7 +28,7 @@ export class RemotePeer {
     this._mitosisId = mitosisId;
     this._clock = clock;
     this._roleTypes = [RoleType.PEER];
-    this._connectionsPerAddress = new ConnectionsPerAddress();
+    this._connectionsPerAddress = new ObservableMap();
     this._openConnectionPromises = new Map();
     this._connectionChurnSubject = new Subject();
     this._meter = new RemotePeerMeter(this._connectionsPerAddress, this._id, clock.fork());
@@ -179,7 +179,7 @@ export class RemotePeer {
     return JSON.stringify({
         id: this._id,
         roles: this._roleTypes,
-        connections: Array.from(this._connectionsPerAddress.keys())
+        connections: this._connectionsPerAddress.keysAsList()
       },
       undefined,
       2

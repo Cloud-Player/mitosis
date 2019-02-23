@@ -23,15 +23,11 @@ export class SidebarComponent implements OnInit {
       audio: false
     }).then(
       (stream: MediaStream) => {
-        debugger;
         this.mitosis.setStream(stream);
       });
   }
 
   public stopStream() {
-    this.mitosis.getStream().getTracks().forEach((track) => {
-      track.stop();
-    });
     this.mitosis.unsetStream();
   }
 

@@ -16,7 +16,7 @@ export class Edge {
   }
 
   private static buildId(sourceId: string, targetId: string): string {
-    return `c-${sourceId}-${targetId}}`;
+    return `c-${sourceId}-${targetId}`;
   }
 
   public getConnection(): MockConnection {
