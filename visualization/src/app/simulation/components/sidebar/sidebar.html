@@ -1,0 +1,55 @@
+<div class="sidebar">
+  <section class="scenario-setup">
+    <div>
+      <app-button *ngIf="!getClock().isRunning()"
+                  text="Start"
+                  (click)="getClock().start()">
+      </app-button>
+      <app-button *ngIf="!getClock().isRunning()"
+                  text="Next tick"
+                  (click)="getClock().tick()">
+      </app-button>
+      <app-button *ngIf="getClock().isRunning()"
+                  text="Pause"
+                  (click)="getClock().pause()">
+      </app-button>
+      <app-button *ngIf="getClock().isRunning()"
+                  text="Restart"
+                  (click)="restart()">
+      </app-button>
+      <app-scenario-selector
+        (scenarioChange)="updateScenario($event)">
+      </app-scenario-selector>
+    </div>
+  </section>
+
+  <section>
+    <app-search-input
+      #searchInput
+      id="sidebar-node-filter"
+      placeholder="Search for a node"
+      [options]="availableNodeIds"
+      (valueChange)="search($event)">
+    </app-search-input>
+  </section>
+
+  <section class="no-padding">
+    <app-tab-bar *ngIf="selectedNode" id="sim-tabbar">
+      <app-tab-pane icon="fa fa-gear">
+        <app-node-settings [selectedNode]="selectedNode"></app-node-settings>
+      </app-tab-pane>
+      <app-tab-pane icon="fa fa-users">
+        <app-peer-table [selectedNode]="selectedNode"></app-peer-table>
+      </app-tab-pane>
+      <app-tab-pane icon="fa fa-bar-chart">
+        <app-stats [selectedNode]="selectedNode"></app-stats>
+      </app-tab-pane>
+      <app-tab-pane icon="fa fa-envelope-o">
+        <app-messages [selectedNode]="selectedNode"></app-messages>
+      </app-tab-pane>
+      <app-tab-pane icon="fa fa-newspaper-o">
+        <app-logger [selectedNode]="selectedNode"></app-logger>
+      </app-tab-pane>
+    </app-tab-bar>
+  </section>
+</div>

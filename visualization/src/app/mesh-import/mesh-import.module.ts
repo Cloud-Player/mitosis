@@ -3,11 +3,9 @@ import {NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {MeshImportModule} from '../mesh-import/mesh-import.module';
 import {SharedModule} from '../shared/shared.module';
-import {SimulationModule} from '../simulation/simulation.module';
-import {MainComponent} from './components/main/main';
-import {MainRoutingModule} from './main.routes';
+import {MeshVisualizerComponent} from './components/mesh-visualizer/mesh-visualizer';
+import {MeshImportRoutingModule} from './mesh-import.routes';
 
 @NgModule({
   imports: [
@@ -16,18 +14,14 @@ import {MainRoutingModule} from './main.routes';
     HttpClientModule,
     BrowserAnimationsModule,
 
-    SimulationModule,
-    MeshImportModule,
     SharedModule,
 
-    MainRoutingModule
+    MeshImportRoutingModule
   ],
   declarations: [
-    MainComponent
+    MeshVisualizerComponent
   ],
-  providers: [
-  ],
-  bootstrap: [MainComponent]
+  providers: []
 })
-export class MainModule {
+export class MeshImportModule {
 }

@@ -51,14 +51,14 @@ export function removeSuperfluousConnections(mitosis: Mitosis): void {
               excludeTable.filterByProtocol(Protocol.WEBRTC_STREAM)
           )
       )
-      .sortByQuality()
-      .slice(configuration.DIRECT_CONNECTIONS_MAX_GOAL)
-      .forEach(connection => {
-        Logger.getLogger(mitosis.getMyAddress().getId())
-          .debug(`removing worst connection ${connection.getAddress().getId()}`, connection);
-        connection.close();
-      });
-    if (closableConnections.length === 0) {
+      .sortByQuality();
+
+    if (closableConnections.length > 0) {
+      const closeConnection = closableConnections.pop();
+      Logger.getLogger(mitosis.getMyAddress().getId())
+        .debug(`removing worst connection ${closeConnection.getAddress().getId()}`, closeConnection);
+      closeConnection.close();
+    } else {
       Logger.getLogger(mitosis.getMyAddress().getId())
         .warn(`can not loose peers because no closable connection is available`);
     }
