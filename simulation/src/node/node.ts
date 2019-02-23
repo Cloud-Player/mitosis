@@ -10,18 +10,16 @@ export class Node {
   private _mitosis: Mitosis;
   private _isSelected: boolean;
   private _networkStats: NetworkStats;
-  private _inMessageLogger: NodeEventLogger<IMessage>;
-  private _outMessageLogger: NodeEventLogger<IMessage>;
+  private _messagesInLogger: NodeEventLogger<IMessage>;
+  private _messagesOutLogger: NodeEventLogger<IMessage>;
   private _networkInLogger: NodeEventLogger<StatLogEvent>;
   private _networkOutLogger: NodeEventLogger<StatLogEvent>;
-  public x: number;
-  public y: number;
 
   constructor(mitosis: Mitosis) {
     this._mitosis = mitosis;
     this._networkStats = new NetworkStats(Simulation.getInstance().getClock());
-    this._inMessageLogger = new NodeEventLogger<IMessage>();
-    this._outMessageLogger = new NodeEventLogger<IMessage>();
+    this._messagesInLogger = new NodeEventLogger<IMessage>();
+    this._messagesOutLogger = new NodeEventLogger<IMessage>();
     this._networkInLogger = new NodeEventLogger<StatLogEvent>();
     this._networkOutLogger = new NodeEventLogger<StatLogEvent>();
   }
@@ -50,7 +48,7 @@ export class Node {
   public onReceiveMessage(message: IMessage) {
     this._networkStats.updateTs(Simulation.getInstance().getClock().getTick());
     this._networkStats.addInComingMessage(message);
-    this._inMessageLogger.add(
+    this._messagesInLogger.add(
       new LogEvent<IMessage>(
         Simulation.getInstance().getClock().getTick(),
         message
@@ -72,7 +70,7 @@ export class Node {
   public onSendMessage(message: IMessage) {
     this._networkStats.updateTs(Simulation.getInstance().getClock().getTick());
     this._networkStats.addOutGoingMessage(message);
-    this._outMessageLogger.add(
+    this._messagesOutLogger.add(
       new LogEvent<IMessage>(
         Simulation.getInstance().getClock().getTick(),
         message
@@ -91,12 +89,12 @@ export class Node {
     );
   }
 
-  public getInbox(): NodeEventLogger<IMessage> {
-    return this._inMessageLogger;
+  public getMessagesInLogger(): NodeEventLogger<IMessage> {
+    return this._messagesInLogger;
   }
 
-  public getOutbox(): NodeEventLogger<IMessage> {
-    return this._outMessageLogger;
+  public getMessagesOutLogger(): NodeEventLogger<IMessage> {
+    return this._messagesOutLogger;
   }
 
   public getNetworkInLogger(): NodeEventLogger<StatLogEvent> {
