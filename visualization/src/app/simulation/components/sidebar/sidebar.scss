@@ -3,6 +3,7 @@
 :host {
   .sidebar {
     height: 100%;
+    position: relative;
 
     /deep/ section,
     section {
