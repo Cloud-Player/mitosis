@@ -29,7 +29,7 @@ export class SimulationNodeModel extends NodeModel {
   }
 
   public textColorTransformer(): string {
-    if (this._mitosis.getStream()) {
+    if (this._mitosis.getStreamManager().getChannelTable().has(channel => channel.isActive())) {
       return 'brown';
     } else {
       return super.textColorTransformer();
@@ -37,7 +37,7 @@ export class SimulationNodeModel extends NodeModel {
   }
 
   public textFontWeightTransformer(): string {
-    if (this._mitosis.getStream()) {
+    if (this._mitosis.getStreamManager().getChannelTable().has(channel => channel.isActive())) {
       return 'bold';
     } else {
       return super.textFontWeightTransformer();
