@@ -24,13 +24,13 @@ export class FileImportComponent implements ControlValueAccessor, OnInit {
     const files: FileList = ev.target.files;
     const file = files[0];
     const reader = new FileReader();
-
     // Closure to capture the file information.
     reader.onload = ((theFile) => {
       return (e) => {
         try {
           const json = JSON.parse(e.target.result);
           this.updateValue(json);
+          this.fileSelectorEl.nativeElement.value = null;
         } catch (err) {
           console.error(err);
         }

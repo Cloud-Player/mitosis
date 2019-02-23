@@ -32,6 +32,14 @@ export class DirectedGraphModel<TNode extends NodeModel, TEdge extends EdgeModel
     }
   }
 
+  private canAddEdge(newEdge: TEdge, existingTargetEdge: TEdge, existingSourceEdge: TEdge): boolean {
+    if (!existingTargetEdge && !existingSourceEdge) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   public on(key: string, callback: () => void) {
     const keys = key.split(' ');
     keys.forEach(evKey => this.onKey(evKey, callback));
@@ -60,13 +68,17 @@ export class DirectedGraphModel<TNode extends NodeModel, TEdge extends EdgeModel
   }
 
   public addEdge(edge: TEdge): TEdge {
-    let existingEdge = this.getEdge(edge);
-    if (!existingEdge) {
+    const existingTargetNode = this._edges.find(
+      findEdge => findEdge.matches(edge.getConnectionPrefix(), edge.getTargetId(), edge.getSourceId())
+    );
+    const existingSourceNode = this.getEdge(edge);
+
+    const canAdd = this.canAddEdge(edge, existingTargetNode, existingSourceNode);
+    if (canAdd) {
       this._edges.push(edge);
-      existingEdge = edge;
       this.trigger(['add', 'add-edge']);
     }
-    return existingEdge;
+    return edge;
   }
 
   public getNodes() {

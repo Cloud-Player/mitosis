@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {ConnectionState, IConnection, IConnectionMeter, Protocol, RemotePeer, RoleType} from 'mitosis';
-import {Node, Simulation} from 'mitosis-simulation';
+import {ConnectionState, IConnection, Protocol, RemotePeer, RoleType} from 'mitosis';
+import {Simulation} from 'mitosis-simulation';
 import {SimulationNodeModel} from '../../../src/simulation-node-model';
 
 @Component({
@@ -33,7 +33,7 @@ export class PeerTableComponent implements OnInit {
       .toString();
 
     const directConnections = peer.getConnectionTable()
-      .filterDirect();
+      .filterDirect().filterByStates(ConnectionState.OPENING, ConnectionState.OPEN);
     const nonOpenConnections = directConnections
       .exclude(table => table.filterByStates(ConnectionState.OPEN));
     const directText = `${directConnections.length - nonOpenConnections.length}/${directConnections.length}`;
@@ -44,6 +44,32 @@ export class PeerTableComponent implements OnInit {
       .toString();
 
     return `${roleTag} ${quality}✫ ${directText}← ${viaText}⤺`;
+  }
+
+  public getAllConnectionsAnnotation() {
+    if (this.selectedNode) {
+      const peerTable = this.selectedNode
+        .getMitosis()
+        .getPeerManager()
+        .getPeerTable();
+
+      const directConnections = peerTable
+        .aggregateConnections(
+          cTable => cTable
+            .filterDirect()
+            .filterByStates(ConnectionState.OPEN, ConnectionState.OPENING)
+        );
+      const nonOpenConnections = directConnections
+        .exclude(
+          excludeCTable => excludeCTable.filterByStates(ConnectionState.OPEN)
+        );
+      const viaConnections = peerTable
+        .aggregateConnections(cTable => cTable.filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI));
+
+      const directText = `${directConnections.length - nonOpenConnections.length}/${directConnections.length}`;
+
+      return `${directText}← ${viaConnections.length}⤺`;
+    }
   }
 
   ngOnInit(): void {

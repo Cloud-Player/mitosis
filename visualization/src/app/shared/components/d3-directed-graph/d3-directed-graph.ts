@@ -78,32 +78,34 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
     const nodes = d3.select('.nodes').selectAll('.node');
 
     links
-      .attr('x1', (e: EdgeModel) => {
-        if (typeof e.source === 'object') {
-          return e.source.x;
-        }
+      .attr('d', (d: any) => {
+        const offset = 10 * d.getOffset();
+
+        const midpoint_x = (d.source.x + d.target.x) / 2;
+        const midpoint_y = (d.source.y + d.target.y) / 2;
+
+        const dx = (d.target.x - d.source.x);
+        const dy = (d.target.y - d.source.y);
+
+        const normalise = Math.sqrt((dx * dx) + (dy * dy));
+
+        const offSetX = midpoint_x + offset * (dy / normalise);
+        const offSetY = midpoint_y - offset * (dx / normalise);
+
+        return `M${d.source.x},${d.source.y}S${offSetX},${offSetY} ${d.target.x},${d.target.y}`;
       })
-      .attr('y1', (e: EdgeModel) => {
-        if (typeof e.source === 'object') {
-          return e.source.y;
-        }
-      })
-      .attr('x2', (e: EdgeModel) => {
-        if (typeof e.target === 'object') {
-          return e.target.x;
-        }
-      })
-      .attr('y2', (e: EdgeModel) => {
-        if (typeof e.target === 'object') {
-          return e.target.y;
+      .attr('opacity', (e: EdgeModel) => {
+        if (
+          !this.selectedNode ||
+          this.selectedNode && e.getSourceId() === this.selectedNode.getId() ||
+          e.getTargetId() === this.selectedNode.getId()) {
+          return 1;
+        } else {
+          return 0.3;
         }
       })
       .attr('stroke', (e: EdgeModel) => {
-        if (this.selectedNode && e.getSourceId() === this.selectedNode.getId()) {
-          return e.strokeColorSelectedTransformer();
-        } else {
-          return e.strokeColorTransformer();
-        }
+        return e.strokeColorTransformer();
       })
       .attr('stroke-dasharray', (e: EdgeModel): any => {
         return e.strokeDashArrayTransformer();
@@ -138,41 +140,6 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       .attr('fill', (n: NodeModel) => {
         return n.ellipseFillTransformer();
       });
-
-    //
-    // nodes
-    //   .select('text')
-    //   .attr('fill', (d: Node) =>
-    //     d.getMitosis().getStream() ? 'brown' : 'black'
-    //   )
-    //   .attr('font-weight', (d: Node) =>
-    //     d.getMitosis().getStream() ? 'bold' : 'regular'
-    //   )
-    // ;
-    //
-    // nodes
-    //   .select('ellipse')
-    //   .attr('fill', (d: Node) => {
-    //     const roleManager = d.getMitosis().getRoleManager();
-    //
-    //     if (roleManager.hasRole(RoleType.SIGNAL)) {
-    //       return 'rgb(248,61,81)';
-    //     } else if (roleManager.hasRole(RoleType.ROUTER)) {
-    //       return 'rgb(7,204,85)';
-    //     } else if (roleManager.hasRole(RoleType.NEWBIE)) {
-    //       return 'rgb(225,192,173)';
-    //     } else {
-    //       return 'rgb(211,217,230)';
-    //     }
-    //   })
-    //   .attr('stroke-width', 2)
-    //   .attr('stroke', (d: Node) => {
-    //     if (d.isSelected()) {
-    //       return 'rgb(9,77,120)';
-    //     } else {
-    //       return 'rgb(250,252,253)';
-    //     }
-    //   });
   }
 
   private initD3() {
@@ -182,7 +149,14 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
     this.svg = d3.select(holderEl)
       .append('svg')
       .attr('width', this.width)
-      .attr('height', this.height - 5);
+      .attr('height', this.height - 5)
+      .on('click', () => {
+        if (this.selectedNode) {
+          this.selectedNode.setSelected(false);
+          this.selectedNode = null;
+          this.selectedNodeChange.emit(null);
+        }
+      });
 
     this.zoomHolder = this.svg
       .append('g')
@@ -233,6 +207,7 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       .attr('ry', 14)
       .attr('fill', this.nodeColor)
       .on('click', (d: NodeModel) => {
+        d3.event.stopPropagation();
         this.selectNode(d.getId());
       });
 
@@ -260,9 +235,10 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
 
     link
       .enter()
-      .append('line')
+      .append('path')
       .attr('class', 'link')
-      .attr('stroke-width', 2);
+      .attr('stroke-width', 3)
+      .attr('stroke', 'red');
 
     link.exit()
       .remove();
@@ -310,9 +286,6 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       selectedNode.setSelected(true);
       this.selectedNode = selectedNode;
       this.selectedNodeChange.emit(selectedNode);
-    } else {
-      this.selectedNode = null;
-      this.selectedNodeChange.emit(null);
     }
   }
 

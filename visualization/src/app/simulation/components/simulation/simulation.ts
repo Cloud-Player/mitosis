@@ -49,11 +49,13 @@ export class SimulationComponent implements OnInit {
   }
 
   public selectNode(node: Node) {
+    console.log('SELECT NODE', node);
     this.selectedNode = node;
   }
 
   public updateScenario(scenario: any) {
     this.scenario = scenario;
+    this.model.reset();
     this.simulation.reset();
     this.simulation.start(scenario);
     let subscriptions: Subscription = new Subscription();
@@ -101,8 +103,9 @@ export class SimulationComponent implements OnInit {
               .getConnectionTable()
               .filterDirect()
               .forEach(
-                connection =>
-                  model.addEdge(new SimulationEdgeModel(node.getId(), connection))
+                (connection, index) => {
+                  model.addEdge(new SimulationEdgeModel(node.getId(), connection, index));
+                }
               );
           });
       });

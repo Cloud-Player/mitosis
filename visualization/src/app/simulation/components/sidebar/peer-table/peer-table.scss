@@ -1,6 +1,14 @@
 @import "variables";
 
 :host {
+  .total-counter{
+    margin-right: 18px;
+    font-family: monospace;
+    white-space: pre;
+    float: right;
+    font-size: 11px;
+  }
+
   .connections{
     margin: 0;
     padding: 0;

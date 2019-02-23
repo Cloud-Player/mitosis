@@ -1,6 +1,7 @@
 export class D3DirectedGraphConfig {
   static CONNECTION_ERROR_STROKE_COLOR = 'rgb(239,51,71)';
-  static CONNECTION_CHANGING_STROKE_COLOR = 'rgba(84,111,125,0.15)';
+  static CONNECTION_CHANGING_STROKE_COLOR = 'rgb(84,111,125)';
+  static CONNECTION_STREAM_COLOR = 'blue';
 
   static CONNECTION_OPENING_STROKE_DASH = [8, 8];
   static CONNECTION_CLOSING_STROKE_DASH = [2, 8];

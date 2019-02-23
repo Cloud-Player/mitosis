@@ -1,8 +1,8 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {Node, Simulation} from 'mitosis-simulation';
 import {D3DirectedGraphComponent} from '../../../shared/components/d3-directed-graph/d3-directed-graph';
 import {SearchInputComponent} from '../../../shared/components/ui/inputs/search/search';
-import {HttpClient} from '@angular/common/http';
 
 @Component({
   selector: 'app-sidebar',
@@ -69,8 +69,12 @@ export class SidebarComponent implements OnInit {
   ngOnInit(): void {
     this.graph.selectedNodeChange
       .subscribe((node: Node) => {
-        if (node && !this.searchEl.isActive()) {
-          this.searchEl.searchOnInput(node.getId());
+        if (!this.searchEl.isActive()) {
+          if (node) {
+            this.searchEl.searchOnInput(node.getId());
+          } else {
+            this.searchEl.searchOnInput(null);
+          }
         }
       });
   }

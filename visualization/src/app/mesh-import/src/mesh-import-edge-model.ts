@@ -1,36 +1,23 @@
-import {ConnectionState, IConnection} from 'mitosis';
 import {EdgeModel} from '../../shared/components/d3-directed-graph/models/edge-model';
 import {D3DirectedGraphConfig} from '../../shared/src/d3-directed-graph-config';
 
 export class MeshImportEdgeModel extends EdgeModel {
-  private _connection: IConnection;
+  private _connection: string;
 
-  constructor(sourceId: string, connection: IConnection) {
-    super(sourceId, connection.getAddress().getId());
+  constructor(sourceId: string, targetId: string, connection: string, offset: number) {
+    super(sourceId, targetId, offset);
     this._connection = connection;
   }
 
-  public getConnection() {
+  public getConnectionPrefix(): string {
     return this._connection;
   }
 
-  public strokeColorTransformer(): string {
-    if (this._connection.isInState(ConnectionState.ERROR)) {
-      return D3DirectedGraphConfig.CONNECTION_ERROR_STROKE_COLOR;
-    } else if (this._connection.isInState(ConnectionState.OPENING, ConnectionState.CLOSING)) {
-      return D3DirectedGraphConfig.CONNECTION_CHANGING_STROKE_COLOR;
+  strokeColorTransformer(): string {
+    if (this._connection === 'webrtc-stream') {
+      return D3DirectedGraphConfig.CONNECTION_STREAM_COLOR;
     } else {
       return super.strokeColorTransformer();
-    }
-  }
-
-  public strokeDashArrayTransformer(): Array<number> {
-    if (this._connection.isInState(ConnectionState.CLOSING, ConnectionState.CLOSED)) {
-      return D3DirectedGraphConfig.CONNECTION_CLOSING_STROKE_DASH;
-    } else if (this._connection.isInState(ConnectionState.OPENING)) {
-      return D3DirectedGraphConfig.CONNECTION_OPENING_STROKE_DASH;
-    } else {
-      return super.strokeDashArrayTransformer();
     }
   }
 }

@@ -1,6 +1,7 @@
 .d3-directed-graph{
-  .links line {
+  .links path {
     stroke-opacity: 0.6;
+    fill: none;
   }
 
   .nodes ellipse {
