@@ -67,30 +67,6 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
     }
   }
 
-  public startStream(): void {
-    this.selectedNode
-      .getMitosis()
-      .getStreamManager()
-      .setLocalStream(new MockMediaStream());
-  }
-
-  public stopStream(): void {
-    this.selectedNode
-      .getMitosis()
-      .getStreamManager()
-      .unsetLocalStream();
-  }
-
-  public isStreaming(): boolean {
-    return this.selectedNode
-      .getMitosis()
-      .getStreamManager()
-      .getChannelTable()
-      .has(
-        channel => channel.isActive()
-      );
-  }
-
   ngOnInit(): void {
     this.initNode();
   }
