@@ -127,6 +127,7 @@ export class Mitosis {
               this._roleManager.onConnectionClose(this, connection);
               break;
           }
+          this._streamManager.onConnectionStateChange(connection);
         }
       );
   }
@@ -202,7 +203,6 @@ export * from './interface';
 export * from './configuration';
 export * from './metering/interface';
 export * from './metering/connection-meter/interface';
-export * from './stream/interface';
 
 export {IClock} from './clock/interface';
 export {AbstractClock} from './clock/clock';

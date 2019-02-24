@@ -10,7 +10,6 @@ import {PeerManager} from '../peer/peer-manager';
 import {IObservableMapEvent, ObservableMap} from '../util/observable-map';
 import {TableView} from '../util/table-view';
 import {Channel} from './channel';
-import {IMediaStream} from './interface';
 import {Provider} from './provider';
 
 export class StreamManager {
@@ -46,7 +45,33 @@ export class StreamManager {
       );
   }
 
-  private pushStream(stream: IMediaStream): void {
+  private setMyCapacity(): void {
+    const streamConnectionCount = this._peerManager
+      .getPeerTable()
+      .countConnections(
+        table => table
+          .filterByStates(ConnectionState.OPENING, ConnectionState.OPEN)
+          .filterByProtocol(Protocol.WEBRTC_STREAM)
+      );
+    const config = ConfigurationMap.getDefault();
+    const capacity = Math.max(0, config.OUTBOUND_STREAM_CONNECTIONS - streamConnectionCount);
+    this.setCapacityForProvider(this._myId, capacity);
+  }
+
+  private setCapacityForProvider(peerId: string, capacity: number): void {
+    this._channelPerId
+      .asTable()
+      .forEach(
+        channel => {
+          const provider = channel.getProvider(peerId);
+          if (provider) {
+            provider.setCapacity(capacity);
+          }
+        }
+      );
+  }
+
+  private pushStream(stream: MediaStream): void {
     const config = ConfigurationMap.getDefault();
 
     const pushCandidates = this._peerManager
@@ -94,7 +119,7 @@ export class StreamManager {
       );
   }
 
-  private onStreamReady(connection: WebRTCStreamConnection, stream: IMediaStream): void {
+  private onStreamReady(connection: WebRTCStreamConnection, stream: MediaStream): void {
     let channel = this._channelPerId.get(stream.id);
     if (!channel) {
       channel = new Channel(stream.id);
@@ -127,11 +152,18 @@ export class StreamManager {
         .getStream()
         .then(
           stream => {
-            this._channelPerId.get(stream.id).destroy();
-            this._channelPerId.delete(stream.id);
+            const channel = this._channelPerId.get(stream.id);
+            if (channel) {
+              channel.destroy();
+              this._channelPerId.delete(stream.id);
+            }
           }
         );
     }
+  }
+
+  public onConnectionStateChange(connection: IConnection): void {
+    this.setMyCapacity();
   }
 
   public getChannelTable(): TableView<Channel> {
@@ -152,14 +184,14 @@ export class StreamManager {
       );
   }
 
-  public getLocalStream(): IMediaStream {
+  public getLocalStream(): MediaStream {
     const channel = this.getLocalChannel();
     if (channel) {
       return channel.getMediaStream();
     }
   }
 
-  public setLocalStream(stream: IMediaStream): void {
+  public setLocalStream(stream: MediaStream): void {
     this.unsetLocalStream();
     const channel = new Channel(stream.id);
     const provider = new Provider(this._myId, stream);

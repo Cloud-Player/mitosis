@@ -8,14 +8,14 @@
       <!--[options]="availableNodeIds"-->
       <!--(valueChange)="search($event)">-->
     <!--</app-search-input>-->
-    <app-button *ngIf="!mitosis.getStream()"
+    <app-button *ngIf="!hasLocalStream()"
                 type="icon"
                 text="fa fa-video-camera"
                 (click)="startStream()">
       Start Stream
     </app-button>
 
-    <app-button *ngIf="mitosis.getStream()"
+    <app-button *ngIf="hasLocalStream()"
                 type="icon"
                 text="fa fa-video-camera"
                 (click)="stopStream()">

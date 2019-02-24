@@ -134,6 +134,8 @@ export class MessageBroker {
             );
         }
         break;
+      case MessageSubject.CHANNEL_ANNOUNCEMENT:
+        break;
       default:
         throw new Error(`unsupported subject ${message.getSubject()}`);
     }

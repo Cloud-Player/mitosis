@@ -1,11 +1,9 @@
-import {IMediaStream} from './interface';
-
 export class Provider {
   private readonly _peerId: string;
-  private _stream: IMediaStream;
+  private _stream: MediaStream;
   private _capacity: number;
 
-  constructor(peerId: string, stream?: IMediaStream, capacity = 0) {
+  constructor(peerId: string, stream?: MediaStream, capacity = 0) {
     this._peerId = peerId;
     this._stream = stream;
     this._capacity = capacity;
@@ -22,11 +20,11 @@ export class Provider {
     return this._peerId;
   }
 
-  public getStream(): IMediaStream {
+  public getStream(): MediaStream {
     return this._stream;
   }
 
-  public setStream(value: IMediaStream): void {
+  public setStream(value: MediaStream): void {
     this._stream = value;
   }
 

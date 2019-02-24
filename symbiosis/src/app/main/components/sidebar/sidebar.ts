@@ -23,12 +23,16 @@ export class SidebarComponent implements OnInit {
       audio: false
     }).then(
       (stream: MediaStream) => {
-        this.mitosis.setStream(stream);
+        this.mitosis.getStreamManager().setLocalStream(stream);
       });
   }
 
   public stopStream() {
-    this.mitosis.unsetStream();
+    this.mitosis.getStreamManager().unsetLocalStream();
+  }
+
+  public hasLocalStream(): boolean {
+    return !!this.mitosis.getStreamManager().getLocalStream();
   }
 
   ngOnInit(): void {

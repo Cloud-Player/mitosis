@@ -21,14 +21,14 @@ export interface IPeerUpdateEntry {
   quality: number;
 }
 
-export interface IChannelAnnouncementBody {
-  entries: Array<IChannelAnnouncementEntry>;
-  channelId: string;
-}
-
-export interface IChannelAnnouncementEntry {
+export interface IChannelProvider {
   peerId: string;
   capacity: number;
+}
+
+export interface IChannelAnnouncement {
+  providers: Array<IChannelProvider>;
+  channelId: string;
 }
 
 export interface IMessage {

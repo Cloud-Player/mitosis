@@ -1,6 +1,6 @@
 import {Subject} from 'rxjs';
+import {IChannelAnnouncement} from '../message/interface';
 import {IObservableMapEvent, ObservableMap} from '../util/observable-map';
-import {IMediaStream} from './interface';
 import {Provider} from './provider';
 
 export class Channel {
@@ -41,7 +41,7 @@ export class Channel {
     return this._providerPerId.get(peerId);
   }
 
-  public getMediaStream(): IMediaStream {
+  public getMediaStream(): MediaStream {
     return this._providerPerId
       .asTable()
       .filter(
@@ -51,6 +51,22 @@ export class Channel {
         provider => provider.getStream()
       )
       .pop();
+  }
+
+  public getAnnouncement(): IChannelAnnouncement {
+    return {
+      channelId: this._id,
+      providers: this._providerPerId
+        .asTable()
+        .map(
+          provider => {
+            return {
+              peerId: provider.getPeerId(),
+              capacity: provider.getCapacity()
+            };
+          }
+        )
+    };
   }
 
   public observeProviderChurn(): Subject<IObservableMapEvent<Provider>> {

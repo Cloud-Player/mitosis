@@ -1,12 +1,14 @@
-import {IMediaStream, uuid} from 'mitosis';
+import {uuid} from 'mitosis';
 
-export class MockMediaStream implements IMediaStream {
+export class MockMediaStream implements MediaStream {
 
   public id: string;
   public active = true;
   public ended = false;
-  public onaddtrack: () => void;
-  public onremovetrack: () => void;
+  public onactive: ((this: MediaStream, ev: Event) => any) | null;
+  public onaddtrack: ((this: MediaStream, ev: MediaStreamTrackEvent) => any) | null;
+  public oninactive: ((this: MediaStream, ev: Event) => any) | null;
+  public onremovetrack: ((this: MediaStream, ev: MediaStreamTrackEvent) => any) | null;
 
   constructor(id: string = uuid()) {
     this.id = id;
@@ -15,8 +17,11 @@ export class MockMediaStream implements IMediaStream {
   public addTrack(track: MediaStreamTrack): void {
   }
 
-  public clone(): IMediaStream {
+  public clone(): MediaStream {
     return new MockMediaStream(this.id);
+  }
+
+  public stop(): void {
   }
 
   public getAudioTracks(): Array<MediaStreamTrack> {
@@ -36,5 +41,15 @@ export class MockMediaStream implements IMediaStream {
   }
 
   public removeTrack(track: MediaStreamTrack): void {
+  }
+
+  public addEventListener(type: any, listener: any, options?: boolean | AddEventListenerOptions): void {
+  }
+
+  public dispatchEvent(event: Event): boolean {
+    return false;
+  }
+
+  public removeEventListener(type: any, listener: any, options?: boolean | EventListenerOptions): void {
   }
 }

@@ -41,7 +41,6 @@ export class Table<V, T extends Table<V, T>> implements Iterable<V> {
   }
 
   public exclude(callbackfn: (table: T) => T): T {
-    // const excluded = callbackfn(this as unknown as T)._values;
     const excluded = callbackfn(this.fromArray(this._values))._values;
     return this.filter(value => excluded.indexOf(value) === -1);
   }
