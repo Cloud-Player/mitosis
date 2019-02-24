@@ -1,6 +1,7 @@
 import {Subject} from 'rxjs';
 import {IChannelAnnouncement} from '../message/interface';
 import {IObservableMapEvent, ObservableMap} from '../util/observable-map';
+import {TableView} from '../util/table-view';
 import {Provider} from './provider';
 
 export class Channel {
@@ -39,6 +40,10 @@ export class Channel {
 
   public getProvider(peerId: string): Provider {
     return this._providerPerId.get(peerId);
+  }
+
+  public getProviderTable(): TableView<Provider> {
+    return this._providerPerId.asTable();
   }
 
   public getMediaStream(): MediaStream {

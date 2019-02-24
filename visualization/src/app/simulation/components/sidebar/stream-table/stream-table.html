@@ -1,0 +1,27 @@
+<section class="peer-table">
+  <header>Stream Channels</header>
+
+  <app-button *ngIf="!isStreaming()" type="icon" text="fa fa-video-camera" (click)="startStream()">
+    Start stream
+  </app-button>
+  <app-button *ngIf="isStreaming()" type="icon" text="fa fa-trash" (click)="stopStream()">
+    Stop stream
+  </app-button>
+
+  <app-collapsible *ngFor="let channel of selectedNode.getMitosis().getStreamManager().getChannelTable(); index as i"
+                   [isCollapsed]="false"
+                   title="Channel {{i+1}}"
+                   [text]="getChannelAnnotation(channel)">
+    <ul class="connections">
+      <li *ngFor="let provider of channel.getProviderTable()">
+        <div class="left">
+          <span *ngIf="provider.isActive()" class="fa fa-video-camera"></span>
+          {{provider.getPeerId()}}
+        </div>
+        <div class="right">
+          <span class="fa fa-link"></span> {{provider.getCapacity()}}
+        </div>
+      </li>
+    </ul>
+  </app-collapsible>
+</section>

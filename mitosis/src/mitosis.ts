@@ -221,3 +221,4 @@ export {Logger} from './logger/logger';
 export {uuid} from './util/uuid';
 export {ConnectionMeter} from './metering/connection-meter/connection-meter';
 export {TransmissionConnectionMeter} from './metering/connection-meter/transmission-connection-meter';
+export {Channel} from './stream/channel';

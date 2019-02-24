@@ -11,6 +11,7 @@ import {PeerTableComponent} from './components/sidebar/peer-table/peer-table';
 import {ScenarioSelectorComponent} from './components/sidebar/scenario-selector/scenario-selector';
 import {SidebarComponent} from './components/sidebar/sidebar';
 import {StatsComponent} from './components/sidebar/stats/stats';
+import {StreamTableComponent} from './components/sidebar/stream-table/stream-table';
 import {SimulationComponent} from './components/simulation/simulation';
 import {LogEventLogger} from './services/log-event-logger';
 import {SimulationRoutingModule} from './simulation.routes';
@@ -33,6 +34,7 @@ import {SimulationRoutingModule} from './simulation.routes';
     NodeSettingsComponent,
     MessagesComponent,
     PeerTableComponent,
+    StreamTableComponent,
     NodeSettingsComponent,
     LoggerComponent,
     StatsComponent
