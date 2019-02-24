@@ -7,6 +7,7 @@ import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {PeerManager} from '../peer/peer-manager';
+import {RoleType} from '../role/interface';
 import {IObservableMapEvent, ObservableMap} from '../util/observable-map';
 import {TableView} from '../util/table-view';
 import {Channel} from './channel';
@@ -76,6 +77,7 @@ export class StreamManager {
 
     const pushCandidates = this._peerManager
       .getPeerTable()
+      .filterByRole(RoleType.PEER)
       .exclude(
         table =>
           table
