@@ -14,7 +14,7 @@ export class ConnectionTable extends Table<IConnection, ConnectionTable> {
 
   public filterDirect(): ConnectionTable {
     return this.exclude(
-      table => table.filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI)
+      table => table.filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI, Protocol.WEBRTC_STREAM)
     );
   }
 
