@@ -29,4 +29,45 @@
       left: 10px;
     }
   }
+
+  @media (max-width: $screen-sm-max) {
+    .messenger {
+      position: relative;
+      width: 100vw;
+      overflow: hidden;
+
+      .sidebar {
+        width: 100vw;
+        min-width: inherit;
+        position: absolute;
+        transform: translateX(100vw);
+        transition: transform 1s ease;
+      }
+
+      .message-ui {
+        width: 100vw;
+        height: 100vh;
+      }
+
+      .show-peers{
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        z-index: 9;
+      }
+
+      app-record-stream-button{
+        position: absolute;
+        bottom: 28px;
+        z-index: 99999;
+        left: calc(50% - 28px);
+      }
+
+      &.peers-visible{
+        .sidebar{
+          transform: translateX(0);
+        }
+      }
+    }
+  }
 }

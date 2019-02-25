@@ -10,6 +10,18 @@
     <i [class]="text"></i>
     <ng-content></ng-content>
   </button>
+
+  <button *ngIf="type==='fab'"
+          mat-fab
+          [disabled]="disabled">
+    <i [class]="text"></i>
+  </button>
+
+  <button *ngIf="type==='fab-mini'"
+          mat-mini-fab
+          [disabled]="disabled">
+    <i [class]="text"></i>
+  </button>
 </div>
 
 

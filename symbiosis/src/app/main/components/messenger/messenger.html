@@ -1,6 +1,17 @@
-<div class="messenger">
+<div class="messenger" [class.peers-visible]="peersVisible">
+  <button text="fa fa-user"
+          class="btn btn-default visible-xs show-peers"
+          (click)="togglePeerList()">
+    <span *ngIf="peersVisible"
+          class="fa fa-times"></span>
+    <span *ngIf="!peersVisible"
+          class="fa fa-user"></span>
+  </button>
   <div class="message-ui">
     <app-stream-player [mitosis]="mitosis"></app-stream-player>
+    <app-record-stream-button [mitosis]="mitosis"
+                              class="visible-xs">
+    </app-record-stream-button>
   </div>
   <div class="sidebar scrollable"
        appFillHeight

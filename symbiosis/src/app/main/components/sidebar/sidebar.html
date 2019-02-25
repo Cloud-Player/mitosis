@@ -1,19 +1,7 @@
 <div class="sidebar">
   <section>
     <header>{{mitosis.getMyAddress().getId()}} [{{mitosis.getRoleManager().getRoles().join(',')}}]</header>
-    <!--<app-search-input-->
-      <!--#searchInput-->
-      <!--id="sidebar-node-filter"-->
-      <!--placeholder="Search for a Remote-Peer"-->
-      <!--[options]="availableNodeIds"-->
-      <!--(valueChange)="search($event)">-->
-    <!--</app-search-input>-->
-    <app-button *ngIf="!hasLocalStream()"
-                type="icon"
-                text="fa fa-video-camera"
-                (click)="startStream()">
-      Start Stream
-    </app-button>
+    <app-record-stream-button [mitosis]="mitosis" [mini]="true"></app-record-stream-button>
 
     <app-button *ngIf="hasLocalStream()"
                 type="icon"
