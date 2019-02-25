@@ -5,7 +5,7 @@ export class MeshImportEdgeModel extends EdgeModel {
   private _connection: string;
 
   constructor(sourceId: string, targetId: string, connection: string, offset: number) {
-    super(sourceId, targetId, offset);
+    super(sourceId, targetId, '', offset);
     this._connection = connection;
   }
 
