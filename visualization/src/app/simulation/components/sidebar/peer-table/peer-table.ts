@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {ConnectionState, IConnection, Protocol, RemotePeer, RoleType} from 'mitosis';
-import {Simulation} from 'mitosis-simulation';
+import {ConnectionState, IConnection, Protocol, RemotePeer, RoleType, WebRTCConnection} from 'mitosis';
+import {DirectedGraphModel} from '../../../../shared/components/d3-directed-graph/models/directed-graph-model';
+import {SimulationEdgeModel} from '../../../src/simulation-edge-model';
 import {SimulationNodeModel} from '../../../src/simulation-node-model';
 
 @Component({
@@ -12,17 +13,14 @@ export class PeerTableComponent implements OnInit {
   @Input()
   public selectedNode: SimulationNodeModel;
 
-  @Input()
-  public simulation: Simulation;
-
   constructor() {
   }
 
-  public isDisabled(connection: IConnection) {
+  public isDisabled(connection: IConnection): boolean {
     return connection.getAddress().isProtocol(Protocol.VIA, Protocol.VIA_MULTI);
   }
 
-  public getPeerAnnotation(peer: RemotePeer) {
+  public getPeerAnnotation(peer: RemotePeer): string {
     const roles = peer.getRoles()
       .filter(roleType => roleType !== RoleType.PEER)
       .map(roleType => roleType.toString()[0].toUpperCase());
@@ -46,7 +44,19 @@ export class PeerTableComponent implements OnInit {
     return `${roleTag} ${quality}✫ ${directText}← ${viaText}⤺`;
   }
 
-  public getAllConnectionsAnnotation() {
+  public getConnectionDirection(connection: IConnection): string {
+    if (connection.getAddress().isProtocol(Protocol.WEBRTC_STREAM)) {
+      if ((connection as WebRTCConnection).isInitiator()) {
+        return '↗️';
+      } else {
+        return '↙️';
+      }
+    } else if (connection.getAddress().isProtocol(Protocol.WEBRTC_DATA, Protocol.WEBSOCKET)) {
+      return '↔️';
+    }
+  }
+
+  public getAllConnectionsAnnotation(): string {
     if (this.selectedNode) {
       const peerTable = this.selectedNode
         .getMitosis()
