@@ -72,11 +72,6 @@ export class StreamManager {
       );
   }
 
-  private setMyCapacity(): void {
-    const capacity = this.getMyCapacity();
-    this.setCapacityForProvider(this._myId, capacity);
-  }
-
   private setCapacityForProvider(peerId: string, capacity: number): void {
     this._channelPerId
       .asTable()
@@ -191,10 +186,6 @@ export class StreamManager {
           }
         );
     }
-  }
-
-  public onConnectionStateChange(connection: IConnection): void {
-    this.setMyCapacity();
   }
 
   public onMessage(message: IMessage): void {

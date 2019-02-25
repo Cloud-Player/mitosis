@@ -131,7 +131,6 @@ export class Mitosis {
               this._roleManager.onConnectionClose(this, connection);
               break;
           }
-          this._streamManager.onConnectionStateChange(connection);
         }
       );
   }
