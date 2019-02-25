@@ -5,13 +5,16 @@ import {
   EventEmitter,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   Output,
+  Renderer2,
   SimpleChanges,
   ViewEncapsulation
 } from '@angular/core';
 import * as d3 from 'd3';
 import {Selection} from 'd3-selection';
+import {Subscription} from 'rxjs';
 import {filter} from 'rxjs/operators';
 import {LayoutChangeTypes, LayoutService} from '../../services/layout';
 import {DirectedGraphModel} from './models/directed-graph-model';
@@ -24,7 +27,7 @@ import {NodeModel} from './models/node-model';
   styleUrls: ['./d3-directed-graph.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChanges {
+export class D3DirectedGraphComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
   private margin: {
     top: number,
     right: number,
@@ -39,13 +42,16 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
   private zoomHandler: any;
   private nodeColor = '#ccc';
   private selectedNode: NodeModel;
+  private subscriptions: Subscription;
+  private metaKeyPressed = 0;
   @Input()
   public model: DirectedGraphModel<NodeModel, EdgeModel>;
   @Output()
   public selectedNodeChange: EventEmitter<NodeModel>;
 
-  constructor(private el: ElementRef, private layoutService: LayoutService) {
+  constructor(private el: ElementRef, private renderer: Renderer2, private layoutService: LayoutService) {
     this.selectedNodeChange = new EventEmitter();
+    this.subscriptions = new Subscription();
   }
 
   private dragstarted(d: any) {
@@ -62,11 +68,13 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
   }
 
   private dragended(d: any) {
-    if (!d3.event.active) {
-      this.simulation.alphaTarget(0).restart();
+    if (!this.metaKeyPressed) {
+      if (!d3.event.active) {
+        this.simulation.alphaTarget(0).restart();
+      }
+      d.fx = null;
+      d.fy = null;
     }
-    d.fx = null;
-    d.fy = null;
   }
 
   private zoomActions() {
@@ -369,6 +377,22 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       .subscribe(
         this.resize.bind(this)
       );
+
+    this.subscriptions.add(
+      this.renderer.listen(window, 'keydown', (e) => {
+        if (e.key === 'Meta' || e.key === 'Control' || e.key === 'Alt') {
+          this.metaKeyPressed++;
+        }
+      })
+    );
+
+    this.subscriptions.add(
+      this.renderer.listen(window, 'keyup', (e) => {
+        if (e.key === 'Meta' || e.key === 'Control' || e.key === 'Alt') {
+          this.metaKeyPressed--;
+        }
+      })
+    );
   }
 
   ngAfterViewInit(): void {
@@ -381,5 +405,9 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
     if (changes.model.currentValue && this.width) {
       this.update();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }
