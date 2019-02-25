@@ -1,6 +1,5 @@
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
-import {ChurnType, Mitosis} from 'mitosis';
-import {filter} from 'rxjs/operators';
+import {Mitosis} from 'mitosis';
 
 @Component({
   selector: 'app-stream-player',
@@ -17,22 +16,12 @@ export class StreamPlayerComponent implements OnInit {
   ngOnInit(): void {
     this.mitosis
       .getStreamManager()
-      .observeChannelChurn()
-      .subscribe(channelEvent => {
-        const channel = channelEvent.value;
-        const videoEl = this.videoEl.nativeElement as HTMLVideoElement;
-        if (channel.getActiveProvider()) {
-          videoEl.srcObject = channel.getActiveProvider().getStream();
+      .observeStreamChurn()
+      .subscribe(
+        ev => {
+          const videoEl = this.videoEl.nativeElement as HTMLVideoElement;
+          videoEl.srcObject = ev.stream;
         }
-        channel.observeProviderChurn()
-          .pipe(
-            filter(
-              filterEv => filterEv.type === ChurnType.ADDED
-            )
-          )
-          .subscribe((provider) => {
-            videoEl.srcObject = channel.getActiveProvider().getStream();
-          });
-      });
+      );
   }
 }

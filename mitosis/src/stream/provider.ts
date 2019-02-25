@@ -1,4 +1,5 @@
 export class Provider {
+
   private readonly _peerId: string;
   private _stream: MediaStream;
   private _capacity: number;

@@ -205,6 +205,7 @@ export * from './logger/interface';
 export * from './interface';
 export * from './configuration';
 export * from './metering/interface';
+export * from './stream/interface';
 export * from './metering/connection-meter/interface';
 
 export {IClock} from './clock/interface';
@@ -226,3 +227,4 @@ export {uuid} from './util/uuid';
 export {ConnectionMeter} from './metering/connection-meter/connection-meter';
 export {TransmissionConnectionMeter} from './metering/connection-meter/transmission-connection-meter';
 export {Channel} from './stream/channel';
+export {Provider} from './stream/provider';

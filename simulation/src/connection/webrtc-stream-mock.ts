@@ -31,7 +31,6 @@ export class WebRTCStreamMockConnection extends WebRTCMockConnection {
   }
 
   public setStream(stream: MediaStream): void {
-    console.log(this.getMyAddress().getId() + 'y', 'setStream', stream);
     this._stream = stream;
     this._resolver(stream);
   }

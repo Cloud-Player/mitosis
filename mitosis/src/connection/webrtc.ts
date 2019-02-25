@@ -29,7 +29,7 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
         .debug(`webrtc offer for ${this.getAddress().getId()} ready`, JSON.stringify(offer));
       this.onMessage(new Message(
         this.getMyAddress(),
-        this.getAddress(),
+        new Address(this.getAddress().getId()),
         MessageSubject.CONNECTION_NEGOTIATION,
         body
       ));

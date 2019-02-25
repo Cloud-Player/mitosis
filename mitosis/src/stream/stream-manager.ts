@@ -14,6 +14,7 @@ import {RoleType} from '../role/interface';
 import {IObservableMapEvent, ObservableMap} from '../util/observable-map';
 import {TableView} from '../util/table-view';
 import {Channel} from './channel';
+import {IStreamChurnEvent} from './interface';
 import {Provider} from './provider';
 
 export class StreamManager {
@@ -21,10 +22,12 @@ export class StreamManager {
   private readonly _myId: string;
   private _channelPerId: ObservableMap<string, Channel>;
   private _peerManager: PeerManager;
+  private _streamSubject: Subject<IStreamChurnEvent>;
 
   constructor(myId: string, peerManager: PeerManager) {
     this._myId = myId;
     this._peerManager = peerManager;
+    this._streamSubject = new Subject();
     this._channelPerId = new ObservableMap();
     this.listenOnChannelChurn();
   }
@@ -147,6 +150,7 @@ export class StreamManager {
     let provider = channel.getProvider(peerId);
     if (provider) {
       provider.setStream(stream);
+      this._streamSubject.next({type: ChurnType.ADDED, stream: stream});
     } else {
       provider = new Provider(peerId, stream);
       channel.addProvider(provider);
@@ -267,6 +271,7 @@ export class StreamManager {
     const provider = new Provider(this._myId, stream);
     channel.addProvider(provider);
     this._channelPerId.set(channel.getId(), channel);
+    this._streamSubject.next({type: ChurnType.ADDED, stream: stream});
   }
 
   public unsetLocalStream(): void {
@@ -304,6 +309,10 @@ export class StreamManager {
     );
   }
 
+  public observeStreamChurn(): Subject<IStreamChurnEvent> {
+    return this._streamSubject;
+  }
+
   public observeChannelChurn(): Subject<IObservableMapEvent<Channel>> {
     return this._channelPerId.observe();
   }
@@ -314,5 +323,6 @@ export class StreamManager {
         channel => channel.destroy()
       );
     this._channelPerId.destroy();
+    this._streamSubject.complete();
   }
 }

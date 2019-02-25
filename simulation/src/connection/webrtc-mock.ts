@@ -42,7 +42,7 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
         .debug(`webrtc offer for ${this.getAddress().getId()} ready`, JSON.stringify(offer));
       const offerMsg = new Message(
         this.getMyAddress(),
-        this.getAddress(),
+        new Address(this.getAddress().getId()),
         MessageSubject.CONNECTION_NEGOTIATION,
         body
       );

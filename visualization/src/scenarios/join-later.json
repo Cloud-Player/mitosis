@@ -1,0 +1,54 @@
+{
+  "configuration": {
+    "newbie": {
+      "DEFAULT_SIGNAL_ADDRESS": "mitosis/v1/signal/wss"
+    }
+  },
+  "instructions": [
+    {
+      "tick": 0,
+      "type": "set-clock-speed",
+      "configuration": {
+        "speed": 150
+      }
+    },
+    {
+      "tick": 0,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/signal/wss",
+        "roles": [
+          "signal"
+        ]
+      }
+    },
+    {
+      "tick": 0,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/alice/webrtc"
+      }
+    },
+    {
+      "tick": 10,
+      "type": "start-stream",
+      "configuration": {
+        "address": "mitosis/v1/alice"
+      }
+    },
+    {
+      "tick": 19,
+      "type": "set-clock-speed",
+      "configuration": {
+        "speed": 1000
+      }
+    },
+    {
+      "tick": 20,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/bob/webrtc"
+      }
+    }
+  ]
+}

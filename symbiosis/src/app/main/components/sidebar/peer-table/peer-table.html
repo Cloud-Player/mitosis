@@ -32,3 +32,21 @@
     </ul>
   </app-collapsible>
 </div>
+<hr>
+<div class="channel-table">
+  <app-collapsible *ngFor="let channel of mitosis.getStreamManager().getChannelTable(); index as i"
+                   [isCollapsed]="false"
+                   title="channel {{channel.getId().slice(0, 5)}}">
+    <ul class="connections">
+      <li *ngFor="let provider of channel.getProviderTable()">
+        <div class="left">
+          <span *ngIf="provider.isActive()" class="fa fa-video-camera"></span>
+          {{provider.getPeerId()}}
+        </div>
+        <div class="right">
+          <span class="fa fa-link"></span> {{provider.getCapacity()}}
+        </div>
+      </li>
+    </ul>
+  </app-collapsible>
+</div>
