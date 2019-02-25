@@ -3,13 +3,14 @@ import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
 import {StreamConnectionMeter} from '../metering/connection-meter/stream-connection-meter';
-import {IConnection, IWebRTCStreamConnectionOptions} from './interface';
+import {IConnection, IWebRTCConnectionOptions, IWebRTCStreamConnectionOptions} from './interface';
 import {WebRTCConnection} from './webrtc';
 
 export class WebRTCStreamConnection extends WebRTCConnection implements IConnection {
 
   private _onStreamResolver: (stream: MediaStream) => void;
   private _onStreamPromise: Promise<MediaStream>;
+  private _channelId: string;
   private _stream: MediaStream;
 
   constructor(address: Address, clock: IClock, options: IWebRTCStreamConnectionOptions) {
@@ -35,6 +36,11 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
     });
   }
 
+  protected createAnswer(mitosisId: string, options: IWebRTCStreamConnectionOptions) {
+    this._channelId = options.channelId;
+    super.createAnswer(mitosisId, options);
+  }
+
   protected getAdditionalOfferPayload(): { [p: string]: any } {
     return {channelId: this.getChannelId()};
   }
@@ -50,6 +56,8 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
   public getChannelId(): string {
     if (this._stream) {
       return this._stream.id;
+    } else {
+      return this._channelId;
     }
   }
 

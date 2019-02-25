@@ -93,17 +93,17 @@
       }
     },
     {
-      "tick": 60,
+      "tick": 90,
       "type": "set-clock-speed",
       "configuration": {
-        "speed": 100
+        "speed": 500
       }
     },
     {
       "tick": 90,
-      "type": "set-clock-speed",
+      "type": "start-stream",
       "configuration": {
-        "speed": 750
+        "address": "mitosis/v1/phoebe"
       }
     }
   ]

@@ -8,6 +8,7 @@ import {RemoveConnection} from './remove-connection';
 import {RemovePeer} from './remove-peer';
 import {SetClockSpeed} from './set-clock-speed';
 import {StartClock} from './start-clock';
+import {StartStream} from './start-stream';
 import {StopClock} from './stop-clock';
 
 export enum InstructionType {
@@ -19,7 +20,8 @@ export enum InstructionType {
   PAUSE_CLOCK = 'pause-clock',
   STOP_CLOCK = 'stop-clock',
   SET_CLOCK_SPEED = 'set-clock-speed',
-  FINISH_SCENARIO = 'finish-scenario'
+  FINISH_SCENARIO = 'finish-scenario',
+  START_STREAM = 'start-stream'
 }
 
 export type IInstructionConstructor = new(...args: Array<any>) => IInstruction;
@@ -33,7 +35,8 @@ export const InstructionTypeMap: Map<InstructionType, IInstructionConstructor> =
   [InstructionType.PAUSE_CLOCK, PauseClock],
   [InstructionType.STOP_CLOCK, StopClock],
   [InstructionType.SET_CLOCK_SPEED, SetClockSpeed],
-  [InstructionType.FINISH_SCENARIO, FinishScenario]
+  [InstructionType.FINISH_SCENARIO, FinishScenario],
+  [InstructionType.START_STREAM, StartStream],
 ]);
 
 export interface IConfiguration {
