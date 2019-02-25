@@ -46,6 +46,7 @@ export interface IWebRTCConnectionOptions extends IConnectionOptions {
 
 export interface IWebRTCStreamConnectionOptions extends IWebRTCConnectionOptions {
   stream: MediaStream;
+  channelId: string;
 }
 
 export interface IWebRTCConnectionOptionsPayload {
@@ -59,6 +60,14 @@ export enum ConnectionState {
   CLOSING = 'closing',
   CLOSED = 'closed',
   ERROR = 'error'
+}
+
+export enum NegotiationState {
+  INITIALIZING = 0,
+  WAITING_FOR_OFFER = 10,
+  WAITING_FOR_ANSWER = 20,
+  WAITING_FOR_ESTABLISH = 30,
+  ESTABLISHED = 40
 }
 
 export interface IConnection {
@@ -78,6 +87,8 @@ export interface IConnection {
   observeStateChange(): Subject<ConnectionState>;
 
   getState(): ConnectionState;
+
+  getNegotiationState(): NegotiationState;
 
   isInState(...states: Array<ConnectionState>): boolean;
 }

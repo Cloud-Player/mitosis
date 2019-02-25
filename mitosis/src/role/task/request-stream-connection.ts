@@ -23,7 +23,9 @@ export function requestStreamConnection(mitosis: Mitosis): void {
       channel => channel
         .getProviderTable()
         .filter(
-          provider => provider.getCapacity() > 0
+          provider =>
+            provider.getCapacity() > 0 &&
+            provider.getPeerId() !== mitosis.getMyAddress().getId()
         )
         .map(
           provider => {

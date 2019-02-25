@@ -5,6 +5,7 @@ export class WebRTCStreamMockConnection extends WebRTCMockConnection {
 
   private _stream: MediaStream;
   private _streamPromise: Promise<MediaStream>;
+  private _channelId: string;
   private _resolver: (stream: MediaStream) => void;
 
   constructor(address: Address, clock: IClock, options: IWebRTCStreamConnectionOptions) {
@@ -16,13 +17,21 @@ export class WebRTCStreamMockConnection extends WebRTCMockConnection {
     return {channelId: this.getChannelId()};
   }
 
+  protected createAnswer(mitosisId: string, options: IWebRTCStreamConnectionOptions) {
+    this._channelId = options.channelId;
+    super.createAnswer(mitosisId, options);
+  }
+
   public getChannelId(): string {
     if (this._stream) {
       return this._stream.id;
+    } else {
+      return this._channelId;
     }
   }
 
   public setStream(stream: MediaStream): void {
+    console.log(this.getMyAddress().getId() + 'y', 'setStream', stream);
     this._stream = stream;
     this._resolver(stream);
   }

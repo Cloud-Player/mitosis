@@ -15,12 +15,15 @@ export function publishChannelAnnouncement(mitosis: Mitosis): void {
     .map(
       channel => {
         const announcement = channel.getAnnouncement();
-        announcement.providers.push(
-          {
-            peerId: mitosis.getMyAddress().getId(),
-            capacity: mitosis.getStreamManager().getMyCapacity()
-          }
-        );
+        const myId = mitosis.getMyAddress().getId();
+        if (!announcement.providers.find(provider => provider.peerId === myId)) {
+          announcement.providers.push(
+            {
+              peerId: myId,
+              capacity: mitosis.getStreamManager().getMyCapacity()
+            }
+          );
+        }
         return announcement;
       }
     );

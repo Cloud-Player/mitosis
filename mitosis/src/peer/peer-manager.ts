@@ -9,6 +9,8 @@ import {
   IConnectionOptions,
   IViaConnectionOptions,
   IWebRTCConnectionOptions,
+  IWebRTCStreamConnectionOptions,
+  NegotiationState,
   Protocol
 } from '../connection/interface';
 import {WebRTCConnection} from '../connection/webrtc';
@@ -347,7 +349,7 @@ export class PeerManager {
       receiverAddress,
       senderAddress,
       MessageSubject.CONNECTION_NEGOTIATION,
-      {type: ConnectionNegotiationType.REJECT}
+      {type: ConnectionNegotiationType.REJECT, channelId: negotiation.channelId}
     );
 
     const directConnectionCount = this.getPeerTable()
@@ -363,24 +365,33 @@ export class PeerManager {
       return;
     }
 
-    if (negotiation.channelId &&
-      (negotiation.type === ConnectionNegotiationType.OFFER ||
-        negotiation.type === ConnectionNegotiationType.REQUEST)
-    ) {
-      const channelAlreadyActive = this.getPeerTable()
-        .aggregateConnections(
-          connection => connection
-            .filterByProtocol(Protocol.WEBRTC_STREAM)
-            .filterByStates(ConnectionState.OPENING, ConnectionState.OPEN)
-        )
-        .has(
-          connection => (connection as WebRTCStreamConnection)
-            .getChannelId() === negotiation.channelId
-        );
-      if (channelAlreadyActive) {
-        logger.info('already got provider for this channel', connectionNegotiation);
-        this.sendMessage(rejection);
-        return;
+    if (connectionNegotiation.getSender().getProtocol() === Protocol.WEBRTC_STREAM) {
+      if (negotiation.type === ConnectionNegotiationType.OFFER) {
+        if (negotiation.channelId) {
+          const inboundConnectionsForChannel = this.getPeerTable()
+            .aggregateConnections(
+              connections => connections
+                .filterByProtocol(Protocol.WEBRTC_STREAM)
+                .filterByStates(ConnectionState.OPENING, ConnectionState.OPEN)
+                .filter(
+                  connection => connection.getNegotiationState() >= NegotiationState.WAITING_FOR_ANSWER
+                )
+                .filter(
+                  (connection: WebRTCStreamConnection) => connection.getChannelId() === negotiation.channelId
+                )
+                .filter(
+                  (connection: WebRTCConnection) => !connection.isInitiator()
+                )
+            );
+          if (inboundConnectionsForChannel.length > 0) {
+            logger.info('already got provider for this channel offer', connectionNegotiation);
+            this.sendMessage(rejection);
+            return;
+          }
+        } else {
+          logger.error('got offer without channel id', connectionNegotiation);
+          return;
+        }
       }
     }
 
@@ -393,9 +404,12 @@ export class PeerManager {
     };
     switch (negotiation.type) {
       case ConnectionNegotiationType.REQUEST:
-        // Let it slip by and handle it StreamManager.onMessage()
+        // Let it slip by and handle in StreamManager.onMessage()
         break;
       case ConnectionNegotiationType.OFFER:
+        if (senderAddress.getProtocol() === Protocol.WEBRTC_STREAM) {
+          (options as IWebRTCStreamConnectionOptions).channelId = connectionNegotiation.getBody().channelId;
+        }
         this.connectTo(senderAddress, options)
           .catch(
             error =>
@@ -407,7 +421,11 @@ export class PeerManager {
           remotePeer => {
             const webRTCConnection: WebRTCConnection =
               remotePeer.getConnectionForAddress(senderAddress) as WebRTCConnection;
-            webRTCConnection.establish(options.payload);
+            if (webRTCConnection) {
+              webRTCConnection.establish(options);
+            } else {
+              logger.error(`connection ${senderAddress.getLocation()} not found`, connectionNegotiation);
+            }
           }
         ).catch(
           error =>

@@ -1,15 +1,16 @@
 import {Subject} from 'rxjs';
 import {IClock} from '../clock/interface';
 import {Address} from '../message/address';
-import {IConnectionMeter} from '../metering/connection-meter/interface';
-import {ConnectionState, IConnection, IConnectionOptions} from './interface';
 import {IMessage} from '../message/interface';
+import {IConnectionMeter} from '../metering/connection-meter/interface';
+import {ConnectionState, IConnection, IConnectionOptions, NegotiationState} from './interface';
 
 export abstract class AbstractConnection {
 
   private _onOpenResolver: (connection: IConnection) => void;
   private _onOpenRejector: (error?: any) => void;
-  private _state: ConnectionState;
+  protected _connectionState: ConnectionState;
+  protected _negotiationState: NegotiationState;
   protected _id: string;
   protected _meter: IConnectionMeter;
   protected _clock: IClock;
@@ -26,7 +27,7 @@ export abstract class AbstractConnection {
     this._options = options;
     this._address = address;
     this._clock = clock;
-    this._state = ConnectionState.CLOSED;
+    this._connectionState = ConnectionState.CLOSED;
     this._stateChangeSubject = new Subject();
     this._messageReceivedSubject = new Subject();
   }
@@ -53,8 +54,9 @@ export abstract class AbstractConnection {
     }
     this._onOpenResolver = null;
     this._onOpenRejector = null;
-    this._state = ConnectionState.OPEN;
-    this._stateChangeSubject.next(this._state);
+    this._connectionState = ConnectionState.OPEN;
+    this._negotiationState = NegotiationState.ESTABLISHED;
+    this._stateChangeSubject.next(this._connectionState);
     this.getMeter().start();
   }
 
@@ -66,15 +68,16 @@ export abstract class AbstractConnection {
     this._clock.stop();
     this._onOpenResolver = null;
     this._onOpenRejector = null;
-    this._state = ConnectionState.CLOSED;
-    this._stateChangeSubject.next(this._state);
+    this._negotiationState = null;
+    this._connectionState = ConnectionState.CLOSED;
+    this._stateChangeSubject.next(this._connectionState);
     this._stateChangeSubject.complete();
     this._messageReceivedSubject.complete();
   }
 
   public onError(reason: any = 'connection error without reason') {
-    this._state = ConnectionState.ERROR;
-    this._stateChangeSubject.next(this._state);
+    this._connectionState = ConnectionState.ERROR;
+    this._stateChangeSubject.next(this._connectionState);
     this.onClose(reason);
   }
 
@@ -83,14 +86,15 @@ export abstract class AbstractConnection {
   }
 
   public close() {
-    this._state = ConnectionState.CLOSING;
-    this._stateChangeSubject.next(this._state);
+    this._connectionState = ConnectionState.CLOSING;
+    this._stateChangeSubject.next(this._connectionState);
     this.closeClient();
   }
 
   public open(): Promise<IConnection> {
-    this._state = ConnectionState.OPENING;
-    this._stateChangeSubject.next(this._state);
+    this._connectionState = ConnectionState.OPENING;
+    this._negotiationState = NegotiationState.INITIALIZING;
+    this._stateChangeSubject.next(this._connectionState);
     return new Promise<IConnection>((resolve, reject) => {
       this._onOpenResolver = resolve;
       this._onOpenRejector = reject;
@@ -103,7 +107,11 @@ export abstract class AbstractConnection {
   }
 
   public getState(): ConnectionState {
-    return this._state;
+    return this._connectionState;
+  }
+
+  public getNegotiationState(): NegotiationState {
+    return this._negotiationState;
   }
 
   public observeMessageReceived(): Subject<IMessage> {
@@ -118,7 +126,8 @@ export abstract class AbstractConnection {
     return JSON.stringify({
         id: this._id,
         address: this._address.toString(),
-        state: this._state
+        connectionState: this._connectionState,
+        negotiationState: this._negotiationState
       },
       undefined,
       2
