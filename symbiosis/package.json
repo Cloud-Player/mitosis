@@ -24,6 +24,8 @@
     "buffer": "^5.2.1",
     "core-js": "^2.5.4",
     "font-awesome": "4.7.0",
+    "bootstrap": "3.3.7",
+    "bootstrap-sass": "3.3.7",
     "mitosis": "file:../mitosis",
     "process": "^0.11.10",
     "rxjs": "~6.3.3",

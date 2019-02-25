@@ -1,0 +1,12 @@
+<div class="record-stream-button">
+  <app-button *ngIf="hasLocalStream()"
+              type="fab"
+              text="fa fa-times"
+              (click)="stopStream()">
+  </app-button>
+  <app-button *ngIf="canShowRecordButton()"
+              [type]="getButtonType()"
+              text="fa fa-video-camera"
+              (click)="startStream()">
+  </app-button>
+</div>

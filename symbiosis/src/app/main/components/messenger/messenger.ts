@@ -13,6 +13,8 @@ export class MessengerComponent implements OnInit {
   @ViewChild('sidebar')
   public sidebar: SidebarComponent;
 
+  public peersVisible = false;
+
   constructor() {
     this.mitosis = new Mitosis();
   }
@@ -21,6 +23,10 @@ export class MessengerComponent implements OnInit {
     const titleEl = document.querySelector('title');
     const text = `${titleEl.innerText}—${this.mitosis.getMyAddress().getId()}`;
     titleEl.innerText = text;
+  }
+
+  public togglePeerList() {
+    this.peersVisible = !this.peersVisible;
   }
 
   ngOnInit(): void {
