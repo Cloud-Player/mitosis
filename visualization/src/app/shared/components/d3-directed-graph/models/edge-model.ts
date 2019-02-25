@@ -53,4 +53,12 @@ export class EdgeModel {
   public strokeDashArrayTransformer(): Array<number> {
     return [0];
   }
+
+  public showOutgoingArrowTransformer(): boolean {
+    return false;
+  }
+
+  public showIncomingArrowTransformer(): boolean {
+    return false;
+  }
 }
