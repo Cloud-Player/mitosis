@@ -53,7 +53,7 @@ export class DirectedGraphModel<TNode extends NodeModel, TEdge extends EdgeModel
 
   public getEdge(searchEdge: TEdge) {
     return this._edges.find((edge: TEdge) => {
-      return edge.getId() === searchEdge.getId();
+      return edge.getId() === searchEdge.getId() && edge.getLocation() === searchEdge.getLocation();
     });
   }
 
@@ -69,12 +69,12 @@ export class DirectedGraphModel<TNode extends NodeModel, TEdge extends EdgeModel
 
   public addEdge(edge: TEdge): TEdge {
     const existingTargetNode = this._edges.find(
-      findEdge => findEdge.matches(edge.getConnectionPrefix(), edge.getTargetId(), edge.getSourceId())
+      findEdge => findEdge.matches(edge.getConnectionPrefix(), edge.getTargetId(), edge.getSourceId(), edge.getLocation())
     );
     const existingSourceNode = this.getEdge(edge);
 
-    const canAdd = this.canAddEdge(edge, existingTargetNode, existingSourceNode);
-    if (canAdd) {
+    const isNew = this.canAddEdge(edge, existingTargetNode, existingSourceNode);
+    if (isNew) {
       this._edges.push(edge);
       this.trigger(['add', 'add-edge']);
     }

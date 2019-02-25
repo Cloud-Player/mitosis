@@ -2,15 +2,16 @@ export class EdgeModel {
   private _sourceId: string;
   private _targetId: string;
   private _offset: number;
-  private _id: string;
+  private _location: string;
   public source: { x: number, y: number } | string;
   public target: { x: number, y: number } | string;
 
-  constructor(source: string, target: string, offset = 0) {
+  constructor(source: string, target: string, location: string = '', offset = 0) {
     this.source = source;
     this.target = target;
     this._sourceId = source;
     this._targetId = target;
+    this._location = location;
     this._offset = offset;
   }
 
@@ -20,6 +21,10 @@ export class EdgeModel {
 
   public getId() {
     return EdgeModel.buildId(this.getConnectionPrefix(), this._sourceId, this._targetId);
+  }
+
+  public getLocation() {
+    return this._location;
   }
 
   public getConnectionPrefix() {
@@ -38,8 +43,8 @@ export class EdgeModel {
     return this._offset;
   }
 
-  public matches(prefix: string, source: string, target: string) {
-    return this.getId() === EdgeModel.buildId(prefix, source, target);
+  public matches(prefix: string, source: string, target: string, location: string = '') {
+    return this.getId() === EdgeModel.buildId(prefix, source, target) && this._location === location;
   }
 
   public strokeColorTransformer(): string {
@@ -52,5 +57,13 @@ export class EdgeModel {
 
   public strokeDashArrayTransformer(): Array<number> {
     return [0];
+  }
+
+  public showOutgoingArrowTransformer(): boolean {
+    return false;
+  }
+
+  public showIncomingArrowTransformer(): boolean {
+    return false;
   }
 }

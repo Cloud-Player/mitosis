@@ -73,9 +73,22 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
     this.zoomHolder.attr('transform', d3.event.transform);
   }
 
+  private edgeOpacityTransformer(edge: EdgeModel) {
+    if (
+      !this.selectedNode ||
+      this.selectedNode && edge.getSourceId() === this.selectedNode.getId() ||
+      edge.getTargetId() === this.selectedNode.getId()) {
+      return 1;
+    } else {
+      return 0.3;
+    }
+  }
+
   private tick() {
     const links = d3.select('.links').selectAll('.link');
     const nodes = d3.select('.nodes').selectAll('.node');
+    const inComingArrows = d3.select('defs').selectAll('.marker-incoming');
+    const outgoingArrows = d3.select('defs').selectAll('.marker-outgoing');
 
     links
       .attr('d', (d: any) => {
@@ -95,20 +108,37 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
         return `M${d.source.x},${d.source.y}S${offSetX},${offSetY} ${d.target.x},${d.target.y}`;
       })
       .attr('opacity', (e: EdgeModel) => {
-        if (
-          !this.selectedNode ||
-          this.selectedNode && e.getSourceId() === this.selectedNode.getId() ||
-          e.getTargetId() === this.selectedNode.getId()) {
-          return 1;
-        } else {
-          return 0.3;
-        }
+        return this.edgeOpacityTransformer(e);
       })
       .attr('stroke', (e: EdgeModel) => {
         return e.strokeColorTransformer();
       })
       .attr('stroke-dasharray', (e: EdgeModel): any => {
         return e.strokeDashArrayTransformer();
+      });
+
+    inComingArrows
+      .attr('fill', (e: EdgeModel) => {
+        return e.strokeColorTransformer();
+      })
+      .attr('opacity', (e: EdgeModel) => {
+        if (e.showIncomingArrowTransformer()) {
+          return this.edgeOpacityTransformer(e);
+        } else {
+          return 0;
+        }
+      });
+
+    outgoingArrows
+      .attr('fill', (e: EdgeModel) => {
+        return e.strokeColorTransformer();
+      })
+      .attr('opacity', (e: EdgeModel) => {
+        if (e.showOutgoingArrowTransformer()) {
+          return this.edgeOpacityTransformer(e);
+        } else {
+          return 0;
+        }
       });
 
     nodes
@@ -158,6 +188,10 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
         }
       });
 
+    this.svg
+      .append('svg:defs')
+      .attr('class', 'arrows');
+
     this.zoomHolder = this.svg
       .append('g')
       .attr('class', 'zoom-holder-el');
@@ -169,7 +203,7 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       .force('link',
         d3.forceLink()
           .id((d: any) => d.getId())
-          .distance(50)
+          .distance(100)
           .strength(0.4)
       )
       .force('charge', d3.forceManyBody())
@@ -230,6 +264,43 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
     node.exit()
       .remove();
 
+    let incomingArrow = d3.selectAll('defs').selectAll('.marker-incoming');
+    incomingArrow = incomingArrow.data(this.model.getEdges(), (d: EdgeModel) => d.getId());
+
+    incomingArrow
+      .enter()
+      .append('svg:marker')    // This section adds in the arrows
+      .attr('id', (d: EdgeModel) => `incoming-${d.getId()}`)
+      .attr('viewBox', '-10 -5 10 10')
+      .attr('refX', -20)
+      .attr('refY', -0.5)
+      .attr('markerWidth', 4)
+      .attr('markerHeight', 4)
+      .attr('orient', 'auto')
+      .attr('class', 'marker-incoming')
+      .append('svg:path')
+      .attr('d', 'M0,-5L-10,0L0,5');
+
+    let outgoingArrow = d3.selectAll('defs').selectAll('.marker-outgoing');
+    outgoingArrow = incomingArrow.data(this.model.getEdges(), (d: EdgeModel) => d.getId());
+
+    outgoingArrow
+      .enter()
+      .append('svg:marker')    // This section adds in the arrows
+      .attr('id', (d: EdgeModel) => `outgoing-${d.getId()}`)
+      .attr('viewBox', '0 -5 10 10')
+      .attr('refX', 20)
+      .attr('refY', -0.5)
+      .attr('markerWidth', 4)
+      .attr('markerHeight', 4)
+      .attr('orient', 'auto')
+      .attr('class', 'marker-outgoing')
+      .append('svg:path')
+      .attr('d', 'M0,-5L10,0L0,5');
+
+    outgoingArrow.exit()
+      .remove();
+
     let link = d3.select('.links').selectAll('.link');
     link = link.data(this.model.getEdges(), (d: EdgeModel) => d.getId());
 
@@ -238,7 +309,8 @@ export class D3DirectedGraphComponent implements OnInit, AfterViewInit, OnChange
       .append('path')
       .attr('class', 'link')
       .attr('stroke-width', 3)
-      .attr('stroke', 'red');
+      .attr('marker-start', (d: EdgeModel) => `url(#incoming-${d.getId()})`)
+      .attr('marker-end', (d: EdgeModel) => `url(#outgoing-${d.getId()})`);
 
     link.exit()
       .remove();
