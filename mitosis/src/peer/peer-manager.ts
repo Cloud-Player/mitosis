@@ -9,15 +9,16 @@ import {
   IConnectionOptions,
   IViaConnectionOptions,
   IWebRTCConnectionOptions,
-  Protocol,
-  WebRTCConnectionOptionsPayloadType
+  Protocol
 } from '../connection/interface';
 import {WebRTCConnection} from '../connection/webrtc';
+import {WebRTCStreamConnection} from '../connection/webrtc-stream';
 import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {ConnectionNegotiation, ConnectionNegotiationType} from '../message/connection-negotiation';
 import {IMessage, MessageSubject} from '../message/interface';
+import {Message} from '../message/message';
 import {PeerUpdate} from '../message/peer-update';
 import {UnknownPeer} from '../message/unknown-peer';
 import {ViaConnectionMeter} from '../metering/connection-meter/via-connection-meter';
@@ -144,7 +145,7 @@ export class PeerManager {
           peer => peer.send(message)
         );
     } else {
-      Logger.getLogger(this.getMyId()).error(
+      Logger.getLogger(this.getMyId()).warn(
         `${message.getSubject()} is not allowed to be broadcast`
       );
     }
@@ -337,32 +338,68 @@ export class PeerManager {
       );
   }
 
-  public negotiateConnection(connectionNegotiation: ConnectionNegotiation) {
+  public negotiateConnection(connectionNegotiation: ConnectionNegotiation): void {
+    const logger = Logger.getLogger(this._myId);
+    const senderAddress = connectionNegotiation.getSender();
+    const receiverAddress = connectionNegotiation.getReceiver();
+    const negotiation = connectionNegotiation.getBody();
+    const rejection = new Message(
+      receiverAddress,
+      senderAddress,
+      MessageSubject.CONNECTION_NEGOTIATION,
+      {type: ConnectionNegotiationType.REJECT}
+    );
+
     const directConnectionCount = this.getPeerTable()
       .countConnections(
         table => table.filterDirect()
       );
 
-    if (directConnectionCount > this.getConfiguration().DIRECT_CONNECTIONS_MAX) {
-      Logger.getLogger(this._myId)
-        .info('too many connections already', connectionNegotiation);
+    if (directConnectionCount >= this.getConfiguration().DIRECT_CONNECTIONS_MAX &&
+      negotiation.type === ConnectionNegotiationType.OFFER
+    ) {
+      logger.info('too many connections already', connectionNegotiation);
+      this.sendMessage(rejection);
       return;
     }
-    const senderAddress = connectionNegotiation.getSender();
+
+    if (negotiation.channelId &&
+      (negotiation.type === ConnectionNegotiationType.OFFER ||
+        negotiation.type === ConnectionNegotiationType.REQUEST)
+    ) {
+      const channelAlreadyActive = this.getPeerTable()
+        .aggregateConnections(
+          connection => connection
+            .filterByProtocol(Protocol.WEBRTC_STREAM)
+            .filterByStates(ConnectionState.OPENING, ConnectionState.OPEN)
+        )
+        .has(
+          connection => (connection as WebRTCStreamConnection)
+            .getChannelId() === negotiation.channelId
+        );
+      if (channelAlreadyActive) {
+        logger.info('already got provider for this channel', connectionNegotiation);
+        this.sendMessage(rejection);
+        return;
+      }
+    }
+
     const options: IWebRTCConnectionOptions = {
       mitosisId: this._myId,
       payload: {
-        type: connectionNegotiation.getBody().type as unknown as WebRTCConnectionOptionsPayloadType,
-        sdp: connectionNegotiation.getBody().sdp
+        type: negotiation.type,
+        sdp: negotiation.sdp
       }
     };
-    switch (connectionNegotiation.getBody().type) {
+    switch (negotiation.type) {
+      case ConnectionNegotiationType.REQUEST:
+        // Let it slip by and handle it StreamManager.onMessage()
+        break;
       case ConnectionNegotiationType.OFFER:
         this.connectTo(senderAddress, options)
           .catch(
-            error => Logger
-              .getLogger(this._myId)
-              .warn(`offer connection to ${senderAddress} failed`, error)
+            error =>
+              logger.warn(`offer connection to ${senderAddress} failed`, error)
           );
         break;
       case ConnectionNegotiationType.ANSWER:
@@ -373,27 +410,68 @@ export class PeerManager {
             webRTCConnection.establish(options.payload);
           }
         ).catch(
-          error => Logger
-            .getLogger(this._myId)
-            .warn(`answer connection to ${senderAddress} failed`, error)
+          error =>
+            logger.warn(`answer connection to ${senderAddress} failed`, error)
         );
+        break;
+      case ConnectionNegotiationType.REJECT:
+        this.getPeerById(senderAddress.getId())
+          .getConnectionTable()
+          .filterByLocation(receiverAddress.getLocation())
+          .forEach(
+            connection => {
+              logger.warn(`connection negotiation rejected by ${senderAddress}`, connection);
+              connection.close();
+            }
+          );
         break;
       default:
         throw new Error(
-          `unsupported connection negotiation type ${connectionNegotiation.getType()}`
+          `unsupported connection negotiation type ${negotiation.type}`
         );
     }
   }
 
   public sendMessage(message: IMessage) {
-    const existingPeer = this.getPeerById(message.getReceiver().getId());
     if (message.getReceiver().getId() === ConfigurationMap.getDefault().BROADCAST_ADDRESS) {
       this.broadcast(message);
-    } else if (existingPeer) {
+      return;
+    }
+    let existingPeer;
+    const protocol = message.getReceiver().getProtocol();
+    const breadCrumbs = [];
+    if (!protocol) {
+      const receiver = this.getPeerById(message.getReceiver().getId());
+      if (receiver) {
+        const connection = receiver.getConnectionTable()
+          .filterByStates(ConnectionState.OPEN)
+          .sortByQuality()
+          .pop();
+        breadCrumbs.push('No protocol was set');
+        if (connection) {
+          if (connection.getAddress().getProtocol() === Protocol.VIA ||
+            connection.getAddress().getProtocol() === Protocol.VIA_MULTI) {
+            existingPeer = this.getPeerById(connection.getAddress().getLocation());
+            breadCrumbs.push('Select VIA', connection.getAddress().getLocation());
+          } else {
+            existingPeer = this.getPeerById(message.getReceiver().getId());
+            breadCrumbs.push('Select DIRECT', connection.getAddress().getId());
+          }
+        }
+      }
+    } else if (protocol === Protocol.VIA || protocol === Protocol.VIA_MULTI) {
+      existingPeer = this.getPeerById(message.getReceiver().getLocation());
+      breadCrumbs.push('Select VIA', message.getReceiver().getLocation());
+    } else {
+      existingPeer = this.getPeerById(message.getReceiver().getId());
+      breadCrumbs.push('Select DIRECT', message.getReceiver().getLocation());
+
+    }
+    if (existingPeer) {
       existingPeer.send(message);
     } else {
       Logger.getLogger(this._myId)
-        .error(`cannot send message because ${message.getReceiver().toString()} has left`);
+        .error(`failed to send message to ${message.getReceiver()}`, breadCrumbs, message);
     }
   }
 

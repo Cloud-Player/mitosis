@@ -38,6 +38,10 @@ export class Channel {
     this._providerPerId.set(provider.getPeerId(), provider);
   }
 
+  public removeProvider(peerId: string): boolean {
+    return this._providerPerId.delete(peerId);
+  }
+
   public getProvider(peerId: string): Provider {
     return this._providerPerId.get(peerId);
   }

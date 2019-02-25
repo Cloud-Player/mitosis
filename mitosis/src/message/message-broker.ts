@@ -8,7 +8,9 @@ import {PeerManager} from '../peer/peer-manager';
 import {RemotePeer} from '../peer/remote-peer';
 import {RoleType} from '../role/interface';
 import {RoleManager} from '../role/role-manager';
+import {StreamManager} from '../stream/stream-manager';
 import {Address} from './address';
+import {ChannelAnnouncement} from './channel-announcement';
 import {ConnectionNegotiation} from './connection-negotiation';
 import {FloodingHandler} from './flooding-handler';
 import {IMessage, MessageSubject} from './interface';
@@ -20,15 +22,17 @@ export class MessageBroker {
 
   private _peerManager: PeerManager;
   private _roleManager: RoleManager;
+  private _streamManager: StreamManager;
   private _appContentMessagesSubject: Subject<IMessage>;
   private _messagesSubject: Subject<IMessage>;
   private _incomingMessageSubject: Subject<IMessage>;
   private _routerAliveFloodingHandler: FloodingHandler;
 
-  constructor(peerManager: PeerManager, roleManager: RoleManager) {
+  constructor(peerManager: PeerManager, roleManager: RoleManager, streamManager: StreamManager) {
     this._peerManager = peerManager;
     this.listenOnPeerChurn();
     this._roleManager = roleManager;
+    this._streamManager = streamManager;
     this._appContentMessagesSubject = new Subject();
     this._messagesSubject = new Subject();
     this._incomingMessageSubject = new Subject();
@@ -135,6 +139,7 @@ export class MessageBroker {
         }
         break;
       case MessageSubject.CHANNEL_ANNOUNCEMENT:
+        this._streamManager.updateProviders((message as ChannelAnnouncement).getBody());
         break;
       default:
         throw new Error(`unsupported subject ${message.getSubject()}`);

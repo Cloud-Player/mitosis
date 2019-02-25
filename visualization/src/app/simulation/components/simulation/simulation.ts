@@ -49,7 +49,6 @@ export class SimulationComponent implements OnInit {
   }
 
   public selectNode(node: Node) {
-    console.log('SELECT NODE', node);
     this.selectedNode = node;
   }
 

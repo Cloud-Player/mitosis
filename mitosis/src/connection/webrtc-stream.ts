@@ -35,12 +35,22 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
     });
   }
 
+  protected getAdditionalOfferPayload(): { [p: string]: any } {
+    return {channelId: this.getChannelId()};
+  }
+
   public send(message: Message): void {
     Logger.getLogger(message.getSender().getId()).error('stream connection can not send messages', message);
   }
 
   public addTrack(track: MediaStreamTrack): void {
     (this._client as any).addTrack(track, this._stream);
+  }
+
+  public getChannelId(): string {
+    if (this._stream) {
+      return this._stream.id;
+    }
   }
 
   public setStream(stream: MediaStream): void {

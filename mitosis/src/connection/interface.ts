@@ -2,6 +2,7 @@ import {Subject} from 'rxjs';
 import {IClock} from '../clock/interface';
 import {ChurnType} from '../interface';
 import {Address} from '../message/address';
+import {ConnectionNegotiationType} from '../message/connection-negotiation';
 import {IMessage} from '../message/interface';
 import {IConnectionMeter} from '../metering/connection-meter/interface';
 
@@ -47,13 +48,8 @@ export interface IWebRTCStreamConnectionOptions extends IWebRTCConnectionOptions
   stream: MediaStream;
 }
 
-export enum WebRTCConnectionOptionsPayloadType {
-  OFFER = 'offer',
-  ANSWER = 'answer'
-}
-
 export interface IWebRTCConnectionOptionsPayload {
-  type: WebRTCConnectionOptionsPayloadType;
+  type: ConnectionNegotiationType;
   sdp: string;
 }
 

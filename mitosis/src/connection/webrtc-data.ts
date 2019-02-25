@@ -54,6 +54,10 @@ export class WebRTCDataConnection extends WebRTCConnection implements IConnectio
     };
   }
 
+  protected getAdditionalOfferPayload(): { [key: string]: any } {
+    return {};
+  }
+
   public establish(answer: SimplePeer.SignalData): void {
     super.establish(answer);
     this._unreliableChannel = super.getRTCPeerConnection()

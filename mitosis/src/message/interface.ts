@@ -6,13 +6,12 @@ export enum MessageSubject {
   PEER_UPDATE = 'peer-update',
   ROLE_UPDATE = 'role-update',
   CONNECTION_NEGOTIATION = 'connection-negotiation',
+  CHANNEL_ANNOUNCEMENT = 'channel-announcement',
   APP_CONTENT = 'app-content',
   UNKNOWN_PEER = 'unknown-peer',
   PING = 'ping',
   PONG = 'pong',
-  ROUTER_ALIVE = 'router-alive',
-  CHANNEL_ANNOUNCEMENT = 'channel-announcement',
-  CHANNEL_REQUEST = 'channel-request'
+  ROUTER_ALIVE = 'router-alive'
 }
 
 export interface IPeerUpdateEntry {

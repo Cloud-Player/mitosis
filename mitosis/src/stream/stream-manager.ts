@@ -6,6 +6,8 @@ import {WebRTCStreamConnection} from '../connection/webrtc-stream';
 import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
+import {ConnectionNegotiationType, IConnectionNegotiationBody} from '../message/connection-negotiation';
+import {IChannelAnnouncement, IMessage, MessageSubject} from '../message/interface';
 import {PeerManager} from '../peer/peer-manager';
 import {RoleType} from '../role/interface';
 import {IObservableMapEvent, ObservableMap} from '../util/observable-map';
@@ -44,18 +46,34 @@ export class StreamManager {
       .subscribe(
         ev => this.pushStream(ev.value.getActiveProvider().getStream())
       );
+
+    this._channelPerId.observe()
+      .pipe(
+        filter(
+          channelEvent => channelEvent.type === ChurnType.ADDED
+        )
+      )
+      .subscribe(
+        channelEvent => {
+          channelEvent.value.observeProviderChurn()
+            .pipe(
+              filter(
+                providerEvent => providerEvent.type === ChurnType.REMOVED
+              )
+            )
+            .subscribe(
+              providerEvent => {
+                if (channelEvent.value.getProviderTable().length === 0) {
+                  this._channelPerId.delete(channelEvent.value.getId());
+                }
+              }
+            );
+        }
+      );
   }
 
   private setMyCapacity(): void {
-    const streamConnectionCount = this._peerManager
-      .getPeerTable()
-      .countConnections(
-        table => table
-          .filterByStates(ConnectionState.OPENING, ConnectionState.OPEN)
-          .filterByProtocol(Protocol.WEBRTC_STREAM)
-      );
-    const config = ConfigurationMap.getDefault();
-    const capacity = Math.max(0, config.OUTBOUND_STREAM_CONNECTIONS - streamConnectionCount);
+    const capacity = this.getMyCapacity();
     this.setCapacityForProvider(this._myId, capacity);
   }
 
@@ -64,18 +82,41 @@ export class StreamManager {
       .asTable()
       .forEach(
         channel => {
-          const provider = channel.getProvider(peerId);
-          if (provider) {
-            provider.setCapacity(capacity);
+          let provider = channel.getProvider(peerId);
+          if (!provider) {
+            provider = new Provider(peerId);
+            channel.addProvider(provider);
           }
+          provider.setCapacity(capacity);
         }
       );
   }
 
-  private pushStream(stream: MediaStream): void {
-    const config = ConfigurationMap.getDefault();
+  private pushStreamTo(stream: MediaStream, peerId: string): void {
+    const address = new Address(
+      peerId,
+      Protocol.WEBRTC_STREAM
+    );
+    const options: IWebRTCStreamConnectionOptions = {
+      mitosisId: this._myId,
+      stream: stream
+    };
+    this._peerManager
+      .connectTo(address, options)
+      .then(
+        candidate => {
+          Logger.getLogger(this._myId)
+            .info(`pushing stream to ${candidate.getId()}`, candidate);
+        }
+      )
+      .catch((err) => {
+        Logger.getLogger(this._myId)
+          .info(`can not open stream to ${peerId}`, err);
+      });
+  }
 
-    const pushCandidates = this._peerManager
+  private pushStream(stream: MediaStream): void {
+    this._peerManager
       .getPeerTable()
       .filterByRole(RoleType.PEER)
       .exclude(
@@ -92,32 +133,9 @@ export class StreamManager {
             .filterByStates(ConnectionState.OPEN)
       )
       .sortByQuality()
-      .slice(0, config.OUTBOUND_STREAM_CONNECTIONS);
-
-    pushCandidates
+      .slice(0, ConfigurationMap.getDefault().OUTBOUND_STREAM_CONNECTIONS)
       .forEach(
-        peer => {
-          const address = new Address(
-            peer.getId(),
-            Protocol.WEBRTC_STREAM
-          );
-          const options: IWebRTCStreamConnectionOptions = {
-            mitosisId: this._myId,
-            stream: stream
-          };
-          this._peerManager
-            .connectTo(address, options)
-            .then(
-              candidate => {
-                Logger.getLogger(this._myId)
-                  .info(`pushing stream to ${candidate.getId()}`, candidate);
-              }
-            )
-            .catch((err) => {
-              Logger.getLogger(this._myId)
-                .info(`can not open stream to ${peer.getId()}`, err);
-            });
-        }
+        peer => this.pushStreamTo(stream, peer.getId())
       );
   }
 
@@ -138,6 +156,18 @@ export class StreamManager {
     }
   }
 
+  public getMyCapacity(): number {
+    const streamConnectionCount = this._peerManager
+      .getPeerTable()
+      .countConnections(
+        table => table
+          .filterByStates(ConnectionState.OPENING, ConnectionState.OPEN)
+          .filterByProtocol(Protocol.WEBRTC_STREAM)
+      );
+    const config = ConfigurationMap.getDefault();
+    return Math.max(0, config.OUTBOUND_STREAM_CONNECTIONS - streamConnectionCount);
+  }
+
   public onConnectionOpen(connection: IConnection): void {
     if (connection.getAddress().getProtocol() === Protocol.WEBRTC_STREAM) {
       (connection as WebRTCStreamConnection)
@@ -156,8 +186,7 @@ export class StreamManager {
           stream => {
             const channel = this._channelPerId.get(stream.id);
             if (channel) {
-              channel.destroy();
-              this._channelPerId.delete(stream.id);
+              channel.removeProvider(connection.getAddress().getId());
             }
           }
         );
@@ -166,6 +195,19 @@ export class StreamManager {
 
   public onConnectionStateChange(connection: IConnection): void {
     this.setMyCapacity();
+  }
+
+  public onMessage(message: IMessage): void {
+    if (
+      message.getSubject() === MessageSubject.CONNECTION_NEGOTIATION &&
+      (message.getBody() as IConnectionNegotiationBody).type === ConnectionNegotiationType.REQUEST
+    ) {
+      const channelId = (message.getBody() as IConnectionNegotiationBody).channelId;
+      const channel = this._channelPerId.get(channelId);
+      if (channel && channel.isActive()) {
+        this.pushStreamTo(channel.getMediaStream(), message.getSender().getId());
+      }
+    }
   }
 
   public getChannelTable(): TableView<Channel> {
@@ -207,6 +249,34 @@ export class StreamManager {
       channel.destroy();
       this._channelPerId.delete(channel.getId());
     }
+  }
+
+  public updateProviders(announcements: Array<IChannelAnnouncement>): void {
+    announcements.forEach(
+      announcement => {
+        let channel = this._channelPerId.get(announcement.channelId);
+        if (!channel) {
+          channel = new Channel(announcement.channelId);
+          this._channelPerId.set(channel.getId(), channel);
+        }
+        announcement.providers.forEach(
+          channelProvider => {
+            if (
+              channelProvider.capacity > 0 &&
+              channelProvider.peerId !== this._myId &&
+              this._peerManager.getPeerById(channelProvider.peerId)
+            ) {
+              let provider = channel.getProvider(channelProvider.peerId);
+              if (!provider) {
+                provider = new Provider(channelProvider.peerId);
+                channel.addProvider(provider);
+              }
+              this.setCapacityForProvider(channelProvider.peerId, channelProvider.capacity);
+            }
+          }
+        );
+      }
+    );
   }
 
   public observeChannelChurn(): Subject<IObservableMapEvent<Channel>> {

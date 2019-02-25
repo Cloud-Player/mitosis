@@ -12,6 +12,16 @@ export class WebRTCStreamMockConnection extends WebRTCMockConnection {
     this._stream = options.stream;
   }
 
+  protected getAdditionalOfferPayload(): { [key: string]: any } {
+    return {channelId: this.getChannelId()};
+  }
+
+  public getChannelId(): string {
+    if (this._stream) {
+      return this._stream.id;
+    }
+  }
+
   public setStream(stream: MediaStream): void {
     this._stream = stream;
     this._resolver(stream);

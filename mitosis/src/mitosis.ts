@@ -71,7 +71,7 @@ export class Mitosis {
 
     this._peerManager = new PeerManager(this._myId, this._roleManager, this._clock.fork());
     this._streamManager = new StreamManager(this._myId, this._peerManager);
-    this._messageBroker = new MessageBroker(this._peerManager, this._roleManager);
+    this._messageBroker = new MessageBroker(this._peerManager, this._roleManager, this._streamManager);
     this._inbox = new Subject<AppContent>();
     this._internalMessages = new Subject<Message>();
     this.listenOnMessages();
@@ -93,7 +93,11 @@ export class Mitosis {
 
   private listenOnMessages(): void {
     this._messageBroker.observeMessages()
-      .subscribe(message => this._roleManager.onMessage(this, message));
+      .subscribe(
+        message => {
+          this._roleManager.onMessage(this, message);
+          this._streamManager.onMessage(message);
+        });
 
     this._messageBroker.observeIncomingMessages()
       .subscribe(message => this._internalMessages.next(message));
@@ -217,6 +221,7 @@ export {RemotePeer} from './peer/remote-peer';
 export {Address} from './message/address';
 export {Message} from './message/message';
 export {AppContent} from './message/app-content';
+export {ConnectionNegotiationType} from './message/connection-negotiation';
 export {Logger} from './logger/logger';
 export {uuid} from './util/uuid';
 export {ConnectionMeter} from './metering/connection-meter/connection-meter';

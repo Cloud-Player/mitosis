@@ -1,13 +1,13 @@
 import {
   Address,
+  ConnectionNegotiationType,
   IClock,
   IConnection,
   IWebRTCConnectionOptions,
   Logger,
   Message,
   MessageSubject,
-  TransmissionConnectionMeter,
-  WebRTCConnectionOptionsPayloadType
+  TransmissionConnectionMeter
 } from 'mitosis';
 import {MockConnection} from './mock';
 
@@ -35,6 +35,7 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
         type: 'offer',
         sdp: this._lastOffer++
       };
+      const body = Object.assign(offer, this.getAdditionalOfferPayload());
       Logger.getLogger(mitosisId)
         .debug(`webrtc offer for ${this.getAddress().getId()} ready`, JSON.stringify(offer));
       const offerMsg = new Message(
@@ -82,11 +83,11 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
     }
     if (this._options.payload) {
       switch (this._options.payload.type) {
-        case WebRTCConnectionOptionsPayloadType.OFFER:
+        case ConnectionNegotiationType.OFFER:
           Logger.getLogger(this._options.mitosisId).debug(`create answer for ${this._address.getId()}`, this);
           this.createAnswer(this._options.mitosisId, this._options.payload);
           break;
-        case WebRTCConnectionOptionsPayloadType.ANSWER:
+        case ConnectionNegotiationType.ANSWER:
           Logger.getLogger(this._options.mitosisId).debug(`establish connection to ${this._address.getId()}`, this);
           this.establish(this._options.payload);
           break;
@@ -99,6 +100,10 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
     } else {
       this.createOffer(this._options.mitosisId);
     }
+  }
+
+  protected getAdditionalOfferPayload(): { [key: string]: any } {
+    return {};
   }
 
   protected getMyAddress(): Address {

@@ -2,10 +2,11 @@ import * as SimplePeer from 'simple-peer';
 import {IClock} from '../clock/interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
+import {ConnectionNegotiationType} from '../message/connection-negotiation';
 import {MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
 import {AbstractConnection} from './connection';
-import {ConnectionState, IConnection, IConnectionOptions, IWebRTCConnectionOptions, WebRTCConnectionOptionsPayloadType} from './interface';
+import {ConnectionState, IConnection, IConnectionOptions, IWebRTCConnectionOptions} from './interface';
 
 export abstract class WebRTCConnection extends AbstractConnection implements IConnection {
 
@@ -22,13 +23,14 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
     this._simplePeerOptions.initiator = true;
     this._client = new SimplePeer(this._simplePeerOptions);
     this._client.on('signal', (offer: SimplePeer.SignalData) => {
+      const body = Object.assign(offer, this.getAdditionalOfferPayload());
       Logger.getLogger(mitosisId)
         .debug(`webrtc offer for ${this.getAddress().getId()} ready`, JSON.stringify(offer));
       this.onMessage(new Message(
         this.getMyAddress(),
         this.getAddress(),
         MessageSubject.CONNECTION_NEGOTIATION,
-        offer
+        body
       ));
     });
   }
@@ -48,6 +50,8 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
       ));
     });
   }
+
+  protected abstract getAdditionalOfferPayload(): { [key: string]: any };
 
   protected getMyAddress(): Address {
     return new Address(this._options.mitosisId, this.getAddress().getProtocol(), this.getId());
@@ -107,10 +111,10 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
     }
     if (this._options.payload) {
       switch (this._options.payload.type) {
-        case WebRTCConnectionOptionsPayloadType.OFFER:
+        case ConnectionNegotiationType.OFFER:
           this.createAnswer(this._options.mitosisId, this._options.payload);
           break;
-        case WebRTCConnectionOptionsPayloadType.ANSWER:
+        case ConnectionNegotiationType.ANSWER:
           this.establish(this._options.payload);
           break;
         default:

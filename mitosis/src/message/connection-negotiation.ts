@@ -1,13 +1,16 @@
 import {Message} from './message';
 
 export enum ConnectionNegotiationType {
+  REQUEST = 'request',
   OFFER = 'offer',
-  ANSWER = 'answer'
+  ANSWER = 'answer',
+  REJECT = 'reject'
 }
 
 export interface IConnectionNegotiationBody {
   type: ConnectionNegotiationType;
-  sdp: string;
+  sdp?: string;
+  channelId?: string;
 }
 
 export class ConnectionNegotiation extends Message {
