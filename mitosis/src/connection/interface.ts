@@ -2,6 +2,7 @@ import {Subject} from 'rxjs';
 import {IClock} from '../clock/interface';
 import {ChurnType} from '../interface';
 import {Address} from '../message/address';
+import {ConnectionNegotiationType} from '../message/connection-negotiation';
 import {IMessage} from '../message/interface';
 import {IConnectionMeter} from '../metering/connection-meter/interface';
 
@@ -45,15 +46,11 @@ export interface IWebRTCConnectionOptions extends IConnectionOptions {
 
 export interface IWebRTCStreamConnectionOptions extends IWebRTCConnectionOptions {
   stream: MediaStream;
-}
-
-export enum WebRTCConnectionOptionsPayloadType {
-  OFFER = 'offer',
-  ANSWER = 'answer'
+  channelId: string;
 }
 
 export interface IWebRTCConnectionOptionsPayload {
-  type: WebRTCConnectionOptionsPayloadType;
+  type: ConnectionNegotiationType;
   sdp: string;
 }
 
@@ -63,6 +60,14 @@ export enum ConnectionState {
   CLOSING = 'closing',
   CLOSED = 'closed',
   ERROR = 'error'
+}
+
+export enum NegotiationState {
+  INITIALIZING = 0,
+  WAITING_FOR_OFFER = 10,
+  WAITING_FOR_ANSWER = 20,
+  WAITING_FOR_ESTABLISH = 30,
+  ESTABLISHED = 40
 }
 
 export interface IConnection {
@@ -82,6 +87,8 @@ export interface IConnection {
   observeStateChange(): Subject<ConnectionState>;
 
   getState(): ConnectionState;
+
+  getNegotiationState(): NegotiationState;
 
   isInState(...states: Array<ConnectionState>): boolean;
 }

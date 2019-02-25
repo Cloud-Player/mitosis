@@ -1,17 +1,31 @@
 import {ConnectionState} from '../../connection/interface';
+import {Address} from '../../message/address';
 import {ChannelAnnouncement} from '../../message/channel-announcement';
-import {Address, Mitosis} from '../../mitosis';
+import {IChannelAnnouncement} from '../../message/interface';
+import {Mitosis} from '../../mitosis';
 import {RoleType} from '../interface';
 
 export function publishChannelAnnouncement(mitosis: Mitosis): void {
-  const announcements = mitosis
+  const announcements: Array<IChannelAnnouncement> = mitosis
     .getStreamManager()
     .getChannelTable()
     .filter(
       channel => channel.isActive()
     )
     .map(
-      channel => channel.getAnnouncement()
+      channel => {
+        const announcement = channel.getAnnouncement();
+        const myId = mitosis.getMyAddress().getId();
+        if (!announcement.providers.find(provider => provider.peerId === myId)) {
+          announcement.providers.push(
+            {
+              peerId: myId,
+              capacity: mitosis.getStreamManager().getMyCapacity()
+            }
+          );
+        }
+        return announcement;
+      }
     );
 
   if (announcements.length === 0) {

@@ -47,7 +47,7 @@ export class StreamTableComponent implements OnInit {
     if (this.selectedNode) {
       const localChannel = this.selectedNode.getMitosis().getStreamManager().getLocalChannel();
       if (localChannel && localChannel.getId() === channel.getId()) {
-        text += 'Its Mine ';
+        text += 'mine ';
       }
       const activeProvider = channel.getActiveProvider();
       if (activeProvider) {

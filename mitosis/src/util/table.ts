@@ -86,6 +86,10 @@ export class Table<V, T extends Table<V, T>> implements Iterable<V> {
     return this._values[Symbol.iterator]();
   }
 
+  public reverse(): T {
+    return this.fromArray(this._values.reverse());
+  }
+
   public concat(table: T): T {
     const values = this._values.concat(table._values);
     return new (this.constructor as (new (values: Array<V>) => T))(values) as T;

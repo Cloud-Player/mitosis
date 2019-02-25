@@ -10,7 +10,7 @@
 
   <app-collapsible *ngFor="let channel of selectedNode.getMitosis().getStreamManager().getChannelTable(); index as i"
                    [isCollapsed]="false"
-                   title="Channel {{i+1}}"
+                   title="channel {{channel.getId().split('-')[0]}}"
                    [text]="getChannelAnnotation(channel)">
     <ul class="connections">
       <li *ngFor="let provider of channel.getProviderTable()">

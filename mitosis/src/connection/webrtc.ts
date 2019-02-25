@@ -2,10 +2,11 @@ import * as SimplePeer from 'simple-peer';
 import {IClock} from '../clock/interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
+import {ConnectionNegotiationType} from '../message/connection-negotiation';
 import {MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
 import {AbstractConnection} from './connection';
-import {ConnectionState, IConnection, IConnectionOptions, IWebRTCConnectionOptions, WebRTCConnectionOptionsPayloadType} from './interface';
+import {ConnectionState, IConnection, IConnectionOptions, IWebRTCConnectionOptions, NegotiationState} from './interface';
 
 export abstract class WebRTCConnection extends AbstractConnection implements IConnection {
 
@@ -19,21 +20,26 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
   }
 
   private createOffer(mitosisId: string) {
+    this._negotiationState = NegotiationState.WAITING_FOR_OFFER;
     this._simplePeerOptions.initiator = true;
     this._client = new SimplePeer(this._simplePeerOptions);
     this._client.on('signal', (offer: SimplePeer.SignalData) => {
+      const body = Object.assign(offer, this.getAdditionalOfferPayload());
       Logger.getLogger(mitosisId)
         .debug(`webrtc offer for ${this.getAddress().getId()} ready`, JSON.stringify(offer));
       this.onMessage(new Message(
         this.getMyAddress(),
         this.getAddress(),
         MessageSubject.CONNECTION_NEGOTIATION,
-        offer
+        body
       ));
+      this._negotiationState = NegotiationState.WAITING_FOR_ANSWER;
     });
   }
 
-  private createAnswer(mitosisId: string, offer: SimplePeer.SignalData) {
+  protected createAnswer(mitosisId: string, options: IWebRTCConnectionOptions) {
+    const offer: SimplePeer.SignalData = options.payload;
+    this._negotiationState = NegotiationState.WAITING_FOR_ANSWER;
     this._simplePeerOptions.initiator = false;
     this._client = new SimplePeer(this._simplePeerOptions);
     this._client.signal(offer);
@@ -46,8 +52,11 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
         MessageSubject.CONNECTION_NEGOTIATION,
         answer
       ));
+      this._negotiationState = NegotiationState.WAITING_FOR_ESTABLISH;
     });
   }
+
+  protected abstract getAdditionalOfferPayload(): { [key: string]: any };
 
   protected getMyAddress(): Address {
     return new Address(this._options.mitosisId, this.getAddress().getProtocol(), this.getId());
@@ -107,11 +116,11 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
     }
     if (this._options.payload) {
       switch (this._options.payload.type) {
-        case WebRTCConnectionOptionsPayloadType.OFFER:
-          this.createAnswer(this._options.mitosisId, this._options.payload);
+        case ConnectionNegotiationType.OFFER:
+          this.createAnswer(this._options.mitosisId, this._options);
           break;
-        case WebRTCConnectionOptionsPayloadType.ANSWER:
-          this.establish(this._options.payload);
+        case ConnectionNegotiationType.ANSWER:
+          this.establish(this._options);
           break;
         default:
           throw new Error(
@@ -138,7 +147,8 @@ export abstract class WebRTCConnection extends AbstractConnection implements ICo
     }
   }
 
-  public establish(answer: SimplePeer.SignalData) {
+  public establish(options: IWebRTCConnectionOptions) {
+    const answer: SimplePeer.SignalData = options.payload;
     Logger.getLogger(this._options.mitosisId)
       .debug(`webrtc answer for ${this.getAddress().getId()} negotiating`, JSON.stringify(answer));
     this._client.signal(answer);

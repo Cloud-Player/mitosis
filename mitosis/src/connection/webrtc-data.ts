@@ -3,7 +3,7 @@ import {IClock} from '../clock/interface';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
 import {TransmissionConnectionMeter} from '../metering/connection-meter/transmission-connection-meter';
-import {IConnection, IConnectionOptions} from './interface';
+import {IConnection, IConnectionOptions, IWebRTCConnectionOptions} from './interface';
 import {WebRTCConnection} from './webrtc';
 
 export class WebRTCDataConnection extends WebRTCConnection implements IConnection {
@@ -54,8 +54,12 @@ export class WebRTCDataConnection extends WebRTCConnection implements IConnectio
     };
   }
 
-  public establish(answer: SimplePeer.SignalData): void {
-    super.establish(answer);
+  protected getAdditionalOfferPayload(): { [key: string]: any } {
+    return {};
+  }
+
+  public establish(options: IWebRTCConnectionOptions): void {
+    super.establish(options);
     this._unreliableChannel = super.getRTCPeerConnection()
       .createDataChannel(
         WebRTCDataConnection._statsDataChannelLabel,

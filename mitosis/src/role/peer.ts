@@ -11,23 +11,25 @@ import {publishPeerUpdate} from './task/publish-peer-update';
 import {removeExpiredConnections} from './task/remove-expired-connections';
 import {removeSignal} from './task/remove-signal';
 import {removeSuperfluousConnections} from './task/remove-superfluous-connections';
+import {requestStreamConnection} from './task/request-stream-connection';
 import {sendAlternatives} from './task/send-alternatives';
 
 export class Peer extends AbstractRole implements IRole {
 
   protected onTick(mitosis: Mitosis): void {
-    // Clean up connections
+    // Clean up
     closeDuplicateConnections(mitosis);
     removeExpiredConnections(mitosis);
     removeSignal(mitosis);
     removeSuperfluousConnections(mitosis);
 
-    // Organize roles
+    // Organize
     degradeToNewbie(mitosis);
 
-    // Acquire connections
+    // Acquire
     acquireDirectConnections(mitosis);
     ensureRouterConnection(mitosis);
+    requestStreamConnection(mitosis);
 
     // Publish
     publishPeerUpdate(mitosis);

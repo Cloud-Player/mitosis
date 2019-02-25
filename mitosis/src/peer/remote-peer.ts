@@ -1,8 +1,9 @@
 import {Subject} from 'rxjs';
 import {IClock} from '../clock/interface';
 import {ConnectionTable} from '../connection/connection-table';
-import {ConnectionState, IConnection, IConnectionChurnEvent, IConnectionOptions} from '../connection/interface';
+import {ConnectionState, IConnection, IConnectionChurnEvent, IConnectionOptions, Protocol} from '../connection/interface';
 import {ProtocolConnectionMap} from '../connection/protocol-map';
+import {ViaConnection} from '../connection/via';
 import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';

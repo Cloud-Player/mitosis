@@ -1,13 +1,14 @@
 import {
   Address,
+  ConnectionNegotiationType,
   IClock,
   IConnection,
   IWebRTCConnectionOptions,
   Logger,
   Message,
   MessageSubject,
-  TransmissionConnectionMeter,
-  WebRTCConnectionOptionsPayloadType
+  NegotiationState,
+  TransmissionConnectionMeter
 } from 'mitosis';
 import {MockConnection} from './mock';
 
@@ -30,19 +31,22 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
   }
 
   private createOffer(mitosisId: string) {
+    this._negotiationState = NegotiationState.WAITING_FOR_OFFER;
     this._client.getClock().setTimeout(() => {
       const offer = {
         type: 'offer',
         sdp: this._lastOffer++
       };
+      const body = Object.assign(offer, this.getAdditionalOfferPayload());
       Logger.getLogger(mitosisId)
         .debug(`webrtc offer for ${this.getAddress().getId()} ready`, JSON.stringify(offer));
       const offerMsg = new Message(
         this.getMyAddress(),
         this.getAddress(),
         MessageSubject.CONNECTION_NEGOTIATION,
-        offer
+        body
       );
+      this._negotiationState = NegotiationState.WAITING_FOR_ANSWER;
       this._client.addConnection(
         this._options.mitosisId,
         this._address.getId(),
@@ -52,7 +56,8 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
     }, this.getConnectionDelay());
   }
 
-  private createAnswer(mitosisId: string, offer: number) {
+  protected createAnswer(mitosisId: string, options: IWebRTCConnectionOptions) {
+    this._negotiationState = NegotiationState.WAITING_FOR_ANSWER;
     this._initiator = false;
     this._client.getClock().setTimeout(() => {
       const answer = {
@@ -67,6 +72,7 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
         MessageSubject.CONNECTION_NEGOTIATION,
         answer
       );
+      this._negotiationState = NegotiationState.WAITING_FOR_ESTABLISH;
       this._client.addConnection(
         this._options.mitosisId,
         this._address.getId(),
@@ -82,13 +88,13 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
     }
     if (this._options.payload) {
       switch (this._options.payload.type) {
-        case WebRTCConnectionOptionsPayloadType.OFFER:
+        case ConnectionNegotiationType.OFFER:
           Logger.getLogger(this._options.mitosisId).debug(`create answer for ${this._address.getId()}`, this);
-          this.createAnswer(this._options.mitosisId, this._options.payload);
+          this.createAnswer(this._options.mitosisId, this._options);
           break;
-        case WebRTCConnectionOptionsPayloadType.ANSWER:
+        case ConnectionNegotiationType.ANSWER:
           Logger.getLogger(this._options.mitosisId).debug(`establish connection to ${this._address.getId()}`, this);
-          this.establish(this._options.payload);
+          this.establish(this._options);
           break;
         default:
           Logger.getLogger(this._options.mitosisId).debug(`payload type ${this._options.payload.type} not found`, this);
@@ -99,6 +105,10 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
     } else {
       this.createOffer(this._options.mitosisId);
     }
+  }
+
+  protected getAdditionalOfferPayload(): { [key: string]: any } {
+    return {};
   }
 
   protected getMyAddress(): Address {
@@ -120,7 +130,8 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
     }
   }
 
-  public establish(answer: { type: string, sdp: number }) {
+  public establish(options: IWebRTCConnectionOptions) {
+    const answer = options.payload;
     Logger.getLogger(this._options.mitosisId)
       .debug(`webrtc answer for ${this.getAddress().getId()} negotiating`, JSON.stringify(answer));
     this._client.getClock().setTimeout(() => {

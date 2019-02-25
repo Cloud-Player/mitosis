@@ -9,7 +9,7 @@
       "tick": 0,
       "type": "set-clock-speed",
       "configuration": {
-        "speed": 50
+        "speed": 1
       }
     },
     {
@@ -87,7 +87,24 @@
     },
     {
       "tick": 30,
-      "type": "finish-scenario"
+      "type": "set-clock-speed",
+      "configuration": {
+        "speed": 50
+      }
+    },
+    {
+      "tick": 90,
+      "type": "set-clock-speed",
+      "configuration": {
+        "speed": 500
+      }
+    },
+    {
+      "tick": 90,
+      "type": "start-stream",
+      "configuration": {
+        "address": "mitosis/v1/phoebe"
+      }
     }
   ]
 }
