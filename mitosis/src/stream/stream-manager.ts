@@ -152,7 +152,7 @@ export class StreamManager {
     let provider = channel.getProvider(peerId);
     if (provider) {
       provider.setStream(stream);
-      this._streamSubject.next({type: ChurnType.ADDED, stream: stream});
+      this._streamSubject.next({type: ChurnType.ADDED, stream: stream, channelId: channel.getId()});
     } else {
       provider = new Provider(peerId, stream);
       channel.addProvider(provider);
@@ -363,7 +363,7 @@ export class StreamManager {
     const provider = new Provider(this._myId, stream);
     channel.addProvider(provider);
     this._channelPerId.set(channel.getId(), channel);
-    this._streamSubject.next({type: ChurnType.ADDED, stream: stream});
+    this._streamSubject.next({type: ChurnType.ADDED, stream: stream, channelId: channel.getId()});
   }
 
   public unsetLocalStream(): void {
