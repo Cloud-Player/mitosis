@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {ConnectionState, IConnection, IConnectionMeter, Mitosis, Protocol, RemotePeer, RoleType} from 'mitosis';
+import {ConnectionState, IConnection, IConnectionMeter, Mitosis, Protocol, RemotePeer, RoleType, WebRTCConnection} from 'mitosis';
 
 @Component({
   selector: 'app-peer-table',
@@ -15,6 +15,18 @@ export class PeerTableComponent implements OnInit {
 
   public isDisabled(connection: IConnection) {
     return connection.getAddress().isProtocol(Protocol.VIA, Protocol.VIA_MULTI);
+  }
+
+  public getConnectionDirection(connection: IConnection): string {
+    if (connection.getAddress().isProtocol(Protocol.WEBRTC_STREAM)) {
+      if ((connection as WebRTCConnection).isInitiator()) {
+        return '↗️';
+      } else {
+        return '↙️';
+      }
+    } else if (connection.getAddress().isProtocol(Protocol.WEBRTC_DATA, Protocol.WEBSOCKET)) {
+      return '↔️';
+    }
   }
 
   public getPeerAnnotation(peer: RemotePeer) {

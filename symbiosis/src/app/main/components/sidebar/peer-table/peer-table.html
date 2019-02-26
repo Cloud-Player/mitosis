@@ -21,6 +21,7 @@
                       [disabled]="isDisabled(connection)"
                       (click)="connection.close()">
           </app-button>
+          <span>{{getConnectionDirection(connection)}}</span>
           {{connection.getAddress().getProtocol()}}
           {{connection.getAddress().getLocation()}}
         </div>
