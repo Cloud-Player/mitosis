@@ -3,7 +3,6 @@ import {IClock} from '../clock/interface';
 import {ConnectionTable} from '../connection/connection-table';
 import {ConnectionState, IConnection, IConnectionChurnEvent, IConnectionOptions, Protocol} from '../connection/interface';
 import {ProtocolConnectionMap} from '../connection/protocol-map';
-import {ViaConnection} from '../connection/via';
 import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
@@ -153,7 +152,11 @@ export class RemotePeer {
   public send(message: IMessage): void {
     const connection: IConnection = this.getConnectionTable()
       .filterByStates(ConnectionState.OPEN)
-      .filterDirect()
+      .filterByProtocol(
+        Protocol.WEBSOCKET,
+        Protocol.WEBSOCKET_UNSECURE,
+        Protocol.WEBRTC_DATA
+      )
       .sortByQuality()
       .pop();
     if (connection) {
