@@ -1,7 +1,7 @@
 <div class="record-stream-button">
   <app-button *ngIf="hasLocalStream()"
-              type="fab"
-              text="fa fa-times"
+              [type]="getButtonType()"
+              text="fa fa-stop"
               (click)="stopStream()">
   </app-button>
   <app-button *ngIf="canShowRecordButton()"
