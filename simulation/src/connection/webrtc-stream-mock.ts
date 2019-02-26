@@ -13,21 +13,18 @@ export class WebRTCStreamMockConnection extends WebRTCMockConnection {
     this._stream = options.stream;
   }
 
-  protected getAdditionalOfferPayload(): { [key: string]: any } {
-    return {channelId: this.getChannelId()};
-  }
-
   protected createAnswer(mitosisId: string, options: IWebRTCStreamConnectionOptions) {
     this._channelId = options.channelId;
     super.createAnswer(mitosisId, options);
   }
 
+  protected getAdditionalOfferPayload(): { [key: string]: any } {
+    // TODO: Why is channel id undefined and why doesn't it matter what the id is?
+    return {channelId: this.getChannelId() || 'any'};
+  }
+
   public getChannelId(): string {
-    if (this._stream) {
-      return this._stream.id;
-    } else {
-      return this._channelId;
-    }
+    return (this._options as IWebRTCStreamConnectionOptions).channelId || this._channelId;
   }
 
   public setStream(stream: MediaStream): void {

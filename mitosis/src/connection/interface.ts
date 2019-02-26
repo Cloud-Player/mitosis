@@ -45,8 +45,8 @@ export interface IWebRTCConnectionOptions extends IConnectionOptions {
 }
 
 export interface IWebRTCStreamConnectionOptions extends IWebRTCConnectionOptions {
-  stream: MediaStream;
   channelId: string;
+  stream?: MediaStream;
 }
 
 export interface IWebRTCConnectionOptionsPayload {

@@ -1,18 +1,20 @@
 import {Subject} from 'rxjs';
 import {filter} from 'rxjs/operators';
 import {ConfigurationMap} from '../configuration';
-import {ConnectionState, IConnection, IWebRTCStreamConnectionOptions, Protocol} from '../connection/interface';
+import {ConnectionState, IConnection, IWebRTCStreamConnectionOptions, NegotiationState, Protocol} from '../connection/interface';
 import {WebRTCConnection} from '../connection/webrtc';
 import {WebRTCStreamConnection} from '../connection/webrtc-stream';
 import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
-import {ConnectionNegotiationType, IConnectionNegotiationBody} from '../message/connection-negotiation';
+import {ConnectionNegotiation, ConnectionNegotiationType, IConnectionNegotiationBody} from '../message/connection-negotiation';
 import {IChannelAnnouncement, IMessage, MessageSubject} from '../message/interface';
+import {Message} from '../message/message';
 import {PeerManager} from '../peer/peer-manager';
 import {RoleType} from '../role/interface';
 import {IObservableMapEvent, ObservableMap} from '../util/observable-map';
 import {TableView} from '../util/table-view';
+import {uuid} from '../util/uuid';
 import {Channel} from './channel';
 import {IStreamChurnEvent} from './interface';
 import {Provider} from './provider';
@@ -48,7 +50,7 @@ export class StreamManager {
         )
       )
       .subscribe(
-        ev => this.pushStream(ev.value.getActiveProvider().getStream())
+        ev => this.pushStream(ev.value.getId(), ev.value.getActiveProvider().getStream())
       );
 
     this._channelPerId.observe()
@@ -91,14 +93,14 @@ export class StreamManager {
       );
   }
 
-  private pushStreamTo(stream: MediaStream, peerId: string): void {
+  private pushStreamTo(channelId: string, stream: MediaStream, peerId: string): void {
     const address = new Address(
       peerId,
       Protocol.WEBRTC_STREAM
     );
     const options: IWebRTCStreamConnectionOptions = {
       mitosisId: this._myId,
-      channelId: stream.id,
+      channelId: channelId,
       stream: stream
     };
     this._peerManager
@@ -115,7 +117,7 @@ export class StreamManager {
       });
   }
 
-  private pushStream(stream: MediaStream): void {
+  private pushStream(channelId: string, stream: MediaStream): void {
     this._peerManager
       .getPeerTable()
       .filterByRole(RoleType.PEER)
@@ -136,15 +138,15 @@ export class StreamManager {
       .reverse()
       .slice(0, this.getMyCapacity())
       .forEach(
-        peer => this.pushStreamTo(stream, peer.getId())
+        peer => this.pushStreamTo(channelId, stream, peer.getId())
       );
   }
 
   private onStreamReady(connection: WebRTCStreamConnection, stream: MediaStream): void {
-    let channel = this._channelPerId.get(stream.id);
+    let channel = this._channelPerId.get(connection.getChannelId());
     if (!channel) {
-      channel = new Channel(stream.id);
-      this._channelPerId.set(stream.id, channel);
+      channel = new Channel(connection.getChannelId());
+      this._channelPerId.set(connection.getChannelId(), channel);
     }
     const peerId = connection.getAddress().getId();
     let provider = channel.getProvider(peerId);
@@ -156,7 +158,7 @@ export class StreamManager {
       channel.addProvider(provider);
     }
     if (!connection.isInitiator()) {
-      this.pushStream(stream);
+      this.pushStream(connection.getChannelId(), stream);
     }
   }
 
@@ -202,7 +204,7 @@ export class StreamManager {
         .getStream()
         .then(
           stream => {
-            const channel = this._channelPerId.get(stream.id);
+            const channel = this._channelPerId.get((connection as WebRTCStreamConnection).getChannelId());
             if (channel) {
               channel.removeProvider(connection.getAddress().getId());
             }
@@ -211,32 +213,122 @@ export class StreamManager {
     }
   }
 
-  public onMessage(message: IMessage): void {
-    if (message.getSubject() === MessageSubject.CONNECTION_NEGOTIATION) {
-      const body: IConnectionNegotiationBody = message.getBody();
+  public negotiateConnection(connectionNegotiation: ConnectionNegotiation): void {
+    const logger = Logger.getLogger(this._myId);
+    const senderAddress = connectionNegotiation.getSender();
+    const receiverAddress = connectionNegotiation.getReceiver();
+    const negotiation = connectionNegotiation.getBody();
 
-      const logger = Logger.getLogger(this._myId);
-      const sender = message.getSender().getId();
-      if (body.type === ConnectionNegotiationType.REQUEST) {
+    const rejection = new Message(
+      receiverAddress,
+      senderAddress,
+      MessageSubject.CONNECTION_NEGOTIATION,
+      {type: ConnectionNegotiationType.REJECT, channelId: negotiation.channelId}
+    );
+
+    if (negotiation.type === ConnectionNegotiationType.OFFER) {
+      if (negotiation.channelId) {
+        const localChannel = this.getLocalChannel();
+        if (localChannel && localChannel.getId() === negotiation.channelId) {
+          logger.info('will not accept offer for my own channel', connectionNegotiation);
+          this._peerManager.sendMessage(rejection);
+          return;
+        }
+        const inboundConnectionsForChannel = this._peerManager.getPeerTable()
+          .aggregateConnections(
+            connections => connections
+              .filterByProtocol(Protocol.WEBRTC_STREAM)
+              .filterByStates(ConnectionState.OPENING, ConnectionState.OPEN)
+              .filter(
+                connection => connection.getNegotiationState() >= NegotiationState.WAITING_FOR_ANSWER
+              )
+              .filter(
+                (connection: WebRTCStreamConnection) => connection.getChannelId() === negotiation.channelId
+              )
+              .filter(
+                (connection: WebRTCConnection) => !connection.isInitiator()
+              )
+          );
+        if (inboundConnectionsForChannel.length > 0) {
+          logger.info('already got provider for this channel offer', connectionNegotiation);
+          this._peerManager.sendMessage(rejection);
+          return;
+        }
+      } else {
+        logger.error('got stream offer without channel id', connectionNegotiation);
+        return;
+      }
+    }
+
+    const options: IWebRTCStreamConnectionOptions = {
+      mitosisId: this._myId,
+      channelId: negotiation.channelId,
+      payload: {
+        type: negotiation.type,
+        sdp: negotiation.sdp
+      }
+    };
+    switch (negotiation.type) {
+      case ConnectionNegotiationType.REQUEST:
         if (this.getMyCapacity() > 0) {
-          if (!this.amIAlreadyStreamingTo(sender)) {
-            const channelId = body.channelId;
+          if (!this.amIAlreadyStreamingTo(senderAddress.getId())) {
+            const channelId = negotiation.channelId;
             const channel = this._channelPerId.get(channelId);
             if (channel && channel.isActive()) {
-              this.pushStreamTo(channel.getMediaStream(), sender);
+              this.pushStreamTo(channelId, channel.getMediaStream(), senderAddress.getId());
             } else {
-              logger.info(`no active stream for this channel either, ignoring request from ${sender}`, message);
+              logger.info(`no active stream for this channel, ignoring request from ${senderAddress.getId()}`, connectionNegotiation);
             }
           } else {
-            logger.info(`already streaming to ${sender}, ignoring request`, message);
+            logger.info(`already streaming to ${senderAddress.getId()}, ignoring request`, connectionNegotiation);
           }
         } else {
-          logger.info(`no capacity to fulfill stream request from ${sender}`, message);
+          logger.info(`no capacity to fulfill stream request from ${senderAddress.getId()}`, connectionNegotiation);
         }
-      } else if (body.type === ConnectionNegotiationType.REJECT) {
-        this.setCapacityForProvider(sender, 0);
-        logger.info(`got reject from ${sender}, setting capacity 0`, message);
-      }
+        break;
+      case ConnectionNegotiationType.OFFER:
+        if (senderAddress.getProtocol() === Protocol.WEBRTC_STREAM) {
+          (options as IWebRTCStreamConnectionOptions).channelId = connectionNegotiation.getBody().channelId;
+        }
+        this._peerManager.connectTo(senderAddress, options)
+          .catch(
+            error =>
+              logger.warn(`stream offer connection to ${senderAddress} failed`, error)
+          );
+        break;
+      case ConnectionNegotiationType.ANSWER:
+        this._peerManager.connectTo(senderAddress).then(
+          remotePeer => {
+            const webRTCConnection: WebRTCConnection =
+              remotePeer.getConnectionForAddress(senderAddress) as WebRTCConnection;
+            if (webRTCConnection) {
+              webRTCConnection.establish(options);
+            } else {
+              logger.error(`stream connection ${senderAddress.getLocation()} not found`, connectionNegotiation);
+            }
+          }
+        ).catch(
+          error =>
+            logger.warn(`stream answer connection to ${senderAddress} failed`, error)
+        );
+        break;
+      case ConnectionNegotiationType.REJECT:
+        this.setCapacityForProvider(senderAddress.getId(), 0);
+        logger.info(`got stream reject from ${senderAddress.getId()}, setting capacity 0`, connectionNegotiation);
+        this._peerManager.getPeerById(senderAddress.getId())
+          .getConnectionTable()
+          .filterByLocation(receiverAddress.getLocation())
+          .forEach(
+            connection => {
+              logger.warn(`stream connection negotiation rejected by ${senderAddress}`, connection);
+              connection.close();
+            }
+          );
+        break;
+      default:
+        throw new Error(
+          `unsupported stream connection negotiation type ${negotiation.type}`
+        );
     }
   }
 
@@ -267,7 +359,7 @@ export class StreamManager {
 
   public setLocalStream(stream: MediaStream): void {
     this.unsetLocalStream();
-    const channel = new Channel(stream.id);
+    const channel = new Channel(uuid());
     const provider = new Provider(this._myId, stream);
     channel.addProvider(provider);
     this._channelPerId.set(channel.getId(), channel);

@@ -18,7 +18,7 @@ export class MockMediaStream implements MediaStream {
   }
 
   public clone(): MediaStream {
-    return new MockMediaStream(this.id);
+    return new MockMediaStream();
   }
 
   public stop(): void {

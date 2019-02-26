@@ -115,7 +115,14 @@ export class MessageBroker {
         }
         break;
       case MessageSubject.CONNECTION_NEGOTIATION:
-        this._peerManager.negotiateConnection(message as ConnectionNegotiation);
+        switch (message.getSender().getProtocol()) {
+          case Protocol.WEBRTC_STREAM:
+            this._streamManager.negotiateConnection(message as ConnectionNegotiation);
+            break;
+          default:
+            this._peerManager.negotiateConnection(message as ConnectionNegotiation);
+            break;
+        }
         break;
       case MessageSubject.APP_CONTENT:
         this._appContentMessagesSubject.next(message);

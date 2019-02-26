@@ -345,12 +345,6 @@ export class PeerManager {
     const senderAddress = connectionNegotiation.getSender();
     const receiverAddress = connectionNegotiation.getReceiver();
     const negotiation = connectionNegotiation.getBody();
-    const rejection = new Message(
-      receiverAddress,
-      senderAddress,
-      MessageSubject.CONNECTION_NEGOTIATION,
-      {type: ConnectionNegotiationType.REJECT, channelId: negotiation.channelId}
-    );
 
     const directConnectionCount = this.getPeerTable()
       .countConnections(
@@ -361,38 +355,14 @@ export class PeerManager {
       negotiation.type === ConnectionNegotiationType.OFFER
     ) {
       logger.info('too many connections already', connectionNegotiation);
+      const rejection = new Message(
+        receiverAddress,
+        senderAddress,
+        MessageSubject.CONNECTION_NEGOTIATION,
+        {type: ConnectionNegotiationType.REJECT}
+      );
       this.sendMessage(rejection);
       return;
-    }
-
-    if (connectionNegotiation.getSender().getProtocol() === Protocol.WEBRTC_STREAM) {
-      if (negotiation.type === ConnectionNegotiationType.OFFER) {
-        if (negotiation.channelId) {
-          const inboundConnectionsForChannel = this.getPeerTable()
-            .aggregateConnections(
-              connections => connections
-                .filterByProtocol(Protocol.WEBRTC_STREAM)
-                .filterByStates(ConnectionState.OPENING, ConnectionState.OPEN)
-                .filter(
-                  connection => connection.getNegotiationState() >= NegotiationState.WAITING_FOR_ANSWER
-                )
-                .filter(
-                  (connection: WebRTCStreamConnection) => connection.getChannelId() === negotiation.channelId
-                )
-                .filter(
-                  (connection: WebRTCConnection) => !connection.isInitiator()
-                )
-            );
-          if (inboundConnectionsForChannel.length > 0) {
-            logger.info('already got provider for this channel offer', connectionNegotiation);
-            this.sendMessage(rejection);
-            return;
-          }
-        } else {
-          logger.error('got offer without channel id', connectionNegotiation);
-          return;
-        }
-      }
     }
 
     const options: IWebRTCConnectionOptions = {
@@ -403,17 +373,11 @@ export class PeerManager {
       }
     };
     switch (negotiation.type) {
-      case ConnectionNegotiationType.REQUEST:
-        // Let it slip by and handle in StreamManager.onMessage()
-        break;
       case ConnectionNegotiationType.OFFER:
-        if (senderAddress.getProtocol() === Protocol.WEBRTC_STREAM) {
-          (options as IWebRTCStreamConnectionOptions).channelId = connectionNegotiation.getBody().channelId;
-        }
         this.connectTo(senderAddress, options)
           .catch(
             error =>
-              logger.warn(`offer connection to ${senderAddress} failed`, error)
+              logger.warn(`${senderAddress.getProtocol()} offer connection to ${senderAddress} failed`, error)
           );
         break;
       case ConnectionNegotiationType.ANSWER:
@@ -424,12 +388,12 @@ export class PeerManager {
             if (webRTCConnection) {
               webRTCConnection.establish(options);
             } else {
-              logger.error(`connection ${senderAddress.getLocation()} not found`, connectionNegotiation);
+              logger.error(`${senderAddress.getProtocol()} connection ${senderAddress.getLocation()} not found`, connectionNegotiation);
             }
           }
         ).catch(
           error =>
-            logger.warn(`answer connection to ${senderAddress} failed`, error)
+            logger.warn(`${senderAddress.getProtocol()} answer connection to ${senderAddress} failed`, error)
         );
         break;
       case ConnectionNegotiationType.REJECT:
@@ -438,14 +402,14 @@ export class PeerManager {
           .filterByLocation(receiverAddress.getLocation())
           .forEach(
             connection => {
-              logger.warn(`connection negotiation rejected by ${senderAddress}`, connection);
+              logger.warn(`${senderAddress.getProtocol()} connection negotiation rejected by ${senderAddress}`, connection);
               connection.close();
             }
           );
         break;
       default:
         throw new Error(
-          `unsupported connection negotiation type ${negotiation.type}`
+          `unsupported ${senderAddress.getProtocol()} connection negotiation type ${negotiation.type}`
         );
     }
   }

@@ -3,7 +3,7 @@ import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
 import {StreamConnectionMeter} from '../metering/connection-meter/stream-connection-meter';
-import {IConnection, IWebRTCConnectionOptions, IWebRTCStreamConnectionOptions} from './interface';
+import {IConnection, IWebRTCStreamConnectionOptions} from './interface';
 import {WebRTCConnection} from './webrtc';
 
 export class WebRTCStreamConnection extends WebRTCConnection implements IConnection {
@@ -55,11 +55,7 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
   }
 
   public getChannelId(): string {
-    if (this._stream) {
-      return this._stream.id;
-    } else {
-      return this._channelId;
-    }
+    return (this._options as IWebRTCStreamConnectionOptions).channelId || this._channelId;
   }
 
   public setStream(stream: MediaStream): void {
