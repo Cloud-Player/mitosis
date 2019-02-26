@@ -2,13 +2,6 @@
   <section>
     <header>{{mitosis.getMyAddress().getId()}} [{{mitosis.getRoleManager().getRoles().join(',')}}]</header>
     <app-record-stream-button [mitosis]="mitosis" [mini]="true"></app-record-stream-button>
-
-    <app-button *ngIf="hasLocalStream()"
-                type="icon"
-                text="fa fa-video-camera"
-                (click)="stopStream()">
-      Stop Stream
-    </app-button>
     <app-peer-table [mitosis]="mitosis"></app-peer-table>
   </section>
 </div>
