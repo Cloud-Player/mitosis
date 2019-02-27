@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {Mitosis} from 'mitosis';
+import {Logger, LogLevel, Mitosis} from 'mitosis';
 import {SidebarComponent} from '../sidebar/sidebar';
 
 @Component({
@@ -17,6 +17,7 @@ export class MessengerComponent implements OnInit {
 
   constructor() {
     this.mitosis = new Mitosis();
+    Logger.setLevel(LogLevel.ERROR);
   }
 
   public setTitle() {
