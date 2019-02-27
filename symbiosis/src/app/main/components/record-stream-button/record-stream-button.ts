@@ -13,7 +13,7 @@ export class RecordStreamButtonComponent {
   @Input()
   public mini: boolean;
 
-  public startStream() {
+  public startStream(): void {
     navigator.mediaDevices.getUserMedia({
       video: true,
       audio: false
@@ -23,7 +23,7 @@ export class RecordStreamButtonComponent {
       });
   }
 
-  public getButtonType() {
+  public getButtonType(): string {
     if (this.mini) {
       return 'fab-mini';
     } else {
@@ -31,7 +31,7 @@ export class RecordStreamButtonComponent {
     }
   }
 
-  public stopStream() {
+  public stopStream(): void {
     this.mitosis.getStreamManager().unsetLocalStream();
   }
 
@@ -39,16 +39,16 @@ export class RecordStreamButtonComponent {
     return !!this.mitosis.getStreamManager().getLocalStream();
   }
 
-  public hasActiveStream() {
+  public countActiveStreams(): number {
     return this.mitosis
       .getStreamManager()
       .getChannelTable()
-      .has(
+      .count(
         channel => channel.isActive()
       );
   }
 
   public canShowRecordButton() {
-    return !this.hasLocalStream() && !this.hasActiveStream();
+    return !this.hasLocalStream() && this.countActiveStreams() < 3;
   }
 }
