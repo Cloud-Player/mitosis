@@ -9,7 +9,7 @@ before_install:
   - npm install -g @angular/cli
 before_deploy:
   - cd symbiosis && npm install
-  - npm run release
+  - npm run build
 deploy:
   - provider: script
     script: ./bin/release_on_github_pages.sh
