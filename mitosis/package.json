@@ -1,7 +1,7 @@
 {
   "name": "mitosis",
-  "version": "0.0.1",
-  "description": "TBD",
+  "version": "1.0.0",
+  "description": "mesh networking library for browser-to-browser streaming",
   "authors": [
     "Nicolas Drebenstedt",
     "Alexander Zarges"
@@ -42,6 +42,11 @@
     "rxjs": "6.3.3",
     "simple-peer": "^9.1.2"
   },
-  "homepage": "https://github.com/auxdotapp/mitosis#readme",
-  "keywords": []
+  "homepage": "https://www.npmjs.com/package/mitosis",
+  "keywords": [
+    "mesh",
+    "p2p",
+    "WebRTC",
+    "library"
+  ]
 }

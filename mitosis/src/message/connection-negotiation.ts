@@ -4,7 +4,7 @@ export enum ConnectionNegotiationType {
   REQUEST = 'request',
   OFFER = 'offer',
   ANSWER = 'answer',
-  REJECT = 'reject'
+  REJECTION = 'rejection'
 }
 
 export interface IConnectionNegotiationBody {
