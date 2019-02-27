@@ -25,7 +25,8 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/scenarios"
+              "src/scenarios",
+              "src/CNAME"
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
