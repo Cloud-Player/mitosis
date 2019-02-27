@@ -5,7 +5,7 @@ RELEASE_FOLDER="./dist/symbiosis"
 RELEASE_BRANCH="gh-pages"
 RELEASE_GIT_NAME="Bob Builder"
 RELEASE_GIT_MAIL="bob@builder.com"
-TMP_RELEASE_FOLDER="/tmp/releases/cloud-player"
+TMP_RELEASE_FOLDER="/tmp/releases/symbiosis"
 
 CURRENT_GIT_USER=`git config user.name`
 CURRENT_GIT_USERMAIL=`git config user.email`
