@@ -1,0 +1,18 @@
+language: node_js
+node_js:
+  - 8.9.4
+env:
+  global:
+    - GH_REF=github.com/auxdotapp/mitosis
+    - secure: jF68+UNnoJ2yljAMmVMuJkoVqQMdej7UpC4cwwcuoz3Kdd13sGT/aEFgtVssya7Yf3ssaJV0xlQkaW3GMpq6FCblyA7o2wSB1uih5kIOQy6NHKxcUif0hxkpTacDTXu9jNnWWVtTTNGxkJirKlQ7brydA6EDLzRc4l/3sSY5kR79PAaG/YB7k/Qx1fpy8IogAxoVqBjs7lNYNxgy8OvMYZwUuXQcLhDE9+PfZUJcTzosw4Zg1xqcS951tKbeihYtjLk/C/AVyCSfGXnYkq35Fzzy0YUokWJys5q4C2/G8TLDq/0KLYOXpY8QwLQ30ONHqqsYzsKqTqxWrV9cdi+DheXweGBXl6j2BDCttACg2HGebO+phj/TQ5zVGuNexNpCDVDyFybxHy8oM3760Ba4Bt5TJZkhHH3KtBA7lra9+LqcqCIVHGqGhFGmpLMW/tQctkaZssVDxo2E1wHUHmCGxOlyoB6NFoiP5t9hqwYba+LCOUjOq4wLbc0glANEnFIXKIjsQziIf5B3ASbwAWbzKrfMb6KdPmHjAJqi4zb4lG8G2uPPTBLClouKKRHEqENqhebLpOwGUcoeDnbFWGH4fyd/PAsAVPwQ8OhIrjXU26ZvUyxH8nPJjgkmIN8gX2wBxFmgiPEaGlNjyeZ7p96CTbs0525FfcgvTJw93Qvf0j0=
+before_install:
+  - npm install -g @angular/cli
+before_deploy:
+  - cd symbiosis && npm install
+  - npm run build
+deploy:
+  - provider: script
+    script: ./bin/release_on_github_pages.sh
+    skip_cleanup: true
+    on:
+      branch: master
