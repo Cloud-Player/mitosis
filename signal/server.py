@@ -17,7 +17,7 @@ from tornado.websocket import WebSocketHandler
 class RendezvousHandler(WebSocketHandler):
 
     ROUTER = {}
-    MY_ADDRESS = 'mitosis/v1/p000/ws/localhost:8040/websocket'
+    MY_ADDRESS = 'mitosis/v1/p000/wss/signal.aux.app/websocket'
 
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
@@ -25,7 +25,7 @@ class RendezvousHandler(WebSocketHandler):
         self.redis = redis_session()
         self.pubsub = self.redis.pubsub(ignore_subscribe_messages=True)
         self.pubsub.subscribe(keep_alive=lambda: True)
-        self.callback = PeriodicCallback(self.pubsub.get_message, 100, 0.1)
+        self.callback = PeriodicCallback(self.pubsub.get_message, 50, 0.1)
         self.callback.start()
 
     def open(self):
@@ -36,11 +36,15 @@ class RendezvousHandler(WebSocketHandler):
         app_log.error(message)
         subject = message.get('subject')
         if subject == 'introduction':
-            self.on_peer_update(message)
+            self.on_introduction(message)
         elif subject == 'connection-negotiation':
             self.on_connection_negotiation(message)
+        elif subject == 'peer-update':
+            self.on_router_reply(message)
+        elif subject == 'rejection':
+            self.on_router_reply(message)
 
-    def on_peer_update(self, message):
+    def on_introduction(self, message):
         sender = message['sender']
         self.peer_id = sender.split('/', 3)[2]
         self.pubsub.subscribe(**{'peer-%s' % self.peer_id: self.forward})
@@ -58,7 +62,18 @@ class RendezvousHandler(WebSocketHandler):
     def on_connection_negotiation(self, message):
         receiver = message['receiver']
         receiver_id = receiver.split('/', 3)[2]
+        ((_, numsub),) = self.redis.pubsub_numsub('peer-%s' % receiver_id)
+        if numsub == 0:
+            receiver_id = self.ROUTER.get('peerId')
         self.redis.publish('peer-%s' % receiver_id, self.dumps(message))
+
+    def on_router_reply(self, message):
+        sender = message['sender']
+        sender_id = sender.split('/', 3)[2]
+        if sender_id == RendezvousHandler.ROUTER.get('peerId'):
+            receiver = message['receiver']
+            receiver_id = receiver.split('/', 3)[2]
+            self.redis.publish('peer-%s' % receiver_id, self.dumps(message))
 
     def send_message(self, receiver, subject, body):
         message = {
