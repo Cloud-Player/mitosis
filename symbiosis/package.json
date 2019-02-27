@@ -3,10 +3,10 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "npm run build:lib && ng serve",
-    "build": "npm run build:lib && ng build --prod",
+    "start": "ng serve",
+    "build": "ng build --prod",
     "lint": "ng lint",
-    "build:lib": "cd ../mitosis && npm run build && npm run build && cd ../symbiosis"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "private": true,
   "preferGlobal": true,
