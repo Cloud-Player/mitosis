@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/auxdotapp/mitosis.svg?branch=master)](https://travis-ci.org/auxdotapp/mitosis)
+
 # mitosis
 
 ## chat
