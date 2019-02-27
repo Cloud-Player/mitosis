@@ -9,12 +9,9 @@ import {
   IConnectionOptions,
   IViaConnectionOptions,
   IWebRTCConnectionOptions,
-  IWebRTCStreamConnectionOptions,
-  NegotiationState,
   Protocol
 } from '../connection/interface';
 import {WebRTCConnection} from '../connection/webrtc';
-import {WebRTCStreamConnection} from '../connection/webrtc-stream';
 import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
@@ -399,6 +396,9 @@ export class PeerManager {
       case ConnectionNegotiationType.REJECT:
         this.getPeerById(senderAddress.getId())
           .getConnectionTable()
+          .exclude(
+            table => table.filterByStates(ConnectionState.OPEN)
+          )
           .filterByLocation(receiverAddress.getLocation())
           .forEach(
             connection => {
