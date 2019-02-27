@@ -223,7 +223,7 @@ export class StreamManager {
       receiverAddress,
       senderAddress,
       MessageSubject.CONNECTION_NEGOTIATION,
-      {type: ConnectionNegotiationType.REJECT, channelId: negotiation.channelId}
+      {type: ConnectionNegotiationType.REJECTION, channelId: negotiation.channelId}
     );
 
     if (negotiation.type === ConnectionNegotiationType.OFFER) {
@@ -312,9 +312,9 @@ export class StreamManager {
             logger.warn(`stream answer connection to ${senderAddress} failed`, error)
         );
         break;
-      case ConnectionNegotiationType.REJECT:
+      case ConnectionNegotiationType.REJECTION:
         this.setCapacityForProvider(senderAddress.getId(), 0);
-        logger.info(`got stream reject from ${senderAddress.getId()}, setting capacity 0`, connectionNegotiation);
+        logger.info(`got stream rejection from ${senderAddress.getId()}, setting capacity 0`, connectionNegotiation);
         this._peerManager.getPeerById(senderAddress.getId())
           .getConnectionTable()
           .filterByLocation(receiverAddress.getLocation())

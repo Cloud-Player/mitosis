@@ -356,7 +356,7 @@ export class PeerManager {
         receiverAddress,
         senderAddress,
         MessageSubject.CONNECTION_NEGOTIATION,
-        {type: ConnectionNegotiationType.REJECT}
+        {type: ConnectionNegotiationType.REJECTION}
       );
       this.sendMessage(rejection);
       return;
@@ -393,7 +393,7 @@ export class PeerManager {
             logger.warn(`${senderAddress.getProtocol()} answer connection to ${senderAddress} failed`, error)
         );
         break;
-      case ConnectionNegotiationType.REJECT:
+      case ConnectionNegotiationType.REJECTION:
         this.getPeerById(senderAddress.getId())
           .getConnectionTable()
           .exclude(
