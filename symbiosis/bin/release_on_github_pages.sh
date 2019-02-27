@@ -93,6 +93,7 @@ else
 fi
 
 # Replace all files with the one from the repository
+cd ..
 rm -rf *
 cp -R $TMP_RELEASE_FOLDER/* .
 git add -Af *
