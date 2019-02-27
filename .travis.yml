@@ -8,7 +8,6 @@ env:
 before_install:
   - npm install -g @angular/cli
 before_deploy:
-  - cd mitosis && npm run install && npm run build && cd ..
   - cd symbiosis && npm install
   - npm run release
 deploy:
