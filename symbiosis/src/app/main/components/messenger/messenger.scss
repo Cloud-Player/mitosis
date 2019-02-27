@@ -3,24 +3,63 @@
 :host {
   .messenger {
     display: flex;
+    position: relative;
+    overflow: hidden;
+    width: 100vw;
 
     .message-ui {
       flex-grow: 1;
       display: flex;
       justify-content: center;
+      position: relative;
 
       app-stream-player {
         width: 100%;
+        flex-shrink: 1;
+        overflow: hidden;
       }
     }
 
     .sidebar {
-      width: 25vw;
       background: red;
       height: 100vh;
       background: $brand-primary;
       color: white;
-      min-width: 400px;
+      width: 0;
+      min-width: 0;
+      transition: all 0.5s ease;
+
+      app-sidebar {
+        position: absolute;
+        width: 400px;
+      }
+    }
+
+    .show-peers {
+      position: absolute;
+      right: 5px;
+      top: 10px;
+      z-index: 9;
+      display: flex;
+
+      .btn {
+        margin: 0 5px;
+      }
+    }
+
+    app-record-stream-button {
+      position: absolute;
+      bottom: 28px;
+      z-index: 99999;
+      left: calc(50% - 28px);
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+
+    .show-peers,
+    app-record-stream-button {
+      opacity: 1;
+      transition: opacity 1s ease;
     }
 
     .clock {
@@ -28,20 +67,44 @@
       top: 10px;
       left: 10px;
     }
+
+    &.info-visible {
+      .sidebar {
+        width: 400px;
+        min-width: 400px;
+      }
+
+      app-record-stream-button {
+        opacity: 0;
+      }
+    }
+
+    &.inactive {
+      cursor: none;
+
+      .show-peers,
+      app-record-stream-button {
+        opacity: 0;
+      }
+    }
   }
 
-  @media (max-width: $screen-sm-max) {
+  @media (max-width: $screen-xs-max) {
     .messenger {
       position: relative;
       width: 100vw;
       overflow: hidden;
 
       .sidebar {
-        width: 100vw;
+        width: 100vw !important;
         min-width: inherit;
         position: absolute;
         transform: translateX(100vw);
         transition: transform 1s ease;
+
+        app-sidebar {
+          width: 100vw;
+        }
       }
 
       .message-ui {
@@ -49,22 +112,8 @@
         height: 100vh;
       }
 
-      .show-peers{
-        position: absolute;
-        right: 10px;
-        top: 10px;
-        z-index: 9;
-      }
-
-      app-record-stream-button{
-        position: absolute;
-        bottom: 28px;
-        z-index: 99999;
-        left: calc(50% - 28px);
-      }
-
-      &.peers-visible{
-        .sidebar{
+      &.info-visible {
+        .sidebar {
           transform: translateX(0);
         }
       }

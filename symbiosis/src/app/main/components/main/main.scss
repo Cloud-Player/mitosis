@@ -1,4 +1,4 @@
-body,html{
+body, html {
   margin: 0;
   padding: 0;
   font-family: 'Roboto';
@@ -8,6 +8,7 @@ body,html{
   overflow: scroll;
   -webkit-overflow-scrolling: touch;
   display: block;
+
   &::-webkit-scrollbar {
     display: none;
   }
@@ -16,3 +17,50 @@ body,html{
 .clickable {
   cursor: pointer;
 }
+
+.btn.light {
+  background: none;
+  color: white;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: white;
+    color: black;
+  }
+
+  &:focus,
+  &:active {
+    border-color: white;
+  }
+}
+
+button:focus {
+  outline: 0 !important;
+}
+
+.native-bar{
+  display: none;
+  top: 0;
+  -webkit-app-region: drag;
+  width: 100vw;
+  position: fixed;
+  z-index: 999;
+}
+
+body.native.desktop {
+  .native-bar {
+    display: block;
+  }
+
+  &.darwin {
+    .native-bar {
+      height: 27px;
+    }
+  }
+}
+

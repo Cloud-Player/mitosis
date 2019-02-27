@@ -1,3 +1,4 @@
+import {HttpClient} from '@angular/common/http';
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import {IStreamChurnEvent, Mitosis} from 'mitosis';
 
@@ -14,11 +15,34 @@ export class StreamPlayerComponent implements OnInit {
   @ViewChild('video')
   public videoEl: ElementRef;
 
+  public hasStream = false;
+
+  constructor(private http: HttpClient) {
+  }
+
+  private setPoster() {
+    console.log('set poster');
+    this.http
+      .get('http://api.giphy.com/v1/gifs/random?tag=glitch&api_key=7cLNzkQlip4qjmzXrzdgvuCx9gdnhOD2')
+      .subscribe((resp: any) => {
+        const videoEl = this.videoEl.nativeElement as HTMLVideoElement;
+        if (!videoEl.srcObject) {
+          videoEl.poster = resp.data.image_url;
+        }
+      });
+  }
+
   private setStream(channelId: string, stream: MediaStream): void {
     const videoEl = this.videoEl.nativeElement as HTMLVideoElement;
     this._currentChannelId = channelId;
-    videoEl.srcObject = stream;
-    videoEl.play();
+    if (stream) {
+      videoEl.srcObject = stream;
+      videoEl.play();
+    } else {
+      this.hasStream = false;
+      this.setPoster();
+      videoEl.pause();
+    }
   }
 
   ngOnInit(): void {
@@ -51,5 +75,11 @@ export class StreamPlayerComponent implements OnInit {
           this.setStream(ev.channelId, ev.stream);
         }
       );
+    this.setPoster();
+
+    const videoEl = this.videoEl.nativeElement as HTMLVideoElement;
+    videoEl.addEventListener('canplay', () => {
+      this.hasStream = true;
+    });
   }
 }

@@ -1,5 +1,6 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Mitosis} from 'mitosis';
+import {FullscreenService} from '../../../shared/services/fullscreen';
 import {SidebarComponent} from '../sidebar/sidebar';
 
 @Component({
@@ -12,11 +13,18 @@ export class MessengerComponent implements OnInit {
   public selectedNode: Node;
   @ViewChild('sidebar')
   public sidebar: SidebarComponent;
+  public inactiveTimer = 0;
+  public isInactive = false;
 
-  public peersVisible = false;
+  public infoVisible = false;
 
-  constructor() {
+  constructor(private fullscreenService: FullscreenService) {
     this.mitosis = new Mitosis();
+  }
+
+  private setActive() {
+    this.inactiveTimer = 0;
+    this.isInactive = false;
   }
 
   public setTitle() {
@@ -25,11 +33,35 @@ export class MessengerComponent implements OnInit {
     titleEl.innerText = text;
   }
 
-  public togglePeerList() {
-    this.peersVisible = !this.peersVisible;
+  public toggleInfo() {
+    this.infoVisible = !this.infoVisible;
+  }
+
+  public showFullScreenButton() {
+    return this.fullscreenService.canEnterFullScreen();
+  }
+
+  public isInFullScreen() {
+    return this.fullscreenService.isInFullScreen();
+  }
+
+  public toggleFullscreen() {
+    if (this.isInFullScreen()) {
+      this.fullscreenService.leave();
+    } else {
+      this.fullscreenService.enter();
+    }
   }
 
   ngOnInit(): void {
     this.setTitle();
+    setInterval(() => {
+      this.inactiveTimer++;
+      this.isInactive = this.inactiveTimer > 3;
+    }, 1000);
+
+    window.addEventListener('mousemove', this.setActive.bind(this));
+    window.addEventListener('keypress', this.setActive.bind(this));
+    window.addEventListener('touchstart', this.setActive.bind(this));
   }
 }
