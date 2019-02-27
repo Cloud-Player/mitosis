@@ -1,0 +1,12 @@
+{
+  "name": "mitosis",
+  "version": "0.0.0",
+  "scripts": {
+    "install": "cd mitosis && npm install && cd ..",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "private": true,
+  "preferGlobal": true,
+  "dependencies": {},
+  "devDependencies": {}
+}
