@@ -16,8 +16,8 @@ export class MessengerComponent implements OnInit {
   public peersVisible = false;
 
   constructor() {
-    this.mitosis = new Mitosis();
     Logger.setLevel(LogLevel.ERROR);
+    this.mitosis = new Mitosis();
   }
 
   public setTitle() {
