@@ -18,8 +18,8 @@ export class WebRTCStreamMockConnection extends WebRTCMockConnection {
     super.createAnswer(mitosisId, options);
   }
 
-  protected getAdditionalOfferPayload(): { [key: string]: any } {
-    // TODO: Why is channel id undefined and why doesn't it matter what the id is?
+  protected getAdditionalOfferPayload(): { [p: string]: any } {
+    // TODO: Why doesn't it matter if id is any?
     return {channelId: this.getChannelId() || 'any'};
   }
 

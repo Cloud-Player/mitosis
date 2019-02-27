@@ -106,9 +106,9 @@ export class StreamManager {
     this._peerManager
       .connectTo(address, options)
       .then(
-        candidate => {
+        remotePeer => {
           Logger.getLogger(this._myId)
-            .info(`pushing stream to ${candidate.getId()}`, candidate);
+            .info(`pushing stream to ${remotePeer.getId()}`, remotePeer);
         }
       )
       .catch((err) => {

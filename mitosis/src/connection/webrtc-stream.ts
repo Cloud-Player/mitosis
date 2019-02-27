@@ -42,16 +42,14 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
   }
 
   protected getAdditionalOfferPayload(): { [p: string]: any } {
-    // TODO: Why is channel id undefined and why doesn't it matter what the id is?
+    // TODO: Why doesn't it matter if id is any?
     return {channelId: this.getChannelId() || 'any'};
+  }
+
   }
 
   public send(message: Message): void {
     Logger.getLogger(message.getSender().getId()).error('stream connection can not send messages', message);
-  }
-
-  public addTrack(track: MediaStreamTrack): void {
-    (this._client as any).addTrack(track, this._stream);
   }
 
   public getChannelId(): string {

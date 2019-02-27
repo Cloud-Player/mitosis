@@ -446,7 +446,7 @@ export class PeerManager {
       existingPeer.send(message);
     } else {
       Logger.getLogger(this._myId)
-        .error(`failed to send message to ${message.getReceiver()}`, message);
+        .warn(`failed to send message to ${message.getReceiver()}`, message);
     }
   }
 

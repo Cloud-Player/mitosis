@@ -8,11 +8,12 @@ import {IStreamChurnEvent, Mitosis} from 'mitosis';
 })
 export class StreamPlayerComponent implements OnInit {
 
-  private _currentChannelId: string;
   @Input()
   public mitosis: Mitosis;
   @ViewChild('video')
   public videoEl: ElementRef;
+
+  private _currentChannelId: string;
 
   private setStream(channelId: string, stream: MediaStream): void {
     const videoEl = this.videoEl.nativeElement as HTMLVideoElement;
