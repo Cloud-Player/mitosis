@@ -21,9 +21,8 @@ export class StreamPlayerComponent implements OnInit {
   }
 
   private setPoster() {
-    console.log('set poster');
     this.http
-      .get('http://api.giphy.com/v1/gifs/random?tag=glitch&api_key=7cLNzkQlip4qjmzXrzdgvuCx9gdnhOD2')
+      .get('https://api.giphy.com/v1/gifs/random?tag=glitch&api_key=7cLNzkQlip4qjmzXrzdgvuCx9gdnhOD2')
       .subscribe((resp: any) => {
         const videoEl = this.videoEl.nativeElement as HTMLVideoElement;
         if (!videoEl.srcObject) {
