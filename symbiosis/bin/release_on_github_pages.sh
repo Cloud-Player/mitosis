@@ -29,6 +29,7 @@ exit_with_error () {
 # Ignore changes of package-lock.json
 git checkout -- package-lock.json
 git checkout -- ../mitosis/package-lock.json
+git checkout -- ../package-lock.json
 
 # Check if there are any local changes that are not committed yet
 if [ -n "$(git status --porcelain)" ]; then
