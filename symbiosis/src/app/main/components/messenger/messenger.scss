@@ -49,22 +49,22 @@
         height: 100vh;
       }
 
-      .show-peers{
+      .show-peers {
         position: absolute;
         right: 10px;
         top: 10px;
         z-index: 9;
       }
 
-      app-record-stream-button{
+      app-controls {
         position: absolute;
         bottom: 28px;
         z-index: 99999;
         left: calc(50% - 28px);
       }
 
-      &.peers-visible{
-        .sidebar{
+      &.peers-visible {
+        .sidebar {
           transform: translateX(0);
         }
       }

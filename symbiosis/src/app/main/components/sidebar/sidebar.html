@@ -1,7 +1,7 @@
 <div class="sidebar">
   <section>
     <header>{{mitosis.getMyAddress().getId()}} [{{mitosis.getRoleManager().getRoles().join(',')}}]</header>
-    <app-record-stream-button [mitosis]="mitosis" [mini]="true"></app-record-stream-button>
+    <app-controls [mitosis]="mitosis" [mini]="true"></app-controls>
     <app-peer-table [mitosis]="mitosis"></app-peer-table>
   </section>
 </div>

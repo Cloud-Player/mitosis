@@ -130,6 +130,12 @@ class ReportingPostHandler(RequestHandler):
         redis.publish('reports', self.request.body)
         self.write(json.dumps({'OK': 200}))
 
+    def options(self):
+        self.set_header('Access-Control-Allow-Methods', 'GET, OPTIONS, POST')
+        self.set_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.set_header('Access-Control-Allow-Origin', '*')
+        self.set_status(200)
+
 
 class FallbackHandler(RequestHandler):
 

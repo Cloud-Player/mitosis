@@ -7,8 +7,8 @@ import {WebRTCStreamConnection} from '../connection/webrtc-stream';
 import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
-import {ConnectionNegotiation, ConnectionNegotiationType, IConnectionNegotiationBody} from '../message/connection-negotiation';
-import {IChannelAnnouncement, IMessage, MessageSubject} from '../message/interface';
+import {ConnectionNegotiation, ConnectionNegotiationType} from '../message/connection-negotiation';
+import {IChannelAnnouncement, MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
 import {PeerManager} from '../peer/peer-manager';
 import {RoleType} from '../role/interface';
@@ -16,25 +16,48 @@ import {IObservableMapEvent, ObservableMap} from '../util/observable-map';
 import {TableView} from '../util/table-view';
 import {uuid} from '../util/uuid';
 import {Channel} from './channel';
-import {IStreamChurnEvent} from './interface';
-import {Provider} from './provider';
 
 export class StreamManager {
 
   private readonly _myId: string;
   private _channelPerId: ObservableMap<string, Channel>;
   private _peerManager: PeerManager;
-  private _streamSubject: Subject<IStreamChurnEvent>;
 
   constructor(myId: string, peerManager: PeerManager) {
     this._myId = myId;
     this._peerManager = peerManager;
-    this._streamSubject = new Subject();
     this._channelPerId = new ObservableMap();
     this.listenOnChannelChurn();
   }
 
-  private listenOnChannelChurn(): void {
+  private cleanUpEmptyChannels(): void {
+    this._channelPerId.observe()
+      .pipe(
+        filter(
+          channelEvent => channelEvent.type === ChurnType.ADDED
+        )
+      )
+      .subscribe(
+        channelEvent => {
+          const channel = channelEvent.value;
+          channel.observeProviderChurn()
+            .pipe(
+              filter(
+                providerEvent => providerEvent.type === ChurnType.REMOVED
+              )
+            )
+            .subscribe(
+              () => {
+                if (channel.getProviderTable().length === 0) {
+                  this.removeChannel(channel.getId());
+                }
+              }
+            );
+        }
+      );
+  }
+
+  private pushMyOwnChannelsOut(): void {
     this._channelPerId.observe()
       .pipe(
         filter(
@@ -52,42 +75,19 @@ export class StreamManager {
       .subscribe(
         ev => this.pushStream(ev.value.getId(), ev.value.getActiveProvider().getStream())
       );
-
-    this._channelPerId.observe()
-      .pipe(
-        filter(
-          channelEvent => channelEvent.type === ChurnType.ADDED
-        )
-      )
-      .subscribe(
-        channelEvent => {
-          channelEvent.value.observeProviderChurn()
-            .pipe(
-              filter(
-                providerEvent => providerEvent.type === ChurnType.REMOVED
-              )
-            )
-            .subscribe(
-              providerEvent => {
-                if (channelEvent.value.getProviderTable().length === 0) {
-                  this._channelPerId.delete(channelEvent.value.getId());
-                }
-              }
-            );
-        }
-      );
   }
 
-  private setCapacityForProvider(peerId: string, capacity: number): void {
+  private listenOnChannelChurn(): void {
+    this.cleanUpEmptyChannels();
+    this.pushMyOwnChannelsOut();
+  }
+
+  private setCapacityForPeer(peerId: string, capacity: number): void {
     this._channelPerId
       .asTable()
       .forEach(
         channel => {
-          let provider = channel.getProvider(peerId);
-          if (!provider) {
-            provider = new Provider(peerId);
-            channel.addProvider(provider);
-          }
+          const provider = channel.getOrSetProvider(peerId);
           provider.setCapacity(capacity);
         }
       );
@@ -109,6 +109,9 @@ export class StreamManager {
         remotePeer => {
           Logger.getLogger(this._myId)
             .info(`pushing stream to ${remotePeer.getId()}`, remotePeer);
+          const channel = this.getOrSetChannel(channelId);
+          const provider = channel.getOrSetProvider(peerId);
+          provider.setStream(stream);
         }
       )
       .catch((err) => {
@@ -121,18 +124,27 @@ export class StreamManager {
     this._peerManager
       .getPeerTable()
       .filterByRole(RoleType.PEER)
+      .filter(
+        peer => {
+          if (this.getOrSetChannel(channelId).getProvider(peer.getId())) {
+            return false;
+          } else if (this.amIAlreadyStreamingTo(peer.getId())) {
+            return false;
+          }
+          return true;
+        }
+      )
       .exclude(
-        table =>
-          table
-            .filterConnections(
-              connections => connections.filterByProtocol(Protocol.WEBRTC_STREAM)
-            )
+        peers => peers
+          .filterConnections(
+            table => table
+              .filterByProtocol(Protocol.WEBRTC_STREAM)
+          )
       )
       .filterConnections(
-        table =>
-          table
-            .filterDirect()
-            .filterByStates(ConnectionState.OPEN)
+        table => table
+          .filterDirect()
+          .filterByStates(ConnectionState.OPEN)
       )
       .sortByQuality()
       .reverse()
@@ -142,23 +154,21 @@ export class StreamManager {
       );
   }
 
-  private onStreamReady(connection: WebRTCStreamConnection, stream: MediaStream): void {
-    let channel = this._channelPerId.get(connection.getChannelId());
-    if (!channel) {
-      channel = new Channel(connection.getChannelId());
-      this._channelPerId.set(connection.getChannelId(), channel);
-    }
+  private onConnectionAddedStream(connection: WebRTCStreamConnection, stream: MediaStream): void {
+    const channel = this.getOrSetChannel(connection.getChannelId());
     const peerId = connection.getAddress().getId();
-    let provider = channel.getProvider(peerId);
-    if (provider) {
-      provider.setStream(stream);
-      this._streamSubject.next({type: ChurnType.ADDED, stream: stream, channelId: channel.getId()});
-    } else {
-      provider = new Provider(peerId, stream);
-      channel.addProvider(provider);
-    }
+    const provider = channel.getOrSetProvider(peerId);
+    provider.setStream(stream);
     if (!connection.isInitiator()) {
-      this.pushStream(connection.getChannelId(), stream);
+      this.pushStream(channel.getId(), stream);
+    }
+  }
+
+  private onConnectionRemovedStream(connection: WebRTCStreamConnection): void {
+    const channel = this._channelPerId.get(connection.getChannelId());
+    if (channel) {
+      const peerId = connection.getAddress().getId();
+      channel.removeProvider(peerId);
     }
   }
 
@@ -171,6 +181,25 @@ export class StreamManager {
         .length > 0;
     }
     return false;
+  }
+
+  public getOrSetChannel(channelId: string): Channel {
+    let channel = this._channelPerId.get(channelId);
+    if (!channel) {
+      channel = new Channel(channelId);
+      this._channelPerId.set(channel.getId(), channel);
+      Logger.getLogger(this._myId).info(`adding channel ${channel.getId()}`, channel);
+    }
+    return channel;
+  }
+
+  public removeChannel(channelId: string): boolean {
+    const channel = this._channelPerId.get(channelId);
+    if (channel) {
+      channel.destroy();
+      Logger.getLogger(this._myId).info(`removing channel ${channel.getId()}`, channel);
+    }
+    return this._channelPerId.delete(channelId);
   }
 
   public getMyCapacity(): number {
@@ -190,26 +219,31 @@ export class StreamManager {
 
   public onConnectionOpen(connection: IConnection): void {
     if (connection.getAddress().getProtocol() === Protocol.WEBRTC_STREAM) {
-      (connection as WebRTCStreamConnection)
-        .getStream()
-        .then(
-          stream => this.onStreamReady(connection as WebRTCStreamConnection, stream)
+      const streamConnection = connection as WebRTCStreamConnection;
+      const stream = streamConnection.getStream();
+      if (stream) {
+        this.onConnectionAddedStream(streamConnection, stream);
+      }
+      streamConnection.observeStreamChurn()
+        .subscribe(
+          ev => {
+            switch (ev.type) {
+              case ChurnType.ADDED:
+                this.onConnectionAddedStream(streamConnection, ev.stream);
+                break;
+              case ChurnType.REMOVED:
+                this.onConnectionRemovedStream(streamConnection);
+                break;
+            }
+          }
         );
     }
   }
 
   public onConnectionClose(connection: IConnection): void {
     if (connection.getAddress().getProtocol() === Protocol.WEBRTC_STREAM) {
-      (connection as WebRTCStreamConnection)
-        .getStream()
-        .then(
-          stream => {
-            const channel = this._channelPerId.get((connection as WebRTCStreamConnection).getChannelId());
-            if (channel) {
-              channel.removeProvider(connection.getAddress().getId());
-            }
-          }
-        );
+      const streamConnection = connection as WebRTCStreamConnection;
+      this.onConnectionRemovedStream(streamConnection);
     }
   }
 
@@ -313,7 +347,7 @@ export class StreamManager {
         );
         break;
       case ConnectionNegotiationType.REJECTION:
-        this.setCapacityForProvider(senderAddress.getId(), 0);
+        this.setCapacityForPeer(senderAddress.getId(), 0);
         logger.info(`got stream rejection from ${senderAddress.getId()}, setting capacity 0`, connectionNegotiation);
         this._peerManager.getPeerById(senderAddress.getId())
           .getConnectionTable()
@@ -337,16 +371,13 @@ export class StreamManager {
   }
 
   public getLocalChannel(): Channel {
-    return this._channelPerId
-      .valuesAsList()
+    return this.getChannelTable()
       .find(
-        channel => {
-          const provider = channel.getActiveProvider();
-          if (provider) {
-            return provider.getPeerId() === this._myId;
-          }
-          return false;
-        }
+        channel => channel
+          .getProviderTable()
+          .has(
+            provider => provider.isLocal()
+          )
       );
   }
 
@@ -359,50 +390,36 @@ export class StreamManager {
 
   public setLocalStream(stream: MediaStream): void {
     this.unsetLocalStream();
-    const channel = new Channel(uuid());
-    const provider = new Provider(this._myId, stream);
-    channel.addProvider(provider);
-    this._channelPerId.set(channel.getId(), channel);
-    this._streamSubject.next({type: ChurnType.ADDED, stream: stream, channelId: channel.getId()});
+    const channel = this.getOrSetChannel(uuid());
+    const provider = channel.getOrSetProvider(this._myId);
+    provider.setStream(stream);
+    Logger.getLogger(this._myId).info(`adding local channel ${channel.getId()}`, channel);
   }
 
   public unsetLocalStream(): void {
     const channel = this.getLocalChannel();
     if (channel) {
-      channel.destroy();
-      this._channelPerId.delete(channel.getId());
+      this.removeChannel(channel.getId());
     }
   }
 
   public updateProviders(announcements: Array<IChannelAnnouncement>): void {
     announcements.forEach(
       announcement => {
-        let channel = this._channelPerId.get(announcement.channelId);
-        if (!channel) {
-          channel = new Channel(announcement.channelId);
-          this._channelPerId.set(channel.getId(), channel);
-        }
+        const channel = this.getOrSetChannel(announcement.channelId);
         announcement.providers.forEach(
           channelProvider => {
             if (
               channelProvider.peerId !== this._myId &&
               this._peerManager.getPeerById(channelProvider.peerId)
             ) {
-              let provider = channel.getProvider(channelProvider.peerId);
-              if (!provider) {
-                provider = new Provider(channelProvider.peerId);
-                channel.addProvider(provider);
-              }
-              this.setCapacityForProvider(channelProvider.peerId, channelProvider.capacity);
+              channel.getOrSetProvider(channelProvider.peerId);
+              this.setCapacityForPeer(channelProvider.peerId, channelProvider.capacity);
             }
           }
         );
       }
     );
-  }
-
-  public observeStreamChurn(): Subject<IStreamChurnEvent> {
-    return this._streamSubject;
   }
 
   public observeChannelChurn(): Subject<IObservableMapEvent<Channel>> {
@@ -415,6 +432,5 @@ export class StreamManager {
         channel => channel.destroy()
       );
     this._channelPerId.destroy();
-    this._streamSubject.complete();
   }
 }

@@ -4,15 +4,26 @@ export class Provider {
   private _stream: MediaStream;
   private _capacity: number;
 
-  constructor(peerId: string, stream?: MediaStream, capacity = 0) {
+  constructor(peerId: string, capacity = 0) {
     this._peerId = peerId;
-    this._stream = stream;
     this._capacity = capacity;
   }
 
   public isActive(): boolean {
     if (this._stream) {
       return this._stream.active;
+    }
+    return false;
+  }
+
+  public isLocal(): boolean {
+    if (this._stream) {
+      return this._stream
+        .getTracks()
+        .map(
+          (track: MediaStreamTrack) => !track.remote
+        )
+        .includes(true);
     }
     return false;
   }

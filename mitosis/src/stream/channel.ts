@@ -39,7 +39,20 @@ export class Channel {
   }
 
   public removeProvider(peerId: string): boolean {
+    const provider = this.getProvider(peerId);
+    if (provider) {
+      provider.destroy();
+    }
     return this._providerPerId.delete(peerId);
+  }
+
+  public getOrSetProvider(peerId: string): Provider {
+    let provider = this.getProvider(peerId);
+    if (!provider) {
+      provider = new Provider(peerId);
+      this.addProvider(provider);
+    }
+    return provider;
   }
 
   public getProvider(peerId: string): Provider {
@@ -62,7 +75,7 @@ export class Channel {
       .pop();
   }
 
-  public getAnnouncement(): IChannelAnnouncement {
+  public asAnnouncement(): IChannelAnnouncement {
     return {
       channelId: this._id,
       providers: this._providerPerId

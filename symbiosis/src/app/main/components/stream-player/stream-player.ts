@@ -1,5 +1,6 @@
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
-import {IStreamChurnEvent, Mitosis} from 'mitosis';
+import {Mitosis} from 'mitosis';
+import {StreamService} from '../../services/stream';
 
 @Component({
   selector: 'app-stream-player',
@@ -10,47 +11,26 @@ export class StreamPlayerComponent implements OnInit {
 
   @Input()
   public mitosis: Mitosis;
+
   @ViewChild('video')
   public videoEl: ElementRef;
 
-  private _currentChannelId: string;
+  constructor(private streamService: StreamService) {
+  }
 
-  private setStream(channelId: string, stream: MediaStream): void {
+  private setStream(stream: MediaStream): void {
     const videoEl = this.videoEl.nativeElement as HTMLVideoElement;
-    this._currentChannelId = channelId;
     videoEl.srcObject = stream;
     videoEl.play();
   }
 
   ngOnInit(): void {
-    setInterval(
-      () => {
-        const newChannel = this.mitosis
-          .getStreamManager()
-          .getChannelTable()
-          .filter(
-            channel => {
-              return channel.isActive() && channel.getId() !== this._currentChannelId;
-            }
-          )
-          .asArray()
-          .sort(
-            () => .5 - Math.random()
-          )
-          .pop();
-        if (newChannel) {
-          this.setStream(newChannel.getId(), newChannel.getMediaStream());
-        }
-      },
-      5000
-    );
-    this.mitosis
-      .getStreamManager()
-      .observeStreamChurn()
+    if (this.streamService.getStream()) {
+      this.setStream(this.streamService.getStream());
+    }
+    this.streamService.observe()
       .subscribe(
-        (ev: IStreamChurnEvent) => {
-          this.setStream(ev.channelId, ev.stream);
-        }
+        (stream: MediaStream) => this.setStream(stream)
       );
   }
 }

@@ -1,16 +1,17 @@
-import {Address, IClock, IWebRTCStreamConnectionOptions} from 'mitosis';
+import {Address, ChurnType, IClock, IStreamChurnEvent, IWebRTCStreamConnectionOptions} from 'mitosis';
+import {Subject} from 'rxjs';
 import {WebRTCMockConnection} from './webrtc-mock';
 
 export class WebRTCStreamMockConnection extends WebRTCMockConnection {
 
-  private _stream: MediaStream;
-  private _streamPromise: Promise<MediaStream>;
+  private _streamSubject: Subject<IStreamChurnEvent>;
   private _channelId: string;
-  private _resolver: (stream: MediaStream) => void;
+  private _stream: MediaStream;
 
   constructor(address: Address, clock: IClock, options: IWebRTCStreamConnectionOptions) {
     super(address, clock, options);
-    this._stream = options.stream;
+    this._streamSubject = new Subject();
+    this.setStream(options.stream);
   }
 
   protected createAnswer(mitosisId: string, options: IWebRTCStreamConnectionOptions) {
@@ -29,18 +30,40 @@ export class WebRTCStreamMockConnection extends WebRTCMockConnection {
 
   public setStream(stream: MediaStream): void {
     this._stream = stream;
-    this._resolver(stream);
+    if (stream) {
+      this._stream = stream;
+      this._streamSubject.next({
+        stream: this._stream,
+        channelId: this._channelId,
+        type: ChurnType.ADDED
+      });
+    } else {
+      this.removeStream();
+    }
   }
 
-  public getStream(): Promise<MediaStream> {
+  public getStream(): MediaStream {
+    return this._stream;
+  }
+
+  public removeStream(): void {
     if (this._stream) {
-      return Promise.resolve(this._stream);
-    }
-    if (!this._streamPromise) {
-      this._streamPromise = new Promise(resolver => {
-        this._resolver = resolver;
+      const stream = this._stream;
+      stream
+        .getTracks()
+        .forEach(
+          track => track.stop()
+        );
+      this._stream = null;
+      this._streamSubject.next({
+        stream: stream,
+        channelId: this._channelId,
+        type: ChurnType.REMOVED
       });
     }
-    return this._streamPromise;
+  }
+
+  public observeStreamChurn(): Subject<IStreamChurnEvent> {
+    return this._streamSubject;
   }
 }
