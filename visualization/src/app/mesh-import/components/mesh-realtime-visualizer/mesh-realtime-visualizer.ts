@@ -73,12 +73,12 @@ export class MeshRealtimeVisualizerComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Make sure to show signal as the signal is not rporting itself
     this.directedGraphModel.addNode(new MeshImportNodeModel({
       id: 'p000',
       roles: ['signal'],
       connections: {}
     }));
-    this.directedGraphModel.addEdge(new MeshImportEdgeModel('p1', 'p000', 'wss', 0));
     this.socketListenerService.start();
     this.socketListenerService.observe().subscribe(this.updateMesh.bind(this));
     setInterval(() => {
