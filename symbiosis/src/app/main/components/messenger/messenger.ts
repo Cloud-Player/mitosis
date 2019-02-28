@@ -1,6 +1,7 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Mitosis} from 'mitosis';
 import {FullscreenService} from '../../../shared/services/fullscreen';
+import {ReportingService} from '../../services/reporting';
 import {SidebarComponent} from '../sidebar/sidebar';
 
 @Component({
@@ -18,7 +19,7 @@ export class MessengerComponent implements OnInit {
 
   public infoVisible = false;
 
-  constructor(private fullscreenService: FullscreenService) {
+  constructor(private fullscreenService: FullscreenService, private reportingService: ReportingService) {
     this.mitosis = new Mitosis();
   }
 
@@ -63,5 +64,7 @@ export class MessengerComponent implements OnInit {
     window.addEventListener('mousemove', this.setActive.bind(this));
     window.addEventListener('keypress', this.setActive.bind(this));
     window.addEventListener('touchstart', this.setActive.bind(this));
+
+    this.reportingService.setMitosis(this.mitosis);
   }
 }
