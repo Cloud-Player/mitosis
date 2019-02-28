@@ -198,6 +198,7 @@ export class Simulation {
       node.destroy();
     });
     this._nodes.clear();
+    this._clock.tick();
     this._clock.stop();
   }
 }
