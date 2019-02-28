@@ -87,12 +87,10 @@ export class ReportingService {
 
   private sendToReportServer(data: any) {
     this.http.post('https://signal.aux.app/reporting', data).subscribe();
-    console.log('SEND UPDATE', data);
   }
 
   private publish() {
     this._updateReady.next(this._mitosis.toJSON());
-    console.log('PUBLISH UPDATE');
   }
 
   public setMitosis(mitosis: Mitosis) {
