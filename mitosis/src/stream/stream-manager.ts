@@ -376,7 +376,7 @@ export class StreamManager {
         channel => channel
           .getProviderTable()
           .has(
-            provider => provider.isLocal()
+            provider => provider.getPeerId() === this._myId
           )
       );
   }

@@ -64,15 +64,7 @@ export class Channel {
   }
 
   public getMediaStream(): MediaStream {
-    return this._providerPerId
-      .asTable()
-      .filter(
-        provider => provider.isActive()
-      )
-      .map(
-        provider => provider.getStream()
-      )
-      .pop();
+    return this.getActiveProvider().getStream();
   }
 
   public asAnnouncement(): IChannelAnnouncement {

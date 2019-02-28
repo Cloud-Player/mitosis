@@ -15,8 +15,6 @@ export class ControlsComponent {
   @Input()
   public mini: boolean;
 
-  private _currentChannel: Channel;
-
   constructor(private streamService: StreamService) {
   }
 
@@ -25,10 +23,12 @@ export class ControlsComponent {
       .getStreamManager()
       .getChannelTable()
       .filter(
-        channel => channel.isActive()
-      )
-      .filter(
-        channel => channel.getId() !== this._currentChannel.getId()
+        channel => {
+          if (!channel.isActive()) {
+            return false;
+          }
+          return channel.getId() !== this.streamService.getChannelId();
+        }
       )
       .asArray();
   }
@@ -42,9 +42,7 @@ export class ControlsComponent {
   }
 
   public showStartButton(): boolean {
-    if (this.showStopButton()) {
-      return false;
-    }
+    return !this.showStopButton() && this.getOtherChannels().length <= 3;
   }
 
   public startStream(): void {
@@ -55,7 +53,7 @@ export class ControlsComponent {
       (stream: MediaStream) => {
         const manager = this.mitosis.getStreamManager();
         manager.setLocalStream(stream);
-        this._currentChannel = manager.getLocalChannel();
+        this.streamService.setChannel(manager.getLocalChannel());
         this.streamService.setStream(stream);
       });
   }
@@ -79,9 +77,8 @@ export class ControlsComponent {
       )
       .pop();
     if (channel) {
-      this._currentChannel = channel;
       const stream = channel.getMediaStream();
-      this.streamService.setStream(stream);
+      this.streamService.update(channel, stream);
     }
   }
 }

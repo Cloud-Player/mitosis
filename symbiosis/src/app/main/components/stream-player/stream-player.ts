@@ -17,6 +17,15 @@ export class StreamPlayerComponent implements OnInit {
   public videoEl: ElementRef;
 
   public hasStream = false;
+  public title = [
+    'awaiting signal',
+    'locating peers',
+    'joining network',
+    'loading assets',
+    'observing churn',
+    'acquiring connection',
+    'weaving mesh'
+  ].sort(() => 0.5 - Math.random())[0];
 
   constructor(private http: HttpClient, private streamService: StreamService) {
   }
@@ -43,6 +52,7 @@ export class StreamPlayerComponent implements OnInit {
         }
       });
   }
+
 
   ngOnInit(): void {
     if (this.streamService.getStream()) {

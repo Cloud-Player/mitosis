@@ -40,6 +40,7 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
       };
     }
   }
+
   protected createAnswer(mitosisId: string, options: IWebRTCStreamConnectionOptions) {
     this._channelId = options.channelId;
     super.createAnswer(mitosisId, options);
@@ -63,13 +64,10 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
     this._client.on('stream', (stream: MediaStream) => {
       this.setStream(stream);
     });
-    this.getRTCPeerConnection().addEventListener('onremovestream', () => {
-      this.removeStream();
-    });
   }
 
   public send(message: Message): void {
-    Logger.getLogger(message.getSender().getId()).error('stream connection can not send messages', message);
+    Logger.getLogger(this._address.getId()).error('stream connection can not send messages', message);
   }
 
   public getChannelId(): string {
