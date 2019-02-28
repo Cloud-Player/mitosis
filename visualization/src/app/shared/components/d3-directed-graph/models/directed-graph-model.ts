@@ -33,7 +33,12 @@ export class DirectedGraphModel<TNode extends NodeModel, TEdge extends EdgeModel
   }
 
   private canAddEdge(newEdge: TEdge, existingTargetEdge: TEdge, existingSourceEdge: TEdge): boolean {
+    if (!this.getNodeById(newEdge.getSourceId()) || !this.getNodeById(newEdge.getTargetId())) {
+      return false;
+    }
+
     if (!existingTargetEdge && !existingSourceEdge) {
+
       return true;
     } else {
       return false;
