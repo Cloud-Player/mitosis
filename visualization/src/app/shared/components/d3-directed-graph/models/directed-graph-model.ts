@@ -56,6 +56,10 @@ export class DirectedGraphModel<TNode extends NodeModel, TEdge extends EdgeModel
     });
   }
 
+  public getNodeById(nodeId: string): TNode {
+    return this._nodes.find(node => node.getId() === nodeId);
+  }
+
   public getEdge(searchEdge: TEdge) {
     return this._edges.find((edge: TEdge) => {
       return edge.getId() === searchEdge.getId() && edge.getLocation() === searchEdge.getLocation();
@@ -72,6 +76,13 @@ export class DirectedGraphModel<TNode extends NodeModel, TEdge extends EdgeModel
     return existingNode;
   }
 
+  public removeNode(node: TNode) {
+    const existingNode = this.getNode(node);
+    if (existingNode) {
+      this._nodes.splice(this._nodes.indexOf(existingNode), 1);
+      this.trigger(['remove', 'remove-node']);
+    }
+  }
   public addEdge(edge: TEdge): TEdge {
     const existingTargetNode = this._edges.find(
       findEdge => findEdge.matches(edge.getConnectionPrefix(), edge.getTargetId(), edge.getSourceId(), edge.getLocation())
