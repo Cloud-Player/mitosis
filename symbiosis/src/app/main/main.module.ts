@@ -11,6 +11,7 @@ import {SidebarComponent} from './components/sidebar/sidebar';
 import {StreamPlayerComponent} from './components/stream-player/stream-player';
 import {MainRoutingModule} from './main.routes';
 import {MessengerComponent} from './components/messenger/messenger';
+import {ReportingService} from './services/reporting';
 
 @NgModule({
   imports: [
@@ -32,6 +33,7 @@ import {MessengerComponent} from './components/messenger/messenger';
     RecordStreamButtonComponent
   ],
   providers: [
+    ReportingService
   ],
   bootstrap: [MainComponent]
 })
