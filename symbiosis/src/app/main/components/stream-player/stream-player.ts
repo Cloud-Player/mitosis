@@ -1,6 +1,7 @@
 import {HttpClient} from '@angular/common/http';
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import {IStreamChurnEvent, Mitosis} from 'mitosis';
+import {environment} from '../../../../environments/environment';
 
 @Component({
   selector: 'app-stream-player',
@@ -21,14 +22,17 @@ export class StreamPlayerComponent implements OnInit {
   }
 
   private setPoster() {
-    this.http
-      .get('https://api.giphy.com/v1/gifs/random?tag=glitch&api_key=7cLNzkQlip4qjmzXrzdgvuCx9gdnhOD2')
-      .subscribe((resp: any) => {
-        const videoEl = this.videoEl.nativeElement as HTMLVideoElement;
-        if (!videoEl.srcObject) {
-          videoEl.poster = resp.data.image_url;
-        }
-      });
+    // To not show glitch gifs during development
+    if (environment.production) {
+      this.http
+        .get('https://api.giphy.com/v1/gifs/random?tag=glitch&api_key=7cLNzkQlip4qjmzXrzdgvuCx9gdnhOD2')
+        .subscribe((resp: any) => {
+          const videoEl = this.videoEl.nativeElement as HTMLVideoElement;
+          if (!videoEl.srcObject) {
+            videoEl.poster = resp.data.image_url;
+          }
+        });
+    }
   }
 
   private setStream(channelId: string, stream: MediaStream): void {
