@@ -38,9 +38,11 @@ export class Provider {
   }
 
   public destroy(): void {
-    this._stream.getTracks()
-      .forEach(
-        track => track.stop()
-      );
+    if (this._stream) {
+      this._stream.getTracks()
+        .forEach(
+          track => track.stop()
+        );
+    }
   }
 }
