@@ -11,5 +11,9 @@ export class MainComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    window.addEventListener('startNativeClient', (event: CustomEvent) => {
+      const clientDetails: { version: number, platform: string } = event.detail;
+      document.querySelector('body').classList.add('native', 'desktop', clientDetails.platform);
+    });
   }
 }

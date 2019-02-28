@@ -1,17 +1,26 @@
-<div class="messenger" [class.peers-visible]="peersVisible">
-  <button text="fa fa-user"
-          class="btn btn-default visible-xs show-peers"
-          (click)="togglePeerList()">
-    <span *ngIf="peersVisible"
+<div class="messenger"
+     [class.info-visible]="infoVisible"
+     [class.inactive]="isInactive">
+  <div class="show-peers">
+    <button class="btn btn-default light"
+            (click)="toggleInfo()">
+    <span *ngIf="infoVisible"
           class="fa fa-times"></span>
-    <span *ngIf="!peersVisible"
-          class="fa fa-user"></span>
-  </button>
+      <span *ngIf="!infoVisible"
+            class="fa fa-info"></span>
+    </button>
+    <button *ngIf="showFullScreenButton()"
+            class="btn btn-default light"
+            (click)="toggleFullscreen()">
+      <span *ngIf="isInFullScreen()"
+            class="fa fa-compress"></span>
+      <span *ngIf="!isInFullScreen()"
+            class="fa fa-arrows-alt"></span>
+    </button>
+  </div>
   <div class="message-ui">
     <app-stream-player [mitosis]="mitosis"></app-stream-player>
-    <app-controls [mitosis]="mitosis"
-                  class="visible-xs">
-    </app-controls>
+    <app-controls [mitosis]="mitosis"></app-controls>
   </div>
   <div class="sidebar scrollable"
        appFillHeight

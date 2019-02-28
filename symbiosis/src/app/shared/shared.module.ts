@@ -3,6 +3,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {NgModule} from '@angular/core';
 import {ScrollViewComponent} from './components/scroll-view/scroll-view.component';
 import {FillHeightDirective} from './directives/fill-height';
+import {FullscreenService} from './services/fullscreen';
 import {LayoutService} from './services/layout';
 import {TabBarComponent} from './components/tabs/tab-bar/tab-bar';
 import {TabPaneComponent} from './components/tabs/tab-pane/tab-pane';
@@ -83,7 +84,8 @@ import {SelectorComponent} from './components/ui/inputs/selector/selector';
   ],
   providers: [
     LayoutService,
-    ModalService
+    ModalService,
+    FullscreenService
   ],
   entryComponents: [
     ModalComponent,
