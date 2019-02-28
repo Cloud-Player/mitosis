@@ -421,7 +421,6 @@ export class PeerManager {
     }
     let existingPeer;
     const protocol = message.getReceiver().getProtocol();
-    const breadCrumbs = [];
     if (!protocol) {
       const receiver = this.getPeerById(message.getReceiver().getId());
       if (receiver) {
@@ -429,31 +428,25 @@ export class PeerManager {
           .filterByStates(ConnectionState.OPEN)
           .sortByQuality()
           .pop();
-        breadCrumbs.push('No protocol was set');
         if (connection) {
           if (connection.getAddress().getProtocol() === Protocol.VIA ||
             connection.getAddress().getProtocol() === Protocol.VIA_MULTI) {
             existingPeer = this.getPeerById(connection.getAddress().getLocation());
-            breadCrumbs.push('Select VIA', connection.getAddress().getLocation());
           } else {
             existingPeer = this.getPeerById(message.getReceiver().getId());
-            breadCrumbs.push('Select DIRECT', connection.getAddress().getId());
           }
         }
       }
     } else if (protocol === Protocol.VIA || protocol === Protocol.VIA_MULTI) {
       existingPeer = this.getPeerById(message.getReceiver().getLocation());
-      breadCrumbs.push('Select VIA', message.getReceiver().getLocation());
     } else {
       existingPeer = this.getPeerById(message.getReceiver().getId());
-      breadCrumbs.push('Select DIRECT', message.getReceiver().getLocation());
-
     }
     if (existingPeer) {
       existingPeer.send(message);
     } else {
       Logger.getLogger(this._myId)
-        .error(`failed to send message to ${message.getReceiver()}`, breadCrumbs, message);
+        .warn(`failed to send message to ${message.getReceiver()}`, message);
     }
   }
 

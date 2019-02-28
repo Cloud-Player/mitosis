@@ -1,4 +1,5 @@
 import {
+  ChurnType,
   ConfigurationMap,
   ConnectionState,
   IClock,
@@ -84,11 +85,26 @@ export class Simulation {
         inConn.getAddress().getProtocol() === Protocol.WEBRTC_STREAM &&
         outConn.getAddress().getProtocol() === Protocol.WEBRTC_STREAM
       ) {
-        (inConn as WebRTCStreamMockConnection)
-          .getStream()
-          .then(
-            stream => (outConn as WebRTCStreamMockConnection).setStream(stream.clone())
-          );
+        const inStreamConn = inConn as WebRTCStreamMockConnection;
+        const outStreamConn = outConn as WebRTCStreamMockConnection;
+        const stream = inStreamConn.getStream();
+        if (stream) {
+          outStreamConn.setStream(stream.clone());
+        } else {
+          inStreamConn.observeStreamChurn()
+            .subscribe(
+              ev => {
+                switch (ev.type) {
+                  case ChurnType.ADDED:
+                    outStreamConn.setStream(ev.stream.clone());
+                    break;
+                  case ChurnType.REMOVED:
+                    outStreamConn.removeStream();
+                    break;
+                }
+              }
+            );
+        }
       }
       outConn.onOpen(outConn);
     } else {

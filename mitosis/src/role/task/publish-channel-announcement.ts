@@ -14,7 +14,7 @@ export function publishChannelAnnouncement(mitosis: Mitosis): void {
     )
     .map(
       channel => {
-        const announcement = channel.getAnnouncement();
+        const announcement = channel.asAnnouncement();
         const myId = mitosis.getMyAddress().getId();
         const iAmProvider = announcement.providers.find(provider => provider.peerId === myId);
         const capacity = mitosis.getStreamManager().getMyCapacity();

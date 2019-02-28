@@ -4,13 +4,14 @@ import {FormsModule} from '@angular/forms';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {SharedModule} from '../shared/shared.module';
+import {ControlsComponent} from './components/controls/controls';
 import {MainComponent} from './components/main/main';
-import {RecordStreamButtonComponent} from './components/record-stream-button/record-stream-button';
+import {MessengerComponent} from './components/messenger/messenger';
 import {PeerTableComponent} from './components/sidebar/peer-table/peer-table';
 import {SidebarComponent} from './components/sidebar/sidebar';
 import {StreamPlayerComponent} from './components/stream-player/stream-player';
 import {MainRoutingModule} from './main.routes';
-import {MessengerComponent} from './components/messenger/messenger';
+import {StreamService} from './services/stream';
 import {ReportingService} from './services/reporting';
 
 @NgModule({
@@ -30,9 +31,10 @@ import {ReportingService} from './services/reporting';
     PeerTableComponent,
     MessengerComponent,
     StreamPlayerComponent,
-    RecordStreamButtonComponent
+    ControlsComponent
   ],
   providers: [
+    StreamService,
     ReportingService
   ],
   bootstrap: [MainComponent]

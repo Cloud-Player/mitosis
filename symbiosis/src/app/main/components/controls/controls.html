@@ -1,0 +1,17 @@
+<div class="controls">
+  <app-button *ngIf="showStartButton()"
+              [type]="getButtonType()"
+              text="fa fa-video-camera"
+              (click)="startStream()">
+  </app-button>
+  <app-button *ngIf="showStopButton()"
+              [type]="getButtonType()"
+              text="fa fa-stop"
+              (click)="stopStream()">
+  </app-button>
+  <app-button *ngIf="showSwitchButton()"
+              [type]="getButtonType()"
+              text="fa fa-users"
+              (click)="switchStream()">
+  </app-button>
+</div>

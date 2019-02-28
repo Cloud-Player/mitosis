@@ -1,39 +1,44 @@
+import {Subject} from 'rxjs';
 import {IClock} from '../clock/interface';
+import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {Address} from '../message/address';
 import {Message} from '../message/message';
 import {StreamConnectionMeter} from '../metering/connection-meter/stream-connection-meter';
+import {IStreamChurnEvent} from '../stream/interface';
 import {IConnection, IWebRTCStreamConnectionOptions} from './interface';
 import {WebRTCConnection} from './webrtc';
 
 export class WebRTCStreamConnection extends WebRTCConnection implements IConnection {
 
-  private _onStreamResolver: (stream: MediaStream) => void;
-  private _onStreamPromise: Promise<MediaStream>;
+  private _streamSubject: Subject<IStreamChurnEvent>;
   private _channelId: string;
   private _stream: MediaStream;
 
   constructor(address: Address, clock: IClock, options: IWebRTCStreamConnectionOptions) {
     super(address, clock, options);
     this._meter = new StreamConnectionMeter(this, clock);
-    this._simplePeerOptions.stream = options.stream;
+    this._streamSubject = new Subject();
+    this.setStream(options.stream);
   }
 
-  protected bindClientListeners(): void {
-    super.bindClientListeners();
-    this._client.on('track', (track: MediaStreamTrack, stream: MediaStream) => {
-      this._stream = stream;
-      if (this._onStreamResolver) {
-        this._onStreamResolver(this._stream);
-      }
-    });
-
-    this._client.on('stream', (stream: MediaStream) => {
-      this._stream = stream;
-      if (this._onStreamResolver) {
-        this._onStreamResolver(this._stream);
-      }
-    });
+  private bindStreamListeners(): void {
+    if (this._stream) {
+      this._stream.onactive = () => {
+        this._streamSubject.next({
+          type: ChurnType.ADDED,
+          stream: this._stream,
+          channelId: this._channelId
+        });
+      };
+      this._stream.oninactive = () => {
+        this._streamSubject.next({
+          type: ChurnType.REMOVED,
+          stream: this._stream,
+          channelId: this._channelId
+        });
+      };
+    }
   }
 
   protected createAnswer(mitosisId: string, options: IWebRTCStreamConnectionOptions) {
@@ -42,16 +47,27 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
   }
 
   protected getAdditionalOfferPayload(): { [p: string]: any } {
-    // TODO: Why is channel id undefined and why doesn't it matter what the id is?
+    // TODO: Why doesn't it matter if id is any?
     return {channelId: this.getChannelId() || 'any'};
   }
 
-  public send(message: Message): void {
-    Logger.getLogger(message.getSender().getId()).error('stream connection can not send messages', message);
+  protected closeClient(): void {
+    this.removeStream();
+    super.closeClient();
   }
 
-  public addTrack(track: MediaStreamTrack): void {
-    (this._client as any).addTrack(track, this._stream);
+  protected bindClientListeners(): void {
+    super.bindClientListeners();
+    this._client.on('track', (track: MediaStreamTrack, stream: MediaStream) => {
+      this.setStream(stream);
+    });
+    this._client.on('stream', (stream: MediaStream) => {
+      this.setStream(stream);
+    });
+  }
+
+  public send(message: Message): void {
+    Logger.getLogger(this._address.getId()).error('stream connection can not send messages', message);
   }
 
   public getChannelId(): string {
@@ -59,20 +75,42 @@ export class WebRTCStreamConnection extends WebRTCConnection implements IConnect
   }
 
   public setStream(stream: MediaStream): void {
-    this._stream = stream;
-    this._simplePeerOptions.stream = stream;
+    if (stream) {
+      this._stream = stream;
+      this._simplePeerOptions.stream = stream;
+      this.bindStreamListeners();
+      this._streamSubject.next({
+        stream: this._stream,
+        channelId: this._channelId,
+        type: ChurnType.ADDED
+      });
+    } else {
+      this.removeStream();
+    }
   }
 
-  public getStream(): Promise<MediaStream> {
+  public getStream(): MediaStream {
+    return this._stream;
+  }
+
+  public removeStream(): void {
     if (this._stream) {
-      return Promise.resolve(this._stream);
-    } else if (!this._onStreamPromise) {
-      this._onStreamPromise = new Promise<MediaStream>(
-        resolve => {
-          this._onStreamResolver = resolve;
-        }
-      );
+      const stream = this._stream;
+      stream
+        .getTracks()
+        .forEach(
+          track => track.stop()
+        );
+      this._stream = null;
+      this._streamSubject.next({
+        stream: stream,
+        channelId: this._channelId,
+        type: ChurnType.REMOVED
+      });
     }
-    return this._onStreamPromise;
+  }
+
+  public observeStreamChurn(): Subject<IStreamChurnEvent> {
+    return this._streamSubject;
   }
 }

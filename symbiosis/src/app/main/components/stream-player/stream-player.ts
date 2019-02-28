@@ -1,7 +1,7 @@
 import {HttpClient} from '@angular/common/http';
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
-import {IStreamChurnEvent, Mitosis} from 'mitosis';
-import {environment} from '../../../../environments/environment';
+import {Mitosis} from 'mitosis';
+import {StreamService} from '../../services/stream';
 
 @Component({
   selector: 'app-stream-player',
@@ -10,34 +10,29 @@ import {environment} from '../../../../environments/environment';
 })
 export class StreamPlayerComponent implements OnInit {
 
-  private _currentChannelId: string;
   @Input()
   public mitosis: Mitosis;
+
   @ViewChild('video')
   public videoEl: ElementRef;
 
   public hasStream = false;
+  public title = [
+    'awaiting signal',
+    'locating peers',
+    'joining network',
+    'loading assets',
+    'observing churn',
+    'acquiring connection',
+    'weaving mesh'
+  ].sort(() => 0.5 - Math.random())[0];
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient,
+              private streamService: StreamService) {
   }
 
-  private setPoster() {
-    // To not show glitch gifs during development
-    if (environment.production) {
-      this.http
-        .get('https://api.giphy.com/v1/gifs/random?tag=glitch&api_key=7cLNzkQlip4qjmzXrzdgvuCx9gdnhOD2')
-        .subscribe((resp: any) => {
-          const videoEl = this.videoEl.nativeElement as HTMLVideoElement;
-          if (!videoEl.srcObject) {
-            videoEl.poster = resp.data.image_url;
-          }
-        });
-    }
-  }
-
-  private setStream(channelId: string, stream: MediaStream): void {
+  private setStream(stream: MediaStream): void {
     const videoEl = this.videoEl.nativeElement as HTMLVideoElement;
-    this._currentChannelId = channelId;
     if (stream) {
       videoEl.srcObject = stream;
       videoEl.play();
@@ -48,41 +43,32 @@ export class StreamPlayerComponent implements OnInit {
     }
   }
 
-  ngOnInit(): void {
-    setInterval(
-      () => {
-        const newChannel = this.mitosis
-          .getStreamManager()
-          .getChannelTable()
-          .filter(
-            channel => {
-              return channel.isActive() && channel.getId() !== this._currentChannelId;
-            }
-          )
-          .asArray()
-          .sort(
-            () => .5 - Math.random()
-          )
-          .pop();
-        if (newChannel) {
-          this.setStream(newChannel.getId(), newChannel.getMediaStream());
+  private setPoster() {
+    this.http
+      .get('https://api.giphy.com/v1/gifs/random?tag=glitch&api_key=7cLNzkQlip4qjmzXrzdgvuCx9gdnhOD2')
+      .subscribe((resp: any) => {
+        const videoEl = this.videoEl.nativeElement as HTMLVideoElement;
+        if (!videoEl.srcObject) {
+          videoEl.poster = resp.data.image_url;
         }
-      },
-      5000
-    );
-    this.mitosis
-      .getStreamManager()
-      .observeStreamChurn()
-      .subscribe(
-        (ev: IStreamChurnEvent) => {
-          this.setStream(ev.channelId, ev.stream);
-        }
-      );
-    this.setPoster();
+      });
+  }
 
-    const videoEl = this.videoEl.nativeElement as HTMLVideoElement;
-    videoEl.addEventListener('canplay', () => {
-      this.hasStream = true;
-    });
+
+  ngOnInit(): void {
+    if (this.streamService.getStream()) {
+      this.setStream(this.streamService.getStream());
+    } else {
+      this.setPoster();
+    }
+    (this.videoEl.nativeElement as HTMLVideoElement)
+      .addEventListener('canplay', () => {
+        this.hasStream = true;
+      });
+    this.streamService
+      .observe()
+      .subscribe(
+        (stream: MediaStream) => this.setStream(stream)
+      );
   }
 }

@@ -14,7 +14,34 @@ from tornado.web import Application, RequestHandler
 from tornado.websocket import WebSocketHandler
 
 
-class RendezvousHandler(WebSocketHandler):
+class PubSubHandler(WebSocketHandler):
+
+    def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
+        self.redis = redis_session()
+        self.pubsub = self.redis.pubsub(ignore_subscribe_messages=True)
+        self.pubsub.subscribe(keep_alive=lambda: True)
+        self.callback = PeriodicCallback(self.pubsub.get_message, 50, 0.1)
+        self.callback.start()
+
+    def open(self):
+        app_log.info('ws open')
+
+    def forward(self, message):
+        self.write_message(message['data'])
+
+    def dumps(self, data):
+        return json.dumps(data, separators=',:', sort_keys=True)
+
+    def check_origin(self, origin):
+        return True
+
+    def on_close(self):
+        self.callback.stop()
+        self.pubsub.close()
+
+
+class RendezvousHandler(PubSubHandler):
 
     ROUTER = {}
     MY_ADDRESS = 'mitosis/v1/p000/wss/signal.aux.app/websocket'
@@ -28,12 +55,9 @@ class RendezvousHandler(WebSocketHandler):
         self.callback = PeriodicCallback(self.pubsub.get_message, 50, 0.1)
         self.callback.start()
 
-    def open(self):
-        app_log.info('ws open')
-
     def on_message(self, message):
         message = json.loads(message)
-        app_log.error(message)
+        app_log.info(message)
         subject = message.get('subject')
         if subject == 'introduction':
             self.on_introduction(message)
@@ -49,11 +73,11 @@ class RendezvousHandler(WebSocketHandler):
         self.peer_id = sender.split('/', 3)[2]
         self.pubsub.subscribe(**{'peer-%s' % self.peer_id: self.forward})
         if RendezvousHandler.ROUTER:
-            app_log.warning('%s (peer) joined', self.peer_id)
+            app_log.info('%s (peer) joined', self.peer_id)
             self.send_message(sender, 'role-update', ['peer'])
             self.send_message(sender, 'peer-update', [RendezvousHandler.ROUTER])
         else:
-            app_log.warning('%s (router) joined', self.peer_id)
+            app_log.info('%s (router) joined', self.peer_id)
             roles = ['router', 'peer']
             RendezvousHandler.ROUTER.update(
                 {'peerId': self.peer_id, 'roles': roles, 'quality': 1.0})
@@ -83,23 +107,34 @@ class RendezvousHandler(WebSocketHandler):
             'body': body}
         self.write_message(self.dumps(message))
 
-    def forward(self, message):
-        self.write_message(message['data'])
-
-    def dumps(self, data):
-        return json.dumps(data, separators=',:', sort_keys=True)
-
     def on_close(self):
+        super().on_close()
         if self.peer_id == RendezvousHandler.ROUTER.get('peerId'):
             RendezvousHandler.ROUTER.clear()
-            app_log.warning('%s (router) left', self.peer_id)
+            app_log.info('%s (router) left', self.peer_id)
         else:
-            app_log.warning('%s left', self.peer_id)
-        self.callback.stop()
-        self.pubsub.close()
+            app_log.info('%s left', self.peer_id)
 
-    def check_origin(self, origin):
-        return True
+
+class ReportingSubHandler(PubSubHandler):
+
+    def open(self):
+        super().open()
+        self.pubsub.subscribe(reports=self.forward)
+
+
+class ReportingPostHandler(RequestHandler):
+
+    def post(self):
+        redis = redis_session()
+        redis.publish('reports', self.request.body)
+        self.write(json.dumps({'OK': 200}))
+
+    def options(self):
+        self.set_header('Access-Control-Allow-Methods', 'GET, OPTIONS, POST')
+        self.set_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.set_header('Access-Control-Allow-Origin', '*')
+        self.set_status(200)
 
 
 class FallbackHandler(RequestHandler):
@@ -129,6 +164,8 @@ def main():
     redis_session().delete('peers')
     app = Application(
         [(r'/websocket', RendezvousHandler),
+         (r'/reporting/websocket', ReportingSubHandler),
+         (r'/reporting', ReportingPostHandler),
          (r'.*', FallbackHandler)],
         **opt.options.group_dict('app'))
     app.listen(opt.options.port)

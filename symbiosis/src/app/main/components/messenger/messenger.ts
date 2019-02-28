@@ -1,7 +1,8 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {Mitosis} from 'mitosis';
+import {Channel, ChurnType, Logger, LogLevel, Mitosis} from 'mitosis';
 import {FullscreenService} from '../../../shared/services/fullscreen';
 import {ReportingService} from '../../services/reporting';
+import {StreamService} from '../../services/stream';
 import {SidebarComponent} from '../sidebar/sidebar';
 
 @Component({
@@ -19,7 +20,10 @@ export class MessengerComponent implements OnInit {
 
   public infoVisible = false;
 
-  constructor(private fullscreenService: FullscreenService, private reportingService: ReportingService) {
+  constructor(private fullscreenService: FullscreenService,
+              private reportingService: ReportingService,
+              private streamService: StreamService) {
+    Logger.setLevel(LogLevel.ERROR);
     this.mitosis = new Mitosis();
   }
 
@@ -28,10 +32,75 @@ export class MessengerComponent implements OnInit {
     this.isInactive = false;
   }
 
+  private subscribeChannel(channel: Channel): void {
+    channel
+      .observeProviderChurn()
+      .subscribe(
+        providerEvent => {
+          if (
+            providerEvent.type === ChurnType.ADDED &&
+            !this.streamService.getChannel() &&
+            providerEvent.value.isActive() &&
+            !providerEvent.value.isLocal()
+          ) {
+            // If nothing is playing, tune into new channel automatically
+            this.streamService.update(channel, providerEvent.value.getStream());
+            return;
+          }
+          if (
+            providerEvent.type === ChurnType.REMOVED &&
+            channel.getId() === this.streamService.getChannelId() &&
+            !providerEvent.value.isActive()
+          ) {
+            if (channel.isActive()) {
+              // If one provider for the channel we are watching is removed, switch to another
+              this.streamService.setStream(channel.getMediaStream());
+            } else {
+              // If we loose our only provider for this channel, reset the stream service
+              this.streamService.update(null, null);
+            }
+          }
+        }
+      );
+  }
+
+  private subscribeStreamService(): void {
+    this.mitosis
+      .getStreamManager()
+      .observeChannelChurn()
+      .subscribe(
+        channelEvent => {
+          if (channelEvent.type === ChurnType.ADDED) {
+            this.subscribeChannel(channelEvent.value);
+          } else if (channelEvent.type === ChurnType.REMOVED) {
+            if (channelEvent.value.getId() === this.streamService.getChannelId()) {
+              // If our current channel goes dark, reset the stream service
+              this.streamService.update(null, null);
+            }
+          }
+        }
+      );
+    this.streamService
+      .observe()
+      .subscribe(
+        (stream: MediaStream) => {
+          if (!stream) {
+            // If the stream service got reset, automatically switch the channel
+            const nextChannel = this.mitosis
+              .getStreamManager()
+              .getChannelTable()
+              .find((channel: Channel) => channel.isActive());
+            if (nextChannel) {
+              this.streamService.update(nextChannel, nextChannel.getMediaStream());
+            }
+          }
+        }
+      );
+  }
+
   public setTitle() {
     const titleEl = document.querySelector('title');
-    const text = `${titleEl.innerText}—${this.mitosis.getMyAddress().getId()}`;
-    titleEl.innerText = text;
+    titleEl.innerText = `${titleEl.innerText}—${this.mitosis.getMyAddress().getId()}`;
   }
 
   public toggleInfo() {
@@ -56,6 +125,7 @@ export class MessengerComponent implements OnInit {
 
   ngOnInit(): void {
     this.setTitle();
+    this.subscribeStreamService();
     setInterval(() => {
       this.inactiveTimer++;
       this.isInactive = this.inactiveTimer > 3;

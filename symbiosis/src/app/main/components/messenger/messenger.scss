@@ -47,7 +47,7 @@
       }
     }
 
-    app-record-stream-button {
+    app-controls {
       position: absolute;
       bottom: 28px;
       z-index: 99999;
@@ -57,7 +57,7 @@
     }
 
     .show-peers,
-    app-record-stream-button {
+    app-controls {
       opacity: 1;
       transition: opacity 1s ease;
     }
@@ -74,7 +74,7 @@
         min-width: 400px;
       }
 
-      app-record-stream-button {
+      app-controls {
         opacity: 0;
       }
     }
@@ -83,7 +83,7 @@
       cursor: none;
 
       .show-peers,
-      app-record-stream-button {
+      app-controls {
         opacity: 0;
       }
     }
