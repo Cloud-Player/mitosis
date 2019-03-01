@@ -1,5 +1,5 @@
 import {IMessage} from '../message/interface';
-import {IConnection, Mitosis} from '../mitosis';
+import {ChurnType, IConnection, Mitosis} from '../mitosis';
 import {RemotePeer} from '../peer/remote-peer';
 
 export enum RoleType {
@@ -28,4 +28,9 @@ export interface IRole {
   onConnectionClose(mitosis: Mitosis, connection: IConnection): void;
 
   requiresPeer(remotePeer: RemotePeer): boolean;
+}
+
+export interface IRoleChurnEvent {
+  type: ChurnType;
+  role: RoleType;
 }

@@ -1,6 +1,7 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Channel, ChurnType, Logger, LogLevel, Mitosis} from 'mitosis';
 import {FullscreenService} from '../../../shared/services/fullscreen';
+import {ReportingService} from '../../services/reporting';
 import {StreamService} from '../../services/stream';
 import {SidebarComponent} from '../sidebar/sidebar';
 
@@ -19,7 +20,9 @@ export class MessengerComponent implements OnInit {
 
   public infoVisible = false;
 
-  constructor(private fullscreenService: FullscreenService, private streamService: StreamService) {
+  constructor(private fullscreenService: FullscreenService,
+              private reportingService: ReportingService,
+              private streamService: StreamService) {
     Logger.setLevel(LogLevel.ERROR);
     this.mitosis = new Mitosis();
   }
@@ -131,5 +134,7 @@ export class MessengerComponent implements OnInit {
     window.addEventListener('mousemove', this.setActive.bind(this));
     window.addEventListener('keypress', this.setActive.bind(this));
     window.addEventListener('touchstart', this.setActive.bind(this));
+
+    this.reportingService.setMitosis(this.mitosis);
   }
 }

@@ -1,7 +1,7 @@
 import {Subject} from 'rxjs';
 import {IClock} from './clock/interface';
 import {MasterClock} from './clock/master';
-import {ConnectionState, IConnection} from './connection/interface';
+import {ConnectionState, IConnection, Protocol} from './connection/interface';
 import {IEnclave} from './enclave/interface';
 import {SecureEnclave} from './enclave/secure';
 import {ChurnType} from './interface';
@@ -193,6 +193,52 @@ export class Mitosis {
     this._messageBroker.destroy();
     this._clock.stop();
   }
+
+  public toJSON(): { [key: string]: any } {
+    const peerTable = this.getPeerManager().getPeerTable();
+    const wssConnections = peerTable
+      .aggregateConnections(
+        table => table.filterByProtocol(Protocol.WEBSOCKET, Protocol.WEBSOCKET_UNSECURE)
+      )
+      .map(value => value.getAddress().getId());
+    const webrtcDataConnections = peerTable
+      .aggregateConnections(
+        table => table.filterByProtocol(Protocol.WEBRTC_DATA)
+      )
+      .map(value => value.getAddress().getId());
+    const webrtcStreamConnections = peerTable
+      .aggregateConnections(
+        table => table.filterByProtocol(Protocol.WEBRTC_STREAM)
+      )
+      .map(value => value.getAddress().getId());
+    const channels = this.getStreamManager().getChannelTable().map(
+      channel => {
+        return {
+          id: channel.getId(),
+          providers: channel.getProviderTable().map(
+            provider => {
+              return {
+                peerId: provider.getPeerId(),
+                isActive: provider.isActive(),
+                capacity: provider.getCapacity()
+              };
+            }
+          )
+        };
+      }
+    );
+
+    return {
+      id: this.getMyAddress().getId(),
+      roles: this.getRoleManager().getRoles(),
+      connections: {
+        'wss': wssConnections,
+        'webrtc-data': webrtcDataConnections,
+        'webrtc-stream': webrtcStreamConnections
+      },
+      channels: channels
+    };
+  }
 }
 
 export * from './clock/interface';
@@ -206,6 +252,7 @@ export * from './configuration';
 export * from './metering/interface';
 export * from './stream/interface';
 export * from './metering/connection-meter/interface';
+export * from './util/observable-map';
 
 export {IClock} from './clock/interface';
 export {AbstractClock} from './clock/clock';

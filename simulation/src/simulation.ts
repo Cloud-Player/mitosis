@@ -211,9 +211,10 @@ export class Simulation {
   public reset() {
     this._edges.clear();
     this._nodes.forEach((node) => {
-      node.getMitosis().destroy();
+      node.destroy();
     });
     this._nodes.clear();
+    this._clock.tick();
     this._clock.stop();
   }
 }

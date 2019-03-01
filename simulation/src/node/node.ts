@@ -123,4 +123,12 @@ export class Node {
   public isSelected() {
     return this._isSelected;
   }
+
+  public destroy() {
+    this.getMitosis().destroy();
+    this._messagesInLogger.flush();
+    this._messagesOutLogger.flush();
+    this._networkInLogger.flush();
+    this._networkOutLogger.flush();
+  }
 }

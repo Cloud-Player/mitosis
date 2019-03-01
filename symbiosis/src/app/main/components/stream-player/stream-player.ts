@@ -27,7 +27,8 @@ export class StreamPlayerComponent implements OnInit {
     'weaving mesh'
   ].sort(() => 0.5 - Math.random())[0];
 
-  constructor(private http: HttpClient, private streamService: StreamService) {
+  constructor(private http: HttpClient,
+              private streamService: StreamService) {
   }
 
   private setStream(stream: MediaStream): void {

@@ -1,8 +1,9 @@
+import {Subject} from 'rxjs';
 import {Configuration, ConfigurationMap} from '../configuration';
 import {Logger} from '../logger/logger';
 import {IMessage} from '../message/interface';
 import {RoleUpdate} from '../message/role-update';
-import {IConnection, Mitosis} from '../mitosis';
+import {ChurnType, IConnection, IRoleChurnEvent, Mitosis} from '../mitosis';
 import {RemotePeer} from '../peer/remote-peer';
 import {IRole, RolePriorityMap, RoleType} from './interface';
 import {RoleTypeMap} from './role-map';
@@ -11,10 +12,12 @@ export class RoleManager {
 
   private readonly _myId: string;
   private readonly _roles: Map<RoleType, IRole>;
+  private readonly _roleChurnSubject: Subject<IRoleChurnEvent>;
 
   public constructor(myId: string, roles: Array<RoleType>) {
     this._myId = myId;
     this._roles = new Map();
+    this._roleChurnSubject = new Subject();
     roles.forEach((r) => this.addRole(r));
   }
 
@@ -37,12 +40,14 @@ export class RoleManager {
       const roleClass = RoleTypeMap.get(roleType);
       const role: IRole = new roleClass();
       this._roles.set(roleType, role);
+      this._roleChurnSubject.next({type: ChurnType.ADDED, role: roleType});
       Logger.getLogger(this._myId).info(`added role ${roleType}`, this.getRoles());
     }
   }
 
   public removeRole(roleType: RoleType): void {
     this._roles.delete(roleType);
+    this._roleChurnSubject.next({type: ChurnType.REMOVED, role: roleType});
     Logger.getLogger(this._myId).info(`removed role ${roleType}`, this.getRoles());
   }
 
@@ -96,6 +101,10 @@ export class RoleManager {
       .length > 0;
   }
 
+  public observeRoleChurn(): Subject<IRoleChurnEvent> {
+    return this._roleChurnSubject;
+  }
+
   public toString(): string {
     return JSON.stringify({
         count: this._roles.size,
@@ -108,5 +117,6 @@ export class RoleManager {
 
   public destroy(): void {
     this._roles.clear();
+    this._roleChurnSubject.complete();
   }
 }

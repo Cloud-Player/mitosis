@@ -5,22 +5,37 @@ import {D3DirectedGraphConfig} from '../../shared/src/d3-directed-graph-config';
 export interface IMeshImportNode {
   roles: Array<string>;
   id: string;
+  connections: { [key: string]: Array<string> };
 }
 
 export class MeshImportNodeModel extends NodeModel {
   private _node: IMeshImportNode;
+  private _lastSeen: number;
 
   constructor(node: IMeshImportNode) {
     super(node.id);
     this._node = node;
+    this._lastSeen = +new Date();
   }
 
   private hasRole(role: RoleType): boolean {
     return this._node.roles.indexOf(role) !== -1;
   }
 
+  public setNode(node: IMeshImportNode) {
+    this._node = node;
+  }
+
   public getMeshImportNode() {
     return this._node;
+  }
+
+  public isExpired() {
+    return +new Date() - this._lastSeen >= 4000;
+  }
+
+  public updateLastSeen() {
+    this._lastSeen = +new Date();
   }
 
   public ellipseFillTransformer(): string {

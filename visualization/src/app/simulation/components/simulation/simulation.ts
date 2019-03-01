@@ -19,6 +19,7 @@ import {SidebarComponent} from '../sidebar/sidebar';
 export class SimulationComponent implements OnInit {
   private scenario: any;
   private simulation: Simulation;
+  private loggerSubscriptions: Subscription;
   public model: DirectedGraphModel<NodeModel, EdgeModel>;
   public selectedNode: Node;
   @ViewChild('graph')
@@ -29,6 +30,7 @@ export class SimulationComponent implements OnInit {
   constructor(private logEventLogger: LogEventLogger) {
     this.model = new DirectedGraphModel();
     this.simulation = Simulation.getInstance();
+    this.loggerSubscriptions = new Subscription();
   }
 
   private toggleClock() {
@@ -57,12 +59,13 @@ export class SimulationComponent implements OnInit {
     this.model.reset();
     this.simulation.reset();
     this.simulation.start(scenario);
-    let subscriptions: Subscription = new Subscription();
+    this.loggerSubscriptions.unsubscribe();
+    this.loggerSubscriptions = new Subscription();
     this.logEventLogger.getLogger().setClock(this.simulation.getClock());
     this.simulation.onUpdate(() => {
       const model = new DirectedGraphModel();
-      subscriptions.unsubscribe();
-      subscriptions = new Subscription();
+      this.loggerSubscriptions.unsubscribe();
+      this.loggerSubscriptions = new Subscription();
       this.simulation.getNodeMap().forEach((node) => {
         let existingNode;
         if (this.model && this.model.getNodes().length > 0) {
@@ -83,7 +86,7 @@ export class SimulationComponent implements OnInit {
         }
         model.addNode(existingNode);
 
-        subscriptions.add(
+        this.loggerSubscriptions.add(
           Logger.getLogger(node.getId())
             .observeLogEvents()
             .subscribe(

@@ -12,6 +12,7 @@ import {SidebarComponent} from './components/sidebar/sidebar';
 import {StreamPlayerComponent} from './components/stream-player/stream-player';
 import {MainRoutingModule} from './main.routes';
 import {StreamService} from './services/stream';
+import {ReportingService} from './services/reporting';
 
 @NgModule({
   imports: [
@@ -33,7 +34,8 @@ import {StreamService} from './services/stream';
     ControlsComponent
   ],
   providers: [
-    StreamService
+    StreamService,
+    ReportingService
   ],
   bootstrap: [MainComponent]
 })

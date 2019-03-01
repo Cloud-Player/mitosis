@@ -33,7 +33,12 @@ export class DirectedGraphModel<TNode extends NodeModel, TEdge extends EdgeModel
   }
 
   private canAddEdge(newEdge: TEdge, existingTargetEdge: TEdge, existingSourceEdge: TEdge): boolean {
+    if (!this.getNodeById(newEdge.getSourceId()) || !this.getNodeById(newEdge.getTargetId())) {
+      return false;
+    }
+
     if (!existingTargetEdge && !existingSourceEdge) {
+
       return true;
     } else {
       return false;
@@ -49,6 +54,10 @@ export class DirectedGraphModel<TNode extends NodeModel, TEdge extends EdgeModel
     return this._nodes.find((node) => {
       return node.getId() === searchNode.getId();
     });
+  }
+
+  public getNodeById(nodeId: string): TNode {
+    return this._nodes.find(node => node.getId() === nodeId);
   }
 
   public getEdge(searchEdge: TEdge) {
@@ -67,6 +76,13 @@ export class DirectedGraphModel<TNode extends NodeModel, TEdge extends EdgeModel
     return existingNode;
   }
 
+  public removeNode(node: TNode) {
+    const existingNode = this.getNode(node);
+    if (existingNode) {
+      this._nodes.splice(this._nodes.indexOf(existingNode), 1);
+      this.trigger(['remove', 'remove-node']);
+    }
+  }
   public addEdge(edge: TEdge): TEdge {
     const existingTargetNode = this._edges.find(
       findEdge => findEdge.matches(edge.getConnectionPrefix(), edge.getTargetId(), edge.getSourceId(), edge.getLocation())
