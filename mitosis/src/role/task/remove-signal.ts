@@ -40,6 +40,7 @@ export function removeSignal(mitosis: Mitosis): void {
     );
 
   // When it does not have a router yet or less than 2 connections, meaning it is only connected via signal, do not remove
+  // TODO: Make this threshold configurable
   if (routers.length === 0 || directConnections.length < 2) {
     return;
   }

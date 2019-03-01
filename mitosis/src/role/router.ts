@@ -11,9 +11,12 @@ export class Router extends AbstractRole implements IRole {
   private sequenceNumber = 1;
 
   protected onTick(mitosis: Mitosis): void {
+    // Clean up
+    degradeToPeer(mitosis);
+
+    // Publish
     publishSignalAndRouterUpdate(mitosis);
     sendRouterAlive(mitosis, this.sequenceNumber++);
-    degradeToPeer(mitosis);
   }
 
   public requiresPeer(remotePeer: RemotePeer): boolean {

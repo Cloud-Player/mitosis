@@ -18,17 +18,15 @@ export class Peer extends AbstractRole implements IRole {
 
   protected onTick(mitosis: Mitosis): void {
     // Clean up
+    removeSignal(mitosis);
     closeDuplicateConnections(mitosis);
     removeExpiredConnections(mitosis);
-    removeSignal(mitosis);
     removeSuperfluousConnections(mitosis);
-
-    // Organize
     degradeToNewbie(mitosis);
+    ensureRouterConnection(mitosis);
 
     // Acquire
     acquireDirectConnections(mitosis);
-    ensureRouterConnection(mitosis);
     requestStreamConnection(mitosis);
 
     // Publish
