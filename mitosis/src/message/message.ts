@@ -1,4 +1,4 @@
-import {stringByteLength} from '../util/string-byte-length';
+import {stringByteLength} from '../util/string-functions';
 import {Address} from './address';
 import {IMessage, MessageSubject} from './interface';
 

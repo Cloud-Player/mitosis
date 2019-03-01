@@ -30,5 +30,7 @@ export interface IClock {
 
   getTick(): number;
 
+  forward(tick: number): void;
+
   rewind(): void;
 }

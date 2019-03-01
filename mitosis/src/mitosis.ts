@@ -248,11 +248,11 @@ export * from './message/interface';
 export * from './role/interface';
 export * from './logger/interface';
 export * from './interface';
-export * from './configuration';
 export * from './metering/interface';
 export * from './stream/interface';
 export * from './metering/connection-meter/interface';
-export * from './util/observable-map';
+
+export * from './configuration';
 
 export {IClock} from './clock/interface';
 export {AbstractClock} from './clock/clock';
@@ -270,6 +270,8 @@ export {AppContent} from './message/app-content';
 export {ConnectionNegotiationType} from './message/connection-negotiation';
 export {Logger} from './logger/logger';
 export {uuid} from './util/uuid';
+export {stringByteLength, stringHashCode} from './util/string-functions';
+export {IObservableMapEvent, ObservableMap} from './util/observable-map';
 export {ConnectionMeter} from './metering/connection-meter/connection-meter';
 export {TransmissionConnectionMeter} from './metering/connection-meter/transmission-connection-meter';
 export {Channel} from './stream/channel';

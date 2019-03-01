@@ -26,7 +26,10 @@ export class MasterClock extends AbstractClock implements IClock {
     }
   }
 
-  public startClock(): void {
+  public startClock(speed?: number): void {
+    if (speed) {
+      this._speed = speed;
+    }
     this._masterCancelId = setInterval(this.tick.bind(this), this._speed);
   }
 

@@ -9,6 +9,7 @@
     }
   },
   "configuration": {
+    "sub-ticks": 4,
     "newbie": {
       "DEFAULT_SIGNAL_ADDRESS": "mitosis/v1/signal/wss"
     }
@@ -35,7 +36,7 @@
       "tick": 1,
       "type": "generate-peers",
       "configuration": {
-        "count": 1000
+        "count": 100
       }
     },
     {

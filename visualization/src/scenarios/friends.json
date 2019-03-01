@@ -1,5 +1,6 @@
 {
   "configuration": {
+    "sub-ticks": 10,
     "newbie": {
       "DEFAULT_SIGNAL_ADDRESS": "mitosis/v1/signal/wss"
     }
@@ -9,7 +10,7 @@
       "tick": 0,
       "type": "set-clock-speed",
       "configuration": {
-        "speed": 1
+        "speed": 1000
       }
     },
     {
@@ -83,20 +84,6 @@
       "type": "add-peer",
       "configuration": {
         "address": "mitosis/v1/ursula/webrtc"
-      }
-    },
-    {
-      "tick": 30,
-      "type": "set-clock-speed",
-      "configuration": {
-        "speed": 50
-      }
-    },
-    {
-      "tick": 90,
-      "type": "set-clock-speed",
-      "configuration": {
-        "speed": 500
       }
     },
     {

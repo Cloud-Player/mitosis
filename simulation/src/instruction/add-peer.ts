@@ -1,4 +1,4 @@
-import {Logger, Mitosis} from 'mitosis';
+import {Address, Logger, Mitosis} from 'mitosis';
 import {MockEnclave} from '../enclave/mock';
 import {Simulation} from '../simulation';
 import {AbstractInstruction} from './instruction';
@@ -9,7 +9,7 @@ export class AddPeer extends AbstractInstruction implements IInstruction {
   public execute(simulation: Simulation): void {
     const config = this.getConfiguration();
     const peer = new Mitosis(
-      simulation.getClock().fork(),
+      simulation.getClockForId(Address.fromString(config.address).getId()),
       new MockEnclave(),
       config.address,
       config.signal,

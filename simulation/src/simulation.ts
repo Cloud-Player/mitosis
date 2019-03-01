@@ -10,7 +10,8 @@ import {
   Mitosis,
   Protocol,
   ProtocolConnectionMap,
-  RoleType
+  RoleType,
+  stringHashCode
 } from 'mitosis';
 import {MockConnection} from './connection/mock';
 import {WebRTCDataMockConnection} from './connection/webrtc-data-mock';
@@ -25,6 +26,7 @@ export class Simulation {
 
   private static _instance: Simulation;
   private readonly _clock: IClock;
+  private _subTicks: number;
   private _nodes: Map<string, Node>;
   private _edges: Map<string, Edge>;
 
@@ -48,6 +50,7 @@ export class Simulation {
   }
 
   private configure(configuration: any): void {
+    this._subTicks = configuration['sub-ticks'] || 1;
     Object.keys(configuration)
       .filter(key =>
         ConfigurationMap.get(key as RoleType) !== undefined
@@ -173,6 +176,14 @@ export class Simulation {
 
   public getClock(): IClock {
     return this._clock;
+  }
+
+  public getClockForId(peerId: string): IClock {
+    const offset = stringHashCode(peerId) % this._subTicks;
+    const clock = this._clock.fork();
+    clock.setSpeed(this._subTicks);
+    clock.forward(offset);
+    return clock;
   }
 
   public getEdge(from: string, to: string, location: string): Edge {

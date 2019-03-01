@@ -11,7 +11,7 @@ export class GeneratePeers extends AbstractInstruction implements IInstruction {
     for (let i = 0; i < config.count; i++) {
       const address = new Address(uuid(), Protocol.WEBRTC_DATA);
       const peer = new Mitosis(
-        simulation.getClock().fork(),
+        simulation.getClockForId(address.getId()),
         new MockEnclave(),
         address.toString(),
         config.signal,
