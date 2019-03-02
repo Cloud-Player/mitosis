@@ -33,8 +33,9 @@
     </app-search-input>
   </section>
 
-  <section class="no-padding">
-    <app-tab-bar *ngIf="selectedNode" id="sim-tabbar">
+  <section *ngIf="selectedNode"
+           class="no-padding">
+    <app-tab-bar id="sim-tabbar">
       <app-tab-pane icon="fa fa-gear">
         <app-node-settings [selectedNode]="selectedNode"
                            [simulation]="simulation">
@@ -56,5 +57,9 @@
         <app-logger [selectedNode]="selectedNode"></app-logger>
       </app-tab-pane>
     </app-tab-bar>
+  </section>
+
+  <section *ngIf="!selectedNode">
+    <app-simulation-settings [simulation]="simulation"></app-simulation-settings>
   </section>
 </div>
