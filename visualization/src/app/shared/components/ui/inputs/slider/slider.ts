@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, forwardRef, Input, Output, Renderer2, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, forwardRef, Input, Output, Renderer2} from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {Subscription} from 'rxjs';
 
@@ -53,7 +53,13 @@ export class SliderComponent implements ControlValueAccessor {
   public updateValue(value: number) {
     if (this._onChange) {
       this._onChange(value);
+      this.valueChanged.emit(value);
     }
+    setTimeout(() => {
+      if (document.activeElement) {
+        (document.activeElement as HTMLInputElement).blur();
+      }
+    });
   }
 
   registerOnChange(fn: any): void {
