@@ -21,21 +21,6 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
   constructor() {
   }
 
-  private updateDelayForProtocol(protocol: Protocol, delay: number) {
-    this.selectedNode
-      .getMitosis()
-      .getPeerManager()
-      .getPeerTable()
-      .forEach((peer) => {
-        peer.getConnectionTable()
-          .forEach((c) => {
-            if (c.getAddress().getProtocol() === protocol) {
-              (c as MockConnection).setDelay(delay);
-            }
-          });
-      });
-  }
-
   private initNode() {
     this.latency = this.selectedNode.getSimulationNode().getNetworkLatency();
     this.stability = this.selectedNode.getSimulationNode().getNetworkStability();
@@ -43,14 +28,6 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
 
   public sliderTransformer(val: number) {
     return `${(val * 100).toFixed(0)}%`;
-  }
-
-  public updateWssDelay(delay: number) {
-    this.updateDelayForProtocol(Protocol.WEBSOCKET, delay);
-  }
-
-  public updateWebRtcDelay(delay: number) {
-    this.updateDelayForProtocol(Protocol.WEBRTC_STREAM, delay);
   }
 
   public getRoles() {
@@ -76,13 +53,6 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
 
   public deletePeer() {
     this.simulation.removeNode(this.selectedNode.getMitosis());
-  }
-
-  public hasNetwork() {
-    const existingNode = this.simulation.getNodeMap().get(this.selectedNode.getMitosis().getMyAddress().getId());
-    if (existingNode) {
-      return existingNode.hasNetwork();
-    }
   }
 
   public updateNetwork() {
