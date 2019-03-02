@@ -14,6 +14,7 @@ export class Node {
   private _messagesOutLogger: NodeEventLogger<IMessage>;
   private _networkInLogger: NodeEventLogger<StatLogEvent>;
   private _networkOutLogger: NodeEventLogger<StatLogEvent>;
+  private _network: boolean;
 
   constructor(mitosis: Mitosis) {
     this._mitosis = mitosis;
@@ -22,6 +23,18 @@ export class Node {
     this._messagesOutLogger = new NodeEventLogger<IMessage>();
     this._networkInLogger = new NodeEventLogger<StatLogEvent>();
     this._networkOutLogger = new NodeEventLogger<StatLogEvent>();
+  }
+
+  private _latency = 1;
+
+  set latency(value: number) {
+    this._latency = value;
+  }
+
+  private _stability = 1;
+
+  set stability(value: number) {
+    this._stability = value;
   }
 
   public getMitosis() {
@@ -89,6 +102,16 @@ export class Node {
     );
   }
 
+  //0 <-> 100%
+  public getNetworkLatency() {
+    return this._latency;
+  }
+
+  // Drop rate 0 <-> 100%
+  public getNetworkStability() {
+    return this._stability;
+  }
+
   public getMessagesInLogger(): NodeEventLogger<IMessage> {
     return this._messagesInLogger;
   }
@@ -122,6 +145,22 @@ export class Node {
 
   public isSelected() {
     return this._isSelected;
+  }
+
+  public canSend(): boolean {
+    return this.hasNetwork();
+  }
+
+  public canReceive(): boolean {
+    return this.hasNetwork();
+  }
+
+  public hasNetwork() {
+    return this._stability > 0 && this._network;
+  }
+
+  public setHasNetwork(hasNetwork: boolean) {
+    this._network = hasNetwork;
   }
 
   public destroy() {
