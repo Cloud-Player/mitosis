@@ -13,14 +13,14 @@ import {IMeter} from './interface';
 export class RemotePeerMeter implements IMeter {
 
   private readonly _clock: IClock;
-  private readonly _mitosisId: string;
+  private readonly _remotePeerId: string;
   private readonly _connectionsPerAddress: ObservableMap<string, IConnection>;
   private _punishedConnections = 0;
   private _protectedConnections = 0;
 
-  constructor(connectionsPerAddress: ObservableMap<string, IConnection>, mitosisId: string, clock: IClock) {
+  constructor(connectionsPerAddress: ObservableMap<string, IConnection>, remotePeerId: string, clock: IClock) {
     this._connectionsPerAddress = connectionsPerAddress;
-    this._mitosisId = mitosisId;
+    this._remotePeerId = remotePeerId;
     this._clock = clock;
     this.listenOnConnectionChurn();
   }
@@ -122,17 +122,19 @@ export class RemotePeerMeter implements IMeter {
     return 0;
   }
 
+  // is used to find a PeerX were the probability is the highest that a connection can be opened
+  // based on the feedback of direct connected peers who were reporting PeerX as their direct neighbor
+  // the more peers reporting PeerX the lowest the probability that a connection can be opened
   public getConnectionSaturation(remotePeers: RemotePeerTable): number {
-    // looks at the direct connections the metered peer reported and estimates its saturation
     const viaConnectionCount = remotePeers
       .countConnections(
         table => table
           .filterByProtocol(Protocol.VIA)
-          .filterByLocation(this._mitosisId)
+          .filterByLocation(this._remotePeerId)
       );
 
     const directConnectionCount = remotePeers
-      .filterById(this._mitosisId)
+      .filterById(this._remotePeerId)
       .countConnections(
         table => table
           .filterDirect()
