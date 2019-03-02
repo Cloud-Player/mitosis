@@ -14,8 +14,9 @@ export class Node {
   private _messagesOutLogger: NodeEventLogger<IMessage>;
   private _networkInLogger: NodeEventLogger<StatLogEvent>;
   private _networkOutLogger: NodeEventLogger<StatLogEvent>;
-  private _network: boolean;
+  private _network = true;
   private _latency = 1;
+  private _stability = 1;
 
   constructor(mitosis: Mitosis) {
     this._mitosis = mitosis;
@@ -29,8 +30,6 @@ export class Node {
   set latency(value: number) {
     this._latency = value;
   }
-
-  private _stability = 1;
 
   set stability(value: number) {
     this._stability = value;
