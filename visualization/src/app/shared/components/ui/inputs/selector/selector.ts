@@ -1,9 +1,4 @@
-import {
-  Component,
-  EventEmitter, forwardRef,
-  Input,
-  Output
-} from '@angular/core';
+import {Component, ElementRef, EventEmitter, forwardRef, Input, Output} from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
 
 export interface ISelectorOption {
@@ -39,10 +34,18 @@ export class SelectorComponent implements ControlValueAccessor {
   @Output()
   public valueChanged = new EventEmitter();
 
+  constructor(private el: ElementRef) {
+  }
+
   public updateValue(value: number) {
     if (this._onChange) {
       this.value = value;
       this._onChange(this.value);
+      setTimeout(() => {
+        if (document.activeElement) {
+          (document.activeElement as HTMLInputElement).blur();
+        }
+      });
     }
   }
 
