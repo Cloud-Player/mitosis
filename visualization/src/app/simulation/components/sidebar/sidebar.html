@@ -36,7 +36,9 @@
   <section class="no-padding">
     <app-tab-bar *ngIf="selectedNode" id="sim-tabbar">
       <app-tab-pane icon="fa fa-gear">
-        <app-node-settings [selectedNode]="selectedNode"></app-node-settings>
+        <app-node-settings [selectedNode]="selectedNode"
+                           [simulation]="simulation">
+        </app-node-settings>
       </app-tab-pane>
       <app-tab-pane icon="fa fa-users">
         <app-peer-table [selectedNode]="selectedNode"></app-peer-table>

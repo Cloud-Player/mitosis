@@ -1,11 +1,15 @@
 <section class="settings">
-  <header *ngIf="selectedNode">Selected node: {{selectedNode.getId()}}</header>
+  <header *ngIf="selectedNode">{{selectedNode.getId()}}</header>
   <header *ngIf="!selectedNode">Node node selected</header>
-  <ul *ngIf="selectedNode">
-    <li *ngFor="let role of getRoles()">
-      {{role}}
-    </li>
-  </ul>
+  <div *ngIf="selectedNode" class="roles">
+    Roles:
+    <span *ngFor="let role of getRoles()"
+          [title]="role"
+          [class]="getRoleIcon(role)">
+    </span>
+  </div>
+  <app-button text="Delete Peer" (click)="deletePeer()"></app-button>
+  <app-button [text]="hasNetwork() ? 'Freeze Peer' : 'Unfreeze Peer'" (click)="toggleNetwork()"></app-button>
   <!--<div class="form-field">-->
   <!--<label>WSS Deliver Timeout</label>-->
   <!--<app-slider [(ngModel)]="wssDelay"-->
