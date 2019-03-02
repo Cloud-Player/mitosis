@@ -10,7 +10,10 @@ import {removeSuperfluousConnections} from './task/remove-superfluous-connection
 export class Signal extends AbstractRole implements IRole {
 
   protected onTick(mitosis: Mitosis): void {
+    // clean
     removeSuperfluousConnections(mitosis);
+
+    // publish
     publishSignalAndRouterUpdate(mitosis);
   }
 

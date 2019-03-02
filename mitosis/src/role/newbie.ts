@@ -7,6 +7,7 @@ import {sendIntroduction} from './task/send-introduction';
 export class Newbie extends AbstractRole implements IRole {
 
   protected onTick(mitosis: Mitosis): void {
+    // publish
     sendIntroduction(mitosis);
   }
 

@@ -43,7 +43,7 @@ export class RemotePeer {
           break;
       }
       Logger.getLogger(this._mitosisId)
-        .debug(`connection to ${connection.getAddress().getId()} ${ev.toString()}`, connection);
+        .debug(`${connection.getAddress().getProtocol()} connection to ${connection.getAddress().getId()} ${ev.toString()}`, connection);
     });
   }
 
