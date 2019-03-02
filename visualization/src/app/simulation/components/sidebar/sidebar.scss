@@ -22,7 +22,7 @@
         color: white;
         font-weight: 400;
 
-        app-selector{
+        app-selector {
           display: inline-block;
         }
       }
@@ -36,16 +36,34 @@
       }
     }
 
-    app-button {
+    /deep/ hr{
+      border: 1px solid rgba(255,255,255,0.5);
+    }
+
+    /deep/ app-button {
       margin: 0 5px;
     }
 
-    app-button:first-child {
+    /deep/ app-button:first-child {
       margin-left: 0;
     }
 
-    app-button:last-child {
+    /deep/ app-button:last-child {
       margin-right: 0;
+    }
+
+    /deep/ app-slider {
+      .mat-slider-thumb-label {
+        span {
+          color: $brand-primary !important;
+        }
+      }
+
+      .mat-slider-thumb-label,
+      .mat-slider-track-fill,
+      .mat-slider-thumb {
+        background-color: white !important;
+      }
     }
 
     /deep/ app-collapsible {
