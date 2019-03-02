@@ -9,19 +9,19 @@
     </span>
   </div>
   <app-button text="Delete Peer" (click)="deletePeer()"></app-button>
-  <app-button [text]="hasNetwork() ? 'Freeze Peer' : 'Unfreeze Peer'" (click)="toggleNetwork()"></app-button>
 
   <hr>
 
   <div class="form-field">
     <label>Connection Latency</label>
-    <app-slider [min]="0"
-                [max]="1"
-                [step]="0.01"
+    <app-slider [min]="1"
+                [max]="100"
+                [step]="1"
                 [(ngModel)]="latency"
                 [showSliderValue]="true"
-                [transformDisplayValue]="sliderTransformer">
+                (valueChanged)="updateNetwork()">
     </app-slider>
+    {{latency}}
   </div>
 
   <div class="form-field">

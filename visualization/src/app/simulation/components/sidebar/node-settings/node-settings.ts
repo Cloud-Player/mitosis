@@ -78,15 +78,6 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
     this.simulation.removeNode(this.selectedNode.getMitosis());
   }
 
-  public toggleNetwork() {
-    const existingNode = this.simulation.getNodeMap().get(this.selectedNode.getMitosis().getMyAddress().getId());
-    if (existingNode.hasNetwork()) {
-      existingNode.setHasNetwork(false);
-    } else {
-      existingNode.setHasNetwork(true);
-    }
-  }
-
   public hasNetwork() {
     const existingNode = this.simulation.getNodeMap().get(this.selectedNode.getMitosis().getMyAddress().getId());
     if (existingNode) {
