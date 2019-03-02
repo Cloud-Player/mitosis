@@ -1,4 +1,5 @@
 import {
+  Address,
   ChurnType,
   ConfigurationMap,
   ConnectionState,
@@ -19,6 +20,7 @@ import {WebRTCDataMockConnection} from './connection/webrtc-data-mock';
 import {WebRTCStreamMockConnection} from './connection/webrtc-stream-mock';
 import {WebSocketMockConnection} from './connection/websocket-mock';
 import {Edge} from './edge/edge';
+import {MockEnclave} from './enclave/mock';
 import {InstructionFactory} from './instruction/factory';
 import {AbstractInstruction} from './instruction/instruction';
 import {Node} from './node/node';
@@ -167,6 +169,12 @@ export class Simulation {
     const node = new Node(mitosis);
     this._nodes.set(mitosis.getMyAddress().getId(), node);
     this._nodeSubject.next({type: ChurnType.ADDED, node});
+  }
+
+  public createNode() {
+    const peerId = `g-p${Math.round(100 + Math.random() * 899)}`;
+    const mitosis = new Mitosis(this.getClockForId(peerId), new MockEnclave(), new Address(peerId).toString());
+    this.addNode(mitosis);
   }
 
   public removeNode(mitosis: Mitosis): void {
