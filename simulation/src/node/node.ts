@@ -15,6 +15,7 @@ export class Node {
   private _networkInLogger: NodeEventLogger<StatLogEvent>;
   private _networkOutLogger: NodeEventLogger<StatLogEvent>;
   private _network: boolean;
+  private _latency = 1;
 
   constructor(mitosis: Mitosis) {
     this._mitosis = mitosis;
@@ -24,8 +25,6 @@ export class Node {
     this._networkInLogger = new NodeEventLogger<StatLogEvent>();
     this._networkOutLogger = new NodeEventLogger<StatLogEvent>();
   }
-
-  private _latency = 1;
 
   set latency(value: number) {
     this._latency = value;
