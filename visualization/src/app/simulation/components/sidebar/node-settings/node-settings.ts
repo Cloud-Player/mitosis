@@ -15,8 +15,8 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
   @Input()
   public simulation: Simulation;
 
-  public wssDelay: number;
-  public webRTCDelay: number;
+  public stability: number;
+  public latency: number;
 
   constructor() {
   }
@@ -37,21 +37,12 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
   }
 
   private initNode() {
-    this.selectedNode
-      .getMitosis()
-      .getPeerManager()
-      .getPeerTable()
-      .forEach((peer) => {
-        peer.getConnectionTable()
-          .forEach((c) => {
-            if (c.getAddress().getProtocol() === Protocol.WEBRTC_DATA) {
-              this.webRTCDelay = (c as MockConnection).getDelay();
-            }
-            if (c.getAddress().getProtocol() === Protocol.WEBSOCKET) {
-              this.wssDelay = (c as MockConnection).getDelay();
-            }
-          });
-      });
+    this.latency = this.selectedNode.getSimulationNode().getNetworkLatency();
+    this.stability = this.selectedNode.getSimulationNode().getNetworkStability();
+  }
+
+  public sliderTransformer(val: number) {
+    return `${(val * 100).toFixed(0)}%`;
   }
 
   public updateWssDelay(delay: number) {
