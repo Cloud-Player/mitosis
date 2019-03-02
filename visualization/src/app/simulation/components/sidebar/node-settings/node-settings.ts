@@ -85,6 +85,11 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
     }
   }
 
+  public updateNetwork() {
+    this.selectedNode.getSimulationNode().setNetworkStability(this.stability);
+    this.selectedNode.getSimulationNode().setNetworkLatency(this.latency);
+  }
+
   ngOnInit(): void {
     this.initNode();
   }
