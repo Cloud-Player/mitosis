@@ -136,29 +136,44 @@ export class Simulation {
     }
   }
 
-  public deliverMessage(from: string, to: string, location: string, delay: number, message: IMessage): void {
+  public deliverMessage(from: string, to: string, location: string, message: IMessage): void {
     const edge = this.getEdge(to, from, location);
     if (edge) {
       const sender = this._nodes.get(from);
-      if (sender && sender.canSend()) {
-        sender.onSendMessage(message);
-      } else if (!sender || !sender.canSend()) {
+      const receiver = this._nodes.get(to);
+      if (!sender || !receiver) {
         return;
       }
+      const senderDropProbability = this.getRandom();
+      const receiverDropProbability = this.getRandom();
+      const deliveryDelay = (sender.getNetworkLatency() + receiver.getNetworkLatency()) / 2;
+      if (senderDropProbability > sender.getNetworkStability()) {
+        Logger.getLogger('simulation').error(
+          `sender ${to} drops message ${message.getSubject()}`, message
+        );
+        return;
+      } else {
+        sender.onSendMessage(message);
+      }
+
       this._clock.setTimeout(() => {
         const connection = (edge.getConnection() as MockConnection);
         if (connection.getState() === ConnectionState.OPEN) {
-          const receiver = this._nodes.get(to);
-          if (receiver && receiver.canReceive()) {
-            receiver.onReceiveMessage(message);
-            connection.onMessage(message);
+          if (receiverDropProbability > receiver.getNetworkStability()) {
+            Logger.getLogger('simulation').error(
+              `receiver ${to} drops message ${message.getSubject()}`, message
+            );
+            return;
           }
+          receiver.onReceiveMessage(message);
+          connection.onMessage(message);
         } else {
           Logger.getLogger('simulation').error(
             `failed to deliver ${message.getSubject()} to ${to} because connection is ${connection.getState()}`, message
           );
         }
-      }, delay);
+      }, deliveryDelay);
+
     } else {
       Logger.getLogger('simulation').error(
         `failed to deliver ${message.getSubject()} to ${to} because connection does not exist`, message);
