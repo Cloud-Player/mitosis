@@ -17,7 +17,7 @@ import {sendAlternatives} from './task/send-alternatives';
 export class Peer extends AbstractRole implements IRole {
 
   protected onTick(mitosis: Mitosis): void {
-    // Clean up
+    // clean
     removeSignal(mitosis);
     closeDuplicateConnections(mitosis);
     removeExpiredConnections(mitosis);
@@ -25,11 +25,11 @@ export class Peer extends AbstractRole implements IRole {
     degradeToNewbie(mitosis);
     ensureRouterConnection(mitosis);
 
-    // Acquire
+    // acquire
     acquireDirectConnections(mitosis);
     requestStreamConnection(mitosis);
 
-    // Publish
+    // publish
     publishPeerUpdate(mitosis);
     publishChannelAnnouncement(mitosis);
   }

@@ -426,6 +426,9 @@ export class PeerManager {
       if (receiver) {
         const connection = receiver.getConnectionTable()
           .filterByStates(ConnectionState.OPEN)
+          .exclude(
+            table => table.filterByProtocol(Protocol.WEBRTC_STREAM)
+          )
           .sortByQuality()
           .pop();
         if (connection) {
