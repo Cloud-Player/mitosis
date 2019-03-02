@@ -39,7 +39,9 @@ export class SimulationSettingsComponent implements OnInit, OnChanges {
   }
 
   public download() {
-    this.downloadTextAsFile(JSON.stringify(this.getSmulationJson()), 'snapshot.json');
+    const scenarioName = (localStorage.getItem(`selected-scenario`) || '').split('.')[0];
+    this.downloadTextAsFile(
+      JSON.stringify(this.getSmulationJson()), `snapshot-${scenarioName}-${this.simulation.getClock().getTick()}.json`);
   }
 
   ngOnInit(): void {
