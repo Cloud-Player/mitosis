@@ -1,4 +1,4 @@
-import {Address, ChurnType, IClock, IStreamChurnEvent, IWebRTCStreamConnectionOptions} from 'mitosis';
+import {Address, ChurnType, IClock, IStreamChurnEvent, IWebRTCStreamConnectionOptions, Logger, Message} from 'mitosis';
 import {Subject} from 'rxjs';
 import {WebRTCMockConnection} from './webrtc-mock';
 
@@ -26,6 +26,10 @@ export class WebRTCStreamMockConnection extends WebRTCMockConnection {
 
   public getChannelId(): string {
     return (this._options as IWebRTCStreamConnectionOptions).channelId || this._channelId;
+  }
+
+  public send(message: Message): void {
+    Logger.getLogger(this._address.getId()).error('stream connection can not send messages', message);
   }
 
   public setStream(stream: MediaStream): void {
