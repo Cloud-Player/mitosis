@@ -3,8 +3,6 @@ import {filter} from 'rxjs/operators';
 import {Simulation} from '../simulation';
 
 export abstract class MockConnection extends AbstractConnection implements IConnection {
-
-  protected _delay = 1;
   protected readonly _client: Simulation = Simulation.getInstance();
   protected _connectionDelay = 1;
   private _timeout: number;
@@ -60,17 +58,8 @@ export abstract class MockConnection extends AbstractConnection implements IConn
         this._options.mitosisId,
         this._address.getId(),
         this._address.getLocation(),
-        this._delay,
         message);
     }
-  }
-
-  public setDelay(delay: number) {
-    this._delay = delay;
-  }
-
-  public getDelay() {
-    return this._delay;
   }
 
   public getConnectionDelay() {
