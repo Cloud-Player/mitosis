@@ -13,6 +13,7 @@ import {
   RoleType,
   stringHashCode
 } from 'mitosis';
+import {Subject} from 'rxjs';
 import {MockConnection} from './connection/mock';
 import {WebRTCDataMockConnection} from './connection/webrtc-data-mock';
 import {WebRTCStreamMockConnection} from './connection/webrtc-stream-mock';
@@ -29,11 +30,13 @@ export class Simulation {
   private _subTicks: number;
   private _nodes: Map<string, Node>;
   private _edges: Map<string, Edge>;
+  private _nodeSubject: Subject<{ type: ChurnType, node: Node }>;
 
   private constructor() {
     this._clock = new MasterClock();
     this._nodes = new Map();
     this._edges = new Map();
+    this._nodeSubject = new Subject();
   }
 
   public static getInstance() {
@@ -135,17 +138,19 @@ export class Simulation {
     const edge = this.getEdge(to, from, location);
     if (edge) {
       const sender = this._nodes.get(from);
-      if (sender) {
+      if (sender && sender.canSend()) {
         sender.onSendMessage(message);
+      } else if (!sender || !sender.canSend()) {
+        return;
       }
       this._clock.setTimeout(() => {
         const connection = (edge.getConnection() as MockConnection);
         if (connection.getState() === ConnectionState.OPEN) {
           const receiver = this._nodes.get(to);
-          if (receiver) {
+          if (receiver && receiver.canReceive()) {
             receiver.onReceiveMessage(message);
+            connection.onMessage(message);
           }
-          connection.onMessage(message);
         } else {
           Logger.getLogger('simulation').error(
             `failed to deliver ${message.getSubject()} to ${to} because connection is ${connection.getState()}`, message
@@ -159,7 +164,9 @@ export class Simulation {
   }
 
   public addNode(mitosis: Mitosis): void {
-    this._nodes.set(mitosis.getMyAddress().getId(), new Node(mitosis));
+    const node = new Node(mitosis);
+    this._nodes.set(mitosis.getMyAddress().getId(), node);
+    this._nodeSubject.next({type: ChurnType.ADDED, node});
   }
 
   public removeNode(mitosis: Mitosis): void {
@@ -171,6 +178,7 @@ export class Simulation {
     if (node) {
       node.getMitosis().destroy();
       this._nodes.delete(id);
+      this._nodeSubject.next({type: ChurnType.REMOVED, node});
     }
   }
 
@@ -204,6 +212,10 @@ export class Simulation {
 
   public onUpdate(callback: () => void): void {
     this._clock.setInterval(callback, 1);
+  }
+
+  public observeNodeChurn(): Subject<{ type: ChurnType, node: Node }> {
+    return this._nodeSubject;
   }
 
   public start(scenario: {
