@@ -74,30 +74,6 @@ export class PeerManager {
     this._peerConnectionChurnSubject.next({connection: connection, type: ChurnType.ADDED});
   }
 
-  private listenOnConnectionAdded(connection: IConnection, remotePeer: RemotePeer): void {
-    if (remotePeer.getConnectionTable().length === 0) {
-      // Remove the peer entirely if no connections are left
-      this.removePeer(remotePeer);
-      this.sendUnknownPeerToDirectPeers(remotePeer.getId());
-    }
-    if (remotePeer.getConnectionTable().filterDirect().length === 0) {
-      // Remove all via connections that went over this peer
-      this.getPeerTable()
-        .forEach(
-          peer => peer
-            .getConnectionTable()
-            .filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI)
-            .filterByLocation(remotePeer.getId())
-            .forEach(
-              viaConnection => {
-                Logger.getLogger(this._myId).warn('close via connection because parent connection was closed', viaConnection);
-                viaConnection.close();
-              }
-            )
-        );
-    }
-  }
-
   private getConfiguration(): Configuration {
     return this._roleManager.getConfiguration();
   }
