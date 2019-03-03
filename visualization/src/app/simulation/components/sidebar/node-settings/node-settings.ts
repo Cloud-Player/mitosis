@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {Protocol, RoleType} from 'mitosis';
-import {MockConnection, Simulation} from 'mitosis-simulation';
+import {RoleType} from 'mitosis';
+import {Simulation} from 'mitosis-simulation';
 import {SimulationNodeModel} from '../../../src/simulation-node-model';
 
 @Component({
@@ -15,8 +15,15 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
   @Input()
   public simulation: Simulation;
 
+  @Input()
+  public availableNodeIds: Array<string>;
+
   public stability: number;
   public latency: number;
+  public message = {
+    receiver: null,
+    body: null
+  };
 
   constructor() {
   }
@@ -58,6 +65,10 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
   public updateNetwork() {
     this.selectedNode.getSimulationNode().setNetworkStability(this.stability);
     this.selectedNode.getSimulationNode().setNetworkLatency(this.latency);
+  }
+
+  public sendMessage() {
+    this.selectedNode.getMitosis().sendMessageTo(this.message.receiver, this.message.body);
   }
 
   ngOnInit(): void {

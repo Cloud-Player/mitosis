@@ -21,7 +21,7 @@
     align-items: center;
 
     label{
-      width: 150px;
+      width: 60px;
       text-align: end;
       margin-right: 5px;
     }
@@ -29,6 +29,18 @@
     app-slider{
       margin-top: -10px;
       flex-grow: 1;
+    }
+  }
+
+  /deep/ .chat{
+    display: flex;
+    flex-direction: column;
+    app-input{
+      flex-grow: 1;
+    }
+
+    app-button{
+      float: right;
     }
   }
 }
