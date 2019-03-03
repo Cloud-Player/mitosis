@@ -1,4 +1,6 @@
+import alea from 'alea';
 import {
+  Address,
   ChurnType,
   ConfigurationMap,
   ConnectionState,
@@ -10,8 +12,7 @@ import {
   Mitosis,
   Protocol,
   ProtocolConnectionMap,
-  RoleType,
-  stringHashCode
+  RoleType
 } from 'mitosis';
 import {Subject} from 'rxjs';
 import {MockConnection} from './connection/mock';
@@ -19,6 +20,7 @@ import {WebRTCDataMockConnection} from './connection/webrtc-data-mock';
 import {WebRTCStreamMockConnection} from './connection/webrtc-stream-mock';
 import {WebSocketMockConnection} from './connection/websocket-mock';
 import {Edge} from './edge/edge';
+import {MockEnclave} from './enclave/mock';
 import {InstructionFactory} from './instruction/factory';
 import {AbstractInstruction} from './instruction/instruction';
 import {Node} from './node/node';
@@ -28,6 +30,7 @@ export class Simulation {
   private static _instance: Simulation;
   private readonly _clock: IClock;
   private _subTicks: number;
+  private _alea: () => number;
   private _nodes: Map<string, Node>;
   private _edges: Map<string, Edge>;
   private _nodeSubject: Subject<{ type: ChurnType, node: Node }>;
@@ -36,6 +39,7 @@ export class Simulation {
     this._clock = new MasterClock();
     this._nodes = new Map();
     this._edges = new Map();
+    this._alea = alea('simulation');
     this._nodeSubject = new Subject();
   }
 
@@ -72,6 +76,24 @@ export class Simulation {
             );
         }
       );
+  }
+
+  private getSignalNode(): Node {
+    return Array.from(this._nodes.values())
+      .find(
+        node => node
+          .getMitosis()
+          .getRoleManager()
+          .hasRole(RoleType.SIGNAL)
+      );
+  }
+
+  private getPeerClock(): IClock {
+    const offset = Math.floor(this.getRandom() * this._subTicks);
+    const clock = this._clock.fork();
+    clock.setSpeed(this._subTicks);
+    clock.forward(offset);
+    return clock;
   }
 
   public establishConnection(from: string, to: string, location: string) {
@@ -163,35 +185,53 @@ export class Simulation {
     }
   }
 
-  public addNode(mitosis: Mitosis): void {
+  public addNode(mitosis: Mitosis): Node {
     const node = new Node(mitosis);
     this._nodes.set(mitosis.getMyAddress().getId(), node);
     this._nodeSubject.next({type: ChurnType.ADDED, node});
+    return node;
   }
 
-  public removeNode(mitosis: Mitosis): void {
-    this.removeNodeById(mitosis.getMyAddress().getId());
+  public removeNode(mitosis: Mitosis): boolean {
+    return this.removeNodeById(mitosis.getMyAddress().getId());
   }
 
-  public removeNodeById(id: string): void {
+  public removeNodeById(id: string): boolean {
     const node = this._nodes.get(id);
     if (node) {
       node.getMitosis().destroy();
-      this._nodes.delete(id);
-      this._nodeSubject.next({type: ChurnType.REMOVED, node});
+      const success = this._nodes.delete(id);
+      if (success) {
+        this._nodeSubject.next({type: ChurnType.REMOVED, node});
+        return true;
+      }
     }
+    return false;
+  }
+
+  public getRandom(): number {
+    return this._alea();
   }
 
   public getClock(): IClock {
     return this._clock;
   }
 
-  public getClockForId(peerId: string): IClock {
-    const offset = stringHashCode(peerId) % this._subTicks;
-    const clock = this._clock.fork();
-    clock.setSpeed(this._subTicks);
-    clock.forward(offset);
-    return clock;
+  public addPeer(peerAddress?: string, signalAddress?: string, roles?: Array<RoleType>): Node {
+    if (!signalAddress) {
+      const signal = this.getSignalNode();
+      if (signal) {
+        signalAddress = signal.getMitosis().getMyAddress().toString();
+      }
+    }
+    const mitosis = new Mitosis(
+      this.getPeerClock(),
+      new MockEnclave(),
+      peerAddress,
+      signalAddress,
+      roles
+    );
+    return this.addNode(mitosis);
   }
 
   public getEdge(from: string, to: string, location: string): Edge {

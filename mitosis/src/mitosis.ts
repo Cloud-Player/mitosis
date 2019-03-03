@@ -55,7 +55,7 @@ export class Mitosis {
       this._myAddress = Address.fromString(address);
       this._myId = this._myAddress.getId();
     } else {
-      this._myId = `p${Math.round(100 + Math.random() * 899)}`;
+      this._myId = `p${Math.round(1000 + Math.random() * 8999)}`;
       this._myAddress = new Address(this._myId);
     }
 
@@ -270,7 +270,7 @@ export {AppContent} from './message/app-content';
 export {ConnectionNegotiationType} from './message/connection-negotiation';
 export {Logger} from './logger/logger';
 export {uuid} from './util/uuid';
-export {stringByteLength, stringHashCode} from './util/string-functions';
+export {stringByteLength} from './util/string-functions';
 export {IObservableMapEvent, ObservableMap} from './util/observable-map';
 export {ConnectionMeter} from './metering/connection-meter/connection-meter';
 export {TransmissionConnectionMeter} from './metering/connection-meter/transmission-connection-meter';

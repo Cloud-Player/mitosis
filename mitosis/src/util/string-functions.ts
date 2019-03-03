@@ -6,14 +6,3 @@ export function stringByteLength(value: string): number {
     return Buffer.byteLength(value);
   }
 }
-
-export function stringHashCode(value: string): number {
-  return value
-    .split('')
-    .reduce((a, b) => {
-        // tslint:disable:no-bitwise
-        a = ((a << 5) - a) + b.charCodeAt(0);
-        return a & a;
-      }
-      , 0);
-}
