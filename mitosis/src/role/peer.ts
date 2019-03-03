@@ -11,6 +11,7 @@ import {publishPeerUpdate} from './task/publish-peer-update';
 import {removeExpiredConnections} from './task/remove-expired-connections';
 import {removeSignal} from './task/remove-signal';
 import {removeSuperfluousConnections} from './task/remove-superfluous-connections';
+import {publishPeerAlive} from './task/publish-peer-alive';
 import {requestStreamConnection} from './task/request-stream-connection';
 import {sendAlternatives} from './task/send-alternatives';
 
@@ -32,6 +33,7 @@ export class Peer extends AbstractRole implements IRole {
     // publish
     publishPeerUpdate(mitosis);
     publishChannelAnnouncement(mitosis);
+    publishPeerAlive(mitosis);
   }
 
   public onMessage(mitosis: Mitosis, message: Message): void {
