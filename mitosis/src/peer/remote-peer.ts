@@ -149,7 +149,7 @@ export class RemotePeer {
     );
   }
 
-  public send(message: IMessage): void {
+  public send(message: IMessage): boolean {
     const connection: IConnection = this.getConnectionTable()
       .filterByStates(ConnectionState.OPEN)
       .filterByProtocol(
@@ -164,14 +164,17 @@ export class RemotePeer {
         connection.send(message);
         Logger.getLogger(this._mitosisId)
           .debug(`sending ${message.getSubject()} to ${connection.getAddress().getId()}`, message);
+        return true;
       } catch (error) {
         Logger.getLogger(this._mitosisId)
           .error(`cannot send ${message.getSubject()} to ${connection.getAddress().getId()}`, error);
         connection.close();
+        return false;
       }
     } else {
       Logger.getLogger(this._mitosisId)
-        .error(`no direct connection to ${message.getReceiver().getId()}`, message);
+        .error(`no direct connection to ${message.getReceiver().getId()} says ${this.getId()}`, message);
+      return false;
     }
   }
 
