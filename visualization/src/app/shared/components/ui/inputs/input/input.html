@@ -1,0 +1,8 @@
+<div class="input">
+  <mat-form-field class="form-field">
+    <input matInput
+           [placeholder]="placeholder"
+           [(ngModel)]="tmpValue"
+           (ngModelChange)="updateValue($event)">
+  </mat-form-field>
+</div>
