@@ -1,7 +1,7 @@
 import {Subject} from 'rxjs';
 import {filter} from 'rxjs/operators';
 import {ConfigurationMap} from '../configuration';
-import {ConnectionState, IConnection, Protocol} from '../connection/interface';
+import {IConnection, Protocol} from '../connection/interface';
 import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {PeerManager} from '../peer/peer-manager';
@@ -168,27 +168,14 @@ export class MessageBroker {
     const peerId = message.getReceiver().getId();
     const receiverPeer = this._peerManager.getPeerById(peerId);
     if (!receiverPeer) {
-      Logger.getLogger(this._peerManager.getMyId()).debug(`no idea how to reach ${peerId}`, message);
+      const inboundAddress = message.getInboundAddress();
+      Logger.getLogger(this._peerManager.getMyId())
+        .debug(`don't know ${peerId}. Tell ${inboundAddress.getId()} that i don't know that guy`, message);
       this._peerManager.sendMessage(
         new UnknownPeer(message.getReceiver(), message.getInboundAddress(), peerId)
       );
-      return;
     }
-    const connection = receiverPeer.getConnectionTable()
-      .filterByStates(ConnectionState.OPEN)
-      .sortByQuality()
-      .pop();
-    if (!connection) {
-      Logger.getLogger(this._peerManager.getMyId()).error(`all connections lost to ${peerId}`, message);
-      return;
-    }
-    if (connection.getAddress().isProtocol(Protocol.VIA, Protocol.VIA_MULTI)) {
-      const directPeerId = connection.getAddress().getLocation();
-      const directPeer = this._peerManager.getPeerById(directPeerId);
-      directPeer.send(message);
-    } else {
-      receiverPeer.send(message);
-    }
+    this._peerManager.sendMessage(message);
   }
 
   public observeAppContentMessages() {
