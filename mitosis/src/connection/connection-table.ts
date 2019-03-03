@@ -18,6 +18,10 @@ export class ConnectionTable extends Table<IConnection, ConnectionTable> {
     );
   }
 
+  public filterDirectData(): ConnectionTable {
+    return this.filterByProtocol(Protocol.WEBSOCKET, Protocol.WEBSOCKET_UNSECURE, Protocol.WEBRTC_DATA);
+  }
+
   public filterByProtocol(...protocols: Array<Protocol>): ConnectionTable {
     return new ConnectionTable(
       this._values.filter(
