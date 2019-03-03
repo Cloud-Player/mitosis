@@ -10,6 +10,7 @@ import {NodeSettingsComponent} from './components/sidebar/node-settings/node-set
 import {PeerTableComponent} from './components/sidebar/peer-table/peer-table';
 import {ScenarioSelectorComponent} from './components/sidebar/scenario-selector/scenario-selector';
 import {SidebarComponent} from './components/sidebar/sidebar';
+import {SimulationSettingsComponent} from './components/sidebar/simulation-settings/simulation-settings';
 import {StatsComponent} from './components/sidebar/stats/stats';
 import {StreamTableComponent} from './components/sidebar/stream-table/stream-table';
 import {SimulationComponent} from './components/simulation/simulation';
@@ -37,7 +38,8 @@ import {SimulationRoutingModule} from './simulation.routes';
     StreamTableComponent,
     NodeSettingsComponent,
     LoggerComponent,
-    StatsComponent
+    StatsComponent,
+    SimulationSettingsComponent
   ],
   providers: [
     LogEventLogger

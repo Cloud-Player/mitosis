@@ -15,51 +15,19 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
   @Input()
   public simulation: Simulation;
 
-  public wssDelay: number;
-  public webRTCDelay: number;
+  public stability: number;
+  public latency: number;
 
   constructor() {
   }
 
-  private updateDelayForProtocol(protocol: Protocol, delay: number) {
-    this.selectedNode
-      .getMitosis()
-      .getPeerManager()
-      .getPeerTable()
-      .forEach((peer) => {
-        peer.getConnectionTable()
-          .forEach((c) => {
-            if (c.getAddress().getProtocol() === protocol) {
-              (c as MockConnection).setDelay(delay);
-            }
-          });
-      });
-  }
-
   private initNode() {
-    this.selectedNode
-      .getMitosis()
-      .getPeerManager()
-      .getPeerTable()
-      .forEach((peer) => {
-        peer.getConnectionTable()
-          .forEach((c) => {
-            if (c.getAddress().getProtocol() === Protocol.WEBRTC_DATA) {
-              this.webRTCDelay = (c as MockConnection).getDelay();
-            }
-            if (c.getAddress().getProtocol() === Protocol.WEBSOCKET) {
-              this.wssDelay = (c as MockConnection).getDelay();
-            }
-          });
-      });
+    this.latency = this.selectedNode.getSimulationNode().getNetworkLatency();
+    this.stability = this.selectedNode.getSimulationNode().getNetworkStability();
   }
 
-  public updateWssDelay(delay: number) {
-    this.updateDelayForProtocol(Protocol.WEBSOCKET, delay);
-  }
-
-  public updateWebRtcDelay(delay: number) {
-    this.updateDelayForProtocol(Protocol.WEBRTC_STREAM, delay);
+  public sliderTransformer(val: number) {
+    return `${(val * 100).toFixed(0)}%`;
   }
 
   public getRoles() {
@@ -87,20 +55,9 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
     this.simulation.removeNode(this.selectedNode.getMitosis());
   }
 
-  public toggleNetwork() {
-    const existingNode = this.simulation.getNodeMap().get(this.selectedNode.getMitosis().getMyAddress().getId());
-    if (existingNode.hasNetwork()) {
-      existingNode.setHasNetwork(false);
-    } else {
-      existingNode.setHasNetwork(true);
-    }
-  }
-
-  public hasNetwork() {
-    const existingNode = this.simulation.getNodeMap().get(this.selectedNode.getMitosis().getMyAddress().getId());
-    if (existingNode) {
-      return existingNode.hasNetwork();
-    }
+  public updateNetwork() {
+    this.selectedNode.getSimulationNode().setNetworkStability(this.stability);
+    this.selectedNode.getSimulationNode().setNetworkLatency(this.latency);
   }
 
   ngOnInit(): void {

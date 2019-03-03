@@ -1,5 +1,5 @@
 import {IMessage, Mitosis, RoleType} from 'mitosis';
-import {NodeEventLogger, StatLogEvent} from 'mitosis-simulation';
+import {Node, NodeEventLogger, StatLogEvent} from 'mitosis-simulation';
 import {NodeModel} from '../../shared/components/d3-directed-graph/models/node-model';
 import {D3DirectedGraphConfig} from '../../shared/src/d3-directed-graph-config';
 
@@ -13,15 +13,21 @@ export interface ILoggers {
 export class SimulationNodeModel extends NodeModel {
   private _mitosis: Mitosis;
   private _loggers: ILoggers;
+  private _simulationNode: Node;
 
-  constructor(mitosis: Mitosis, loggers: ILoggers) {
+  constructor(mitosis: Mitosis, loggers: ILoggers, simulationNode: Node) {
     super(mitosis.getMyAddress().getId());
     this._mitosis = mitosis;
     this._loggers = loggers;
+    this._simulationNode = simulationNode;
   }
 
   public getMitosis() {
     return this._mitosis;
+  }
+
+  public getSimulationNode() {
+    return this._simulationNode;
   }
 
   public getLoggers(): ILoggers {

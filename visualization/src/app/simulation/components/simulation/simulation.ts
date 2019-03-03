@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Logger} from 'mitosis';
-import {Simulation} from 'mitosis-simulation';
+import {Node, Simulation} from 'mitosis-simulation';
 import {Subscription} from 'rxjs';
 import {D3DirectedGraphComponent} from '../../../shared/components/d3-directed-graph/d3-directed-graph';
 import {DirectedGraphModel} from '../../../shared/components/d3-directed-graph/models/directed-graph-model';
@@ -81,7 +81,8 @@ export class SimulationComponent implements OnInit {
               networkOutLogger: node.getNetworkOutLogger(),
               messagesInLogger: node.getMessagesInLogger(),
               messagesOutLogger: node.getMessagesOutLogger()
-            }
+            },
+            node
           );
         }
         model.addNode(existingNode);

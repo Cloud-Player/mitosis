@@ -1,5 +1,6 @@
 {
   "configuration": {
+    "sub-ticks": 10,
     "newbie": {
       "DEFAULT_SIGNAL_ADDRESS": "mitosis/v1/signal/wss"
     }
