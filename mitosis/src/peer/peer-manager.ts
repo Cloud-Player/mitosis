@@ -137,6 +137,39 @@ export class PeerManager {
       });
   }
 
+  /*
+   * Returns either:
+   * - the given remote peer when it has at least on direct connection
+   * - a direct peer that is a via peer of the peer in question
+   * - a direct peer that knows the router in case no remotePeer exist in peer table
+   */
+  private resolvePeer(remotePeer: RemotePeer): RemotePeer {
+    if (!remotePeer) {
+      const router = this.getPeerTable().filterByRole(RoleType.ROUTER).pop();
+      if (router) {
+        return this.resolvePeer(router);
+      }
+      return;
+    }
+    const hasDirectConnections = this.getPeerTable()
+      .filterById(remotePeer.getId())
+      .countConnections(
+        connectionTable => connectionTable.filterDirectData().filterByStates(ConnectionState.OPEN)
+      ) > 0;
+    if (hasDirectConnections) {
+      return remotePeer;
+    } else if (remotePeer) {
+      const bestViaConnector = remotePeer
+        .getConnectionTable()
+        .filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI)
+        .sortByQuality()
+        .pop();
+      if (bestViaConnector) {
+        return this.getPeerById(bestViaConnector.getAddress().getLocation());
+      }
+    }
+  }
+
   public getMyId(): string {
     return this._myId;
   }
