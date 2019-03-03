@@ -1,6 +1,7 @@
 import {IMessage, Mitosis} from 'mitosis';
 import {MockConnection} from '../connection/mock';
 import {Edge} from '../edge/edge';
+import {INodeMessageLog} from '../interface';
 import {Simulation} from '../simulation';
 import {NetworkStats} from '../statistics/network-stats';
 import {IStatEv, StatLogEvent} from '../statistics/stat-log-event';
@@ -10,8 +11,8 @@ export class Node {
   private _mitosis: Mitosis;
   private _isSelected: boolean;
   private _networkStats: NetworkStats;
-  private _messagesInLogger: NodeEventLogger<IMessage>;
-  private _messagesOutLogger: NodeEventLogger<IMessage>;
+  private _messagesInLogger: NodeEventLogger<INodeMessageLog>;
+  private _messagesOutLogger: NodeEventLogger<INodeMessageLog>;
   private _networkInLogger: NodeEventLogger<StatLogEvent>;
   private _networkOutLogger: NodeEventLogger<StatLogEvent>;
   private _latency = 1;
@@ -20,8 +21,8 @@ export class Node {
   constructor(mitosis: Mitosis) {
     this._mitosis = mitosis;
     this._networkStats = new NetworkStats(Simulation.getInstance().getClock());
-    this._messagesInLogger = new NodeEventLogger<IMessage>();
-    this._messagesOutLogger = new NodeEventLogger<IMessage>();
+    this._messagesInLogger = new NodeEventLogger<INodeMessageLog>();
+    this._messagesOutLogger = new NodeEventLogger<INodeMessageLog>();
     this._networkInLogger = new NodeEventLogger<StatLogEvent>();
     this._networkOutLogger = new NodeEventLogger<StatLogEvent>();
   }
@@ -47,13 +48,17 @@ export class Node {
     return edges;
   }
 
-  public onReceiveMessage(message: IMessage) {
+  public onReceiveMessage(message: IMessage, nodeId: string) {
     this._networkStats.updateTs(Simulation.getInstance().getClock().getTick());
     this._networkStats.addInComingMessage(message);
     this._messagesInLogger.add(
-      new LogEvent<IMessage>(
+      new LogEvent<INodeMessageLog>(
         Simulation.getInstance().getClock().getTick(),
-        message
+        {
+          message: message,
+          nodeId: nodeId,
+          inComing: true
+        }
       )
     );
     this._networkInLogger.addOrUpdateExisting(
@@ -69,13 +74,16 @@ export class Node {
     );
   }
 
-  public onSendMessage(message: IMessage) {
+  public onSendMessage(message: IMessage, nodeId: string) {
     this._networkStats.updateTs(Simulation.getInstance().getClock().getTick());
     this._networkStats.addOutGoingMessage(message);
     this._messagesOutLogger.add(
-      new LogEvent<IMessage>(
-        Simulation.getInstance().getClock().getTick(),
-        message
+      new LogEvent<INodeMessageLog>(
+        Simulation.getInstance().getClock().getTick(), {
+          message: message,
+          nodeId: nodeId,
+          inComing: false
+        }
       )
     );
     this._networkOutLogger.addOrUpdateExisting(
@@ -108,11 +116,11 @@ export class Node {
     this._stability = stability;
   }
 
-  public getMessagesInLogger(): NodeEventLogger<IMessage> {
+  public getMessagesInLogger(): NodeEventLogger<INodeMessageLog> {
     return this._messagesInLogger;
   }
 
-  public getMessagesOutLogger(): NodeEventLogger<IMessage> {
+  public getMessagesOutLogger(): NodeEventLogger<INodeMessageLog> {
     return this._messagesOutLogger;
   }
 
