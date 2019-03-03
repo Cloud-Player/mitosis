@@ -3,6 +3,8 @@ import {NodeModel} from '../../shared/components/d3-directed-graph/models/node-m
 import {D3DirectedGraphConfig} from '../../shared/src/d3-directed-graph-config';
 
 export interface IMeshImportNode {
+  x?: number;
+  y?: number;
   roles: Array<string>;
   id: string;
   connections: { [key: string]: Array<string> };
@@ -16,6 +18,8 @@ export class MeshImportNodeModel extends NodeModel {
     super(node.id);
     this._node = node;
     this._lastSeen = +new Date();
+    this.x = node.x;
+    this.y = node.y;
   }
 
   private hasRole(role: RoleType): boolean {

@@ -1,5 +1,6 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {Simulation} from 'mitosis-simulation';
+import {D3DirectedGraphComponent} from '../../../../shared/components/d3-directed-graph/d3-directed-graph';
 
 @Component({
   selector: 'app-simulation-settings',
@@ -9,6 +10,9 @@ import {Simulation} from 'mitosis-simulation';
 export class SimulationSettingsComponent implements OnInit, OnChanges {
   @Input()
   public simulation: Simulation;
+
+  @Input()
+  public graph: D3DirectedGraphComponent;
 
   constructor() {
   }
@@ -28,10 +32,9 @@ export class SimulationSettingsComponent implements OnInit, OnChanges {
   }
 
   private getSmulationJson() {
-    return Array.from(this.simulation.getNodeMap().values())
-      .map(
-        node => node.getMitosis().toJSON()
-      );
+    return this.graph.model.getNodes().map(
+      node => node.toJSON()
+    );
   }
 
   public addNode() {

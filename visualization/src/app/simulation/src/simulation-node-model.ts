@@ -34,6 +34,13 @@ export class SimulationNodeModel extends NodeModel {
     return this._loggers;
   }
 
+  public toJSON() {
+    return Object.assign(
+      super.toJSON(),
+      this._mitosis.toJSON()
+    );
+  }
+
   public textColorTransformer(): string {
     if (this._mitosis.getStreamManager().getChannelTable().has(channel => channel.isActive())) {
       const localChannel = this._mitosis.getStreamManager().getLocalChannel();
