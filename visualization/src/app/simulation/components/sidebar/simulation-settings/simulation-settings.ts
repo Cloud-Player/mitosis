@@ -31,20 +31,21 @@ export class SimulationSettingsComponent implements OnInit, OnChanges {
     }
   }
 
-  private getSmulationJson() {
-    return this.graph.model.getNodes().map(
-      node => node.toJSON()
-    );
+  private getSimulationJson() {
+    return Array.from(this.simulation.getNodeMap().values())
+      .map(
+        node => node.getMitosis().toJSON()
+      );
   }
 
   public addNode() {
-    this.simulation.createNode();
+    this.simulation.addPeer();
   }
 
   public download() {
     const scenarioName = (localStorage.getItem(`selected-scenario`) || '').split('.')[0];
     this.downloadTextAsFile(
-      JSON.stringify(this.getSmulationJson()), `snapshot-${scenarioName}-${this.simulation.getClock().getTick()}.json`);
+      JSON.stringify(this.getSimulationJson()), `snapshot-${scenarioName}-${this.simulation.getClock().getTick()}.json`);
   }
 
   ngOnInit(): void {

@@ -11,7 +11,8 @@ export enum MessageSubject {
   UNKNOWN_PEER = 'unknown-peer',
   PING = 'ping',
   PONG = 'pong',
-  ROUTER_ALIVE = 'router-alive'
+  ROUTER_ALIVE = 'router-alive',
+  PEER_ALIVE = 'peer-alive'
 }
 
 export interface IPeerUpdateEntry {

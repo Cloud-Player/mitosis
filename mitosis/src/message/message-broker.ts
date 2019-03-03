@@ -132,17 +132,15 @@ export class MessageBroker {
         break;
       case MessageSubject.ROUTER_ALIVE:
         if (this._routerAliveFloodingHandler.isFirstMessage(message)) {
-          const routerPeer = this._peerManager.getPeerById(message.getSender().getId());
+          const routerPeer = this._peerManager.getPeerById(senderId);
           if (routerPeer) {
             routerPeer.setRoles([RoleType.PEER, RoleType.ROUTER]);
           }
-          // TODO handle router alive message
-          Logger.getLogger(this._peerManager.getMyId())
-            .warn(
-              `got alive message from router via ${message.getInboundAddress().getId()}`,
-              message.getInboundAddress(),
-              message
-            );
+        }
+        break;
+      case MessageSubject.PEER_ALIVE:
+        if (!this._roleManager.hasRole(RoleType.ROUTER)) {
+          Logger.getLogger(this._peerManager.getMyId()).warn(`i am not a router`, message);
         }
         break;
       case MessageSubject.CHANNEL_ANNOUNCEMENT:

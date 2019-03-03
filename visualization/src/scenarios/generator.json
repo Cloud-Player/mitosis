@@ -19,7 +19,7 @@
       "tick": 0,
       "type": "set-clock-speed",
       "configuration": {
-        "speed": 1
+        "speed": 250
       }
     },
     {
@@ -36,7 +36,16 @@
       "tick": 1,
       "type": "generate-peers",
       "configuration": {
-        "count": 100
+        "count": 40,
+        "rate": 0.3
+      }
+    },
+    {
+      "tick": 10,
+      "type": "eliminate-peers",
+      "configuration": {
+        "count": 10,
+        "rate": 0.025
       }
     },
     {

@@ -1,6 +1,7 @@
 import {RoleType} from 'mitosis';
 import {Simulation} from '../simulation';
 import {AddPeer} from './add-peer';
+import {EliminatePeers} from './eliminate-peers';
 import {FinishScenario} from './finish-scenario';
 import {GeneratePeers} from './generate-peers';
 import {PauseClock} from './pause-clock';
@@ -14,6 +15,7 @@ import {StopClock} from './stop-clock';
 export enum InstructionType {
   ADD_PEER = 'add-peer',
   GENERATE_PEERS = 'generate-peers',
+  ELIMINATE_PEERS = 'eliminate-peers',
   REMOVE_PEER = 'remove-peer',
   REMOVE_CONNECTION = 'remove-connection',
   START_CLOCK = 'start-clock',
@@ -29,6 +31,7 @@ export type IInstructionConstructor = new(...args: Array<any>) => IInstruction;
 export const InstructionTypeMap: Map<InstructionType, IInstructionConstructor> = new Map([
   [InstructionType.ADD_PEER, AddPeer],
   [InstructionType.GENERATE_PEERS, GeneratePeers],
+  [InstructionType.ELIMINATE_PEERS, EliminatePeers],
   [InstructionType.REMOVE_PEER, RemovePeer],
   [InstructionType.REMOVE_CONNECTION, RemoveConnection],
   [InstructionType.START_CLOCK, StartClock],
@@ -44,6 +47,7 @@ export interface IConfiguration {
   target?: string;
   speed?: number;
   count?: number;
+  rate?: number;
   roles?: Array<RoleType>;
   default?: any;
   newbie?: any;
