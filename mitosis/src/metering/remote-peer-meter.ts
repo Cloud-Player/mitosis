@@ -9,6 +9,7 @@ import {RemotePeerTable} from '../peer/remote-peer-table';
 import {ObservableMap} from '../util/observable-map';
 import {IConnectionEventType, IConnectionMeter, IConnectionMeterEvent} from './connection-meter/interface';
 import {IMeter} from './interface';
+import {RouterAliveHighscore} from './router-alive-highscore';
 
 export class RemotePeerMeter implements IMeter {
 
@@ -17,11 +18,13 @@ export class RemotePeerMeter implements IMeter {
   private readonly _connectionsPerAddress: ObservableMap<string, IConnection>;
   private _punishedConnections = 0;
   private _protectedConnections = 0;
+  private _routerAliveHighScore: RouterAliveHighscore;
 
   constructor(connectionsPerAddress: ObservableMap<string, IConnection>, remotePeerId: string, clock: IClock) {
     this._connectionsPerAddress = connectionsPerAddress;
     this._remotePeerId = remotePeerId;
     this._clock = clock;
+    this._routerAliveHighScore = new RouterAliveHighscore();
     this.listenOnConnectionChurn();
   }
 
@@ -157,6 +160,10 @@ export class RemotePeerMeter implements IMeter {
   // returns the quality of this peer that is reported to our direct connections
   public getPeerUpdateQuality(remotePeers: RemotePeerTable): number {
     return this.getBestConnectionQuality() * this.getConnectionSaturation(remotePeers);
+  }
+
+  public getRouterAliveHighScore(): RouterAliveHighscore {
+    return this._routerAliveHighScore;
   }
 
   /*

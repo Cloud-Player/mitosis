@@ -21,6 +21,8 @@ export class Configuration {
   public CONNECTION_METER_PUNISHMENT_TIME = 20;
 
   public OUTBOUND_STREAM_CONNECTIONS = 2;
+
+  public ROUTER_ALIVE_HIGHSCORE_WINDOW_SIZE = 10;
 }
 
 export const ConfigurationMap: DefaultMap<RoleType, Configuration> = new DefaultMap(new Configuration());
