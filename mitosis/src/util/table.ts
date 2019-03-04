@@ -23,7 +23,7 @@ export class Table<V, T extends Table<V, T>> implements Iterable<V> {
   }
 
   public has(callbackfn: (value: V) => boolean): boolean {
-    return this.count(callbackfn) > 0;
+    return !!this.find(callbackfn);
   }
 
   public count(callbackfn: (value: V) => boolean): number {
