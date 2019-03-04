@@ -30,10 +30,10 @@ export class ConnectionTable extends Table<IConnection, ConnectionTable> {
     );
   }
 
-  public filterByLocation(location: string) {
+  public filterByLocation(...locations: Array<string>) {
     return new ConnectionTable(
       this._values.filter(
-        connection => connection.getAddress().getLocation() === location
+        connection => locations.includes(connection.getAddress().getLocation())
       )
     );
   }
