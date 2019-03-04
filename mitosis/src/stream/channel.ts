@@ -2,16 +2,19 @@ import {Subject} from 'rxjs';
 import {IChannelAnnouncement} from '../message/interface';
 import {IObservableMapEvent, ObservableMap} from '../util/observable-map';
 import {TableView} from '../util/table-view';
+import {IStreamChurnEvent} from './interface';
 import {Provider} from './provider';
 
 export class Channel {
 
   private readonly _id: string;
   private readonly _providerPerId: ObservableMap<string, Provider>;
+  private readonly _streamChurnSubject: Subject<IStreamChurnEvent>;
 
   public constructor(id: string) {
     this._id = id;
     this._providerPerId = new ObservableMap();
+    this._streamChurnSubject = new Subject();
   }
 
   public isActive(): boolean {
@@ -35,6 +38,15 @@ export class Channel {
   }
 
   public addProvider(provider: Provider): void {
+    provider.observeStreamChurn()
+      .subscribe(
+        (ev: IStreamChurnEvent) => this._streamChurnSubject.next(
+          {
+            type: ev.type,
+            stream: ev.stream,
+            channelId: this._id
+          })
+      );
     this._providerPerId.set(provider.getPeerId(), provider);
   }
 
@@ -87,12 +99,17 @@ export class Channel {
     return this._providerPerId.observe();
   }
 
+  public observeStreamChurn(): Subject<IStreamChurnEvent> {
+    return this._streamChurnSubject;
+  }
+
   public destroy(): void {
     this._providerPerId
       .forEach(
         provider => provider.destroy()
       );
     this._providerPerId.destroy();
+    this._streamChurnSubject.complete();
   }
 
   public toString(): string {

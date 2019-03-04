@@ -1,13 +1,19 @@
+import {Subject} from 'rxjs';
+import {ChurnType} from '../interface';
+import {IStreamChurnEvent} from './interface';
+
 export class Provider {
 
   private readonly _peerId: string;
   private _stream: MediaStream;
   private _isSource: boolean;
   private _capacity: number;
+  private _streamChurnSubject: Subject<IStreamChurnEvent>;
 
   constructor(peerId: string, capacity = 0) {
     this._peerId = peerId;
     this._capacity = capacity;
+    this._streamChurnSubject = new Subject();
   }
 
   public isActive(): boolean {
@@ -78,6 +84,13 @@ export class Provider {
   }
 
   public setStream(value: MediaStream): void {
+    this._streamChurnSubject.next(
+      {
+        type: ChurnType.ADDED,
+        stream: value,
+        channelId: null
+      }
+    );
     this._stream = value;
   }
 
@@ -89,6 +102,10 @@ export class Provider {
     this._capacity = value;
   }
 
+  public observeStreamChurn(): Subject<IStreamChurnEvent> {
+    return this._streamChurnSubject;
+  }
+
   public destroy(): void {
     if (this._stream) {
       this._stream
@@ -96,7 +113,16 @@ export class Provider {
         .forEach(
           track => track.stop()
         );
+      this._streamChurnSubject.next(
+        {
+          type: ChurnType.REMOVED,
+          stream: this._stream,
+          channelId: null
+        }
+      );
+      this._stream = null;
     }
+    this._streamChurnSubject.complete();
   }
 
   public toString(): string {
