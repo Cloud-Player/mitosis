@@ -19,6 +19,7 @@ import {ConnectionNegotiation, ConnectionNegotiationType} from '../message/conne
 import {IMessage, MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
 import {PeerUpdate} from '../message/peer-update';
+import {RouterAlive} from '../message/router-alive';
 import {UnknownPeer} from '../message/unknown-peer';
 import {ViaConnectionMeter} from '../metering/connection-meter/via-connection-meter';
 import {RoleType} from '../role/interface';
@@ -293,6 +294,40 @@ export class PeerManager {
       directPeers
     );
     this.sendMessage(peerUpdate);
+  }
+
+  public handleRouterAlive(aliveMessage: RouterAlive, isFirstAliveForSequence: boolean) {
+    const aliveSequence = aliveMessage.getBody().sequence;
+    const inBoundPeer = this.getPeerById(aliveMessage.getInboundAddress().getId());
+    const directPeers = this.getPeerTable()
+      .filterConnections(
+        connectionTable => connectionTable.filterDirectData()
+      );
+    if (isFirstAliveForSequence) {
+      const routerPeer = this.getPeerById(aliveMessage.getSender().getId());
+      if (routerPeer) {
+        routerPeer.setRoles([RoleType.PEER, RoleType.ROUTER]);
+      }
+      directPeers.forEach(
+        peer => peer.getMeter().getRouterAliveHighScore().addSequence(aliveSequence)
+      );
+      inBoundPeer
+        .getMeter()
+        .getRouterAliveHighScore()
+        .setRankForSequence(aliveSequence, 1);
+    } else {
+      const directPeersThatHaveAlreadyReceivedAliveSequence = directPeers
+        .filter(
+          peer => peer
+            .getMeter()
+            .getRouterAliveHighScore()
+            .hasReceivedSequence(aliveSequence)
+        );
+      inBoundPeer
+        .getMeter()
+        .getRouterAliveHighScore()
+        .setRankForSequence(aliveSequence, directPeersThatHaveAlreadyReceivedAliveSequence.length + 1);
+    }
   }
 
   public updatePeers(peerUpdate: PeerUpdate, viaPeerId: string): void {

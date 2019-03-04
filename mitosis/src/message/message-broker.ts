@@ -16,6 +16,7 @@ import {FloodingHandler} from './flooding-handler';
 import {IMessage, MessageSubject} from './interface';
 import {PeerUpdate} from './peer-update';
 import {RoleUpdate} from './role-update';
+import {RouterAlive} from './router-alive';
 import {UnknownPeer} from './unknown-peer';
 
 export class MessageBroker {
@@ -131,12 +132,9 @@ export class MessageBroker {
         // Do nothing, role manager will forward this to signal role if needed
         break;
       case MessageSubject.ROUTER_ALIVE:
-        if (this._routerAliveFloodingHandler.isFirstMessage(message)) {
-          const routerPeer = this._peerManager.getPeerById(senderId);
-          if (routerPeer) {
-            routerPeer.setRoles([RoleType.PEER, RoleType.ROUTER]);
-          }
-        }
+        const aliveMessage: RouterAlive = message as RouterAlive;
+        const firstAliveForSequence = this._routerAliveFloodingHandler.isFirstMessage(aliveMessage);
+        this._peerManager.handleRouterAlive(aliveMessage, firstAliveForSequence);
         break;
       case MessageSubject.PEER_ALIVE:
         if (!this._roleManager.hasRole(RoleType.ROUTER)) {
