@@ -1,11 +1,11 @@
 import {IMessage, Mitosis, RoleType} from 'mitosis';
-import {Node, NodeEventLogger, StatLogEvent} from 'mitosis-simulation';
+import {Node, NodeEventLogger, StatLogEvent, INodeMessageLog} from 'mitosis-simulation';
 import {NodeModel} from '../../shared/components/d3-directed-graph/models/node-model';
 import {D3DirectedGraphConfig} from '../../shared/src/d3-directed-graph-config';
 
 export interface ILoggers {
-  messagesOutLogger: NodeEventLogger<IMessage>;
-  messagesInLogger: NodeEventLogger<IMessage>;
+  messagesOutLogger: NodeEventLogger<INodeMessageLog>;
+  messagesInLogger: NodeEventLogger<INodeMessageLog>;
   networkInLogger: NodeEventLogger<StatLogEvent>;
   networkOutLogger: NodeEventLogger<StatLogEvent>;
 }
@@ -32,6 +32,13 @@ export class SimulationNodeModel extends NodeModel {
 
   public getLoggers(): ILoggers {
     return this._loggers;
+  }
+
+  public toJSON() {
+    return Object.assign(
+      super.toJSON(),
+      this._mitosis.toJSON()
+    );
   }
 
   public textColorTransformer(): string {

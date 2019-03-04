@@ -1,6 +1,5 @@
 import alea from 'alea';
 import {
-  Address,
   ChurnType,
   ConfigurationMap,
   ConnectionState,
@@ -172,7 +171,7 @@ export class Simulation {
         );
         return;
       } else {
-        sender.onSendMessage(message);
+        sender.onSendMessage(message, to);
       }
 
       this._clock.setTimeout(() => {
@@ -184,7 +183,7 @@ export class Simulation {
             );
             return;
           }
-          receiver.onReceiveMessage(message);
+          receiver.onReceiveMessage(message, from);
           connection.onMessage(message);
         } else {
           Logger.getLogger(from).warn(
@@ -296,6 +295,7 @@ export class Simulation {
   }
 }
 
+export * from './interface';
 export {Node} from './node/node';
 export {Edge} from './edge/edge';
 export {NodeEventLogger, LogEvent} from './node/event-logger';

@@ -20,6 +20,13 @@ export class NodeModel {
     this._selected = isSelected;
   }
 
+  public toJSON() {
+    return {
+      x: this.x,
+      y: this.y
+    };
+  }
+
   public textColorTransformer(): string {
     return 'black';
   }

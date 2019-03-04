@@ -38,6 +38,7 @@
     <app-tab-bar id="sim-tabbar">
       <app-tab-pane icon="fa fa-gear">
         <app-node-settings [selectedNode]="selectedNode"
+                           [availableNodeIds]="availableNodeIds"
                            [simulation]="simulation">
         </app-node-settings>
       </app-tab-pane>
@@ -60,6 +61,6 @@
   </section>
 
   <section *ngIf="!selectedNode">
-    <app-simulation-settings [simulation]="simulation"></app-simulation-settings>
+    <app-simulation-settings [simulation]="simulation" [graph]="graph"></app-simulation-settings>
   </section>
 </div>

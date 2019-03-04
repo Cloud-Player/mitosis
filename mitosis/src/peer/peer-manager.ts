@@ -74,30 +74,6 @@ export class PeerManager {
     this._peerConnectionChurnSubject.next({connection: connection, type: ChurnType.ADDED});
   }
 
-  private listenOnConnectionAdded(connection: IConnection, remotePeer: RemotePeer): void {
-    if (remotePeer.getConnectionTable().length === 0) {
-      // Remove the peer entirely if no connections are left
-      this.removePeer(remotePeer);
-      this.sendUnknownPeerToDirectPeers(remotePeer.getId());
-    }
-    if (remotePeer.getConnectionTable().filterDirect().length === 0) {
-      // Remove all via connections that went over this peer
-      this.getPeerTable()
-        .forEach(
-          peer => peer
-            .getConnectionTable()
-            .filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI)
-            .filterByLocation(remotePeer.getId())
-            .forEach(
-              viaConnection => {
-                Logger.getLogger(this._myId).warn('close via connection because parent connection was closed', viaConnection);
-                viaConnection.close();
-              }
-            )
-        );
-    }
-  }
-
   private getConfiguration(): Configuration {
     return this._roleManager.getConfiguration();
   }
@@ -159,6 +135,39 @@ export class PeerManager {
         const meter: ViaConnectionMeter = connection.getMeter() as ViaConnectionMeter;
         meter.updateLastSeen();
       });
+  }
+
+  /*
+   * Returns either:
+   * - the given remote peer when it has at least on direct connection
+   * - a direct peer that is a via peer of the peer in question
+   * - a direct peer that knows the router in case no remotePeer exist in peer table
+   */
+  private resolvePeer(remotePeer: RemotePeer): RemotePeer {
+    if (!remotePeer) {
+      const router = this.getPeerTable().filterByRole(RoleType.ROUTER).pop();
+      if (router) {
+        return this.resolvePeer(router);
+      }
+      return;
+    }
+    const hasDirectConnections = this.getPeerTable()
+      .filterById(remotePeer.getId())
+      .countConnections(
+        connectionTable => connectionTable.filterDirectData().filterByStates(ConnectionState.OPEN)
+      ) > 0;
+    if (hasDirectConnections) {
+      return remotePeer;
+    } else if (remotePeer) {
+      const bestViaConnector = remotePeer
+        .getConnectionTable()
+        .filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI)
+        .sortByQuality()
+        .pop();
+      if (bestViaConnector) {
+        return this.getPeerById(bestViaConnector.getAddress().getLocation());
+      }
+    }
   }
 
   public getMyId(): string {
@@ -414,7 +423,7 @@ export class PeerManager {
     }
   }
 
-  public sendMessage(message: IMessage) {
+  public sendMessage(message: IMessage): boolean {
     if (message.getReceiver().getId() === ConfigurationMap.getDefault().BROADCAST_ADDRESS) {
       this.broadcast(message);
       return;
@@ -422,34 +431,18 @@ export class PeerManager {
     let existingPeer;
     const protocol = message.getReceiver().getProtocol();
     if (!protocol) {
-      const receiver = this.getPeerById(message.getReceiver().getId());
-      if (receiver) {
-        const connection = receiver.getConnectionTable()
-          .filterByStates(ConnectionState.OPEN)
-          .exclude(
-            table => table.filterByProtocol(Protocol.WEBRTC_STREAM)
-          )
-          .sortByQuality()
-          .pop();
-        if (connection) {
-          if (connection.getAddress().getProtocol() === Protocol.VIA ||
-            connection.getAddress().getProtocol() === Protocol.VIA_MULTI) {
-            existingPeer = this.getPeerById(connection.getAddress().getLocation());
-          } else {
-            existingPeer = this.getPeerById(message.getReceiver().getId());
-          }
-        }
-      }
+      existingPeer = this.resolvePeer(this.getPeerById(message.getReceiver().getId()));
     } else if (protocol === Protocol.VIA || protocol === Protocol.VIA_MULTI) {
       existingPeer = this.getPeerById(message.getReceiver().getLocation());
     } else {
       existingPeer = this.getPeerById(message.getReceiver().getId());
     }
     if (existingPeer) {
-      existingPeer.send(message);
+      return existingPeer.send(message);
     } else {
       Logger.getLogger(this._myId)
         .warn(`failed to send message to ${message.getReceiver()}`, message);
+      return false;
     }
   }
 

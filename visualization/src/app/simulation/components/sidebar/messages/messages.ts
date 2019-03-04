@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {IMessage} from 'mitosis';
-import {LogEvent, Node} from 'mitosis-simulation';
+import {LogEvent, Node, INodeMessageLog} from 'mitosis-simulation';
 import {ISelectorOption} from '../../../../shared/components/ui/inputs/selector/selector';
 import {SimulationNodeModel} from '../../../src/simulation-node-model';
 
@@ -24,7 +24,7 @@ export class MessagesComponent implements OnInit, OnChanges {
   constructor() {
   }
 
-  public getMessageLog(): LogEvent<IMessage>[] {
+  public getMessageLog(): LogEvent<INodeMessageLog>[] {
     let logs;
     if (this.selectedOption === 'in') {
       logs = this.selectedNode.getLoggers().messagesInLogger.getLogs();
@@ -54,10 +54,10 @@ export class MessagesComponent implements OnInit, OnChanges {
     this.filterQuery = filterQuery;
   }
 
-  public getTitle(message: IMessage, selectedNode: SimulationNodeModel): string {
-    const receiver = message.getReceiver().getId();
-    const sender = message.getSender().getId();
-    const subject = message.getSubject();
+  public getTitle(log: INodeMessageLog, selectedNode: SimulationNodeModel): string {
+    const receiver = log.message.getReceiver().getId();
+    const sender = log.message.getSender().getId();
+    const subject = log.message.getSubject();
 
     if (receiver === selectedNode.getId()) {
       return `receive ${subject} from ${sender}`;
@@ -68,10 +68,10 @@ export class MessagesComponent implements OnInit, OnChanges {
     }
   }
 
-  public getDirection(message: IMessage, selectedNode: Node): string {
-    if (message.getReceiver().getId() === selectedNode.getId()) {
+  public getDirection(log: INodeMessageLog, selectedNode: Node): string {
+    if (log.message.getReceiver().getId() === selectedNode.getId()) {
       return 'receive';
-    } else if (message.getSender().getId() === selectedNode.getId()) {
+    } else if (log.message.getSender().getId() === selectedNode.getId()) {
       return 'send';
     } else {
       return 'forward';

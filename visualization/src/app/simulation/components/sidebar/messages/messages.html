@@ -11,8 +11,15 @@
 
   <app-collapsible *ngFor="let logEvent of getMessageLog()"
                    [isCollapsed]="true"
-                   class="subject-{{logEvent.getEvent().getSubject()}} message-{{getDirection(logEvent.getEvent(), selectedNode)}}"
+                   class="subject-{{logEvent.getEvent().message.getSubject()}} message-{{getDirection(logEvent.getEvent(), selectedNode)}}"
                    title="{{logEvent.getTick()}} {{getTitle(logEvent.getEvent(), selectedNode)}}">
-    <pre>{{logEvent.getEvent()}}</pre>
+    <span *ngIf="!logEvent.getEvent().inComing">
+      to {{logEvent.getEvent().nodeId}}
+    </span>
+
+    <span *ngIf="logEvent.getEvent().inComing">
+      from {{logEvent.getEvent().nodeId}}
+    </span>
+    <pre>{{logEvent.getEvent().message}}</pre>
   </app-collapsible>
 </section>

@@ -5,6 +5,7 @@ import {D3DirectedGraphComponent} from './components/d3-directed-graph/d3-direct
 import {D3LineChartComponent} from './components/d3-line-chart/d3-line-chart';
 import {ScrollViewComponent} from './components/scroll-view/scroll-view.component';
 import {FileImportComponent} from './components/ui/inputs/file-import/file-import';
+import {InputComponent} from './components/ui/inputs/input/input';
 import {FillHeightDirective} from './directives/fill-height';
 import {LayoutService} from './services/layout';
 import {TabBarComponent} from './components/tabs/tab-bar/tab-bar';
@@ -65,6 +66,7 @@ import {SelectorComponent} from './components/ui/inputs/selector/selector';
     SelectorComponent,
     FormFieldComponent,
     FileImportComponent,
+    InputComponent,
 
     FillHeightDirective,
     ConfirmDeleteDirective,
@@ -91,6 +93,7 @@ import {SelectorComponent} from './components/ui/inputs/selector/selector';
     SelectorComponent,
     FormFieldComponent,
     FileImportComponent,
+    InputComponent,
 
     FillHeightDirective,
     ConfirmDeleteDirective,
