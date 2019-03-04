@@ -43,6 +43,10 @@
 
       .left{
         flex-grow: 1;
+
+        span{
+          padding-left: 5px;
+        }
       }
 
       .right{

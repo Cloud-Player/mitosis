@@ -168,7 +168,7 @@ export class Simulation {
       const receiverDropProbability = this.getRandom();
       const deliveryDelay = (sender.getNetworkLatency() + receiver.getNetworkLatency()) / 2;
       if (senderDropProbability > sender.getNetworkStability()) {
-        Logger.getLogger('simulation').error(
+        Logger.getLogger('simulation').info(
           `sender ${to} drops message ${message.getSubject()}`, message
         );
         return;
@@ -180,7 +180,7 @@ export class Simulation {
         const connection = (edge.getConnection() as MockConnection);
         if (connection.getState() === ConnectionState.OPEN) {
           if (receiverDropProbability > receiver.getNetworkStability()) {
-            Logger.getLogger('simulation').error(
+            Logger.getLogger('simulation').info(
               `receiver ${to} drops message ${message.getSubject()}`, message
             );
             return;
@@ -188,14 +188,14 @@ export class Simulation {
           receiver.onReceiveMessage(message);
           connection.onMessage(message);
         } else {
-          Logger.getLogger('simulation').error(
+          Logger.getLogger(from).warn(
             `failed to deliver ${message.getSubject()} to ${to} because connection is ${connection.getState()}`, message
           );
         }
       }, deliveryDelay);
 
     } else {
-      Logger.getLogger('simulation').error(
+      Logger.getLogger(from).warn(
         `failed to deliver ${message.getSubject()} to ${to} because connection does not exist`, message);
     }
   }

@@ -40,7 +40,7 @@ export class SimulationNodeModel extends NodeModel {
       if (localChannel && localChannel.getActiveProvider().getPeerId() === this._mitosis.getMyAddress().getId()) {
         return 'white';
       } else {
-        return 'brown';
+        return 'darkblue';
       }
     } else {
       return super.textColorTransformer();
