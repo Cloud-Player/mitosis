@@ -10,7 +10,11 @@ export function publishChannelAnnouncement(mitosis: Mitosis): void {
     .getStreamManager()
     .getChannelTable()
     .filter(
-      channel => channel.isActive()
+      channel => channel
+        .getProviderTable()
+        .has(
+        provider => provider.isSource() && provider.isLive() && provider.isActive()
+      )
     )
     .map(
       channel => {

@@ -68,12 +68,18 @@ export class StreamTableComponent implements OnInit {
       if (localChannel && localChannel.getId() === channel.getId()) {
         return 'my channel';
       }
-      const activeProvider = channel.getActiveProvider();
-      if (activeProvider) {
-        const providerId = activeProvider.getPeerId();
-        if (providerId !== this.selectedNode.getMitosis().getMyAddress().getId()) {
-          return `channel from ${activeProvider.getPeerId()}`;
-        }
+      const sourceIds = channel
+        .getProviderTable()
+        .filter(
+          provider =>
+            provider.getPeerId() !== this.selectedNode.getMitosis().getMyAddress().getId() &&
+            provider.isSource()
+        )
+        .map(
+          provider => provider.getPeerId()
+        );
+      if (sourceIds.length > 0) {
+        return `channel from ${sourceIds.join(' and ')}`;
       }
     }
     return 'unknown channel';

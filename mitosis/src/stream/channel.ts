@@ -29,11 +29,11 @@ export class Channel {
     return this._id;
   }
 
-  public getActiveProvider(): Provider {
+  public isLive(): boolean {
     return this._providerPerId
       .asTable()
-      .find(
-        provider => provider.isActive()
+      .has(
+        provider => provider.isLive()
       );
   }
 
@@ -76,7 +76,14 @@ export class Channel {
   }
 
   public getMediaStream(): MediaStream {
-    return this.getActiveProvider().getStream();
+    const source = this._providerPerId
+      .asTable()
+      .find(
+        provider => provider.isActive() && provider.isLive() && provider.isSource()
+      );
+    if (source) {
+      return source.getStream();
+    }
   }
 
   public asAnnouncement(): IChannelAnnouncement {

@@ -44,7 +44,7 @@ export class SimulationNodeModel extends NodeModel {
   public textColorTransformer(): string {
     if (this._mitosis.getStreamManager().getChannelTable().has(channel => channel.isActive())) {
       const localChannel = this._mitosis.getStreamManager().getLocalChannel();
-      if (localChannel && localChannel.getActiveProvider().getPeerId() === this._mitosis.getMyAddress().getId()) {
+      if (localChannel && localChannel.isActive()) {
         return 'white';
       } else {
         return 'darkblue';

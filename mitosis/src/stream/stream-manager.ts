@@ -63,17 +63,22 @@ export class StreamManager {
         filter(
           ev => {
             if (ev.type === ChurnType.ADDED) {
-              const provider = ev.value.getActiveProvider();
-              if (provider && provider.getPeerId() === this._myId) {
-                return true;
-              }
+              return ev.value
+                .getProviderTable()
+                .has(
+                  provider =>
+                    provider.getPeerId() === this._myId &&
+                    provider.isActive() &&
+                    provider.isLive() &&
+                    provider.isSource()
+                );
             }
             return false;
           }
         )
       )
       .subscribe(
-        ev => this.pushStream(ev.value.getId(), ev.value.getActiveProvider().getStream())
+        ev => this.pushStream(ev.value.getId(), ev.value.getMediaStream())
       );
   }
 
@@ -277,19 +282,36 @@ export class StreamManager {
               .filterByProtocol(Protocol.WEBRTC_STREAM)
               .filterByStates(ConnectionState.OPENING, ConnectionState.OPEN)
               .filter(
-                connection => connection.getNegotiationState() >= NegotiationState.WAITING_FOR_ANSWER
-              )
-              .filter(
                 (connection: WebRTCStreamConnection) => connection.getChannelId() === negotiation.channelId
               )
               .filter(
                 (connection: WebRTCConnection) => !connection.isInitiator()
               )
+              .filter(
+                connection => connection.getNegotiationState() >= NegotiationState.WAITING_FOR_ANSWER
+              )
           );
         if (inboundConnectionsForChannel.length > 0) {
-          logger.info('already got provider for this channel offer', connectionNegotiation);
-          this._peerManager.sendMessage(rejection);
-          return;
+          const pendingConnectionCount = inboundConnectionsForChannel
+            .count(
+              connection => connection.getNegotiationState() < NegotiationState.ESTABLISHED
+            );
+          if (pendingConnectionCount > 0) {
+            logger.info('already got pending providers for this channel offer', connectionNegotiation);
+            this._peerManager.sendMessage(rejection);
+            return;
+          }
+          const activeLiveSources = this
+            .getOrSetChannel(negotiation.channelId)
+            .getProviderTable()
+            .count(
+              provider => provider.isActive() && provider.isLive() && provider.isSource()
+            );
+          if (activeLiveSources > 0) {
+            logger.info('already got active provider for this channel offer', connectionNegotiation);
+            this._peerManager.sendMessage(rejection);
+            return;
+          }
         }
       } else {
         logger.error('got stream offer without channel id', connectionNegotiation);
@@ -310,8 +332,13 @@ export class StreamManager {
         if (this.getMyCapacity() > 0) {
           if (!this.amIAlreadyStreamingTo(senderAddress.getId())) {
             const channelId = negotiation.channelId;
-            const channel = this._channelPerId.get(channelId);
-            if (channel && channel.isActive()) {
+            const channel = this.getOrSetChannel(channelId);
+            const suitableSource = channel
+              .getProviderTable()
+              .has(
+                provider => provider.isSource() && provider.isLive() && provider.isActive()
+              );
+            if (suitableSource) {
               this.pushStreamTo(channelId, channel.getMediaStream(), senderAddress.getId());
             } else {
               logger.info(`no active stream for this channel, ignoring request from ${senderAddress.getId()}`, connectionNegotiation);
