@@ -1,25 +1,26 @@
 <section class="peer-table">
   <header>Stream Channels</header>
 
-  <app-button *ngIf="!isStreaming()" type="icon" text="fa fa-video-camera" (click)="startStream()">
-    Start stream
-  </app-button>
-  <app-button *ngIf="isStreaming()" type="icon" text="fa fa-trash" (click)="stopStream()">
-    Stop stream
-  </app-button>
+  <app-button *ngIf="!hasLocalStream()" text="Start recording" (click)="startLocalStream()"></app-button>
+  <app-button *ngIf="hasLocalStream()" text="Stop recording" (click)="stopLocalStream()"></app-button>
+  <app-button *ngIf="isStreaming()" text="Stop broadcasting" (click)="stopRemoteStream()"></app-button>
 
   <app-collapsible *ngFor="let channel of selectedNode.getMitosis().getStreamManager().getChannelTable(); index as i"
                    [isCollapsed]="false"
-                   title="channel {{channel.getId().split('-')[0]}}"
-                   [text]="getChannelAnnotation(channel)">
+                   [title]="getChannelTitle(channel)"
+                   [text]="channel.getId().split('-')[0]">
     <ul class="connections">
       <li *ngFor="let provider of channel.getProviderTable()">
         <div class="left">
-          <span *ngIf="provider.isActive()" class="fa fa-video-camera"></span>
           {{provider.getPeerId()}}
+          <span *ngIf="provider.isActive()" class="fa fa-video-camera" title="active"></span>
+          <span *ngIf="provider.isLive()" class="fa fa-rss" title="live"></span>
+          <span *ngIf="provider.isLocal()" class="fa fa-user" title="local"></span>
+          <span *ngIf="provider.isSource()" class="fa fa-arrow-up" title="source"></span>
+          <span *ngIf="provider.isSink()" class="fa fa-arrow-down" title="sink"></span>
         </div>
         <div class="right">
-          <span class="fa fa-link"></span> {{provider.getCapacity()}}
+          <span class="fa fa-link" title="capacity"></span> {{provider.getCapacity()}}
         </div>
       </li>
     </ul>

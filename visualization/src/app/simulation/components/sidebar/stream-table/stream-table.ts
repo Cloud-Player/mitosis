@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {Channel, IConnection, Protocol} from 'mitosis';
+import {Channel, StreamManager} from 'mitosis';
 import {MockMediaStream, Simulation} from 'mitosis-simulation';
 import {SimulationNodeModel} from '../../../src/simulation-node-model';
 
@@ -18,46 +18,65 @@ export class StreamTableComponent implements OnInit {
   constructor() {
   }
 
-  public startStream(): void {
-    this.selectedNode
+  private getStreamManager(): StreamManager {
+    return this.selectedNode
       .getMitosis()
-      .getStreamManager()
-      .setLocalStream(new MockMediaStream());
+      .getStreamManager();
   }
 
-  public stopStream(): void {
-    this.selectedNode
-      .getMitosis()
-      .getStreamManager()
-      .unsetLocalStream();
+  public startLocalStream(): void {
+    this.getStreamManager().setLocalStream(new MockMediaStream());
+  }
+
+  public stopLocalStream(): void {
+    this.getStreamManager().unsetLocalStream();
+  }
+
+  public stopRemoteStream(): void {
+    this.getStreamManager()
+      .getChannelTable()
+      .filter(
+        channel => channel !== this.getStreamManager().getLocalChannel()
+      )
+      .forEach(
+        channel => channel
+          .getProviderTable()
+          .filter(
+            provider => provider.isLive() && provider.isActive() && provider.isSink()
+          )
+          .forEach(
+            provider => provider.getStream().stop()
+          )
+      );
+  }
+
+  public hasLocalStream(): boolean {
+    return !!this.getStreamManager().getLocalChannel();
   }
 
   public isStreaming(): boolean {
-    return this.selectedNode
-      .getMitosis()
-      .getStreamManager()
+    return this.getStreamManager()
       .getChannelTable()
       .has(
         channel => channel.isActive()
       );
   }
 
-  public getChannelAnnotation(channel: Channel) {
-    let text = '';
+  public getChannelTitle(channel: Channel) {
     if (this.selectedNode) {
       const localChannel = this.selectedNode.getMitosis().getStreamManager().getLocalChannel();
       if (localChannel && localChannel.getId() === channel.getId()) {
-        text += 'mine ';
+        return 'my channel';
       }
       const activeProvider = channel.getActiveProvider();
       if (activeProvider) {
         const providerId = activeProvider.getPeerId();
         if (providerId !== this.selectedNode.getMitosis().getMyAddress().getId()) {
-          text += `from ${activeProvider.getPeerId()} `;
+          return `channel from ${activeProvider.getPeerId()}`;
         }
       }
     }
-    return text;
+    return 'unknown channel';
   }
 
   ngOnInit(): void {

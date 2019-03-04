@@ -2,6 +2,7 @@ export class Provider {
 
   private readonly _peerId: string;
   private _stream: MediaStream;
+  private _isSource: boolean;
   private _capacity: number;
 
   constructor(peerId: string, capacity = 0) {
@@ -12,6 +13,40 @@ export class Provider {
   public isActive(): boolean {
     if (this._stream) {
       return this._stream.active;
+    }
+    return false;
+  }
+
+  public setIsSource(): void {
+    this._isSource = true;
+  }
+
+  public setIsSink(): void {
+    this._isSource = false;
+  }
+
+  public isSource(): boolean {
+    if (this._stream) {
+      return this._isSource;
+    }
+    return false;
+  }
+
+  public isSink(): boolean {
+    if (this._stream) {
+      return !this._isSource;
+    }
+    return false;
+  }
+
+  public isLive(): boolean {
+    if (this._stream) {
+      return this._stream
+        .getTracks()
+        .map(
+          (track: MediaStreamTrack) => track.readyState === 'live'
+        )
+        .includes(true);
     }
     return false;
   }
@@ -30,6 +65,12 @@ export class Provider {
 
   public getPeerId(): string {
     return this._peerId;
+  }
+
+  public getStreamId(): string {
+    if (this._stream) {
+      return this._stream.id;
+    }
   }
 
   public getStream(): MediaStream {
@@ -56,5 +97,19 @@ export class Provider {
           track => track.stop()
         );
     }
+  }
+
+  public toString(): string {
+    return JSON.stringify({
+        id: this._peerId,
+        capacity: this._capacity,
+        stream: this.getStreamId(),
+        active: this.isActive(),
+        live: this.isLive(),
+        local: this.isLocal()
+      },
+      undefined,
+      2
+    );
   }
 }

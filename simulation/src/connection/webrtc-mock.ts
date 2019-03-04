@@ -3,12 +3,12 @@ import {
   ConnectionNegotiationType,
   IClock,
   IConnection,
+  IConnectionMeter,
   IWebRTCConnectionOptions,
   Logger,
   Message,
   MessageSubject,
-  NegotiationState,
-  TransmissionConnectionMeter
+  NegotiationState
 } from 'mitosis';
 import {MockConnection} from './mock';
 
@@ -17,18 +17,7 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
   private _lastOffer = 1;
   private _lastAnswer = 1;
   private _initiator = true;
-  protected _meter: TransmissionConnectionMeter;
-
-  constructor(address: Address, clock: IClock, options: IWebRTCConnectionOptions) {
-    super(address, clock, options);
-    this._meter = new TransmissionConnectionMeter(
-      this,
-      this.getMyAddress(),
-      address,
-      this._clock);
-    this._meter.observeMessages()
-      .subscribe(this.send.bind(this));
-  }
+  protected _meter: IConnectionMeter;
 
   private createOffer(mitosisId: string) {
     this._negotiationState = NegotiationState.WAITING_FOR_OFFER;
@@ -117,17 +106,6 @@ export class WebRTCMockConnection extends MockConnection implements IConnection 
 
   public isInitiator(): boolean {
     return this._initiator;
-  }
-
-  public onMessage(message: Message) {
-    if (
-      message.getSubject() === MessageSubject.PING ||
-      message.getSubject() === MessageSubject.PONG
-    ) {
-      this._meter.onMessage(message);
-    } else {
-      super.onMessage(message);
-    }
   }
 
   public establish(options: IWebRTCConnectionOptions) {

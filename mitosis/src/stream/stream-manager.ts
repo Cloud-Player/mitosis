@@ -98,10 +98,11 @@ export class StreamManager {
       peerId,
       Protocol.WEBRTC_STREAM
     );
+    const clonedStream = stream.clone();
     const options: IWebRTCStreamConnectionOptions = {
       mitosisId: this._myId,
       channelId: channelId,
-      stream: stream
+      stream: clonedStream
     };
     this._peerManager
       .connectTo(address, options)
@@ -111,7 +112,8 @@ export class StreamManager {
             .info(`pushing stream to ${remotePeer.getId()}`, remotePeer);
           const channel = this.getOrSetChannel(channelId);
           const provider = channel.getOrSetProvider(peerId);
-          provider.setStream(stream);
+          provider.setStream(clonedStream);
+          provider.setIsSink();
         }
       )
       .catch((err) => {
@@ -159,6 +161,7 @@ export class StreamManager {
     const peerId = connection.getAddress().getId();
     const provider = channel.getOrSetProvider(peerId);
     provider.setStream(stream);
+    provider.setIsSource();
     if (!connection.isInitiator()) {
       this.pushStream(channel.getId(), stream);
     }
@@ -393,6 +396,7 @@ export class StreamManager {
     const channel = this.getOrSetChannel(uuid());
     const provider = channel.getOrSetProvider(this._myId);
     provider.setStream(stream);
+    provider.setIsSource();
     Logger.getLogger(this._myId).info(`adding local channel ${channel.getId()}`, channel);
   }
 

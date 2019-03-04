@@ -15,7 +15,7 @@ export class MeshImportEdgeModel extends EdgeModel {
 
   public strokeColorTransformer(): string {
     if (this._connection === 'webrtc-stream') {
-      return D3DirectedGraphConfig.CONNECTION_STREAM_COLOR;
+      return D3DirectedGraphConfig.CONNECTION_ACTIVE_STREAM_COLOR;
     } else {
       return super.strokeColorTransformer();
     }

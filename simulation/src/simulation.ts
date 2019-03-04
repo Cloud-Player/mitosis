@@ -118,21 +118,20 @@ export class Simulation {
         const stream = inStreamConn.getStream();
         if (stream) {
           outStreamConn.setStream(stream.clone());
-        } else {
-          inStreamConn.observeStreamChurn()
-            .subscribe(
-              ev => {
-                switch (ev.type) {
-                  case ChurnType.ADDED:
-                    outStreamConn.setStream(ev.stream.clone());
-                    break;
-                  case ChurnType.REMOVED:
-                    outStreamConn.removeStream();
-                    break;
-                }
-              }
-            );
         }
+        inStreamConn.observeStreamChurn()
+          .subscribe(
+            ev => {
+              switch (ev.type) {
+                case ChurnType.ADDED:
+                  outStreamConn.setStream(ev.stream.clone());
+                  break;
+                case ChurnType.REMOVED:
+                  outStreamConn.removeStream();
+                  break;
+              }
+            }
+          );
       }
       outConn.onOpen(outConn);
     } else {
@@ -302,6 +301,7 @@ export {Edge} from './edge/edge';
 export {NodeEventLogger, LogEvent} from './node/event-logger';
 export {StatLogEvent} from './statistics/stat-log-event';
 export {MockConnection} from './connection/mock';
-export {MockMediaStream} from './stream/mock';
+export {MockMediaStream} from './stream/mock-stream';
 export {InstructionTypeMap} from './instruction/interface';
 export {AbstractInstruction} from './instruction/instruction';
+export {WebRTCStreamMockConnection} from './connection/webrtc-stream-mock';
