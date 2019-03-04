@@ -117,21 +117,20 @@ export class Simulation {
         const stream = inStreamConn.getStream();
         if (stream) {
           outStreamConn.setStream(stream.clone());
-        } else {
-          inStreamConn.observeStreamChurn()
-            .subscribe(
-              ev => {
-                switch (ev.type) {
-                  case ChurnType.ADDED:
-                    outStreamConn.setStream(ev.stream.clone());
-                    break;
-                  case ChurnType.REMOVED:
-                    outStreamConn.removeStream();
-                    break;
-                }
-              }
-            );
         }
+        inStreamConn.observeStreamChurn()
+          .subscribe(
+            ev => {
+              switch (ev.type) {
+                case ChurnType.ADDED:
+                  outStreamConn.setStream(ev.stream.clone());
+                  break;
+                case ChurnType.REMOVED:
+                  outStreamConn.removeStream();
+                  break;
+              }
+            }
+          );
       }
       outConn.onOpen(outConn);
     } else {
@@ -167,7 +166,7 @@ export class Simulation {
       const receiverDropProbability = this.getRandom();
       const deliveryDelay = (sender.getNetworkLatency() + receiver.getNetworkLatency()) / 2;
       if (senderDropProbability > sender.getNetworkStability()) {
-        Logger.getLogger('simulation').error(
+        Logger.getLogger('simulation').info(
           `sender ${to} drops message ${message.getSubject()}`, message
         );
         return;
@@ -179,7 +178,7 @@ export class Simulation {
         const connection = (edge.getConnection() as MockConnection);
         if (connection.getState() === ConnectionState.OPEN) {
           if (receiverDropProbability > receiver.getNetworkStability()) {
-            Logger.getLogger('simulation').error(
+            Logger.getLogger('simulation').info(
               `receiver ${to} drops message ${message.getSubject()}`, message
             );
             return;
@@ -187,14 +186,14 @@ export class Simulation {
           receiver.onReceiveMessage(message, from);
           connection.onMessage(message);
         } else {
-          Logger.getLogger('simulation').error(
+          Logger.getLogger(from).warn(
             `failed to deliver ${message.getSubject()} to ${to} because connection is ${connection.getState()}`, message
           );
         }
       }, deliveryDelay);
 
     } else {
-      Logger.getLogger('simulation').error(
+      Logger.getLogger(from).warn(
         `failed to deliver ${message.getSubject()} to ${to} because connection does not exist`, message);
     }
   }
@@ -302,6 +301,7 @@ export {Edge} from './edge/edge';
 export {NodeEventLogger, LogEvent} from './node/event-logger';
 export {StatLogEvent} from './statistics/stat-log-event';
 export {MockConnection} from './connection/mock';
-export {MockMediaStream} from './stream/mock';
+export {MockMediaStream} from './stream/mock-stream';
 export {InstructionTypeMap} from './instruction/interface';
 export {AbstractInstruction} from './instruction/instruction';
+export {WebRTCStreamMockConnection} from './connection/webrtc-stream-mock';

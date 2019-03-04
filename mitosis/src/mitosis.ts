@@ -273,6 +273,8 @@ export {uuid} from './util/uuid';
 export {stringByteLength} from './util/string-functions';
 export {IObservableMapEvent, ObservableMap} from './util/observable-map';
 export {ConnectionMeter} from './metering/connection-meter/connection-meter';
+export {StreamConnectionMeter} from './metering/connection-meter/stream-connection-meter';
 export {TransmissionConnectionMeter} from './metering/connection-meter/transmission-connection-meter';
 export {Channel} from './stream/channel';
 export {Provider} from './stream/provider';
+export {StreamManager} from './stream/stream-manager';

@@ -47,7 +47,7 @@ export class SimulationNodeModel extends NodeModel {
       if (localChannel && localChannel.getActiveProvider().getPeerId() === this._mitosis.getMyAddress().getId()) {
         return 'white';
       } else {
-        return 'brown';
+        return 'darkblue';
       }
     } else {
       return super.textColorTransformer();
@@ -64,9 +64,8 @@ export class SimulationNodeModel extends NodeModel {
 
   public ellipseFillTransformer(): string {
     const roleManager = this._mitosis.getRoleManager();
-    const localChannel = this._mitosis.getStreamManager().getLocalChannel();
-    if (localChannel && localChannel.getActiveProvider().getPeerId() === this._mitosis.getMyAddress().getId()) {
-      return 'blue';
+    if (this._mitosis.getStreamManager().getLocalChannel()) {
+      return D3DirectedGraphConfig.NODE_STREAMER_FILL_COLOR;
     } else if (roleManager.hasRole(RoleType.SIGNAL)) {
       return D3DirectedGraphConfig.NODE_ROLE_SIGNAL_FILL_COLOR;
     } else if (roleManager.hasRole(RoleType.ROUTER)) {

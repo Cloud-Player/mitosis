@@ -38,7 +38,6 @@ export class DirectedGraphModel<TNode extends NodeModel, TEdge extends EdgeModel
     }
 
     if (!existingTargetEdge && !existingSourceEdge) {
-
       return true;
     } else {
       return false;

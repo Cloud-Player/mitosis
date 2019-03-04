@@ -1,4 +1,14 @@
-import {Address, ChurnType, IClock, IStreamChurnEvent, IWebRTCStreamConnectionOptions, Logger, Message} from 'mitosis';
+import {
+  Address,
+  ChurnType,
+  IClock,
+  IConnection,
+  IStreamChurnEvent,
+  IWebRTCStreamConnectionOptions,
+  Logger,
+  Message,
+  StreamConnectionMeter
+} from 'mitosis';
 import {Subject} from 'rxjs';
 import {WebRTCMockConnection} from './webrtc-mock';
 
@@ -7,11 +17,32 @@ export class WebRTCStreamMockConnection extends WebRTCMockConnection {
   private _streamSubject: Subject<IStreamChurnEvent>;
   private _channelId: string;
   private _stream: MediaStream;
+  protected _meter: StreamConnectionMeter;
 
   constructor(address: Address, clock: IClock, options: IWebRTCStreamConnectionOptions) {
     super(address, clock, options);
+    this._meter = new StreamConnectionMeter(this, clock);
     this._streamSubject = new Subject();
     this.setStream(options.stream);
+  }
+
+  private bindStreamListeners(): void {
+    if (this._stream) {
+      this._stream.onactive = () => {
+        this._streamSubject.next({
+          type: ChurnType.ADDED,
+          stream: this._stream,
+          channelId: this._channelId
+        });
+      };
+      this._stream.oninactive = () => {
+        this._streamSubject.next({
+          type: ChurnType.REMOVED,
+          stream: this._stream,
+          channelId: this._channelId
+        });
+      };
+    }
   }
 
   protected createAnswer(mitosisId: string, options: IWebRTCStreamConnectionOptions) {
@@ -34,6 +65,7 @@ export class WebRTCStreamMockConnection extends WebRTCMockConnection {
 
   public setStream(stream: MediaStream): void {
     this._stream = stream;
+    this.bindStreamListeners();
     if (stream) {
       this._stream = stream;
       this._streamSubject.next({
@@ -65,6 +97,11 @@ export class WebRTCStreamMockConnection extends WebRTCMockConnection {
         type: ChurnType.REMOVED
       });
     }
+  }
+
+  public onClose(reason?: any): void {
+    this.removeStream();
+    super.onClose(reason);
   }
 
   public observeStreamChurn(): Subject<IStreamChurnEvent> {

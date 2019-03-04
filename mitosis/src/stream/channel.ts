@@ -94,4 +94,14 @@ export class Channel {
       );
     this._providerPerId.destroy();
   }
+
+  public toString(): string {
+    return JSON.stringify({
+        id: this._id,
+        providers: this._providerPerId.keysAsList()
+      },
+      undefined,
+      2
+    );
+  }
 }

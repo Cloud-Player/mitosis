@@ -1,4 +1,5 @@
 import {ConnectionState, IConnection, Protocol, WebRTCConnection} from 'mitosis';
+import {WebRTCStreamMockConnection} from 'mitosis-simulation';
 import {EdgeModel} from '../../shared/components/d3-directed-graph/models/edge-model';
 import {D3DirectedGraphConfig} from '../../shared/src/d3-directed-graph-config';
 
@@ -32,7 +33,16 @@ export class SimulationEdgeModel extends EdgeModel {
     } else if (this._connection.isInState(ConnectionState.OPENING, ConnectionState.CLOSING)) {
       return D3DirectedGraphConfig.CONNECTION_CHANGING_STROKE_COLOR;
     } else if (this._connection.getAddress().getProtocol() === Protocol.WEBRTC_STREAM) {
-      return D3DirectedGraphConfig.CONNECTION_STREAM_COLOR;
+      const stream  = (this._connection as WebRTCStreamMockConnection).getStream();
+      if (stream) {
+        if (stream.active) {
+          return D3DirectedGraphConfig.CONNECTION_ACTIVE_STREAM_COLOR;
+        } else {
+          return D3DirectedGraphConfig.CONNECTION_IDLE_STREAM_COLOR;
+        }
+      } else {
+        return D3DirectedGraphConfig.CONNECTION_ERROR_STROKE_COLOR;
+      }
     } else {
       return super.strokeColorTransformer();
     }

@@ -1,11 +1,13 @@
 export class D3DirectedGraphConfig {
   static CONNECTION_ERROR_STROKE_COLOR = 'rgb(239,51,71)';
   static CONNECTION_CHANGING_STROKE_COLOR = 'rgb(84,111,125)';
-  static CONNECTION_STREAM_COLOR = 'blue';
+  static CONNECTION_ACTIVE_STREAM_COLOR = 'blue';
+  static CONNECTION_IDLE_STREAM_COLOR = 'indigo';
 
   static CONNECTION_OPENING_STROKE_DASH = [8, 8];
   static CONNECTION_CLOSING_STROKE_DASH = [2, 8];
 
+  static NODE_STREAMER_FILL_COLOR = 'blue';
   static NODE_ROLE_SIGNAL_FILL_COLOR = 'rgb(248,61,81)';
   static NODE_ROLE_ROUTER_FILL_COLOR = 'rgb(7,204,85)';
   static NODE_ROLE_NEWBIE_FILL_COLOR = 'rgb(225,192,173)';
