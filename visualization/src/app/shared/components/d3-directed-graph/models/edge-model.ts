@@ -1,18 +1,20 @@
 export class EdgeModel {
+  public source: { x: number, y: number } | string;
+  public target: { x: number, y: number } | string;
   private _sourceId: string;
   private _targetId: string;
   private _offset: number;
   private _location: string;
-  public source: { x: number, y: number } | string;
-  public target: { x: number, y: number } | string;
+  private _protocol: string;
 
-  constructor(source: string, target: string, location: string = '', offset = 0) {
+  constructor(source: string, target: string, location: string = '', offset = 0, protocol: string = '') {
     this.source = source;
     this.target = target;
     this._sourceId = source;
     this._targetId = target;
     this._location = location;
     this._offset = offset;
+    this._protocol = protocol;
   }
 
   public static buildId(prefix, source, target): string {
@@ -41,6 +43,10 @@ export class EdgeModel {
 
   public getOffset() {
     return this._offset;
+  }
+
+  public getProtocol() {
+    return this._protocol;
   }
 
   public matches(prefix: string, source: string, target: string, location: string = '') {

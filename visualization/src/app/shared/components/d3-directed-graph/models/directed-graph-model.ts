@@ -2,9 +2,10 @@ import {EdgeModel} from './edge-model';
 import {NodeModel} from './node-model';
 
 export class DirectedGraphModel<TNode extends NodeModel, TEdge extends EdgeModel> {
-  private _nodes: Array<TNode>;
-  private _edges: Array<TEdge>;
-  private _events: { [key: string]: Array<() => void> };
+
+  protected _nodes: Array<TNode>;
+  protected _edges: Array<TEdge>;
+  protected _events: { [key: string]: Array<() => void> };
 
   constructor() {
     this._nodes = [];
@@ -20,7 +21,7 @@ export class DirectedGraphModel<TNode extends NodeModel, TEdge extends EdgeModel
     }
   }
 
-  private trigger(keys: Array<string>) {
+  protected trigger(keys: Array<string>) {
     keys.forEach(key => this.triggerEv(key));
   }
 
@@ -29,18 +30,6 @@ export class DirectedGraphModel<TNode extends NodeModel, TEdge extends EdgeModel
       this._events[key].push(callback);
     } else {
       this._events[key] = [callback];
-    }
-  }
-
-  private canAddEdge(newEdge: TEdge, existingTargetEdge: TEdge, existingSourceEdge: TEdge): boolean {
-    if (!this.getNodeById(newEdge.getSourceId()) || !this.getNodeById(newEdge.getTargetId())) {
-      return false;
-    }
-
-    if (!existingTargetEdge && !existingSourceEdge) {
-      return true;
-    } else {
-      return false;
     }
   }
 
@@ -57,12 +46,6 @@ export class DirectedGraphModel<TNode extends NodeModel, TEdge extends EdgeModel
 
   public getNodeById(nodeId: string): TNode {
     return this._nodes.find(node => node.getId() === nodeId);
-  }
-
-  public getEdge(searchEdge: TEdge) {
-    return this._edges.find((edge: TEdge) => {
-      return edge.getId() === searchEdge.getId() && edge.getLocation() === searchEdge.getLocation();
-    });
   }
 
   public addNode(node: TNode): TNode {
@@ -82,18 +65,25 @@ export class DirectedGraphModel<TNode extends NodeModel, TEdge extends EdgeModel
       this.trigger(['remove', 'remove-node']);
     }
   }
-  public addEdge(edge: TEdge): TEdge {
-    const existingTargetNode = this._edges.find(
-      findEdge => findEdge.matches(edge.getConnectionPrefix(), edge.getTargetId(), edge.getSourceId(), edge.getLocation())
-    );
-    const existingSourceNode = this.getEdge(edge);
 
-    const isNew = this.canAddEdge(edge, existingTargetNode, existingSourceNode);
-    if (isNew) {
+  public findEdge(prefix: string, sourceId: string, targetId: string, location: string): TEdge {
+    return this._edges
+      .find(
+      value =>
+        value.matches(prefix, sourceId, targetId, location) ||
+        value.matches(prefix, targetId, sourceId, location)
+      );
+  }
+
+  public addEdge(edge: TEdge): TEdge {
+   const existingEdge = this.findEdge(edge.getConnectionPrefix(), edge.getSourceId(), edge.getTargetId(), edge.getLocation());
+    if (existingEdge) {
+      return existingEdge;
+    } else {
       this._edges.push(edge);
       this.trigger(['add', 'add-edge']);
+      return edge;
     }
-    return edge;
   }
 
   public getNodes() {

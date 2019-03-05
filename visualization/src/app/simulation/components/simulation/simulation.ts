@@ -3,10 +3,8 @@ import {Logger} from 'mitosis';
 import {Node, Simulation} from 'mitosis-simulation';
 import {Subscription} from 'rxjs';
 import {D3DirectedGraphComponent} from '../../../shared/components/d3-directed-graph/d3-directed-graph';
-import {DirectedGraphModel} from '../../../shared/components/d3-directed-graph/models/directed-graph-model';
-import {EdgeModel} from '../../../shared/components/d3-directed-graph/models/edge-model';
-import {NodeModel} from '../../../shared/components/d3-directed-graph/models/node-model';
 import {LogEventLogger} from '../../services/log-event-logger';
+import {SimulationDirectedGraphModel} from '../../src/simulation-directed-graph-model';
 import {SimulationEdgeModel} from '../../src/simulation-edge-model';
 import {SimulationNodeModel} from '../../src/simulation-node-model';
 import {SidebarComponent} from '../sidebar/sidebar';
@@ -17,18 +15,18 @@ import {SidebarComponent} from '../sidebar/sidebar';
   styleUrls: ['./simulation.scss'],
 })
 export class SimulationComponent implements OnInit {
-  private scenario: any;
-  private simulation: Simulation;
-  private loggerSubscriptions: Subscription;
-  public model: DirectedGraphModel<NodeModel, EdgeModel>;
+  public model: SimulationDirectedGraphModel;
   public selectedNode: Node;
   @ViewChild('graph')
   public graph: D3DirectedGraphComponent;
   @ViewChild('sidebar')
   public sidebar: SidebarComponent;
+  private scenario: any;
+  private simulation: Simulation;
+  private loggerSubscriptions: Subscription;
 
   constructor(private logEventLogger: LogEventLogger) {
-    this.model = new DirectedGraphModel();
+    this.model = new SimulationDirectedGraphModel();
     this.simulation = Simulation.getInstance();
     this.loggerSubscriptions = new Subscription();
   }
@@ -63,7 +61,7 @@ export class SimulationComponent implements OnInit {
     this.loggerSubscriptions = new Subscription();
     this.logEventLogger.getLogger().setClock(this.simulation.getClock());
     this.simulation.onUpdate(() => {
-      const model = new DirectedGraphModel();
+      const model = new SimulationDirectedGraphModel();
       this.loggerSubscriptions.unsubscribe();
       this.loggerSubscriptions = new Subscription();
       this.simulation.getNodeMap().forEach((node) => {

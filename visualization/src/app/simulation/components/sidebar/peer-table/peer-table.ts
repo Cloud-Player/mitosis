@@ -1,7 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ConnectionState, IConnection, Protocol, RemotePeer, RoleType, WebRTCConnection} from 'mitosis';
-import {DirectedGraphModel} from '../../../../shared/components/d3-directed-graph/models/directed-graph-model';
-import {SimulationEdgeModel} from '../../../src/simulation-edge-model';
 import {SimulationNodeModel} from '../../../src/simulation-node-model';
 
 @Component({
@@ -45,14 +43,22 @@ export class PeerTableComponent implements OnInit {
   }
 
   public getConnectionDirection(connection: IConnection): string {
-    if (connection.getAddress().isProtocol(Protocol.WEBRTC_STREAM)) {
-      if ((connection as WebRTCConnection).isInitiator()) {
-        return '↗️';
-      } else {
-        return '↙️';
-      }
-    } else if (connection.getAddress().isProtocol(Protocol.WEBRTC_DATA, Protocol.WEBSOCKET)) {
-      return '↔️';
+    switch (connection.getAddress().getProtocol()) {
+      case Protocol.WEBSOCKET:
+      case Protocol.WEBSOCKET_UNSECURE:
+        return '↔️';
+      case Protocol.WEBRTC_DATA:
+        if ((connection as WebRTCConnection).isInitiator()) {
+          return '↔️👤';
+        } else {
+          return '↔️';
+        }
+      case Protocol.WEBRTC_STREAM:
+        if ((connection as WebRTCConnection).isInitiator()) {
+          return '↗️';
+        } else {
+          return '↙️';
+        }
     }
   }
 
