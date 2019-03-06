@@ -187,6 +187,13 @@
       "tick": 7,
       "type": "add-peer",
       "configuration": {
+        "address": "mitosis/v1/yvonne/webrtc"
+      }
+    },
+    {
+      "tick": 7,
+      "type": "add-peer",
+      "configuration": {
         "address": "mitosis/v1/zoe/webrtc"
       }
     },
