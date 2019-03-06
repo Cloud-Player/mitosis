@@ -29,24 +29,37 @@ export function removeSignal(mitosis: Mitosis): void {
     return;
   }
 
-  const routers = peerTable
-    .filterByRole(RoleType.ROUTER);
+  const routerConnections = peerTable
+    .filterByRole(RoleType.ROUTER)
+    .aggregateConnections(
+      table => table
+        .filterByStates(ConnectionState.OPEN)
+        .exclude(
+          excludeTable => excludeTable
+            .filterByLocation(
+              ...signals.map(signal => signal.getId())
+            )
+        )
+    );
 
   const directConnections = peerTable
-    .filterConnections(
+    .exclude(
+      table => table.filterByRole(RoleType.SIGNAL)
+    )
+    .aggregateConnections(
       table => table
-        .filterDirect()
+        .filterDirectData()
         .filterByStates(ConnectionState.OPEN)
     );
 
   // When it does not have a router yet or less than 2 connections, meaning it is only connected via signal, do not remove
   // TODO: Make this threshold configurable
-  if (routers.length === 0 || directConnections.length < 2) {
+  if (routerConnections.length === 0 || directConnections.length < 2) {
     return;
   }
 
   Logger.getLogger(mitosis.getMyAddress().getId())
-    .info('close connection so signal', `routers: ${routers.length}, connections: ${directConnections.length}`);
+    .info('close connection so signal', `routers: ${routerConnections.length}, connections: ${directConnections.length}`);
 
   signals
     .forEach(
