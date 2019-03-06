@@ -2,6 +2,7 @@ import {ConnectionState, Protocol} from '../../connection/interface';
 import {Logger} from '../../logger/logger';
 import {Address} from '../../message/address';
 import {Mitosis} from '../../mitosis';
+import {RemotePeer} from '../../peer/remote-peer';
 import {RoleType} from '../interface';
 
 export function acquireDirectConnections(mitosis: Mitosis): void {
@@ -45,8 +46,10 @@ export function acquireDirectConnections(mitosis: Mitosis): void {
       `need to acquire ${insufficientConnections} peers`
     );
     viaPeers
-      .sortByQuality()
-      .slice(0, directConnectionCount)
+      .sortBy((peer: RemotePeer) =>
+        peer.getMeter().getRouterAliveQuality() * peer.getMeter().getAverageConnectionQuality()
+      )
+      .slice(0, insufficientConnections)
       .forEach(
         remotePeer => {
           const address = new Address(remotePeer.getId(), Protocol.WEBRTC_DATA);
