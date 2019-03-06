@@ -14,5 +14,14 @@ export function degradeToNewbie(mitosis: Mitosis): void {
         roleType => roleManager.removeRole(roleType)
       );
     roleManager.addRole(RoleType.NEWBIE);
+
+    mitosis
+      .getPeerManager()
+      .getPeerTable()
+      .forEach(
+        remotePeer => remotePeer.getMeter().getRouterAliveHighScore().reset()
+      );
+
+
   }
 }
