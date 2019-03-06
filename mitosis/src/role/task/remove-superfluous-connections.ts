@@ -1,66 +1,90 @@
-import {ConnectionTable} from '../../connection/connection-table';
-import {ConnectionState, Protocol} from '../../connection/interface';
+import {ConnectionState} from '../../connection/interface';
 import {Logger} from '../../logger/logger';
 import {Mitosis} from '../../mitosis';
 
 export function removeSuperfluousConnections(mitosis: Mitosis): void {
+  const configuration = mitosis.getRoleManager().getConfiguration();
   const directPeers = mitosis
     .getPeerManager()
     .getPeerTable()
     .filterConnections(
       table => table
-        .filterDirect()
+        .filterDirectData()
         .filterByStates(ConnectionState.OPEN)
-        .exclude(
-          excludeTable =>
-            excludeTable.filterByProtocol(Protocol.WEBRTC_STREAM)
-        )
     );
 
-  const directConnectionCount = directPeers
-    .countConnections(
+  const directConnections = directPeers
+    .aggregateConnections(
       table => table
-        .filterDirect()
+        .filterDirectData()
         .filterByStates(ConnectionState.OPEN)
-        .exclude(
-          excludeTable =>
-            excludeTable.filterByProtocol(Protocol.WEBRTC_STREAM)
-        )
+    );
+  const protectedConnections = directConnections.filterByMeter(meter => meter.isProtected());
+  const unprotectedConnectionCount = directConnections.length - protectedConnections.length;
+  const superfluousConnectionCount = unprotectedConnectionCount - configuration.DIRECT_CONNECTIONS_MAX_GOAL;
+  const overflowConnectionCount = directConnections.length - configuration.DIRECT_CONNECTIONS_MAX;
+
+  let closablePeers = directPeers
+    .filter(
+      remotePeer => mitosis
+        .getRoleManager()
+        .getRolesRequiringPeer(remotePeer).length === 0
     );
 
-  const configuration = mitosis.getRoleManager().getConfiguration();
-  const superfluousConnections = directConnectionCount > configuration.DIRECT_CONNECTIONS_MAX_GOAL;
+  const bestRouterLink = directPeers
+    .filter(
+      remotePeer => remotePeer.getMeter().getRouterAliveQuality() === 1
+    )
+    .pop();
 
-  if (superfluousConnections) {
-    Logger.getLogger(mitosis.getMyAddress().getId()).debug(
-      `need to loose ${directConnectionCount - configuration.DIRECT_CONNECTIONS_MAX_GOAL} peers`
-    );
-    const closableConnections: ConnectionTable = directPeers
+  if (bestRouterLink) {
+    closablePeers = closablePeers
       .filter(
-        remotePeer => mitosis
-          .getRoleManager()
-          .getRolesRequiringPeer(remotePeer).length === 0
-      )
-      .filterIsProtected(false)
-      .aggregateConnections(
-        table => table
-          .filterDirect()
-          .filterByStates(ConnectionState.OPEN)
-          .exclude(
-            excludeTable =>
-              excludeTable.filterByProtocol(Protocol.WEBRTC_STREAM)
-          )
-      )
-      .sortByQuality();
+        remotePeer => remotePeer.getId() !== bestRouterLink.getId()
+      );
+  }
 
-    if (closableConnections.length > 0) {
-      const closeConnection = closableConnections.pop();
-      Logger.getLogger(mitosis.getMyAddress().getId())
-        .debug(`removing worst connection ${closeConnection.getAddress().getId()}`, closeConnection);
-      closeConnection.close();
-    } else {
-      Logger.getLogger(mitosis.getMyAddress().getId())
-        .warn(`can not loose peers because no closable connection is available`);
-    }
+  if (superfluousConnectionCount > 0) {
+    closablePeers = closablePeers.filterIsProtected(false);
+
+    Logger.getLogger(mitosis.getMyAddress().getId()).debug(
+      `should loose ${superfluousConnectionCount} peers`,
+      `not closing my best router link ${bestRouterLink}`,
+      `can disconnect ${closablePeers.length} peers`
+    );
+  } else if (overflowConnectionCount > 0) {
+    Logger.getLogger(mitosis.getMyAddress().getId()).debug(
+      `must loose ${superfluousConnectionCount} peers`,
+      `not closing my best router link ${bestRouterLink}`,
+      `can disconnect ${closablePeers.length} peers`
+    );
+  } else {
+    return;
+  }
+
+  const closableConnections = closablePeers
+    .aggregateConnections(
+      table => table
+        .filterDirectData()
+        .filterByStates(ConnectionState.OPEN)
+    )
+    .sortBy(
+      connection => {
+        if (connection.getMeter().isProtected()) {
+          return 1.0;
+        } else {
+          return connection.getMeter().getQuality();
+        }
+      }
+    );
+
+  if (closableConnections.length > 0) {
+    const closeConnection = closableConnections.shift();
+    Logger.getLogger(mitosis.getMyAddress().getId())
+      .debug(`removing worst connection ${closeConnection.getAddress().getId()}`, closeConnection);
+    closeConnection.close();
+  } else {
+    Logger.getLogger(mitosis.getMyAddress().getId())
+      .warn(`can not loose peers because no closable connection is available`);
   }
 }
