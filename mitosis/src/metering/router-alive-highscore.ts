@@ -50,6 +50,9 @@ export class RouterAliveHighscore {
   }
 
   public getAverageRanking() {
+    if (this._rankPerSequenceMap.size === 0) {
+      return 0;
+    }
     let total = 0;
     const maxConnections = ConfigurationMap.getDefault().DIRECT_CONNECTIONS_MAX;
     const entries = this._rankPerSequenceMap.entries();
