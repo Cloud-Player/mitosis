@@ -91,6 +91,7 @@ export class RemotePeerMeter implements IMeter {
   // returns value between 0 and 1 which is the average tq of all connections
   public getAverageConnectionQuality(): number {
     const quality = this.getConnectionTable()
+      .filterDirectData()
       .map(
         connection => connection.getMeter().getQuality()
       )
@@ -140,7 +141,7 @@ export class RemotePeerMeter implements IMeter {
       .filterById(this._remotePeerId)
       .countConnections(
         table => table
-          .filterDirect()
+          .filterDirectData()
       );
 
     const connectionCount = viaConnectionCount + directConnectionCount;

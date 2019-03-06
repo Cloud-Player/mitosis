@@ -108,7 +108,7 @@ export class PeerManager {
       let forwardPeers = this.getPeerTable()
         .filterConnections(
           table => table
-            .filterDirect()
+            .filterDirectData()
             .filterByStates(ConnectionState.OPEN)
         );
       if (message.getInboundAddress()) {
