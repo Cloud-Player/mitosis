@@ -38,6 +38,7 @@ export class RemotePeer {
     connection.observeStateChange().subscribe((ev) => {
       switch (ev) {
         case ConnectionState.CLOSED:
+          this.cleanUpRouterForLastDirect(connection.getAddress());
           this._connectionsPerAddress.delete(connection.getAddress().toString());
           this._connectionChurnSubject.next({connection: connection, type: ChurnType.REMOVED});
           break;
@@ -45,6 +46,15 @@ export class RemotePeer {
       Logger.getLogger(this._mitosisId)
         .debug(`${connection.getAddress().getProtocol()} connection to ${connection.getAddress().getId()} ${ev.toString()}`, connection);
     });
+  }
+
+  private cleanUpRouterForLastDirect(address: Address) {
+    if (address.isProtocol(Protocol.WEBRTC_DATA)) {
+      const hasDirectConenctions = this.getConnectionTable().filterDirectData().length > 0;
+      if (!hasDirectConenctions) {
+        this.getMeter().getRouterAliveHighScore().reset();
+      }
+    }
   }
 
   private openConnection(connection: IConnection): Promise<RemotePeer> {

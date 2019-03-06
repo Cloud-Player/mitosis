@@ -63,4 +63,8 @@ export class RouterAliveHighscore {
     }
     return Math.pow(((total / this._rankPerSequenceMap.size) || 0.1), 2);
   }
+
+  public reset(): void {
+    this._rankPerSequenceMap.clear();
+  }
 }
