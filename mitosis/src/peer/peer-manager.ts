@@ -230,7 +230,7 @@ export class PeerManager {
     const viaPeer = this.getPeerById(remoteAddress.getLocation());
     if (viaPeer) {
       options = options || {payload: {}};
-      options.payload.quality = options.payload.quality || 1;
+      options.payload.quality = options.payload.quality || 0.3333;
       options.payload.parent = viaPeer
         .getConnectionTable()
         .filterDirect()
