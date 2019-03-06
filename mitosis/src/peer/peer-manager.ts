@@ -352,7 +352,7 @@ export class PeerManager {
           updatedPeerIds.push(entry.peerId);
           this.ensureConnection(
             new Address(entry.peerId, Protocol.VIA, senderId),
-            {payload: {quality: 0.5}}
+            {payload: {quality: entry.quality}}
           )
             .then(
               remotePeer => {
