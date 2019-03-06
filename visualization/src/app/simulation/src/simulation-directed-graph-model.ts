@@ -6,6 +6,9 @@ import {SimulationNodeModel} from './simulation-node-model';
 export class SimulationDirectedGraphModel extends DirectedGraphModel<SimulationNodeModel, SimulationEdgeModel> {
 
   public addEdge(edge: SimulationEdgeModel): SimulationEdgeModel {
+    if (!this.getNodeById(edge.getSourceId()) || !this.getNodeById(edge.getTargetId())) {
+      return null;
+    }
     const existingEdge = this.findEdge(edge.getConnectionPrefix(), edge.getSourceId(), edge.getTargetId(), edge.getLocation());
     if (existingEdge) {
       // If the connection already exists, make sure the initiator is set on the edge
