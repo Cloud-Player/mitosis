@@ -19,11 +19,15 @@ export class SimulationEdgeModel extends EdgeModel {
       );
   }
 
-  public getConnection() {
+  public getConnection(): IConnection {
     return this._connection;
   }
 
-  public getConnectionPrefix() {
+  public setConnection(connection: IConnection): void {
+    this._connection = connection;
+  }
+
+  public getConnectionPrefix(): Protocol {
     return this._connection.getAddress().getProtocol();
   }
 
@@ -33,7 +37,7 @@ export class SimulationEdgeModel extends EdgeModel {
     } else if (this._connection.isInState(ConnectionState.OPENING, ConnectionState.CLOSING)) {
       return D3DirectedGraphConfig.CONNECTION_CHANGING_STROKE_COLOR;
     } else if (this._connection.getAddress().getProtocol() === Protocol.WEBRTC_STREAM) {
-      const stream  = (this._connection as WebRTCStreamMockConnection).getStream();
+      const stream = (this._connection as WebRTCStreamMockConnection).getStream();
       if (stream) {
         if (stream.active) {
           return D3DirectedGraphConfig.CONNECTION_ACTIVE_STREAM_COLOR;
