@@ -160,7 +160,15 @@ export class RemotePeerMeter implements IMeter {
 
   // returns the quality of this peer that is reported to our direct connections
   public getPeerUpdateQuality(remotePeers: RemotePeerTable): number {
-    return this.getBestConnectionQuality() * this.getConnectionSaturation(remotePeers);
+    return this.getBestConnectionQuality() * this.getConnectionSaturation(remotePeers) * this.getRouterAliveQuality();
+  }
+
+  public getRouterAliveQuality(): number {
+    const routerAliveQuality = this.getRouterAliveHighScore().getAverageRanking();
+    if (routerAliveQuality === 0) {
+      return 0.5;
+    }
+    return routerAliveQuality;
   }
 
   public getRouterAliveHighScore(): RouterAliveHighscore {
