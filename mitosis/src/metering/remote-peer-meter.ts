@@ -149,7 +149,7 @@ export class RemotePeerMeter implements IMeter {
     // TODO: Use role specific configuration for this remote peer
     const configuration = ConfigurationMap.getDefault();
     const saturation = ((configuration.DIRECT_CONNECTIONS_MAX - connectionCount) / configuration.DIRECT_CONNECTIONS_MAX_GOAL);
-    return 1 - Math.min(Math.max(0, saturation), 1);
+    return Math.min(Math.max(0, saturation), 1);
   }
 
   // returns value between 0 and 1. When no connection is punished it returns 1, when all are punished 0
