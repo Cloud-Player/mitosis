@@ -127,7 +127,7 @@ export class PeerManager {
     }
   }
 
-  private updateViaPeer(remotePeer: RemotePeer, viaPeerId: string) {
+  private updateViaPeer(remotePeer: RemotePeer, viaPeerId: string, viaConnectOptions: IViaConnectionOptions) {
     remotePeer
       .getConnectionTable()
       .filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI)
@@ -135,6 +135,7 @@ export class PeerManager {
       .forEach((connection) => {
         const meter: ViaConnectionMeter = connection.getMeter() as ViaConnectionMeter;
         meter.updateLastSeen();
+        meter.setQuality(viaConnectOptions.payload.quality);
       });
   }
 
@@ -264,7 +265,7 @@ export class PeerManager {
     } else {
       if (remoteAddress.isProtocol(Protocol.VIA, Protocol.VIA_MULTI)) {
         // Update ViaConnection properties like lastSeen. This must only happen for via connction not for direct
-        this.updateViaPeer(existingRemotePeer, remoteAddress.getLocation());
+        this.updateViaPeer(existingRemotePeer, remoteAddress.getLocation(), options as IViaConnectionOptions);
         Logger.getLogger(this._myId)
           .debug(`update ${remoteAddress.getProtocol()} connection ${existingRemotePeer.getId()}`, existingRemotePeer);
       }

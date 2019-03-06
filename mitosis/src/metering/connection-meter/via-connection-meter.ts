@@ -20,6 +20,10 @@ export class ViaConnectionMeter extends ConnectionMeter implements IConnectionMe
     return this._quality;
   }
 
+  public setQuality(quality: number) {
+    this._quality = quality;
+  }
+
   public start(): void {
   }
 
