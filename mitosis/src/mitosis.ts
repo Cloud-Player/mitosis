@@ -175,6 +175,10 @@ export class Mitosis {
     return this._streamManager;
   }
 
+  public getClock(): IClock {
+    return this._clock;
+  }
+
   public sendMessageTo(peerId: string, message: any): void {
     const appMessage = new AppContent(
       this.getMyAddress(),
