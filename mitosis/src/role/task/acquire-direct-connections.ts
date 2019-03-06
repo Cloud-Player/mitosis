@@ -25,7 +25,7 @@ export function acquireDirectConnections(mitosis: Mitosis): void {
       table => {
         return table
           .filterConnections(
-            connectionTable => connectionTable.filterDirect()
+            connectionTable => connectionTable.filterDirectData()
           );
       }
     )
