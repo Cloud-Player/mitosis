@@ -16,7 +16,7 @@
           ProQ: {{remotePeer.getMeter().getConnectionProtection()}}
           ls: {{remotePeer.getMeter().getLastSeen()}}
           exp: {{remotePeer.getMeter().lastSeenIsExpired() | json}}
-          rtrRnk: {{remotePeer.getMeter().getRouterAliveHighScore().getAverageRanking()}}
+          rtrRnk: {{remotePeer.getMeter().getRouterAliveHighScore().getAverageRanking().toFixed(2)}}
         </pre>
       </div>
       <li *ngFor="let connection of remotePeer.getConnectionTable()">
