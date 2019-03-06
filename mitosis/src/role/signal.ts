@@ -11,7 +11,8 @@ export class Signal extends AbstractRole implements IRole {
 
   protected onTick(mitosis: Mitosis): void {
     // clean
-    removeSuperfluousConnections(mitosis);
+    // TODO fix task
+    //removeSuperfluousConnections(mitosis);
 
     // publish
     publishSignalAndRouterUpdate(mitosis);
