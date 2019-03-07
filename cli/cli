@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+global.Event = class MockEvent {};
+global.EventTarget = class MockEventTarget {};
 
 const chalk = require('chalk');
 const fs = require('fs');
@@ -381,8 +383,6 @@ mitosis.Logger.setVerbose(logLevel <= mitosis.LogLevel.DEBUG);
 mitosis.Logger.setLevel(logLevel);
 mitosis.Logger.getLogger('simulation').setLevel(logLevel);
 simulator.InstructionTypeMap['finish-scenario'] = FinishScenario;
-global.MediaStream = class MockMediaStream {
-};
 const scenario = require(args[2]);
 let promise;
 if (scenario.benchmark) {
