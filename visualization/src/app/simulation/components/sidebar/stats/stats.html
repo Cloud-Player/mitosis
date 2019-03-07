@@ -5,9 +5,44 @@
   </header>
 
   <!--<app-collapsible *ngFor="let logEvent of getLogs()"-->
-                   <!--title="{{logEvent.getTick()}} {{logEvent.getEvent() | json}}">-->
+  <!--title="{{logEvent.getTick()}} {{logEvent.getEvent() | json}}">-->
   <!--</app-collapsible>-->
   <app-d3-line-chart style="width: 300px; height: 100px; display: block"
                      [models]="getLogs()">
   </app-d3-line-chart>
+
+  <div class="total-stats">
+    <hr>
+    <app-collapsible *ngIf="getLoggers().networkInLogger.getLogs().length>0"
+                     [isCollapsed]="false"
+                     title="In"
+                     class="incoming">
+      <div class="stats">
+        <div>
+          TotalCount:
+          {{getLoggers().networkInLogger.getLogs()[0].getEvent().getStat().totalCount}}
+        </div>
+        <div>
+          TotalSize:
+          {{ (getLoggers().networkInLogger.getLogs()[0].getEvent().getStat().totalSize/1024).toFixed(0)}}kb
+        </div>
+      </div>
+    </app-collapsible>
+
+    <app-collapsible *ngIf="getLoggers().networkOutLogger.getLogs().length>0"
+                     [isCollapsed]="false"
+                     title="Out"
+                     class="outgoing">
+      <div class="stats">
+        <div>
+          TotalCount:
+          {{getLoggers().networkOutLogger.getLogs()[0].getEvent().getStat().totalCount}}
+        </div>
+        <div>
+          TotalSize:
+          {{ (getLoggers().networkOutLogger.getLogs()[0].getEvent().getStat().totalSize/1024).toFixed(0)}}kb
+        </div>
+      </div>
+    </app-collapsible>
+  </div>
 </section>

@@ -1,6 +1,8 @@
 export interface IStatEv {
   count: number;
   size: number;
+  totalSize: number;
+  totalCount: number;
 }
 
 export class StatLogEvent {

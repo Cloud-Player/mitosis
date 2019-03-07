@@ -41,7 +41,9 @@ export class Stat {
   public getStat(): IStatEv {
     return {
       count: this.totalMessageCount,
-      size: this.totalMessageSize
+      size: this.totalMessageSize,
+      totalCount: this.totalMessageCount,
+      totalSize: this.totalMessageSize
     };
   }
 

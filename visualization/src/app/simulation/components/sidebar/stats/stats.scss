@@ -1,67 +1,48 @@
 @import "variables";
 
 :host {
-  app-search-input {
-    font-size: 12px;
-    margin-top: -20px;
-    display: block;
-    margin-bottom: 0 !important;
-  }
+  .total-stats {
+    margin-top: 60px;
 
-  /deep/ app-collapsible {
-    font-size: 12px;
-    position: relative;
-
-    &:before {
-      position: absolute;
-      top: -2px;
+    hr {
+      margin-bottom: 15px;
     }
 
-    .collapsible {
-      padding-left: 20px;
-    }
+    /deep/ app-collapsible {
+      margin-bottom: 15px;
+      display: block;
 
-    &.level-0 {
-      color: gainsboro;
+      .stats {
+        display: flex;
+        color: #666;
 
-      &:before {
-        content: "📠";
+        > div {
+          margin-right: 10px;
+        }
       }
     }
 
-    &.level-10 {
-      color: lightcyan;
-
-      &:before {
-        content: "🛠";
+    /deep/ app-collapsible.incoming,
+    /deep/ app-collapsible.outgoing{
+      .collapsible-head .title:before{
+        content: '';
+        width: 10px;
+        height: 10px;
+        display: inline-block;
+        margin-right: 10px;
+        border-radius: 50%;
       }
     }
 
-    &.level-20 {
-      color: lightyellow;
-
-      &:before {
-        content: "📬";
+    /deep/ app-collapsible.incoming{
+      .collapsible-head .title:before{
+        background: #ccc;
       }
     }
 
-    &.level-30 {
-      color: #ffb88f;
-
-      &:before {
-        content: "🚧";
-      }
-    }
-
-    &.level-40 {
-      &:before {
-        content: "🚒";
-      }
-
-      .title {
-        background: tomato;
-        padding: 2px 5px;
-        color: white;
+    /deep/ app-collapsible.outgoing{
+      .collapsible-head .title:before{
+        background: black;
       }
     }
   }

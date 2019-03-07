@@ -1,7 +1,5 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {Node} from 'mitosis-simulation';
 import {D3Model} from '../../../../shared/components/d3-line-chart/models/d3';
-import {LogEventLogger} from '../../../services/log-event-logger';
 import {SimulationNodeModel} from '../../../src/simulation-node-model';
 
 @Component({
@@ -17,7 +15,7 @@ export class StatsComponent implements OnInit, OnChanges {
   }
 
   public getLogs(): Array<D3Model> {
-    const outgoingTrafficModel = new D3Model('network-output', 'red', 'outgoing traffic');
+    const outgoingTrafficModel = new D3Model('network-output', 'black', 'outgoing traffic');
     this.selectedNode
       .getLoggers()
       .networkOutLogger
@@ -34,7 +32,7 @@ export class StatsComponent implements OnInit, OnChanges {
       .forEach((val) => {
         outgoingTrafficModel.add(val.x, val.y);
       });
-    const incomingTrafficModel = new D3Model('network-input', 'blue', 'incoming traffic');
+    const incomingTrafficModel = new D3Model('network-input', '#ccc', 'incoming traffic');
     this.selectedNode
       .getLoggers()
       .networkInLogger
@@ -57,6 +55,10 @@ export class StatsComponent implements OnInit, OnChanges {
   public purgeLog() {
     this.selectedNode.getLoggers().networkInLogger.flush();
     this.selectedNode.getLoggers().networkOutLogger.flush();
+  }
+
+  public getLoggers() {
+    return this.selectedNode.getLoggers();
   }
 
   ngOnInit(): void {

@@ -67,7 +67,9 @@ export class Node {
         new StatLogEvent(
           {
             count: this._networkStats.getIncomingStat().getMessageCountForTs(),
-            size: this._networkStats.getIncomingStat().getMessageSizeForTs()
+            size: this._networkStats.getIncomingStat().getMessageSizeForTs(),
+            totalCount: this._networkStats.getIncomingStat().getTotalMessageCount(),
+            totalSize: this._networkStats.getIncomingStat().getTotalMessageSize()
           }
         )
       )
@@ -92,7 +94,9 @@ export class Node {
         new StatLogEvent(
           {
             count: this._networkStats.getOutgoingStat().getMessageCountForTs(),
-            size: this._networkStats.getOutgoingStat().getMessageSizeForTs()
+            size: this._networkStats.getOutgoingStat().getMessageSizeForTs(),
+            totalCount: this._networkStats.getOutgoingStat().getTotalMessageCount(),
+            totalSize: this._networkStats.getOutgoingStat().getTotalMessageSize()
           }
         )
       )
