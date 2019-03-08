@@ -176,7 +176,7 @@ export class D3DirectedGraphComponent implements OnInit, OnDestroy, AfterViewIni
         return n.ellipseStrokeWidthTransformer();
       })
       .attr('fill', (n: NodeModel) => {
-        return n.ellipseFillTransformer();
+        return n.ellipseFillTransformer(this.selectedNode);
       });
   }
 
