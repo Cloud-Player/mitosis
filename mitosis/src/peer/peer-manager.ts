@@ -464,6 +464,13 @@ export class PeerManager {
       this.broadcast(message);
       return;
     }
+    if (message.getTtl() < 1) {
+      Logger.getLogger(this._myId)
+        .warn(`message ${message.getId()} from ${message.getSender()} timed out`, message);
+      return false;
+    } else {
+      message.decreaseTtl();
+    }
     let existingPeer;
     const protocol = message.getReceiver().getProtocol();
     if (!protocol) {

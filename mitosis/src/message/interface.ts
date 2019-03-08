@@ -1,4 +1,6 @@
+import {Configuration} from '../configuration';
 import {RoleType} from '../role/interface';
+import {DefaultMap} from '../util/default-map';
 import {Address} from './address';
 
 export enum MessageSubject {
@@ -14,6 +16,13 @@ export enum MessageSubject {
   ROUTER_ALIVE = 'router-alive',
   PEER_ALIVE = 'peer-alive'
 }
+
+export const MessageTtls: DefaultMap<MessageSubject, number> = new DefaultMap(() => 1);
+MessageTtls.set(MessageSubject.PEER_UPDATE, 10);
+MessageTtls.set(MessageSubject.APP_CONTENT, 16);
+MessageTtls.set(MessageSubject.CONNECTION_NEGOTIATION, 20);
+MessageTtls.set(MessageSubject.ROUTER_ALIVE, 20);
+MessageTtls.set(MessageSubject.PEER_ALIVE, 20);
 
 export interface IPeerUpdateEntry {
   peerId: string;
@@ -46,6 +55,10 @@ export interface IMessage {
   getBody(): any;
 
   getId(): string;
+
+  getTtl(): number;
+
+  decreaseTtl(): number;
 
   setInboundAddress(address: Address): void;
 }

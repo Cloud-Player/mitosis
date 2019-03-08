@@ -1,13 +1,15 @@
 import {stringByteLength} from '../util/string-functions';
 import {Address} from './address';
-import {IMessage, MessageSubject} from './interface';
+import {IMessage, MessageSubject, MessageTtls} from './interface';
 
 export class Message implements IMessage {
+
+  private _id: string;
   private _receiver: Address;
   private _sender: Address;
+  private _ttl: number;
   private _inboundAddress: Address;
   private _subject: MessageSubject;
-  private _id: string;
   protected _body: any;
 
   public constructor(sender: Address, receiver: Address, subject: MessageSubject, body: any, id?: string) {
@@ -15,11 +17,8 @@ export class Message implements IMessage {
     this._receiver = receiver;
     this._subject = subject;
     this._body = body;
-    this._id = id || `m${Math.round(100 + Math.random() * 899)}`;
-  }
-
-  public get length() {
-    return stringByteLength(this.toString());
+    this._ttl = MessageTtls.get(subject);
+    this._id = id || `m${Math.round(1000 + Math.random() * 8999)}`;
   }
 
   public static fromString(messageString: string): Message {
@@ -31,6 +30,10 @@ export class Message implements IMessage {
       messageJSON.body,
       messageJSON.id
     );
+  }
+
+  public get length() {
+    return stringByteLength(this.toString());
   }
 
   public getReceiver(): Address {
@@ -55,6 +58,14 @@ export class Message implements IMessage {
 
   public getId(): string {
     return this._id;
+  }
+
+  public getTtl(): number {
+    return this._ttl;
+  }
+
+  public decreaseTtl(): number {
+    return --this._ttl;
   }
 
   public setInboundAddress(address: Address): void {
