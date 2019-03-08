@@ -127,7 +127,8 @@ export abstract class AbstractConnection {
         id: this._id,
         address: this._address.toString(),
         connectionState: this._connectionState,
-        negotiationState: this._negotiationState
+        negotiationState: this._negotiationState,
+        meter: this.getMeter().toJSON()
       },
       undefined,
       2

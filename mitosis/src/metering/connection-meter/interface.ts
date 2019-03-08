@@ -1,6 +1,6 @@
 import {Subject} from 'rxjs';
-import {IMeter} from '../interface';
 import {IConnection} from '../../connection/interface';
+import {IMeter} from '../interface';
 
 export enum IConnectionEventType {
   PUNISHED = 'punished',
@@ -25,4 +25,8 @@ export interface IConnectionMeter extends IMeter {
   isLastSeenExpired(): boolean;
 
   observe(): Subject<IConnectionMeterEvent>;
+
+  toString(): string;
+
+  toJSON(): {[key: string]: any};
 }

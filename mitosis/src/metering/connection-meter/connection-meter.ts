@@ -66,6 +66,8 @@ export abstract class ConnectionMeter {
     this._lastSeenTick = this._clock.getTick();
   }
 
+  public abstract getQuality(): number;
+
   public isLastSeenExpired(): boolean {
     return (this._clock.getTick() - this._lastSeenTick) > ConfigurationMap.getDefault().LAST_SEEN_TIMEOUT;
   }
@@ -101,5 +103,23 @@ export abstract class ConnectionMeter {
 
   public observe(): Subject<IConnectionMeterEvent> {
     return this._subject;
+  }
+
+  public toJSON(): {[key: string]: any} {
+    return {
+      lastSeen: this.getLastSeen(),
+      protected: this.isProtected(),
+      punished: this.isPunished(),
+      isExpired: this.isLastSeenExpired(),
+      quality: this.getQuality()
+    };
+  }
+
+  public toString(): string {
+    return JSON.stringify(
+      this.toJSON(),
+      undefined,
+      2
+    );
   }
 }
