@@ -5,9 +5,20 @@ import {RoleType} from '../interface';
 export function degradeToNewbie(mitosis: Mitosis): void {
   const roleManager = mitosis.getRoleManager();
 
-  if (!roleManager.hasRole(RoleType.NEWBIE) && mitosis.getPeerTable().length === 0) {
+  if (roleManager.hasRole(RoleType.ROUTER, RoleType.NEWBIE)) {
+    return;
+  }
+
+  const routerConnectionCount = mitosis
+    .getPeerManager()
+    .getPeerTable()
+    .filterByRole(RoleType.ROUTER)
+    .countConnections();
+
+  if (routerConnectionCount === 0) {
     Logger.getLogger(mitosis.getMyAddress().getId())
-      .info('lost all connections, becoming a newbie again');
+      .info('lost all connections to router, becoming a newbie again');
+
     roleManager
       .getRoles()
       .forEach(
