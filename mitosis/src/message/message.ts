@@ -12,13 +12,13 @@ export class Message implements IMessage {
   private _subject: MessageSubject;
   protected _body: any;
 
-  public constructor(sender: Address, receiver: Address, subject: MessageSubject, body: any, id?: string) {
+  public constructor(sender: Address, receiver: Address, subject: MessageSubject, body: any, id?: string, ttl?: number) {
     this._sender = sender;
     this._receiver = receiver;
     this._subject = subject;
     this._body = body;
-    this._ttl = MessageTtls.get(subject);
     this._id = id || `m${Math.round(1000 + Math.random() * 8999)}`;
+    this._ttl = ttl || MessageTtls.get(subject);
   }
 
   public static fromString(messageString: string): Message {
@@ -28,7 +28,8 @@ export class Message implements IMessage {
       Address.fromString(messageJSON.receiver),
       messageJSON.subject as MessageSubject,
       messageJSON.body,
-      messageJSON.id
+      messageJSON.id,
+      messageJSON.ttl
     );
   }
 
@@ -78,6 +79,7 @@ export class Message implements IMessage {
         receiver: this.getReceiver().toString(),
         sender: this.getSender().toString(),
         subject: this.getSubject(),
+        ttl: this.getTtl(),
         body: this.getBody()
       },
       undefined,
