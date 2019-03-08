@@ -33,7 +33,7 @@ export function removeSuperfluousConnections(mitosis: Mitosis): void {
 
   const bestRouterLink = directPeers
     .filter(
-      remotePeer => remotePeer.getMeter().getRouterAliveQuality() === 1
+      remotePeer => remotePeer.getMeter().getRouterLinkQuality() === 1
     )
     .pop();
 

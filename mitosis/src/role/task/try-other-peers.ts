@@ -35,7 +35,7 @@ export function tryOtherPeers(mitosis: Mitosis): void {
     if (tryConnectionAmount > 0) {
       viaPeers
         .sortBy((peer: RemotePeer) =>
-          peer.getMeter().getRouterAliveQuality() * peer.getMeter().getAverageConnectionQuality()
+          peer.getMeter().getRouterLinkQuality() * peer.getMeter().getAverageConnectionQuality()
         )
         .slice(0, tryConnectionAmount)
         .forEach(
