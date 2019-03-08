@@ -9,10 +9,9 @@ import {IConnectionEventType, IConnectionMeterEvent} from './interface';
 export abstract class ConnectionMeter {
   private _punished = false;
   private _protected = false;
-  private _connection: IConnection;
   private _subject: Subject<IConnectionMeterEvent>;
   private _lastSeenTick = 0;
-
+  protected _connection: IConnection;
   protected _clock: IClock;
 
   constructor(connection: IConnection, clock: IClock) {
