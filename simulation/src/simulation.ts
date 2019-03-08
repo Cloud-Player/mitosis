@@ -44,7 +44,7 @@ export class Simulation {
 
   public static getInstance() {
     if (!Simulation._instance) {
-      Logger.setLevel(LogLevel.ERROR);
+      Logger.setLevel(LogLevel.FATAL);
       Logger.getLogger('simulation').setLevel(LogLevel.DEBUG);
       Simulation._instance = new Simulation();
       ProtocolConnectionMap.set(Protocol.WEBSOCKET_UNSECURE, WebSocketMockConnection);
