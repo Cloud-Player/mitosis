@@ -44,7 +44,7 @@ class PubSubHandler(WebSocketHandler):
 class RendezvousHandler(PubSubHandler):
 
     ROUTER = {}
-    MY_ADDRESS = 'mitosis/v1/p000/wss/signal.aux.app/websocket'
+    MY_ADDRESS = 'mitosis/v1/p000/wss/signal.mitosis.dev/websocket'
 
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)

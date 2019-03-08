@@ -79,7 +79,7 @@ export class SocketListenerService {
       this.openSocketClient();
       return;
     }
-    this._client = new WebSocket(`wss://signal.aux.app/reporting/websocket`);
+    this._client = new WebSocket(`wss://signal.mitosis.dev/reporting/websocket`);
     this._client.onopen = this.onSocketOpen.bind(this);
     this._client.onclose = this.onSocketClose.bind(this);
     this._client.onmessage = this.onSocketMessage.bind(this);

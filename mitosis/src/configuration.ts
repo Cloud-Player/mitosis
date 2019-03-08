@@ -5,7 +5,7 @@ import {DefaultMap} from './util/default-map';
 
 export class Configuration {
   public BROADCAST_ADDRESS = '*';
-  public DEFAULT_SIGNAL_ADDRESS = 'mitosis/v1/p000/wss/signal.aux.app/websocket';
+  public DEFAULT_SIGNAL_ADDRESS = 'mitosis/v1/p000/wss/signal.mitosis.dev/websocket';
 
   public DIRECT_CONNECTIONS_GOAL_MIN = 4;
   public DIRECT_CONNECTIONS_GOAL_MAX = 6;
