@@ -46,9 +46,10 @@ export function acquireDirectConnections(mitosis: Mitosis): void {
       `need to acquire ${insufficientConnections} peers`
     );
     viaPeers
-      .sortBy((peer: RemotePeer) =>
-        peer.getMeter().getRouterAliveQuality() * peer.getMeter().getAverageConnectionQuality()
-      )
+      .sortBy((peer: RemotePeer) => {
+        return peer.getMeter().getAcquisitionQuality(peerTable);
+      })
+      .reverse()
       .slice(0, insufficientConnections)
       .forEach(
         remotePeer => {
