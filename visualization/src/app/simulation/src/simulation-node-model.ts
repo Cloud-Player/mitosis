@@ -1,5 +1,5 @@
-import {IMessage, Mitosis, RoleType} from 'mitosis';
-import {Node, NodeEventLogger, StatLogEvent, INodeMessageLog} from 'mitosis-simulation';
+import {Mitosis, RoleType} from 'mitosis';
+import {INodeMessageLog, Node, NodeEventLogger, StatLogEvent} from 'mitosis-simulation';
 import {NodeModel} from '../../shared/components/d3-directed-graph/models/node-model';
 import {D3DirectedGraphConfig} from '../../shared/src/d3-directed-graph-config';
 
@@ -62,8 +62,21 @@ export class SimulationNodeModel extends NodeModel {
     }
   }
 
-  public ellipseFillTransformer(): string {
+  public ellipseFillTransformer(selectedNode: SimulationNodeModel): string {
     const roleManager = this._mitosis.getRoleManager();
+
+    if (selectedNode) {
+      const selectedNodePeerManager = selectedNode.getMitosis().getPeerManager();
+      const associatedPeer = selectedNodePeerManager.getPeerById(this.getId());
+      if (associatedPeer) {
+        const peerTable = selectedNodePeerManager.getPeerTable();
+        const quality = associatedPeer
+          .getMeter()
+          .getAcquisitionQuality(peerTable);
+        return `rgb(0,${100 + (quality * 100)},0)`;
+      }
+    }
+
     if (this._mitosis.getStreamManager().getLocalChannel()) {
       return D3DirectedGraphConfig.NODE_STREAMER_FILL_COLOR;
     } else if (roleManager.hasRole(RoleType.SIGNAL)) {
@@ -73,7 +86,7 @@ export class SimulationNodeModel extends NodeModel {
     } else if (roleManager.hasRole(RoleType.NEWBIE)) {
       return D3DirectedGraphConfig.NODE_ROLE_NEWBIE_FILL_COLOR;
     } else {
-      return super.ellipseFillTransformer();
+      return super.ellipseFillTransformer(selectedNode);
     }
   }
 }
