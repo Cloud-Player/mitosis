@@ -45,7 +45,7 @@ export class PeerTableComponent implements OnInit {
 
   public getPeerStatsAnnotation(remotePeer: RemotePeer) {
     const peerTable = this.selectedNode.getMitosis().getPeerTable();
-    const avgTq = remotePeer.getMeter().getAverageConnectionQuality(peerTable);
+    const avgConnectionQuality = remotePeer.getMeter().getAverageConnectionQuality(peerTable);
     const avgPunishment = remotePeer.getMeter().getAverageConnectionPunishment();
     const isProtected = remotePeer.getMeter().getConnectionProtection();
     const lastseen = remotePeer.getMeter().getLastSeen();
@@ -53,7 +53,7 @@ export class PeerTableComponent implements OnInit {
     const routerRank = remotePeer.getMeter().getAverageRouterLinkQuality(peerTable);
     const acquisitionQuality = remotePeer.getMeter().getAcquisitionQuality(peerTable);
     return `
-      ⌀TQ: ${avgTq.toFixed(2)}
+      ⌀CQ: ${avgConnectionQuality.toFixed(2)}
       ⌀PunQ: ${avgPunishment}
       Prtcd: ${isProtected === 1 ? 'yes' : 'no'}
       ls: ${lastseen}
