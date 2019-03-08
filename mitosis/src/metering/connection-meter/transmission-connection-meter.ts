@@ -1,16 +1,18 @@
 import {Subject} from 'rxjs';
 import {IClock} from '../../clock/interface';
 import {ConfigurationMap} from '../../configuration';
-import {IConnection} from '../../connection/interface';
+import {ConnectionState, IConnection, Protocol} from '../../connection/interface';
 import {Logger} from '../../logger/logger';
 import {Address} from '../../message/address';
 import {MessageSubject} from '../../message/interface';
 import {Message} from '../../message/message';
 import {Ping} from '../../message/ping';
 import {Pong} from '../../message/pong';
+import {RemotePeerTable} from '../../peer/remote-peer-table';
 import {SlidingWindow} from '../sliding-window';
 import {ConnectionMeter} from './connection-meter';
 import {IConnectionMeter} from './interface';
+import {LatencyStopwatch} from './latency-stopwatch';
 
 export class TransmissionConnectionMeter extends ConnectionMeter implements IConnectionMeter {
   private _receiveSlidingWindow: SlidingWindow;
@@ -19,6 +21,7 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
   private _originator: Address;
   private _receiver: Address;
   private _messageSubject: Subject<Message>;
+  private _latencyPerSequence: LatencyStopwatch;
 
   constructor(connection: IConnection, originator: Address, receiver: Address, clock: IClock) {
     super(connection, clock);
@@ -27,6 +30,7 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
     this._originator = originator;
     this._receiver = receiver;
     this._messageSubject = new Subject<Message>();
+    this._latencyPerSequence = new LatencyStopwatch(clock);
   }
 
   private emitMessage(message: Message) {
@@ -46,12 +50,14 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
     this._echoSlidingWindow.slide();
     Logger.getLogger(this._originator.getId())
       .debug(`send ping to ${this._receiver.getId()}`, this._echoSlidingWindow.getSequenceNumber());
+    const nextSequence = this._echoSlidingWindow.getSequenceNumber();
     const ping = new Ping(
       this._originator,
       this._receiver,
-      this._echoSlidingWindow.getSequenceNumber()
+      nextSequence
     );
     this.emitMessage(ping);
+    this._latencyPerSequence.start(nextSequence);
   }
 
   private handlePing(message: Ping) {
@@ -62,9 +68,9 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
   }
 
   private handlePong(message: Pong) {
-    this._echoSlidingWindow.add(message.getBody());
-    Logger.getLogger(this._originator.getId())
-      .debug(`quality to ${this._receiver.getId()} is ${this.getQuality()}`, message);
+    const sequence = message.getBody();
+    this._echoSlidingWindow.add(sequence);
+    this._latencyPerSequence.stop(sequence);
   }
 
   private getEq(): number {
@@ -75,7 +81,56 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
     return (this._receiveSlidingWindow.size) / ConfigurationMap.getDefault().SLIDING_WINDOW_SIZE;
   }
 
-  public getQuality(): number {
+  public getLatencyQuality(remotePeers: RemotePeerTable): number {
+    const myAverageLatency = this.getAverageLatency();
+    if (myAverageLatency === 0) {
+      return 0.5;
+    }
+
+    const allLatencies = remotePeers
+      .aggregateConnections(
+        table => table
+          .filterByProtocol(Protocol.WEBRTC_DATA)
+          .filterByStates(ConnectionState.OPEN)
+      )
+      .map(
+        (connection: IConnection) => (connection.getMeter() as TransmissionConnectionMeter).getAverageLatency()
+      )
+      .filter(
+        value => value > 0
+      );
+
+    if (allLatencies.length <= 1) {
+      return 1.0;
+    }
+
+    const bestLatency: number = allLatencies
+      .reduce(
+        (previous, current) => current < previous ? current : previous, Number.MAX_SAFE_INTEGER
+      );
+    const worstLatency: number = allLatencies
+      .reduce(
+        (previous, current) => current > previous ? current : previous, 0
+      );
+
+    return 1 - (myAverageLatency - bestLatency) / (worstLatency - bestLatency);
+  }
+
+  public getAverageLatency() {
+    const latencyValues = this._latencyPerSequence.asArray();
+    if (latencyValues.length === 0) {
+      return 0.5;
+    }
+    return Math.max(
+      latencyValues
+        .reduce(
+          (previous, current) => previous + current, 0)
+      / latencyValues.length
+      , 0.5
+    );
+  }
+
+  public getQuality(remotePeers: RemotePeerTable): number {
     const rq = this.getRq();
     if (rq === 0) {
       return 0;
@@ -83,9 +138,9 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
       const tq = this.getEq() / rq;
       if (tq > 1) {
         // Eq should not exceed Rq
-        return 1;
+        return this.getLatencyQuality(remotePeers);
       } else {
-        return tq;
+        return (tq + this.getLatencyQuality(remotePeers)) / 2;
       }
     }
   }
