@@ -42,6 +42,26 @@ export class PeerTableComponent implements OnInit {
     return `${roleTag} ${quality}✫ ${directText}← ${viaText}⤺`;
   }
 
+  public getPeerStatsAnnotation(remotePeer: RemotePeer) {
+    const peerTable = this.selectedNode.getMitosis().getPeerTable();
+    const avgTq = remotePeer.getMeter().getAverageConnectionQuality();
+    const avgPunishment = remotePeer.getMeter().getAverageConnectionPunishment();
+    const isProtected = remotePeer.getMeter().getConnectionProtection();
+    const lastseen = remotePeer.getMeter().getLastSeen();
+    const expired = remotePeer.getMeter().lastSeenIsExpired();
+    const routerRank = remotePeer.getMeter().getBestDirectPeerRouterAliveQuality(peerTable);
+    const acquisitionQuality = remotePeer.getMeter().getAcquisitionQuality(peerTable);
+    return `
+      ⌀TQ: ${avgTq.toFixed(2)}
+      ⌀PunQ: ${avgPunishment}
+      Prtcd: ${isProtected === 1 ? 'yes' : 'no'}
+      ls: ${lastseen}
+      exp: ${expired ? 'yes' : 'no'}
+      rtrRnk: ${routerRank.toFixed(2)}
+      acQ: ${acquisitionQuality.toFixed(2)}
+    `;
+  }
+
   public getConnectionDirection(connection: IConnection): string {
     switch (connection.getAddress().getProtocol()) {
       case Protocol.WEBSOCKET:

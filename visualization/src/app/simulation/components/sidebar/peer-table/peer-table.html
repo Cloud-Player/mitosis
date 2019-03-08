@@ -11,12 +11,7 @@
     <ul class="connections">
       <div class="meter">
         <pre>
-          ⌀TQ: {{remotePeer.getMeter().getAverageConnectionQuality().toFixed(2)}},
-          ⌀PunQ: {{remotePeer.getMeter().getAverageConnectionPunishment().toFixed(2)}},
-          ProQ: {{remotePeer.getMeter().getConnectionProtection()}}
-          ls: {{remotePeer.getMeter().getLastSeen()}}
-          exp: {{remotePeer.getMeter().lastSeenIsExpired() | json}}
-          rtrRnk: {{remotePeer.getMeter().getRouterAliveHighScore().getAverageRanking().toFixed(2)}}
+          {{getPeerStatsAnnotation(remotePeer)}}
         </pre>
       </div>
       <li *ngFor="let connection of remotePeer.getConnectionTable()">
