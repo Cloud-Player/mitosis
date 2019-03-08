@@ -156,16 +156,28 @@ export class PeerManager {
     const hasDirectConnections = this.getPeerTable()
       .filterById(remotePeer.getId())
       .countConnections(
-        connectionTable => connectionTable.filterDirectData().filterByStates(ConnectionState.OPEN)
+        connectionTable =>
+          connectionTable.filterDirectData().filterByStates(ConnectionState.OPEN)
       ) > 0;
     if (hasDirectConnections) {
       return remotePeer;
     } else if (remotePeer) {
-      const bestViaConnector = remotePeer
+      let bestViaConnector: IConnection;
+      const viaPeers = remotePeer
         .getConnectionTable()
-        .filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI)
-        .sortByQuality()
-        .pop();
+        .filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI);
+      if (remotePeer.hasRole(RoleType.ROUTER)) {
+        bestViaConnector = viaPeers
+          .sortBy(
+            connection =>
+              (connection.getMeter() as ViaConnectionMeter).getRouterLinkQuality(this.getPeerTable())
+          )
+          .pop();
+      } else {
+        bestViaConnector = viaPeers
+          .sortByQuality()
+          .pop();
+      }
       if (bestViaConnector) {
         return this.getPeerById(bestViaConnector.getAddress().getLocation());
       }
