@@ -164,7 +164,7 @@ export class Simulation {
       }
       const senderDropProbability = this.getRandom();
       const receiverDropProbability = this.getRandom();
-      const deliveryDelay = (sender.getNetworkLatency() + receiver.getNetworkLatency()) / 2;
+      const deliveryDelay = Math.floor((sender.getNetworkLatency() + receiver.getNetworkLatency()) / 2);
       if (senderDropProbability > sender.getNetworkStability()) {
         Logger.getLogger('simulation').info(
           `sender ${to} drops message ${message.getSubject()}`, message
