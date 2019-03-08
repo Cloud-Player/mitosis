@@ -58,7 +58,7 @@ export function looseDirectConnections(mitosis: Mitosis, count: number): void {
         if (connection.getMeter().isProtected()) {
           return 1.0;
         } else {
-          return connection.getMeter().getQuality();
+          return connection.getMeter().getQuality(mitosis.getPeerManager().getPeerTable());
         }
       }
     );

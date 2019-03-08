@@ -37,7 +37,7 @@ export function acquireDirectConnections(mitosis: Mitosis, count: number): Array
       (peer: RemotePeer) => {
         const address = new Address(peer.getId(), Protocol.WEBRTC_DATA);
         Logger.getLogger(mitosis.getMyAddress().getId())
-          .debug(`connecting to ${peer.getId()} with quality ${peer.getMeter().getQuality()}`, peer);
+          .debug(`connecting to ${peer.getId()} with quality ${peer.getMeter().getQuality(mitosis.getPeerManager().getPeerTable())}`, peer);
         return mitosis
           .getPeerManager()
           .connectTo(address);
