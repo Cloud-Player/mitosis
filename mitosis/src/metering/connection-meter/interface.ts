@@ -28,5 +28,5 @@ export interface IConnectionMeter extends IMeter {
 
   toString(): string;
 
-  toJSON(): {[key: string]: any};
+  toJSON(): { [key: string]: any };
 }
