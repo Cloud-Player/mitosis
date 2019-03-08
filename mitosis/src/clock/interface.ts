@@ -33,4 +33,6 @@ export interface IClock {
   forward(tick: number): void;
 
   rewind(): void;
+
+  timeIt(): () => number;
 }
