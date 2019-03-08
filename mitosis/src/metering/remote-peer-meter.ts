@@ -2,10 +2,11 @@ import {filter} from 'rxjs/operators';
 import {IClock} from '../clock/interface';
 import {ConfigurationMap} from '../configuration';
 import {ConnectionTable} from '../connection/connection-table';
-import {IConnection, Protocol} from '../connection/interface';
+import {ConnectionState, IConnection, Protocol} from '../connection/interface';
 import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {RemotePeerTable} from '../peer/remote-peer-table';
+import {RoleType} from '../role/interface';
 import {ObservableMap} from '../util/observable-map';
 import {IConnectionEventType, IConnectionMeter, IConnectionMeterEvent} from './connection-meter/interface';
 import {IMeter} from './interface';
@@ -91,7 +92,8 @@ export class RemotePeerMeter implements IMeter {
   // returns value between 0 and 1 which is the average tq of all connections
   public getAverageConnectionQuality(): number {
     const quality = this.getConnectionTable()
-      .filterDirectData()
+      .filterByProtocol(Protocol.WEBRTC_DATA, Protocol.WEBSOCKET, Protocol.WEBSOCKET_UNSECURE, Protocol.VIA)
+      .filterByStates(ConnectionState.OPEN)
       .map(
         connection => connection.getMeter().getQuality()
       )
@@ -163,12 +165,84 @@ export class RemotePeerMeter implements IMeter {
     return this.getBestConnectionQuality() * this.getConnectionSaturation(remotePeers) * this.getRouterAliveQuality();
   }
 
+  public getBestDirectPeerRouterAliveQuality(remotePeers: RemotePeerTable) {
+    const connectionTable: ConnectionTable = ConnectionTable.fromIterable(this._connectionsPerAddress.values());
+
+    const directConnections = connectionTable.filterDirectData();
+
+    if (directConnections.length > 0) {
+      return this.getRouterAliveQuality();
+    }
+
+    return connectionTable
+      .filterByProtocol(Protocol.VIA)
+      .map(
+        connection => {
+          const directPeer = remotePeers.filterById(connection.getAddress().getLocation()).pop();
+          if (directPeer) {
+            if (directPeer.hasRole(RoleType.SIGNAL, RoleType.ROUTER)) {
+              return 1;
+            } else {
+              return directPeer.getMeter().getRouterAliveQuality();
+            }
+          } else {
+            return 0;
+          }
+        }
+      )
+      .reduce(
+        (previous: number, current: number) => previous > current ? previous : current, 0
+      );
+  }
+
+  public getAvgDirectPeerRouterAliveQuality(remotePeers: RemotePeerTable) {
+    const connectionTable: ConnectionTable = ConnectionTable.fromIterable(this._connectionsPerAddress.values());
+
+    const directConnections = connectionTable.filterDirectData();
+
+    if (directConnections.length > 0) {
+      return this.getRouterAliveQuality();
+    }
+
+    const viaConnections = connectionTable.filterByProtocol(Protocol.VIA);
+
+    if (viaConnections.length === 0) {
+      return 0;
+    }
+
+    return viaConnections
+      .map(
+        connection => {
+          const directPeer = remotePeers.filterById(connection.getAddress().getLocation()).pop();
+          if (directPeer) {
+            if (directPeer.hasRole(RoleType.SIGNAL, RoleType.ROUTER)) {
+              return 1;
+            } else {
+              return directPeer.getMeter().getRouterAliveQuality();
+            }
+          } else {
+            return 0;
+          }
+        }
+      )
+      .reduce(
+        (previous: number, current: number) => previous + current, 0
+      ) / viaConnections.length;
+  }
+
   public getRouterAliveQuality(): number {
     const routerAliveQuality = this.getRouterAliveHighScore().getAverageRanking();
     if (routerAliveQuality === 0) {
       return 0.5;
     }
     return routerAliveQuality;
+  }
+
+  public getAcquisitionQuality(peerTable: RemotePeerTable) {
+    const routerQuality = this.getAvgDirectPeerRouterAliveQuality(peerTable);
+    const connectionQuality = this.getAverageConnectionQuality();
+    const saturation = this.getConnectionSaturation(peerTable);
+    return routerQuality * connectionQuality * saturation;
   }
 
   public getRouterAliveHighScore(): RouterAliveHighscore {
