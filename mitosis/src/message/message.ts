@@ -73,6 +73,17 @@ export class Message implements IMessage {
     this._inboundAddress = address;
   }
 
+  public clone(): Message {
+    return new Message(
+      this._sender,
+      this._receiver ,
+     this._subject ,
+     this._body ,
+     this._id ,
+     this._ttl
+    );
+  }
+
   public toString(): string {
     return JSON.stringify({
         id: this._id,

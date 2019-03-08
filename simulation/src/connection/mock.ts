@@ -58,7 +58,7 @@ export abstract class MockConnection extends AbstractConnection implements IConn
         this._options.mitosisId,
         this._address.getId(),
         this._address.getLocation(),
-        message);
+        message.clone());
     }
   }
 
