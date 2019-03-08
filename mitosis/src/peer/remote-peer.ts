@@ -160,35 +160,6 @@ export class RemotePeer {
     );
   }
 
-  public send(message: IMessage): boolean {
-    const connection: IConnection = this.getConnectionTable()
-      .filterByStates(ConnectionState.OPEN)
-      .filterByProtocol(
-        Protocol.WEBSOCKET,
-        Protocol.WEBSOCKET_UNSECURE,
-        Protocol.WEBRTC_DATA
-      )
-      .sortByQuality()
-      .pop();
-    if (connection) {
-      try {
-        connection.send(message);
-        Logger.getLogger(this._mitosisId)
-          .debug(`sending ${message.getSubject()} to ${connection.getAddress().getId()}`, message);
-        return true;
-      } catch (error) {
-        Logger.getLogger(this._mitosisId)
-          .error(`cannot send ${message.getSubject()} to ${connection.getAddress().getId()}`, error);
-        connection.close();
-        return false;
-      }
-    } else {
-      Logger.getLogger(this._mitosisId)
-        .error(`no direct connection to ${message.getReceiver().getId()} says ${this.getId()}`, message);
-      return false;
-    }
-  }
-
   public observeChurn(): Subject<IConnectionChurnEvent> {
     return this._connectionChurnSubject;
   }

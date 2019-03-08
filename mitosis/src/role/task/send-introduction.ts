@@ -14,7 +14,7 @@ export function sendIntroduction(mitosis: Mitosis): void {
     .then(
       signal => {
         signal.setRoles([RoleType.SIGNAL]);
-        signal.send(introduction);
+        mitosis.getPeerManager().sendMessage(introduction);
       }
     ).catch(
     error =>

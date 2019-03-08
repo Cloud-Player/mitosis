@@ -98,8 +98,14 @@ export class PeerManager {
           .filterByStates(ConnectionState.OPEN)
       )
       .forEach(peer => {
-          peer
-            .send(new UnknownPeer(new Address(this.getMyId()), new Address(peer.getId()), unknownPeerId));
+          this.sendMessageToPeer(
+            peer,
+            new UnknownPeer(
+              new Address(this.getMyId()),
+              new Address(peer.getId()),
+              unknownPeerId
+            )
+          );
         }
       );
     Logger.getLogger(this.getMyId()).warn(`tell direct peers that peer ${unknownPeerId} does not exist anymore`);
@@ -120,7 +126,7 @@ export class PeerManager {
       }
       forwardPeers
         .forEach(
-          peer => peer.send(message)
+          peer => this.sendMessageToPeer(peer, message)
         );
     } else {
       Logger.getLogger(this.getMyId()).warn(
@@ -129,7 +135,7 @@ export class PeerManager {
     }
   }
 
-  private updateViaPeer(remotePeer: RemotePeer, viaPeerId: string, viaConnectOptions: IViaConnectionOptions) {
+  private updateViaPeer(remotePeer: RemotePeer, viaPeerId: string, quality?: number) {
     remotePeer
       .getConnectionTable()
       .filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI)
@@ -137,7 +143,9 @@ export class PeerManager {
       .forEach((connection) => {
         const meter: ViaConnectionMeter = connection.getMeter() as ViaConnectionMeter;
         meter.updateLastSeen();
-        meter.setQuality(viaConnectOptions.payload.quality);
+        if (quality) {
+          meter.setQuality(quality);
+        }
       });
   }
 
@@ -177,12 +185,37 @@ export class PeerManager {
           .pop();
       } else {
         bestViaConnector = viaPeers
-          .sortByQuality()
+          .sortByQuality(this.getPeerTable())
           .pop();
       }
       if (bestViaConnector) {
         return this.getPeerById(bestViaConnector.getAddress().getLocation());
       }
+    }
+  }
+
+  private sendMessageToPeer(peer: RemotePeer, message: IMessage) {
+    const connection: IConnection = peer.getConnectionTable()
+      .filterByStates(ConnectionState.OPEN)
+      .filterDirectData()
+      .sortByQuality(this.getPeerTable())
+      .pop();
+    if (connection) {
+      try {
+        connection.send(message);
+        Logger.getLogger(this.getMyId())
+          .debug(`sending ${message.getSubject()} to ${connection.getAddress().getId()}`, message);
+        return true;
+      } catch (error) {
+        Logger.getLogger(this.getMyId())
+          .error(`cannot send ${message.getSubject()} to ${connection.getAddress().getId()}`, error);
+        connection.close();
+        return false;
+      }
+    } else {
+      Logger.getLogger(this.getMyId())
+        .error(`no direct connection to ${message.getReceiver().getId()} says ${peer.getId()}`, message);
+      return false;
     }
   }
 
@@ -243,12 +276,19 @@ export class PeerManager {
   public connectToVia(remoteAddress: Address, options?: IConnectionOptions): Promise<RemotePeer> {
     const viaPeer = this.getPeerById(remoteAddress.getLocation());
     if (viaPeer) {
-      options = options || {payload: {}};
-      options.payload.quality = options.payload.quality || 0.3333;
-      options.payload.parent = viaPeer
+      const parent = viaPeer
         .getConnectionTable()
-        .filterDirect()
+        .filterDirectData()
+        .filterByStates(ConnectionState.OPEN)
         .shift();
+      if (!parent) {
+        const reason = `cannot connect to ${remoteAddress.getId()} because parent has no open direct connection`;
+        Logger.getLogger(this._myId).error(reason);
+        return Promise.reject(reason);
+      }
+      options = options || {payload: {}};
+      options.payload.quality = parent.getMeter().getQuality(this.getPeerTable());
+      options.payload.parent = parent;
       return this.connectTo(remoteAddress, options as IViaConnectionOptions);
     } else {
       const reason = `cannot connect to ${remoteAddress.getId()} because via ${remoteAddress.getLocation()} is missing`;
@@ -279,7 +319,11 @@ export class PeerManager {
     } else {
       if (remoteAddress.isProtocol(Protocol.VIA, Protocol.VIA_MULTI)) {
         // Update ViaConnection properties like lastSeen. This must only happen for via connction not for direct
-        this.updateViaPeer(existingRemotePeer, remoteAddress.getLocation(), options as IViaConnectionOptions);
+        let quality;
+        if (options && options.payload.quality) {
+          quality = options.payload.quality;
+        }
+        this.updateViaPeer(existingRemotePeer, remoteAddress.getLocation(), quality);
         Logger.getLogger(this._myId)
           .debug(`update ${remoteAddress.getProtocol()} connection ${existingRemotePeer.getId()}`, existingRemotePeer);
       }
@@ -503,7 +547,7 @@ export class PeerManager {
       existingPeer = this.getPeerById(message.getReceiver().getId());
     }
     if (existingPeer) {
-      return existingPeer.send(message);
+      return this.sendMessageToPeer(existingPeer, message);
     } else {
       Logger.getLogger(this._myId)
         .warn(`failed to send message to ${message.getReceiver()}`, message);
