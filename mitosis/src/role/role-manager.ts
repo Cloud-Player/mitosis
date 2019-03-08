@@ -3,7 +3,7 @@ import {Configuration, ConfigurationMap} from '../configuration';
 import {Logger} from '../logger/logger';
 import {IMessage} from '../message/interface';
 import {RoleUpdate} from '../message/role-update';
-import {ChurnType, IConnection, IRoleChurnEvent, Mitosis} from '../mitosis';
+import {ChurnType, IConnection, IRoleChurnEvent, Mitosis, ObservableMap} from '../mitosis';
 import {RemotePeer} from '../peer/remote-peer';
 import {IRole, RolePriorityMap, RoleType} from './interface';
 import {RoleTypeMap} from './role-map';
@@ -11,12 +11,12 @@ import {RoleTypeMap} from './role-map';
 export class RoleManager {
 
   private readonly _myId: string;
-  private readonly _roles: Map<RoleType, IRole>;
+  private readonly _roles: ObservableMap<RoleType, IRole>;
   private readonly _roleChurnSubject: Subject<IRoleChurnEvent>;
 
   public constructor(myId: string, roles: Array<RoleType>) {
     this._myId = myId;
-    this._roles = new Map();
+    this._roles = new ObservableMap();
     this._roleChurnSubject = new Subject();
     roles.forEach((r) => this.addRole(r));
   }
@@ -65,7 +65,34 @@ export class RoleManager {
   }
 
   public onTick(mitosis: Mitosis): void {
-    this._roles.forEach(role => role.doTick(mitosis));
+    this._roles
+      .entriesAsList()
+      .map(
+        entry =>
+          entry[1]
+            .getTaskSchedule()
+            .map(
+              schedule =>
+                Object.assign({type: entry[0], role: entry[1]}, schedule)
+            )
+      )
+      .reduce(
+        (previous, current) => previous.concat(current), []
+      )
+      .filter(
+        schedule => mitosis.getClock().getTick() % schedule.interval === 0
+      )
+      .sort(
+        schedule => {
+          const rolePriority = RolePriorityMap.get(schedule.type);
+          const phasePriority = schedule.phase;
+          return phasePriority * 100 + rolePriority;
+        }
+      )
+      .reverse()
+      .forEach(
+        schedule => schedule.task(mitosis)
+      );
   }
 
   public onMessage(mitosis: Mitosis, message: IMessage): void {
@@ -99,6 +126,10 @@ export class RoleManager {
     return this.getRoles()
       .filter(roleType => roleTypes.indexOf(roleType) >= 0)
       .length > 0;
+  }
+
+  public getRole(roleType: RoleType): IRole {
+    return this._roles.get(roleType);
   }
 
   public observeRoleChurn(): Subject<IRoleChurnEvent> {

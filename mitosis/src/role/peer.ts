@@ -1,5 +1,5 @@
 import {Message} from '../message/message';
-import {Mitosis} from '../mitosis';
+import {ITaskSchedule, Mitosis, TaskPhase} from '../mitosis';
 import {IRole} from './interface';
 import {AbstractRole} from './role';
 import {closeDuplicateConnections} from './task/close-duplicate-connections';
@@ -18,26 +18,23 @@ import {tryOtherPeers} from './task/try-other-peers';
 
 export class Peer extends AbstractRole implements IRole {
 
-  protected onTick(mitosis: Mitosis): void {
-    // clean
-    removeSignal(mitosis);
-    closeDuplicateConnections(mitosis);
-    removeExpiredConnections(mitosis);
-    removeSuperfluousConnections(mitosis);
-    degradeToNewbie(mitosis);
-    ensureRouterConnection(mitosis);
+  public getTaskSchedule(): Array<ITaskSchedule> {
+    return [
+      {phase: TaskPhase.CLEAN, interval: 1, task: removeSignal},
+      {phase: TaskPhase.CLEAN, interval: 1, task: closeDuplicateConnections},
+      {phase: TaskPhase.CLEAN, interval: 1, task: removeExpiredConnections},
+      {phase: TaskPhase.CLEAN, interval: 1, task: removeSuperfluousConnections},
+      {phase: TaskPhase.CLEAN, interval: 1, task: degradeToNewbie},
+      {phase: TaskPhase.CLEAN, interval: 1, task: ensureRouterConnection},
 
-    // acquire
-    satisfyConnectionGoal(mitosis);
-    requestStreamConnection(mitosis);
-    if (mitosis.getClock().getTick() % 60 === 0) {
-      tryOtherPeers(mitosis);
-    }
+      {phase: TaskPhase.ACQUIRE, interval: 1, task: satisfyConnectionGoal},
+      {phase: TaskPhase.ACQUIRE, interval: 1, task: requestStreamConnection},
+      {phase: TaskPhase.ACQUIRE, interval: 60, task: tryOtherPeers},
 
-    // publish
-    publishPeerUpdate(mitosis);
-    publishChannelAnnouncement(mitosis);
-    publishPeerAlive(mitosis);
+      {phase: TaskPhase.PUBLISH, interval: 4, task: publishPeerUpdate},
+      {phase: TaskPhase.PUBLISH, interval: 2, task: publishChannelAnnouncement},
+      {phase: TaskPhase.PUBLISH, interval: 4, task: publishPeerAlive}
+    ];
   }
 
   public onMessage(mitosis: Mitosis, message: Message): void {

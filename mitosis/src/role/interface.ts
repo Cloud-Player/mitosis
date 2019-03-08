@@ -9,6 +9,12 @@ export enum RoleType {
   SIGNAL = 'signal'
 }
 
+export enum TaskPhase {
+  CLEAN = 30,
+  ACQUIRE = 20,
+  PUBLISH = 10
+}
+
 export const RolePriorityMap: Map<RoleType, number> = new Map();
 RolePriorityMap.set(RoleType.NEWBIE, 10);
 RolePriorityMap.set(RoleType.PEER, 20);
@@ -17,9 +23,15 @@ RolePriorityMap.set(RoleType.SIGNAL, 40);
 
 export type IRoleConstructor = new(...args: Array<any>) => IRole;
 
+export interface ITaskSchedule {
+  task: (mitosis: Mitosis) => void;
+  phase: TaskPhase;
+  interval: number;
+}
+
 export interface IRole {
 
-  doTick(mitosis: Mitosis): void;
+  getTaskSchedule(): Array<ITaskSchedule>;
 
   onMessage(mitosis: Mitosis, message: IMessage): void;
 

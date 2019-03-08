@@ -1,4 +1,4 @@
-import {Mitosis} from '../mitosis';
+import {ITaskSchedule, TaskPhase} from '../mitosis';
 import {RemotePeer} from '../peer/remote-peer';
 import {IRole, RoleType} from './interface';
 import {AbstractRole} from './role';
@@ -6,9 +6,10 @@ import {sendIntroduction} from './task/send-introduction';
 
 export class Newbie extends AbstractRole implements IRole {
 
-  protected onTick(mitosis: Mitosis): void {
-    // publish
-    sendIntroduction(mitosis);
+  public getTaskSchedule(): Array<ITaskSchedule> {
+    return [
+      {phase: TaskPhase.PUBLISH, interval: 1, task: sendIntroduction}
+    ];
   }
 
   public requiresPeer(remotePeer: RemotePeer): boolean {

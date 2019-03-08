@@ -1,14 +1,11 @@
 import {IConnection} from '../connection/interface';
 import {IMessage} from '../message/interface';
-import {Mitosis} from '../mitosis';
+import {ITaskSchedule, Mitosis} from '../mitosis';
 import {RemotePeer} from '../peer/remote-peer';
 
 export abstract class AbstractRole {
 
-  private _initialized = false;
-
-  protected onTick(mitosis: Mitosis): void {
-  }
+  public abstract getTaskSchedule(): Array<ITaskSchedule>;
 
   public onConnectionClose(mitosis: Mitosis, connection: IConnection): void {
   }
@@ -17,17 +14,6 @@ export abstract class AbstractRole {
   }
 
   public onMessage(mitosis: Mitosis, message: IMessage): void {
-  }
-
-  public onInit(mitosis: Mitosis): void {
-  }
-
-  public doTick(mitosis: Mitosis): void {
-    if (!this._initialized) {
-      this.onInit(mitosis);
-      this._initialized = true;
-    }
-    this.onTick(mitosis);
   }
 
   public requiresPeer(remotePeer: RemotePeer): boolean {
