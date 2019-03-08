@@ -25,9 +25,4 @@ export class Configuration {
   public ROUTER_ALIVE_HIGHSCORE_WINDOW_SIZE = 10;
 }
 
-export const ConfigurationMap: DefaultMap<RoleType, Configuration> = new DefaultMap(new Configuration());
-ConfigurationMap.set(RoleType.PEER, new Configuration());
-ConfigurationMap.set(RoleType.PEER, new Configuration());
-ConfigurationMap.set(RoleType.NEWBIE, new Configuration());
-ConfigurationMap.set(RoleType.ROUTER, new Configuration());
-ConfigurationMap.set(RoleType.SIGNAL, new Configuration());
+export const ConfigurationMap: DefaultMap<RoleType, Configuration> = new DefaultMap(() => new Configuration());
