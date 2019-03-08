@@ -22,18 +22,18 @@ export function tryOtherPeers(mitosis: Mitosis): void {
     .length;
 
   if (
-    directConnectionCount < configuration.DIRECT_CONNECTIONS_MIN_GOAL ||
+    directConnectionCount < configuration.DIRECT_CONNECTIONS_GOAL_MIN ||
     openingConnectionCount > 0
   ) {
     return;
   }
 
-  const tryOtherConnectionCount = Math.min(
-    configuration.TRY_OTHER_PEERS_COUNT,
+  const acquisitionGoal = Math.min(
+    configuration.TRY_OTHER_PEERS_COUNT + mitosis.getPeerManager().getAcquisitionBoost(),
     configuration.DIRECT_CONNECTIONS_MAX - directConnectionCount
   );
 
-  const promises = acquireDirectConnections(mitosis, tryOtherConnectionCount);
+  const promises = acquireDirectConnections(mitosis, acquisitionGoal);
   promises
     .forEach(
       promise => promise

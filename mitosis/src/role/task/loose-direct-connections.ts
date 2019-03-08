@@ -7,8 +7,8 @@ export function looseDirectConnections(mitosis: Mitosis, count: number): void {
 
   const configuration = mitosis.getRoleManager().getConfiguration();
 
-  const maxGoal = configuration.DIRECT_CONNECTIONS_MAX_GOAL;
-  const minGoal = configuration.DIRECT_CONNECTIONS_MIN_GOAL;
+  const maxGoal = configuration.DIRECT_CONNECTIONS_GOAL_MAX;
+  const minGoal = configuration.DIRECT_CONNECTIONS_GOAL_MIN;
 
   const directPeers = mitosis
     .getPeerManager()

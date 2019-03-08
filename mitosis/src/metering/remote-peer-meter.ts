@@ -120,7 +120,7 @@ export class RemotePeerMeter implements IMeter {
   public getConnectionProtection(): 0 | 1 {
     // TODO: Use role specific configuration for this remote peer
     const unsatisfied = this.getConnectionTable().filterByProtocol(Protocol.VIA).length <
-      ConfigurationMap.getDefault().DIRECT_CONNECTIONS_MIN_GOAL;
+      ConfigurationMap.getDefault().DIRECT_CONNECTIONS_GOAL_MIN;
     if (unsatisfied) {
       if (this._protectedConnections > 0) {
         return 1;
@@ -151,7 +151,7 @@ export class RemotePeerMeter implements IMeter {
 
     // TODO: Use role specific configuration for this remote peer
     const configuration = ConfigurationMap.getDefault();
-    const saturation = ((configuration.DIRECT_CONNECTIONS_MAX - connectionCount) / configuration.DIRECT_CONNECTIONS_MAX_GOAL);
+    const saturation = ((configuration.DIRECT_CONNECTIONS_MAX - connectionCount) / configuration.DIRECT_CONNECTIONS_GOAL_MAX);
     return Math.min(Math.max(0, saturation), 1);
   }
 

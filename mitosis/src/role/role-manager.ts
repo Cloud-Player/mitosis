@@ -66,6 +66,15 @@ export class RoleManager {
 
   public onTick(mitosis: Mitosis): void {
     this._roles
+      .valuesAsList()
+      .forEach(
+        role => {
+          if (!role.isInitialized()) {
+            role.onInit(mitosis);
+          }
+        }
+      );
+    this._roles
       .entriesAsList()
       .map(
         entry =>

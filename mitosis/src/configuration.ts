@@ -7,10 +7,12 @@ export class Configuration {
   public BROADCAST_ADDRESS = '*';
   public DEFAULT_SIGNAL_ADDRESS = 'mitosis/v1/p000/wss/signal.aux.app/websocket';
 
-  public DIRECT_CONNECTIONS_MIN_GOAL = 4;
-  public DIRECT_CONNECTIONS_MAX_GOAL = 6;
+  public DIRECT_CONNECTIONS_GOAL_MIN = 4;
+  public DIRECT_CONNECTIONS_GOAL_MAX = 6;
   public DIRECT_CONNECTIONS_MAX = 10;
   public TRY_OTHER_PEERS_COUNT = 2;
+  public DIRECT_CONNECTION_BOOST_AMOUNT = 2;
+  public DIRECT_CONNECTION_BOOST_TIMEOUT = 20;
 
   public SLIDING_WINDOW_SIZE = 12;
   public TRANSMISSION_PING_INTERVAL = 4;

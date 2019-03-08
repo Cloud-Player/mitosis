@@ -32,6 +32,7 @@ export class PeerManager {
 
   private readonly _myId: string;
   private _roleManager: RoleManager;
+  private _acquisitionBoost: number;
   private _clock: IClock;
   private _peers: Array<RemotePeer>;
   private _peerChurnSubject: Subject<IPeerChurnEvent>;
@@ -40,6 +41,7 @@ export class PeerManager {
   constructor(myId: string, roleManager: RoleManager, clock: IClock) {
     this._myId = myId;
     this._roleManager = roleManager;
+    this._acquisitionBoost = 0;
     this._clock = clock;
     this._peers = [];
     this._peerChurnSubject = new Subject();
@@ -283,6 +285,20 @@ export class PeerManager {
       }
       return Promise.resolve(existingRemotePeer);
     }
+  }
+
+  public getAcquisitionBoost(): number {
+    return this._acquisitionBoost;
+  }
+
+  public activateAcquisitionBoost(): void {
+    this._acquisitionBoost = this.getConfiguration().DIRECT_CONNECTION_BOOST_AMOUNT;
+    this._clock.setTimeout(
+      () => {
+        this._acquisitionBoost = 0;
+      },
+      this.getConfiguration().DIRECT_CONNECTION_BOOST_TIMEOUT
+    );
   }
 
   public sendPeerUpdate(receiverId: string): void {

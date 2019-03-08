@@ -5,7 +5,20 @@ import {RemotePeer} from '../peer/remote-peer';
 
 export abstract class AbstractRole {
 
+  private _initialized: boolean;
+
+  public constructor() {
+    this._initialized = false;
+  }
+
   public abstract getTaskSchedule(): Array<ITaskSchedule>;
+
+  public isInitialized(): boolean {
+    return this._initialized;
+  }
+
+  public onInit(mitosis: Mitosis): void {
+  }
 
   public onConnectionClose(mitosis: Mitosis, connection: IConnection): void {
   }

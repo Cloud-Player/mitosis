@@ -15,13 +15,15 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
         .filterByStates(ConnectionState.OPEN, ConnectionState.OPENING)
     );
 
-  const insufficientConnectionCount = configuration.DIRECT_CONNECTIONS_MIN_GOAL - directConnectionCount;
+  const acquisitionGoal = (
+    configuration.DIRECT_CONNECTIONS_GOAL_MIN - directConnectionCount + mitosis.getPeerManager().getAcquisitionBoost()
+  );
 
-  if (insufficientConnectionCount > 0) {
+  if (acquisitionGoal > 0) {
     Logger.getLogger(mitosis.getMyAddress().getId())
-      .debug(`need to acquire ${insufficientConnectionCount} peers`
+      .debug(`need to acquire ${acquisitionGoal} peers`
       );
-    const promises = acquireDirectConnections(mitosis, insufficientConnectionCount);
+    const promises = acquireDirectConnections(mitosis, acquisitionGoal);
     Promise.all(promises)
       .catch(
         reason =>

@@ -14,7 +14,7 @@ export function removeSuperfluousConnections(mitosis: Mitosis): void {
         .filterByStates(ConnectionState.OPEN)
     );
 
-  const superfluousConnectionCount = directConnectionCount - configuration.DIRECT_CONNECTIONS_MAX_GOAL;
+  const superfluousConnectionCount = directConnectionCount - configuration.DIRECT_CONNECTIONS_GOAL_MAX;
 
   looseDirectConnections(mitosis, superfluousConnectionCount);
 }

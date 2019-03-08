@@ -37,6 +37,10 @@ export class Peer extends AbstractRole implements IRole {
     ];
   }
 
+  public onInit(mitosis: Mitosis): void {
+    mitosis.getPeerManager().activateAcquisitionBoost();
+  }
+
   public onMessage(mitosis: Mitosis, message: Message): void {
     sendAlternatives(mitosis, message);
   }

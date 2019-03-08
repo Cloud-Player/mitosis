@@ -31,7 +31,11 @@ export interface ITaskSchedule {
 
 export interface IRole {
 
+  isInitialized(): boolean;
+
   getTaskSchedule(): Array<ITaskSchedule>;
+
+  onInit(mitosis: Mitosis): void;
 
   onMessage(mitosis: Mitosis, message: IMessage): void;
 
