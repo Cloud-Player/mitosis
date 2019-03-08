@@ -33,8 +33,8 @@ export class WebSocketMockConnection extends MockConnection implements IConnecti
           .getPeerManager()
           .connectTo(localAddress)
           .catch(error => Logger
-            .getLogger('simulation')
-            .warn(`connection to ${localAddress.getId()} failed`, error)
+              .getLogger(this._options.mitosisId)
+              .warn(`websocket connection to ${this._address.getId()} failed`, error)
           );
       }, this.getConnectionDelay());
     } else {
