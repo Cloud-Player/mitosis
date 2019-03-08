@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {ConnectionState, IConnection, Protocol, RemotePeer, RoleType, WebRTCConnection} from 'mitosis';
+import {ConnectionState, IConnection, Protocol, RemotePeer, RoleType, TransmissionConnectionMeter, WebRTCConnection} from 'mitosis';
 import {SimulationNodeModel} from '../../../src/simulation-node-model';
 
 @Component({
@@ -23,8 +23,9 @@ export class PeerTableComponent implements OnInit {
       .filter(roleType => roleType !== RoleType.PEER)
       .map(roleType => roleType.toString()[0].toUpperCase());
     const roleTag = roles.length ? `[${roles.join(', ')}]` : '';
+    const peerTable = this.selectedNode.getMitosis().getPeerManager().getPeerTable();
 
-    const quality = peer.getMeter().getQuality()
+    const quality = peer.getMeter().getQuality(peerTable)
       .toFixed(2)
       .toString();
 
@@ -44,7 +45,7 @@ export class PeerTableComponent implements OnInit {
 
   public getPeerStatsAnnotation(remotePeer: RemotePeer) {
     const peerTable = this.selectedNode.getMitosis().getPeerTable();
-    const avgTq = remotePeer.getMeter().getAverageConnectionQuality();
+    const avgTq = remotePeer.getMeter().getAverageConnectionQuality(peerTable);
     const avgPunishment = remotePeer.getMeter().getAverageConnectionPunishment();
     const isProtected = remotePeer.getMeter().getConnectionProtection();
     const lastseen = remotePeer.getMeter().getLastSeen();
@@ -79,6 +80,22 @@ export class PeerTableComponent implements OnInit {
         } else {
           return '↙️';
         }
+    }
+  }
+
+  public getConnectionQualityText(connection: IConnection) {
+    const remotePeerTable = this.selectedNode.getMitosis().getPeerManager().getPeerTable();
+    if (connection.getAddress().isProtocol(Protocol.WEBRTC_DATA)) {
+      const meter = connection.getMeter() as TransmissionConnectionMeter;
+      return `
+      ⌀CQ: ${meter.getQuality(remotePeerTable).toFixed(2)},
+      Lat: ${meter.getAverageLatency().toFixed(2)},
+      ⌀LatQ: ${meter.getLatencyQuality(remotePeerTable).toFixed(2)}
+      `;
+    } else if (!connection.getAddress().isProtocol(Protocol.VIA_MULTI)) {
+      return `⌀CQ: ${connection.getMeter().getQuality(remotePeerTable).toFixed(2)}`;
+    } else {
+      return '';
     }
   }
 

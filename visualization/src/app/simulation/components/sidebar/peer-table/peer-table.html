@@ -27,7 +27,7 @@
         </div>
         <div class="right">
           {{connection.getState()}},
-          TQ {{connection.getMeter().getQuality().toFixed(2)}}
+          {{getConnectionQualityText(connection)}}
         </div>
       </li>
     </ul>
