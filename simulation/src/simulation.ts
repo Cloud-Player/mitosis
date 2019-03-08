@@ -88,7 +88,7 @@ export class Simulation {
   }
 
   private getPeerClock(): IClock {
-    const offset = Math.floor(this.getRandom() * this._subTicks);
+    const offset = Math.floor(this.getRandom() * 10000);
     const clock = this._clock.fork();
     clock.setSpeed(this._subTicks);
     clock.forward(offset);
