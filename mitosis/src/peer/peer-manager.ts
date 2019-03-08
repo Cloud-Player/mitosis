@@ -318,7 +318,7 @@ export class PeerManager {
       return this.connectToVia(remoteAddress, options);
     } else {
       if (remoteAddress.isProtocol(Protocol.VIA, Protocol.VIA_MULTI)) {
-        // Update ViaConnection properties like lastSeen. This must only happen for via connction not for direct
+        // Update ViaConnection properties like lastSeen. This must only happen for via connection not for direct
         let quality;
         if (options && options.payload.quality) {
           quality = options.payload.quality;
