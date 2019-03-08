@@ -1,13 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-  ViewEncapsulation
-} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewEncapsulation} from '@angular/core';
 import * as d3 from 'd3';
 import {Selection} from 'd3-selection';
 import {Simulation} from 'mitosis-simulation';
@@ -58,7 +49,7 @@ export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
       .range([0, this.width]); // output
 
     this._yScale = d3.scaleLinear()
-      .domain([0, 1]) // input
+      .domain([0, 100]) // input
       .range([this.height, 0]); // output
 
     this.svg = d3.select(holderEl)
@@ -103,16 +94,33 @@ export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
     this.isInitialised = true;
   }
 
+  private getMaxYValue(): number {
+    return Math.max
+      .apply(null,
+        this.models
+          .map((model) => model.getValues()
+            .slice(model.getValues().length > 50 ? 50 : 0)
+            .map(v => v.y)
+            .reduce((previous, current) =>
+              current > previous ? current : previous, 0)
+          )
+      );
+  }
+
   private update() {
     if (!this.isInitialised || this.isRendering) {
       return;
     }
     this.isRendering = true;
     let xValues = this.models[0].getValues().map(v => v.x);
-    const yValues = this.models[0].getValues().map(v => v.y);
+    let yValues = this.models[0].getValues().map(v => v.y);
 
     if (xValues.length > 50) {
       xValues = xValues.slice(xValues.length - 50);
+    }
+
+    if (yValues.length > 50) {
+      yValues = yValues.slice(yValues.length - 50);
     }
 
     this._xScale
@@ -124,7 +132,7 @@ export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
     this._yScale
       .domain([
         0,
-        Math.max.apply(null, yValues)
+        this.getMaxYValue()
       ]);
 
     this.svg
@@ -132,13 +140,13 @@ export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
       .transition()
       .duration(1000)
       .ease(d3.easeLinear)
-      .call(d3.axisBottom(this._xScale as any) as any);
+      .call(d3.axisBottom(this._xScale as any) as any)
+      .on('end', () => {
+        this.isRendering = false;
+      });
 
     this.svg
       .selectAll('.y.axis')
-      .transition()
-      .duration(1000)
-      .ease(d3.easeLinear)
       .call(d3.axisLeft(this._yScale as any) as any);
 
     this.models.forEach((model) => {
@@ -171,18 +179,33 @@ export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
       )
       .on('end', () => {
         this.isRendering = false;
-        this.tick();
       });
   }
 
   private resize() {
-    this.svg.attr('width', 0);
-    this.svg.attr('height', 0);
+    if (!this.svg) {
+      return;
+    }
+    this.svg.select('.entry').attr('width', 0);
+    this.svg.select('.entry').attr('height', 0);
     setTimeout(() => {
+      const holderEl = this.el.nativeElement.querySelector('.d3-line-chart');
       this.width = this.el.nativeElement.offsetWidth;
       this.height = this.el.nativeElement.offsetHeight;
-      this.svg.attr('width', this.width + this.margin.left + this.margin.right);
-      this.svg.attr('height', this.height + this.margin.top + this.margin.bottom);
+      d3.select(holderEl).select('svg').attr('width', this.width + this.margin.left + this.margin.right);
+      d3.select(holderEl).select('svg').attr('height', this.height + this.margin.top + this.margin.bottom);
+      this.svg.select('#pathContainer rect').attr('width', this.width + this.margin.left + this.margin.right - 60);
+      this.svg.select('#pathContainer rect').attr('height', this.height + this.margin.top + this.margin.bottom);
+      this._xScale = d3.scaleLinear()
+        .range([0, this.width]); // output
+
+      this._yScale = d3.scaleLinear()
+        .range([this.height, 0]); // output
+      this.svg.select('.x.axis')
+        .call(d3.axisBottom(this._xScale));
+
+      this.svg.select('.y.axis')
+        .call(d3.axisLeft(this._yScale));
     });
   }
 
@@ -211,6 +234,7 @@ export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngAfterViewInit(): void {
+    console.log(this.el.nativeElement.offsetWidth);
     this.width = this.el.nativeElement.offsetWidth;
     this.height = this.el.nativeElement.offsetHeight;
     this.initD3();
@@ -223,6 +247,11 @@ export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
       if (this.dirty) {
         this.update();
       }
+    }
+    if (!this.width && this.el.nativeElement.offsetWidth) {
+      this.width = this.el.nativeElement.offsetWidth;
+      this.height = this.el.nativeElement.offsetHeight;
+      this.resize();
     }
   }
 }
