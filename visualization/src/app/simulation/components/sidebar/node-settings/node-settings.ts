@@ -1,5 +1,5 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {RoleType} from 'mitosis';
+import {RoleType, ConfigurationMap} from 'mitosis';
 import {Simulation} from 'mitosis-simulation';
 import {SimulationNodeModel} from '../../../src/simulation-node-model';
 
@@ -37,7 +37,7 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
     return `${(val * 100).toFixed(0)}%`;
   }
 
-  public getRoles() {
+  public getRoles(): Array<RoleType> {
     if (this.selectedNode) {
       return this.selectedNode.getMitosis().getRoleManager().getRoles();
     } else {
@@ -45,7 +45,7 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
     }
   }
 
-  public getRoleIcon(role) {
+  public getRoleIcon(role): string {
     switch (role) {
       case RoleType.ROUTER:
         return 'fa fa-map-signs';
@@ -58,16 +58,20 @@ export class NodeSettingsComponent implements OnInit, OnChanges {
     }
   }
 
-  public deletePeer() {
-    this.simulation.removeNode(this.selectedNode.getMitosis());
+  public deletePeer(): boolean {
+    return this.simulation.removeNode(this.selectedNode.getMitosis());
   }
 
-  public updateNetwork() {
+  public maxNetworkLatency(): number {
+    return this.simulation.getSubTicks() * ConfigurationMap.getDefault().TRANSMISSION_PING_INTERVAL * 2;
+  }
+
+  public updateNetwork(): void {
     this.selectedNode.getSimulationNode().setNetworkStability(this.stability);
     this.selectedNode.getSimulationNode().setNetworkLatency(this.latency);
   }
 
-  public sendMessage() {
+  public sendMessage(): void {
     this.selectedNode.getMitosis().sendMessageTo(this.message.receiver, this.message.body);
   }
 

@@ -95,6 +95,10 @@ export class Simulation {
     return clock;
   }
 
+  public getSubTicks(): number {
+    return this._subTicks;
+  }
+
   public establishConnection(from: string, to: string, location: string) {
     const inboundEdge = this.getEdge(to, from, location);
     let inConn;

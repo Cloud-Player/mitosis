@@ -278,7 +278,7 @@ export class PeerManager {
       return this.connectToVia(remoteAddress, options);
     } else {
       if (remoteAddress.isProtocol(Protocol.VIA, Protocol.VIA_MULTI)) {
-        // Update ViaConnection properties like lastSeen. This must only happen for via connction not for direct
+        // Update ViaConnection properties like lastSeen. This must only happen for via connection not for direct
         this.updateViaPeer(existingRemotePeer, remoteAddress.getLocation(), options as IViaConnectionOptions);
         Logger.getLogger(this._myId)
           .debug(`update ${remoteAddress.getProtocol()} connection ${existingRemotePeer.getId()}`, existingRemotePeer);
