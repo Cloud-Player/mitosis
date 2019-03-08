@@ -35,7 +35,7 @@ export class NodeModel {
     return 'regular';
   }
 
-  public ellipseFillTransformer(): string {
+  public ellipseFillTransformer(selectedNode: NodeModel): string {
     return 'rgb(211,217,230)';
   }
 

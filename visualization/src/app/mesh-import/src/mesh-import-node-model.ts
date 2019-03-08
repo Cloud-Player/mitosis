@@ -42,7 +42,7 @@ export class MeshImportNodeModel extends NodeModel {
     this._lastSeen = +new Date();
   }
 
-  public ellipseFillTransformer(): string {
+  public ellipseFillTransformer(selectedNode: MeshImportNodeModel): string {
     if (this.hasRole(RoleType.SIGNAL)) {
       return D3DirectedGraphConfig.NODE_ROLE_SIGNAL_FILL_COLOR;
     } else if (this.hasRole(RoleType.ROUTER)) {
@@ -50,7 +50,7 @@ export class MeshImportNodeModel extends NodeModel {
     } else if (this.hasRole(RoleType.NEWBIE)) {
       return D3DirectedGraphConfig.NODE_ROLE_NEWBIE_FILL_COLOR;
     } else {
-      return super.ellipseFillTransformer();
+      return super.ellipseFillTransformer(selectedNode);
     }
   }
 }
