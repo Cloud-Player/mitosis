@@ -166,7 +166,7 @@ export class MessageBroker {
     if (!receiverPeer) {
       const inboundAddress = message.getInboundAddress();
       Logger.getLogger(this._peerManager.getMyId())
-        .debug(`don't know ${peerId}. Tell ${inboundAddress.getId()} that i don't know that guy`, message);
+        .debug(`telling ${inboundAddress.getId()} that i don't know ${peerId}`, message);
       this._peerManager.sendMessage(
         new UnknownPeer(message.getReceiver(), message.getInboundAddress(), peerId)
       );
