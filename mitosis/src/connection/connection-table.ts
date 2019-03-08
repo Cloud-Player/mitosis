@@ -1,4 +1,5 @@
 import {IConnectionMeter} from '../metering/connection-meter/interface';
+import {RemotePeerTable} from '../peer/remote-peer-table';
 import {Table} from '../util/table';
 import {ConnectionState, IConnection, Protocol} from './interface';
 
@@ -46,10 +47,14 @@ export class ConnectionTable extends Table<IConnection, ConnectionTable> {
     );
   }
 
-  public sortByQuality(callbackfn: (meter: IConnectionMeter) => number = meter => meter.getQuality()): ConnectionTable {
+  public sortByQuality(
+    remotePeers: RemotePeerTable,
+    callbackfn: (meter: IConnectionMeter, remotePeers: RemotePeerTable) => number =
+      (meter: IConnectionMeter, table: RemotePeerTable) => meter.getQuality(table)
+  ): ConnectionTable {
     return this.sortBy(
       connection =>
-        callbackfn(connection.getMeter() as IConnectionMeter)
+        callbackfn(connection.getMeter() as IConnectionMeter, remotePeers)
     );
   }
 }

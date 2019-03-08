@@ -10,6 +10,7 @@ import {IMessage} from '../message/interface';
 import {RemotePeerMeter} from '../metering/remote-peer-meter';
 import {RoleType} from '../role/interface';
 import {ObservableMap} from '../util/observable-map';
+import {RemotePeerTable} from './remote-peer-table';
 
 export class RemotePeer {
 
@@ -131,8 +132,8 @@ export class RemotePeer {
     return this._meter;
   }
 
-  public getQuality(): number {
-    return this._meter.getQuality();
+  public getQuality(remotePeers: RemotePeerTable): number {
+    return this._meter.getQuality(remotePeers);
   }
 
   public getConnectionForAddress(address: Address): IConnection {

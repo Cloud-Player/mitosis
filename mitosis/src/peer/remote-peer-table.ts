@@ -57,7 +57,7 @@ export class RemotePeerTable extends Table<RemotePeer, RemotePeerTable> {
     );
   }
 
-  public sortByQuality(callbackfn: (meter: RemotePeerMeter) => number = meter => meter.getQuality()): RemotePeerTable {
+  public sortByQuality(callbackfn: (meter: RemotePeerMeter) => number = meter => meter.getQuality(this)): RemotePeerTable {
     return this.sortBy(peer => callbackfn(peer.getMeter()));
   }
 

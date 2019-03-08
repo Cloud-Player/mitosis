@@ -91,24 +91,26 @@ export class RemotePeerMeter implements IMeter {
   }
 
   // returns value between 0 and 1 which is the average tq of all connections
-  public getAverageConnectionQuality(): number {
-    const quality = this.getConnectionTable()
+  public getAverageConnectionQuality(remotePeers: RemotePeerTable): number {
+    const measuredConnections = this.getConnectionTable()
       .filterByProtocol(Protocol.WEBRTC_DATA, Protocol.WEBSOCKET, Protocol.WEBSOCKET_UNSECURE, Protocol.VIA)
-      .filterByStates(ConnectionState.OPEN)
+      .filterByStates(ConnectionState.OPEN);
+
+    const quality = measuredConnections
       .map(
-        connection => connection.getMeter().getQuality()
+        connection => connection.getMeter().getQuality(remotePeers)
       )
       .reduce(
         (previous, current) => previous + current,
         0
       );
-    return quality / this._connectionsPerAddress.size;
+    return quality / measuredConnections.length;
   }
 
-  public getBestConnectionQuality(): number {
+  public getBestConnectionQuality(remotePeers: RemotePeerTable): number {
     return this.getConnectionTable()
       .map(
-        connection => connection.getMeter().getQuality()
+        connection => connection.getMeter().getQuality(remotePeers)
       )
       .reduce(
         (previous, current) => Math.max(previous, current),
@@ -163,7 +165,7 @@ export class RemotePeerMeter implements IMeter {
 
   // returns the quality of this peer that is reported to our direct connections
   public getPeerUpdateQuality(remotePeers: RemotePeerTable): number {
-    return this.getBestConnectionQuality() * this.getConnectionSaturation(remotePeers) * this.getRouterLinkQuality();
+    return this.getBestConnectionQuality(remotePeers) * this.getConnectionSaturation(remotePeers) * this.getRouterLinkQuality();
   }
 
   public getAverageRouterLinkQuality(remotePeers: RemotePeerTable) {
@@ -199,10 +201,10 @@ export class RemotePeerMeter implements IMeter {
     return routerLinkQuality;
   }
 
-  public getAcquisitionQuality(peerTable: RemotePeerTable) {
-    const routerQuality = this.getAverageRouterLinkQuality(peerTable);
-    const connectionQuality = this.getAverageConnectionQuality();
-    const saturation = this.getConnectionSaturation(peerTable);
+  public getAcquisitionQuality(remotePeers: RemotePeerTable) {
+    const routerQuality = this.getAverageRouterLinkQuality(remotePeers);
+    const connectionQuality = this.getAverageConnectionQuality(remotePeers);
+    const saturation = this.getConnectionSaturation(remotePeers);
     return routerQuality * connectionQuality * saturation;
   }
 
@@ -216,8 +218,8 @@ export class RemotePeerMeter implements IMeter {
    * It is good to protect the peer so she is not cleaned up immediately but maybe not as a general quality
    * because it only has the meaning that he is new
    */
-  public getQuality(): number {
-    return this.getAverageConnectionQuality() * (this.getAverageConnectionPunishment() + this.getConnectionProtection());
+  public getQuality(remotePeers: RemotePeerTable): number {
+    return this.getAverageConnectionQuality(remotePeers) * (this.getAverageConnectionPunishment() + this.getConnectionProtection());
   }
 
   public start(): void {

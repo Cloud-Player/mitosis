@@ -4,6 +4,7 @@ import {ConfigurationMap} from '../../configuration';
 import {IConnection} from '../../connection/interface';
 import {Logger} from '../../logger/logger';
 import {Message} from '../../message/message';
+import {RemotePeerTable} from '../../peer/remote-peer-table';
 import {IConnectionEventType, IConnectionMeterEvent} from './interface';
 
 export abstract class ConnectionMeter {
@@ -66,7 +67,7 @@ export abstract class ConnectionMeter {
     this._lastSeenTick = this._clock.getTick();
   }
 
-  public abstract getQuality(): number;
+  public abstract getQuality(remotePeers: RemotePeerTable): number;
 
   public isLastSeenExpired(): boolean {
     return (this._clock.getTick() - this._lastSeenTick) > ConfigurationMap.getDefault().LAST_SEEN_TIMEOUT;
@@ -110,8 +111,7 @@ export abstract class ConnectionMeter {
       lastSeen: this.getLastSeen(),
       protected: this.isProtected(),
       punished: this.isPunished(),
-      isExpired: this.isLastSeenExpired(),
-      quality: this.getQuality()
+      isExpired: this.isLastSeenExpired()
     };
   }
 
