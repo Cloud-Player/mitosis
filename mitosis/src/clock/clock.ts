@@ -2,12 +2,12 @@ import {IScheduledCallback} from './interface';
 
 export abstract class AbstractClock {
 
-  protected _intervals: Array<IScheduledCallback> = [];
-  protected _timeouts: Array<IScheduledCallback> = [];
   private readonly _maxCancelId = Number.MAX_SAFE_INTEGER - 10;
   private _lastCancelId = 0;
   private _tickCounter = 0;
   private _isRunning = false;
+  protected _intervals: Array<IScheduledCallback> = [];
+  protected _timeouts: Array<IScheduledCallback> = [];
 
   private doTick(): void {
     this._timeouts.forEach(
@@ -104,5 +104,12 @@ export abstract class AbstractClock {
 
   public isRunning() {
     return this._isRunning;
+  }
+
+  public timeIt(): () => number {
+    const start = this.getTick();
+    return (): number => {
+      return this.getTick() - start;
+    };
   }
 }
