@@ -1,4 +1,5 @@
 import {ConnectionState} from '../../connection/interface';
+import {Address} from '../../message/address';
 import {PeerUpdate} from '../../message/peer-update';
 import {Mitosis} from '../../mitosis';
 import {RoleType} from '../interface';
@@ -12,23 +13,19 @@ export function publishSignalAndRouterUpdate(mitosis: Mitosis): void {
     .filterByRole(RoleType.SIGNAL, RoleType.ROUTER)
     .filterConnections(
       table => table
-        .filterDirect()
+        .filterDirectData()
         .filterByStates(ConnectionState.OPEN)
     );
 
   signalsAndRouters
-    .forEach(peer => {
-      peer.getConnectionTable()
-        .filterDirect()
-        .filterByStates(ConnectionState.OPEN)
-        .forEach(
-          connection => {
-            const peerUpdate = new PeerUpdate(
-              mitosis.getMyAddress(),
-              connection.getAddress(),
-              signalsAndRouters
-            );
-            connection.send(peerUpdate);
-          });
-    });
+    .forEach(peer => mitosis
+      .getPeerManager()
+      .sendMessage(
+        new PeerUpdate(
+          mitosis.getMyAddress(),
+          new Address(peer.getId()),
+          signalsAndRouters
+        )
+      )
+    );
 }

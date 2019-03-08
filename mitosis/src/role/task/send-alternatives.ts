@@ -1,57 +1,38 @@
 import {ConnectionState} from '../../connection/interface';
 import {MessageSubject} from '../../message/interface';
 import {Message} from '../../message/message';
-import {PeerUpdate} from '../../message/peer-update';
 import {Mitosis} from '../../mitosis';
 
 export function sendAlternatives(mitosis: Mitosis, message: Message) {
+  const configuration = mitosis.getRoleManager().getConfiguration();
+
   const peerManager = mitosis.getPeerManager();
   if (message.getSubject() !== MessageSubject.CONNECTION_NEGOTIATION ||
     message.getReceiver().getId() !== peerManager.getMyId()) {
     return;
   }
 
-  const configuration = mitosis.getRoleManager().getConfiguration();
-
-  const directPeers = peerManager
+  const directConnections = peerManager
     .getPeerTable()
-    .filterConnections(
+    .countConnections(
       table => table
-        .filterDirect()
+        .filterDirectData()
         .filterByStates(ConnectionState.OPEN)
     );
 
-  if (directPeers.length < configuration.DIRECT_CONNECTIONS_MAX) {
-    // No need to send alternatives because we still have capacity.
-    return;
+  if (directConnections >= configuration.DIRECT_CONNECTIONS_MAX) {
+    peerManager
+      .getPeerTable()
+      .filterById(message.getSender().getId())
+      .exclude(
+        table => table.filterConnections(
+          peer => peer
+            .filterDirectData()
+            .filterByStates(ConnectionState.OPEN)
+        )
+      )
+      .forEach(
+        peer => peerManager.sendPeerUpdate(peer.getId())
+      );
   }
-
-  const sender = peerManager
-    .getPeerById(message.getSender().getId());
-
-  if (!sender) {
-    return;
-  }
-
-  const senderIsDirect = sender
-    .getConnectionTable()
-    .filterDirect()
-    .length;
-
-  if (senderIsDirect) {
-    // No need to send alternatives because peer role will do that for direct connections.
-    return;
-  }
-
-  const alternativePeers = directPeers
-    .sortByQuality(
-      meter => meter.getLastSeen(),
-    );
-
-  const tableUpdate = new PeerUpdate(
-    message.getReceiver(),
-    message.getSender(),
-    alternativePeers
-  );
-  peerManager.sendMessage(tableUpdate);
 }

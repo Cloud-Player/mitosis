@@ -285,25 +285,19 @@ export class PeerManager {
     }
   }
 
-  public sendPeerUpdate(receiverAddress: Address): void {
+  public sendPeerUpdate(receiverId: string): void {
     const directPeers = this
       .getPeerTable()
       .filterByRole(RoleType.PEER)
       .filterConnections(
         table => table
-          .filterDirect()
+          .filterDirectData()
           .filterByStates(ConnectionState.OPEN)
       );
 
-    const myAddress = new Address(
-      this.getMyId(),
-      receiverAddress.getProtocol(),
-      receiverAddress.getLocation()
-    );
-
     const peerUpdate = new PeerUpdate(
-      myAddress,
-      receiverAddress,
+      new Address(this.getMyId()),
+      new Address(receiverId),
       directPeers
     );
     this.sendMessage(peerUpdate);
@@ -472,16 +466,16 @@ export class PeerManager {
   }
 
   public sendMessage(message: IMessage): boolean {
-    if (message.getReceiver().getId() === ConfigurationMap.getDefault().BROADCAST_ADDRESS) {
-      this.broadcast(message);
-      return;
-    }
     if (message.getTtl() < 1) {
       Logger.getLogger(this._myId)
         .warn(`message ${message.getId()} from ${message.getSender()} timed out`, message);
       return false;
     } else {
       message.decreaseTtl();
+    }
+    if (message.getReceiver().getId() === ConfigurationMap.getDefault().BROADCAST_ADDRESS) {
+      this.broadcast(message);
+      return;
     }
     let existingPeer;
     const protocol = message.getReceiver().getProtocol();
