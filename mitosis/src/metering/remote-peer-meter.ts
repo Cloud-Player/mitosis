@@ -3,12 +3,13 @@ import {IClock} from '../clock/interface';
 import {ConfigurationMap} from '../configuration';
 import {ConnectionTable} from '../connection/connection-table';
 import {ConnectionState, IConnection, Protocol} from '../connection/interface';
+import {ViaConnection} from '../connection/via';
 import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {RemotePeerTable} from '../peer/remote-peer-table';
-import {RoleType} from '../role/interface';
 import {ObservableMap} from '../util/observable-map';
 import {IConnectionEventType, IConnectionMeter, IConnectionMeterEvent} from './connection-meter/interface';
+import {ViaConnectionMeter} from './connection-meter/via-connection-meter';
 import {IMeter} from './interface';
 import {RouterAliveHighscore} from './router-alive-highscore';
 
@@ -162,46 +163,16 @@ export class RemotePeerMeter implements IMeter {
 
   // returns the quality of this peer that is reported to our direct connections
   public getPeerUpdateQuality(remotePeers: RemotePeerTable): number {
-    return this.getBestConnectionQuality() * this.getConnectionSaturation(remotePeers) * this.getRouterAliveQuality();
+    return this.getBestConnectionQuality() * this.getConnectionSaturation(remotePeers) * this.getRouterLinkQuality();
   }
 
-  public getBestDirectPeerRouterAliveQuality(remotePeers: RemotePeerTable) {
+  public getAverageRouterLinkQuality(remotePeers: RemotePeerTable) {
     const connectionTable: ConnectionTable = ConnectionTable.fromIterable(this._connectionsPerAddress.values());
 
     const directConnections = connectionTable.filterDirectData();
 
     if (directConnections.length > 0) {
-      return this.getRouterAliveQuality();
-    }
-
-    return connectionTable
-      .filterByProtocol(Protocol.VIA)
-      .map(
-        connection => {
-          const directPeer = remotePeers.filterById(connection.getAddress().getLocation()).pop();
-          if (directPeer) {
-            if (directPeer.hasRole(RoleType.SIGNAL, RoleType.ROUTER)) {
-              return 1;
-            } else {
-              return directPeer.getMeter().getRouterAliveQuality();
-            }
-          } else {
-            return 0;
-          }
-        }
-      )
-      .reduce(
-        (previous: number, current: number) => previous > current ? previous : current, 0
-      );
-  }
-
-  public getAvgDirectPeerRouterAliveQuality(remotePeers: RemotePeerTable) {
-    const connectionTable: ConnectionTable = ConnectionTable.fromIterable(this._connectionsPerAddress.values());
-
-    const directConnections = connectionTable.filterDirectData();
-
-    if (directConnections.length > 0) {
-      return this.getRouterAliveQuality();
+      return this.getRouterLinkQuality();
     }
 
     const viaConnections = connectionTable.filterByProtocol(Protocol.VIA);
@@ -212,34 +183,24 @@ export class RemotePeerMeter implements IMeter {
 
     return viaConnections
       .map(
-        connection => {
-          const directPeer = remotePeers.filterById(connection.getAddress().getLocation()).pop();
-          if (directPeer) {
-            if (directPeer.hasRole(RoleType.SIGNAL, RoleType.ROUTER)) {
-              return 1;
-            } else {
-              return directPeer.getMeter().getRouterAliveQuality();
-            }
-          } else {
-            return 0;
-          }
-        }
+        (connection: ViaConnection) =>
+          (connection.getMeter() as ViaConnectionMeter).getRouterLinkQuality(remotePeers)
       )
       .reduce(
         (previous: number, current: number) => previous + current, 0
       ) / viaConnections.length;
   }
 
-  public getRouterAliveQuality(): number {
-    const routerAliveQuality = this.getRouterAliveHighScore().getAverageRanking();
-    if (routerAliveQuality === 0) {
+  public getRouterLinkQuality(): number {
+    const routerLinkQuality = this.getRouterAliveHighScore().getAverageRanking();
+    if (routerLinkQuality === 0) {
       return 0.5;
     }
-    return routerAliveQuality;
+    return routerLinkQuality;
   }
 
   public getAcquisitionQuality(peerTable: RemotePeerTable) {
-    const routerQuality = this.getAvgDirectPeerRouterAliveQuality(peerTable);
+    const routerQuality = this.getAverageRouterLinkQuality(peerTable);
     const connectionQuality = this.getAverageConnectionQuality();
     const saturation = this.getConnectionSaturation(peerTable);
     return routerQuality * connectionQuality * saturation;

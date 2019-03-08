@@ -1,5 +1,8 @@
 import {IClock} from '../../clock/interface';
 import {IConnection} from '../../connection/interface';
+import {ViaConnection} from '../../connection/via';
+import {RemotePeerTable} from '../../peer/remote-peer-table';
+import {RoleType} from '../../role/interface';
 import {ConnectionMeter} from './connection-meter';
 import {IConnectionMeter} from './interface';
 
@@ -22,6 +25,20 @@ export class ViaConnectionMeter extends ConnectionMeter implements IConnectionMe
 
   public setQuality(quality: number) {
     this._quality = quality;
+  }
+
+  public getRouterLinkQuality(remotePeers: RemotePeerTable) {
+    const viaAdress = this._connection.getAddress();
+    const directPeer = remotePeers.filterById(viaAdress.getLocation()).pop();
+    if (directPeer) {
+      if (directPeer.hasRole(RoleType.SIGNAL, RoleType.ROUTER)) {
+        return 1;
+      } else {
+        return directPeer.getMeter().getRouterLinkQuality();
+      }
+    } else {
+      return 0;
+    }
   }
 
   public start(): void {
