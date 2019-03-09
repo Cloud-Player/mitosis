@@ -18,7 +18,7 @@ export class Message implements IMessage {
     this._subject = subject;
     this._body = body;
     this._id = id || `m${Math.round(1000 + Math.random() * 8999)}`;
-    this._ttl = ttl || MessageTtls.get(subject);
+    this._ttl = Number.isInteger(ttl) ? ttl : MessageTtls.get(subject);
   }
 
   public static fromString(messageString: string): Message {
