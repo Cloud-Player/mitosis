@@ -399,13 +399,6 @@ export class PeerManager {
 
   public updatePeers(peerUpdate: PeerUpdate, viaPeerId: string): void {
     const senderId = peerUpdate.getSender().getId();
-    const sender = this.getPeerById(senderId);
-
-    if (senderId !== viaPeerId) {
-      throw new Error(
-        `will not accept peer update from ${senderId} via ${viaPeerId}`
-      );
-    }
 
     const updatedPeerIds: Array<string> = [];
 
