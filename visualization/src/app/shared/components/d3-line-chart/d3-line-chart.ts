@@ -31,6 +31,12 @@ export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
   @Input()
   public models: Array<D3Model>;
 
+  @Input()
+  public speed = 1000;
+
+  @Input()
+  public axisColor = 'black';
+
   constructor(private el: ElementRef, private layoutService: LayoutService) {
   }
 
@@ -138,7 +144,7 @@ export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
     this.svg
       .selectAll('.x.axis')
       .transition()
-      .duration(1000)
+      .duration(this.speed)
       .ease(d3.easeLinear)
       .call(d3.axisBottom(this._xScale as any) as any)
       .on('end', () => {
@@ -148,6 +154,18 @@ export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
     this.svg
       .selectAll('.y.axis')
       .call(d3.axisLeft(this._yScale as any) as any);
+
+    this.svg
+      .selectAll('.axis line')
+      .attr('stroke', this.axisColor);
+
+    this.svg
+      .selectAll('.axis path')
+      .attr('stroke', this.axisColor);
+
+    this.svg
+      .selectAll('.axis text')
+      .attr('fill', this.axisColor);
 
     this.models.forEach((model) => {
       let values = model
@@ -172,7 +190,7 @@ export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
       )
       .transition()
       .ease(d3.easeLinear)
-      .duration(1000)
+      .duration(this.speed)
       .attr(
         'transform',
         `translate(${0})`
@@ -186,26 +204,34 @@ export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
     if (!this.svg) {
       return;
     }
-    this.svg.select('.entry').attr('width', 0);
-    this.svg.select('.entry').attr('height', 0);
     setTimeout(() => {
       const holderEl = this.el.nativeElement.querySelector('.d3-line-chart');
       this.width = this.el.nativeElement.offsetWidth;
       this.height = this.el.nativeElement.offsetHeight;
       d3.select(holderEl).select('svg').attr('width', this.width + this.margin.left + this.margin.right);
       d3.select(holderEl).select('svg').attr('height', this.height + this.margin.top + this.margin.bottom);
-      this.svg.select('#pathContainer rect').attr('width', this.width + this.margin.left + this.margin.right - 60);
-      this.svg.select('#pathContainer rect').attr('height', this.height + this.margin.top + this.margin.bottom);
+
       this._xScale = d3.scaleLinear()
         .range([0, this.width]); // output
 
       this._yScale = d3.scaleLinear()
         .range([this.height, 0]); // output
-      this.svg.select('.x.axis')
-        .call(d3.axisBottom(this._xScale));
 
-      this.svg.select('.y.axis')
-        .call(d3.axisLeft(this._yScale));
+      this.svg
+        .selectAll('.x.axis')
+        .call(d3.axisBottom(this._xScale as any) as any);
+
+      this.svg
+        .selectAll('.y.axis')
+        .call(d3.axisLeft(this._yScale as any) as any);
+
+      this.svg.selectAll('.x.axis')
+        .attr('transform', `translate(0, ${this.height})`);
+
+      this.svg.select('#pathContainer rect').attr('width', this.width + this.margin.left + this.margin.right - 60);
+      this.svg.select('#pathContainer rect').attr('height', this.height + this.margin.top + this.margin.bottom);
+
+      this.update();
     });
   }
 
