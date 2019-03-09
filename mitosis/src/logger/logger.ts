@@ -47,7 +47,7 @@ export class Logger implements ILogger {
       }
       logFn(tag, ...args);
     }
-    this._logSubject.next({level: level, data: args, tick: currentTick});
+    this._logSubject.next({level: level, data: args.map(String), tick: currentTick});
   }
 
   public setClock(clock: IClock) {

@@ -43,18 +43,24 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
       receiver,
       sequence
     );
+    Logger.getLogger(this._originator.getId()).debug(
+      `send ping to ${receiver.getId()}`,
+      pong
+    );
     this.emitMessage(pong);
   }
 
   private sendPing() {
     this._echoSlidingWindow.slide();
-    Logger.getLogger(this._originator.getId())
-      .debug(`send ping to ${this._receiver.getId()}`, this._echoSlidingWindow.getSequenceNumber());
     const nextSequence = this._echoSlidingWindow.getSequenceNumber();
     const ping = new Ping(
       this._originator,
       this._receiver,
       nextSequence
+    );
+    Logger.getLogger(this._originator.getId()).debug(
+      `send ping to ${this._receiver.getId()}`,
+      ping
     );
     this.emitMessage(ping);
     this._latencyPerSequence.start(nextSequence);
@@ -62,7 +68,12 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
 
   private handlePing(message: Ping) {
     Logger.getLogger(this._originator.getId())
-      .debug(`handle ping from ${message.getSender().getId()}`, Array.from(this._receiveSlidingWindow.values()).join(','));
+      .debug(
+        `handle ping from ${message.getSender().getId()}`,
+        message,
+        `receive sliding window:`,
+        `[${Array.from(this._receiveSlidingWindow.values()).join(', ')}]`
+      );
     this.sendPong(message.getSender(), message.getBody());
     this._receiveSlidingWindow.add(message.getBody());
   }
@@ -81,10 +92,26 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
     return (this._receiveSlidingWindow.size) / ConfigurationMap.getDefault().SLIDING_WINDOW_SIZE;
   }
 
+  public getTq(): number {
+    const rq = this.getRq();
+    if (rq === 0) {
+      return 0;
+    } else {
+      const tq = this.getEq() / rq;
+      if (tq > 1) {
+        // Eq should not exceed Rq
+        return ConfigurationMap.getDefault().DEFAULT_QUALITY;
+      } else {
+        return tq;
+      }
+    }
+  }
+
   public getLatencyQuality(remotePeers: RemotePeerTable): number {
-    const myAverageLatency = this.getAverageLatency();
-    if (myAverageLatency === 0) {
-      return 0.5;
+    const configuration = ConfigurationMap.getDefault();
+    const myLatency = this.getAverageLatency();
+    if (myLatency === 0) {
+      return configuration.DEFAULT_QUALITY;
     }
 
     const allLatencies = remotePeers
@@ -101,7 +128,7 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
       );
 
     if (allLatencies.length <= 1) {
-      return 1.0;
+      return ConfigurationMap.getDefault().DEFAULT_QUALITY;
     }
 
     const bestLatency: number = allLatencies
@@ -113,36 +140,35 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
         (previous, current) => current > previous ? current : previous, 0
       );
 
-    return 1 - (myAverageLatency - bestLatency) / (worstLatency - bestLatency);
+    switch (myLatency) {
+      case bestLatency:
+        return 1.0;
+      case worstLatency:
+        return 0.0;
+      default:
+        return 1 - (myLatency - bestLatency) / (worstLatency - bestLatency);
+    }
   }
 
-  public getAverageLatency() {
+  public getAverageLatency(): number {
+    const configuration = ConfigurationMap.getDefault();
     const latencyValues = this._latencyPerSequence.asArray();
+
     if (latencyValues.length === 0) {
-      return 0.5;
+      return configuration.DEFAULT_QUALITY;
     }
+
     return Math.max(
       latencyValues
         .reduce(
           (previous, current) => previous + current, 0)
-      / latencyValues.length
-      , 0.5
+      / latencyValues.length,
+      configuration.DEFAULT_QUALITY
     );
   }
 
   public getQuality(remotePeers: RemotePeerTable): number {
-    const rq = this.getRq();
-    if (rq === 0) {
-      return 0;
-    } else {
-      const tq = this.getEq() / rq;
-      if (tq > 1) {
-        // Eq should not exceed Rq
-        return this.getLatencyQuality(remotePeers);
-      } else {
-        return (tq + this.getLatencyQuality(remotePeers)) / 2;
-      }
-    }
+      return (this.getTq() + this.getLatencyQuality(remotePeers)) / 2;
   }
 
   public onMessage(message: Message): void {

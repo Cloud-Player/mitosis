@@ -86,7 +86,7 @@ export class ReportingService {
   }
 
   private sendToReportServer(data: any) {
-    this.http.post('https://signal.aux.app/reporting', data).subscribe();
+    this.http.post('https://signal.mitosis.dev/reporting', data).subscribe();
   }
 
   private publish() {

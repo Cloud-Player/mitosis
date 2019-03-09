@@ -41,14 +41,14 @@ export class RoleManager {
       const role: IRole = new roleClass();
       this._roles.set(roleType, role);
       this._roleChurnSubject.next({type: ChurnType.ADDED, role: roleType});
-      Logger.getLogger(this._myId).info(`added role ${roleType}`, this.getRoles());
+      Logger.getLogger(this._myId).info(`added role ${roleType}`, `now have roles: ${this.getRoles()}`);
     }
   }
 
   public removeRole(roleType: RoleType): void {
     this._roles.delete(roleType);
     this._roleChurnSubject.next({type: ChurnType.REMOVED, role: roleType});
-    Logger.getLogger(this._myId).info(`removed role ${roleType}`, this.getRoles());
+    Logger.getLogger(this._myId).info(`removed role ${roleType}`, `left with roles: ${this.getRoles()}`);
   }
 
   public updateRoles(roleUpdate: RoleUpdate): void {

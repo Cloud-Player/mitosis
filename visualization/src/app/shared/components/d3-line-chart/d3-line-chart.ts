@@ -260,7 +260,6 @@ export class D3LineChartComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngAfterViewInit(): void {
-    console.log(this.el.nativeElement.offsetWidth);
     this.width = this.el.nativeElement.offsetWidth;
     this.height = this.el.nativeElement.offsetHeight;
     this.initD3();

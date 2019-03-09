@@ -5,7 +5,7 @@ import {DefaultMap} from './util/default-map';
 
 export class Configuration {
   public BROADCAST_ADDRESS = '*';
-  public DEFAULT_SIGNAL_ADDRESS = 'mitosis/v1/p000/wss/signal.aux.app/websocket';
+  public DEFAULT_SIGNAL_ADDRESS = 'mitosis/v1/p000/wss/signal.mitosis.dev/websocket';
 
   public DIRECT_CONNECTIONS_GOAL_MIN = 4;
   public DIRECT_CONNECTIONS_GOAL_MAX = 6;
@@ -19,6 +19,8 @@ export class Configuration {
   public MAX_ROUTERS_PER_SIGNAL = 1;
   public LAST_SEEN_TIMEOUT = 30;
   public LATENCY_WINDOW_SIZE = 10;
+  public DEFAULT_QUALITY = 0.5;
+  public DEFAULT_ROUTER_RANK = 0.1;
 
   public CONNECTION_METER_OPEN_GRACE_PERIOD_TIME = 10;
   public CONNECTION_METER_PROTECTION_TIME = 10;
