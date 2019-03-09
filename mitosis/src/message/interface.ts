@@ -6,6 +6,7 @@ import {Address} from './address';
 export enum MessageSubject {
   INTRODUCTION = 'introduction',
   PEER_UPDATE = 'peer-update',
+  PEER_SUGGESTION = 'peer-suggestion',
   ROLE_UPDATE = 'role-update',
   CONNECTION_NEGOTIATION = 'connection-negotiation',
   CHANNEL_ANNOUNCEMENT = 'channel-announcement',
@@ -18,7 +19,8 @@ export enum MessageSubject {
 }
 
 export const MessageTtls: DefaultMap<MessageSubject, number> = new DefaultMap(() => 1);
-MessageTtls.set(MessageSubject.PEER_UPDATE, 10);
+MessageTtls.set(MessageSubject.PEER_UPDATE, 1);
+MessageTtls.set(MessageSubject.PEER_SUGGESTION, 10);
 MessageTtls.set(MessageSubject.APP_CONTENT, 16);
 MessageTtls.set(MessageSubject.CONNECTION_NEGOTIATION, 20);
 MessageTtls.set(MessageSubject.ROUTER_ALIVE, 20);
