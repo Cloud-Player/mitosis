@@ -214,7 +214,7 @@ export class PeerManager {
       }
     } else {
       Logger.getLogger(this.getMyId())
-        .error(`no direct connection to ${message.getReceiver().getId()} says ${peer.getId()}`, message);
+        .error(`sending failed because no connection to ${peer.getId()}`, message, peer);
       return false;
     }
   }
