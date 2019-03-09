@@ -14,6 +14,7 @@ import {ChannelAnnouncement} from './channel-announcement';
 import {ConnectionNegotiation} from './connection-negotiation';
 import {FloodingHandler} from './flooding-handler';
 import {IMessage, MessageSubject} from './interface';
+import {PeerSuggestion} from './peer-suggestion';
 import {PeerUpdate} from './peer-update';
 import {RoleUpdate} from './role-update';
 import {RouterAlive} from './router-alive';
@@ -105,6 +106,9 @@ export class MessageBroker {
         break;
       case MessageSubject.PEER_UPDATE:
         this._peerManager.updatePeers(message as PeerUpdate, viaPeerId);
+        break;
+      case MessageSubject.PEER_SUGGESTION:
+        this._peerManager.updatePeers(message as PeerSuggestion, viaPeerId);
         break;
       case MessageSubject.UNKNOWN_PEER:
         const existingPeer = this._peerManager.getPeerById(message.getBody());

@@ -32,7 +32,7 @@ export function sendAlternatives(mitosis: Mitosis, message: Message) {
         )
       )
       .forEach(
-        peer => peerManager.sendPeerUpdate(peer.getId())
+        peer => peerManager.sendPeerSuggestion(peer.getId())
       );
   }
 }

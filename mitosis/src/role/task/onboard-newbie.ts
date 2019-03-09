@@ -28,7 +28,8 @@ function sendExistingRouters(address: Address, routers: RemotePeerTable, mitosis
   const tableUpdate = new PeerUpdate(
     mitosis.getMyAddress(),
     address,
-    routers
+    routers,
+    mitosis.getPeerManager().getPeerTable()
   );
   mitosis.getPeerManager().sendMessage(tableUpdate);
 }

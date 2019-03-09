@@ -18,6 +18,7 @@ import {Address} from '../message/address';
 import {ConnectionNegotiation, ConnectionNegotiationType} from '../message/connection-negotiation';
 import {IMessage, MessageSubject} from '../message/interface';
 import {Message} from '../message/message';
+import {PeerSuggestion} from '../message/peer-suggestion';
 import {PeerUpdate} from '../message/peer-update';
 import {RouterAlive} from '../message/router-alive';
 import {UnknownPeer} from '../message/unknown-peer';
@@ -54,7 +55,7 @@ export class PeerManager {
       this.removePeer(remotePeer);
       this.sendUnknownPeerToDirectPeers(remotePeer.getId());
     }
-    if (remotePeer.getConnectionTable().filterDirect().length === 0) {
+    if (remotePeer.getConnectionTable().filterDirectData().length === 0) {
       // Remove all via connections that went over this peer
       this.getPeerTable()
         .forEach(
@@ -358,7 +359,27 @@ export class PeerManager {
     const peerUpdate = new PeerUpdate(
       new Address(this.getMyId()),
       new Address(receiverId),
-      directPeers
+      directPeers,
+      this.getPeerTable()
+    );
+    this.sendMessage(peerUpdate);
+  }
+
+  public sendPeerSuggestion(receiverId: string): void {
+    const directPeers = this
+      .getPeerTable()
+      .filterByRole(RoleType.PEER)
+      .filterConnections(
+        table => table
+          .filterDirectData()
+          .filterByStates(ConnectionState.OPEN)
+      );
+
+    const peerUpdate = new PeerSuggestion(
+      new Address(this.getMyId()),
+      new Address(receiverId),
+      directPeers,
+      this.getPeerTable()
     );
     this.sendMessage(peerUpdate);
   }
@@ -397,10 +418,16 @@ export class PeerManager {
     }
   }
 
-  public updatePeers(peerUpdate: PeerUpdate, viaPeerId: string): void {
+  public updatePeers(peerUpdate: PeerUpdate | PeerSuggestion, viaPeerId: string): void {
     const senderId = peerUpdate.getSender().getId();
 
     const updatedPeerIds: Array<string> = [];
+
+    if (peerUpdate instanceof PeerUpdate && senderId !== viaPeerId) {
+      Logger.getLogger(this.getMyId())
+        .error(`will not accept peer-update from ${senderId} via ${viaPeerId}`, peerUpdate);
+      return;
+    }
 
     peerUpdate
       .getBody()
@@ -410,6 +437,7 @@ export class PeerManager {
       .forEach(
         entry => {
           updatedPeerIds.push(entry.peerId);
+          const peerExistedBefore = !!this.getPeerById(entry.peerId);
           this.ensureConnection(
             new Address(entry.peerId, Protocol.VIA, senderId),
             {payload: {quality: entry.quality}}
@@ -417,7 +445,9 @@ export class PeerManager {
             .then(
               remotePeer => {
                 // TODO: Only set roles if peerUpdate from superior
-                remotePeer.setRoles(entry.roles);
+                if (!peerExistedBefore || peerUpdate instanceof PeerUpdate) {
+                  remotePeer.setRoles(entry.roles);
+                }
               }
             ).catch(
             reason => Logger.getLogger(this.getMyId()).debug(reason)

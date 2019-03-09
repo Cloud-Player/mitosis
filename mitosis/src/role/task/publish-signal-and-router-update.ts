@@ -24,7 +24,8 @@ export function publishSignalAndRouterUpdate(mitosis: Mitosis): void {
         new PeerUpdate(
           mitosis.getMyAddress(),
           new Address(peer.getId()),
-          signalsAndRouters
+          signalsAndRouters,
+          mitosis.getPeerManager().getPeerTable()
         )
       )
     );

@@ -4,7 +4,7 @@ import {Address} from './address';
 import {IPeerUpdateEntry, MessageSubject} from './interface';
 import {Message} from './message';
 
-export class PeerUpdate extends Message {
+export class PeerSuggestion extends Message {
   protected _body: Array<IPeerUpdateEntry>;
 
   public constructor(sender: Address, receiver: Address, remotePeers: RemotePeerTable, allRemotePeers: RemotePeerTable) {
@@ -16,8 +16,13 @@ export class PeerUpdate extends Message {
             roles: peer.getRoles(),
             quality: peer.getMeter().getPeerUpdateQuality(allRemotePeers)
           };
-        });
-    super(sender, receiver, MessageSubject.PEER_UPDATE, body);
+        })
+      .sort(
+        (entry: IPeerUpdateEntry) => entry.quality
+      )
+      .reverse()
+      .slice(0, 5);
+    super(sender, receiver, MessageSubject.PEER_SUGGESTION, body);
   }
 
   public getBody(): Array<IPeerUpdateEntry> {
