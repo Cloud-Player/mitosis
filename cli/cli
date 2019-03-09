@@ -87,7 +87,7 @@ function simulate(simulation, scenario, collector) {
             const eval = Object.assign(evaluation, configDump);
             collector.eval.push(eval);
           },
-          Math.max(duration / 20, Math.min(duration, 20))
+          Math.min(duration, Math.max(20, duration / 100))
         )
       }
       simulation.getClock().setTimeout(() => {
@@ -379,6 +379,7 @@ function executePromiseQueue(fns) {
 
 const bar = new progress.Bar({stopOnComplete: true}, progress.Presets.shades_classic);
 const sim = simulator.Simulation.getInstance();
+sim.setLoggerMaxSize(0);
 mitosis.Logger.setVerbose(logLevel <= mitosis.LogLevel.DEBUG);
 mitosis.Logger.setLevel(logLevel);
 mitosis.Logger.getLogger('simulation').setLevel(logLevel);
