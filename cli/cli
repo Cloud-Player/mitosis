@@ -163,6 +163,13 @@ function evaluate(simulation) {
         .hasRole(mitosis.RoleType.PEER)
     );
 
+  const newbies = mitoses
+    .filter(
+      peer => peer
+        .getRoleManager()
+        .hasRole(mitosis.RoleType.NEWBIE)
+    );
+
   const directConnections = mitoses
     .map(
       peer => peer
@@ -215,6 +222,7 @@ function evaluate(simulation) {
     nodesCount: nodes.length,
     routerCount: routers.length,
     peerCount: peers.length,
+    newbieCount: newbies.length,
     routerPeers: routerPeerTable.length,
     totalInKB: Math.floor(totalStats.in.size / 1024),
     totalInCount: totalStats.in.count,
