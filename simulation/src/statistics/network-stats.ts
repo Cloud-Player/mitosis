@@ -2,32 +2,39 @@ import {IClock, IMessage} from 'mitosis';
 import {Stat} from './stat';
 
 export class NetworkStats {
-  private in: Stat;
-  private out: Stat;
+
+  private _clock: IClock;
+  private _in: Stat;
+  private _out: Stat;
 
   constructor(clock: IClock) {
-    this.in = new Stat(clock);
-    this.out = new Stat(clock);
+    this._clock = clock;
+    this.reset();
   }
 
-  public addInComingMessage(message: IMessage) {
-    this.in.addMessage(message);
+  public reset(): void {
+    this._in = new Stat(this._clock);
+    this._out = new Stat(this._clock);
+  }
+
+  public addInComingMessage(message: IMessage): void {
+    this._in.addMessage(message);
   }
 
   public getIncomingStat(): Stat {
-    return this.in.clone();
+    return this._in.clone();
   }
 
   public addOutGoingMessage(message: IMessage) {
-    this.out.addMessage(message);
+    this._out.addMessage(message);
   }
 
   public getOutgoingStat(): Stat {
-    return this.out.clone();
+    return this._out.clone();
   }
 
-  public updateTs(ts: number) {
-    this.in.updateTs(ts);
-    this.out.updateTs(ts);
+  public updateTs(ts: number): void {
+    this._in.updateTs(ts);
+    this._out.updateTs(ts);
   }
 }

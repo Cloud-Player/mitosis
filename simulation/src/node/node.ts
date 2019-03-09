@@ -143,6 +143,10 @@ export class Node {
     };
   }
 
+  public resetNetworkStats(): void {
+    this._networkStats.reset();
+  }
+
   public getId() {
     return this._mitosis.getMyAddress().getId();
   }
