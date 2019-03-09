@@ -15,13 +15,18 @@ export function satisfyConnectionGoal(mitosis: Mitosis): void {
         .filterByStates(ConnectionState.OPEN, ConnectionState.OPENING)
     );
 
+  const boost = mitosis.getPeerManager().getAcquisitionBoost();
   const acquisitionGoal = (
-    configuration.DIRECT_CONNECTIONS_GOAL_MIN - directConnectionCount + mitosis.getPeerManager().getAcquisitionBoost()
+    configuration.DIRECT_CONNECTIONS_GOAL_MIN - directConnectionCount + boost
   );
 
   if (acquisitionGoal > 0) {
     Logger.getLogger(mitosis.getMyAddress().getId())
-      .debug(`need to acquire ${acquisitionGoal} peers`
+      .debug(
+        `need to acquire ${acquisitionGoal} peers`,
+        `min goal is ${configuration.DIRECT_CONNECTIONS_GOAL_MIN}`,
+        `boost is ${boost}`,
+        `already have ${directConnectionCount} connections`
       );
     const promises = acquireDirectConnections(mitosis, acquisitionGoal);
     Promise.all(promises)

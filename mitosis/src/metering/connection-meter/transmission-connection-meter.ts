@@ -43,18 +43,24 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
       receiver,
       sequence
     );
+    Logger.getLogger(this._originator.getId()).debug(
+      `send ping to ${receiver.getId()}`,
+      pong
+    );
     this.emitMessage(pong);
   }
 
   private sendPing() {
     this._echoSlidingWindow.slide();
-    Logger.getLogger(this._originator.getId())
-      .debug(`send ping to ${this._receiver.getId()}`, this._echoSlidingWindow.getSequenceNumber());
     const nextSequence = this._echoSlidingWindow.getSequenceNumber();
     const ping = new Ping(
       this._originator,
       this._receiver,
       nextSequence
+    );
+    Logger.getLogger(this._originator.getId()).debug(
+      `send ping to ${this._receiver.getId()}`,
+      ping
     );
     this.emitMessage(ping);
     this._latencyPerSequence.start(nextSequence);
@@ -62,7 +68,12 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
 
   private handlePing(message: Ping) {
     Logger.getLogger(this._originator.getId())
-      .debug(`handle ping from ${message.getSender().getId()}`, Array.from(this._receiveSlidingWindow.values()).join(','));
+      .debug(
+        `handle ping from ${message.getSender().getId()}`,
+        message,
+        `receive sliding window:`,
+        `[${Array.from(this._receiveSlidingWindow.values()).join(', ')}]`
+      );
     this.sendPong(message.getSender(), message.getBody());
     this._receiveSlidingWindow.add(message.getBody());
   }

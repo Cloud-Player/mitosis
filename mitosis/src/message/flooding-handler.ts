@@ -43,12 +43,13 @@ export class FloodingHandler {
       this._peerManager.sendMessage(message);
       this._slidingWindow.add(message.getBody().sequence);
     } else {
+      const outOfWindow = this._slidingWindow.isSequenceOutOfWindow(message.getBody().sequence);
       Logger.getLogger(this._peerManager.getMyId())
         .info('drop broadcast message',
-          message.getInboundAddress(),
           message,
-          this._slidingWindow.getSequenceNumber(),
-          this._slidingWindow.isSequenceOutOfWindow(message.getBody().sequence)
+          `inbound address ${message.getInboundAddress()}`,
+          `sliding window sequence ${this._slidingWindow.getSequenceNumber()}`,
+          `out of window ${outOfWindow ? 'yes' : 'no'}`
         );
     }
   }

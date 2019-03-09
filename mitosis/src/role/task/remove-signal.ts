@@ -59,10 +59,20 @@ export function removeSignal(mitosis: Mitosis): void {
   }
 
   Logger.getLogger(mitosis.getMyAddress().getId())
-    .info('close connection so signal', `routers: ${routerConnections.length}, connections: ${directConnections.length}`);
+    .info(
+      'close connection to signals',
+      `routers: ${routerConnections.length}`,
+      `connections: ${directConnections.length}`,
+      ...signals
+    );
 
   signals
     .forEach(
-      signal => signal.destroy()
+      signal => signal
+        .getConnectionTable()
+        .filterDirectData()
+        .forEach(
+          connection => connection.close()
+        )
     );
 }
