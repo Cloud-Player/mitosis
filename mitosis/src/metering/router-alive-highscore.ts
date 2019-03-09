@@ -49,12 +49,13 @@ export class RouterAliveHighscore {
     return !!this._rankPerSequenceMap.get(sequence);
   }
 
-  public getAverageRanking() {
+  public getAverageRanking(): number {
+    const configuration = ConfigurationMap.getDefault();
     if (this._rankPerSequenceMap.size === 0) {
       return 0;
     }
     let total = 0;
-    const maxConnections = ConfigurationMap.getDefault().DIRECT_CONNECTIONS_MAX;
+    const maxConnections = configuration.DIRECT_CONNECTIONS_MAX;
     const entries = this._rankPerSequenceMap.entries();
     let entry = entries.next();
     while (!entry.done) {
@@ -64,7 +65,7 @@ export class RouterAliveHighscore {
       }
       entry = entries.next();
     }
-    return Math.pow(((total / this._rankPerSequenceMap.size) || 0.1), 2);
+    return Math.pow(((total / this._rankPerSequenceMap.size) || configuration.DEFAULT_ROUTER_RANK), 2);
   }
 
   public reset(): void {

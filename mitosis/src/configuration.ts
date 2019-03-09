@@ -19,6 +19,8 @@ export class Configuration {
   public MAX_ROUTERS_PER_SIGNAL = 1;
   public LAST_SEEN_TIMEOUT = 30;
   public LATENCY_WINDOW_SIZE = 10;
+  public DEFAULT_QUALITY = 0.5;
+  public DEFAULT_ROUTER_RANK = 0.1;
 
   public CONNECTION_METER_OPEN_GRACE_PERIOD_TIME = 10;
   public CONNECTION_METER_PROTECTION_TIME = 10;

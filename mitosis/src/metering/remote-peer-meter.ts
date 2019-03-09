@@ -51,7 +51,6 @@ export class RemotePeerMeter implements IMeter {
         Logger.getLogger(event.connection.getAddress().getId())
           .info(`punish connection to ${event.connection.getAddress().getId()}`, event.connection);
         this._punishedConnections++;
-        // TODO: Use role specific configuration for this peer
         this._clock.setTimeout(() => {
           this._punishedConnections--;
         }, ConfigurationMap.getDefault().CONNECTION_METER_PUNISHMENT_TIME);
@@ -95,6 +94,10 @@ export class RemotePeerMeter implements IMeter {
     const measuredConnections = this.getConnectionTable()
       .filterByProtocol(Protocol.WEBRTC_DATA, Protocol.WEBSOCKET, Protocol.WEBSOCKET_UNSECURE, Protocol.VIA)
       .filterByStates(ConnectionState.OPEN);
+
+    if (measuredConnections.length === 0) {
+      return ConfigurationMap.getDefault().DEFAULT_QUALITY;
+    }
 
     const quality = measuredConnections
       .map(
@@ -160,6 +163,9 @@ export class RemotePeerMeter implements IMeter {
   // returns value between 0 and 1. When no connection is punished it returns 1, when all are punished 0
   public getAverageConnectionPunishment(): number {
     const punishedConnectionCount = this._connectionsPerAddress.size - this._punishedConnections;
+    if (this._connectionsPerAddress.size === 0) {
+      return 0;
+    }
     return punishedConnectionCount / this._connectionsPerAddress.size;
   }
 
@@ -168,7 +174,7 @@ export class RemotePeerMeter implements IMeter {
     return this.getBestConnectionQuality(remotePeers) * this.getConnectionSaturation(remotePeers) * this.getRouterLinkQuality();
   }
 
-  public getAverageRouterLinkQuality(remotePeers: RemotePeerTable) {
+  public getAverageRouterLinkQuality(remotePeers: RemotePeerTable): number {
     const connectionTable: ConnectionTable = ConnectionTable.fromIterable(this._connectionsPerAddress.values());
 
     const directConnections = connectionTable.filterDirectData();
@@ -196,12 +202,12 @@ export class RemotePeerMeter implements IMeter {
   public getRouterLinkQuality(): number {
     const routerLinkQuality = this.getRouterAliveHighScore().getAverageRanking();
     if (routerLinkQuality === 0) {
-      return 0.5;
+      return ConfigurationMap.getDefault().DEFAULT_QUALITY;
     }
     return routerLinkQuality;
   }
 
-  public getAcquisitionQuality(remotePeers: RemotePeerTable) {
+  public getAcquisitionQuality(remotePeers: RemotePeerTable): number {
     const routerQuality = this.getAverageRouterLinkQuality(remotePeers);
     const connectionQuality = this.getAverageConnectionQuality(remotePeers);
     const saturation = this.getConnectionSaturation(remotePeers);
