@@ -1,7 +1,7 @@
 import {Injectable, NgZone} from '@angular/core';
 import {debounce, isString} from 'underscore';
 import {Subject} from 'rxjs';
-import {EventLogger, NodeEventLogger} from '../src/event-logger';
+import {EventLogger} from '../src/event-logger';
 import {ILogEvent} from 'mitosis';
 
 @Injectable()
