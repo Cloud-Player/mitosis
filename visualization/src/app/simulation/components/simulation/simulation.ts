@@ -15,20 +15,22 @@ import {SidebarComponent} from '../sidebar/sidebar';
   styleUrls: ['./simulation.scss'],
 })
 export class SimulationComponent implements OnInit {
+  private scenario: any;
+  private loggerSubscriptions: Subscription;
+  public simulation: Simulation;
   public model: SimulationDirectedGraphModel;
   public selectedNode: Node;
   @ViewChild('graph')
   public graph: D3DirectedGraphComponent;
   @ViewChild('sidebar')
   public sidebar: SidebarComponent;
-  private scenario: any;
-  private simulation: Simulation;
-  private loggerSubscriptions: Subscription;
 
   constructor(private logEventLogger: LogEventLogger) {
     this.model = new SimulationDirectedGraphModel();
     this.simulation = Simulation.getInstance();
     this.loggerSubscriptions = new Subscription();
+    this.simulation.setLoggerMaxSize(100);
+    this.logEventLogger.getLogger().setLogSize(100);
   }
 
   private toggleClock() {
@@ -131,6 +133,11 @@ export class SimulationComponent implements OnInit {
     if (this.simulation) {
       return this.simulation.getClock();
     }
+  }
+
+  public updateLogSize(size: number) {
+    this.simulation.setLoggerMaxSize(size);
+    this.logEventLogger.getLogger().setLogSize(size);
   }
 
   ngOnInit(): void {

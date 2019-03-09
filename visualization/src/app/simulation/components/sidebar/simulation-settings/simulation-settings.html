@@ -1,5 +1,34 @@
-<div class="settings">
-  <app-button text="Add Node" (click)="addNode()"></app-button>
+<section class="settings">
+  <header>Simulation</header>
 
-  <app-button text="Download Snapshot" (click)="download()"></app-button>
-</div>
+  <app-collapsible title="Nodes" icon="fa fa-user-o">
+    <label>
+      Node Count: {{getNodeAmount()}}
+    </label>
+
+    <app-button text="Add Node" (click)="addNode()"></app-button>
+  </app-collapsible>
+
+  <hr>
+
+  <app-collapsible title="Export" icon="fa fa-caret-square-o-down">
+    <app-button text="Download Snapshot" (click)="download()"></app-button>
+  </app-collapsible>
+
+  <hr>
+
+  <app-collapsible title="Log Settings" icon="fa fa-newspaper-o">
+    <div class="form-field">
+      <label>
+        Log Size
+      </label>
+      <app-slider [min]="0"
+                  [max]="500"
+                  [step]="10"
+                  [(ngModel)]="logSize"
+                  (valueChanged)="setLogSize($event)"
+                  [showSliderValue]="true">
+      </app-slider>
+    </div>
+  </app-collapsible>
+</section>

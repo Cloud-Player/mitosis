@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {Simulation} from 'mitosis-simulation';
 import {D3DirectedGraphComponent} from '../../../../shared/components/d3-directed-graph/d3-directed-graph';
 
@@ -14,7 +14,13 @@ export class SimulationSettingsComponent implements OnInit, OnChanges {
   @Input()
   public graph: D3DirectedGraphComponent;
 
+  @Output()
+  public logSizeChange: EventEmitter<number>;
+
+  public logSize: number;
+
   constructor() {
+    this.logSizeChange = new EventEmitter();
   }
 
   private downloadTextAsFile(fileContent: string, fileName: string) {
@@ -38,6 +44,10 @@ export class SimulationSettingsComponent implements OnInit, OnChanges {
       );
   }
 
+  public getNodeAmount(): number {
+    return this.simulation.getNodeMap().size;
+  }
+
   public addNode() {
     this.simulation.addPeer();
   }
@@ -48,7 +58,12 @@ export class SimulationSettingsComponent implements OnInit, OnChanges {
       JSON.stringify(this.getSimulationJson()), `snapshot-${scenarioName}-${this.simulation.getClock().getTick()}.json`);
   }
 
+  public setLogSize(size: number) {
+    this.logSizeChange.emit(size);
+  }
+
   ngOnInit(): void {
+    this.logSize = this.simulation.getLoggerMaxSize();
   }
 
   ngOnChanges(changes: SimpleChanges): void {

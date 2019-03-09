@@ -16,7 +16,8 @@
     <app-sidebar #sidebar
                  [selectedNode]="selectedNode"
                  [graph]="graph"
-                 (scenarioChange)="updateScenario($event)">
+                 (scenarioChange)="updateScenario($event)"
+                 (logSizeChange)="updateLogSize($event)">
     </app-sidebar>
   </div>
 </div>
