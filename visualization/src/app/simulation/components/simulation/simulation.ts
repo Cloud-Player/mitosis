@@ -46,7 +46,9 @@ export class SimulationComponent implements OnInit {
 
   private nextTick() {
     if (this.simulation) {
-      this.simulation.getClock().tick();
+      for (let i = 0; i < this.simulation.getSubTicks(); i++) {
+        this.simulation.getClock().tick();
+      }
     }
   }
 

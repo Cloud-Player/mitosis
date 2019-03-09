@@ -2,7 +2,7 @@
   <div *ngIf="getClock()"
        class="clock">
     {{getClockEmoji()}}
-    {{getClock().getTick()}}
+    {{simulation.getReadableTicks(getClock().getTick())}}
   </div>
   <div class="graph">
     <app-d3-directed-graph #graph

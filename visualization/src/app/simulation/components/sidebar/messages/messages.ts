@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {IMessage} from 'mitosis';
-import {LogEvent, Node, INodeMessageLog} from 'mitosis-simulation';
+import {LogEvent, Node, INodeMessageLog, Simulation} from 'mitosis-simulation';
 import {ISelectorOption} from '../../../../shared/components/ui/inputs/selector/selector';
 import {SimulationNodeModel} from '../../../src/simulation-node-model';
 
@@ -13,6 +13,9 @@ export class MessagesComponent implements OnInit, OnChanges {
   private filterQuery: string;
   @Input()
   public selectedNode: SimulationNodeModel;
+
+  @Input()
+  public simulation: Simulation;
 
   public selectedOption = 'in';
 
@@ -76,6 +79,10 @@ export class MessagesComponent implements OnInit, OnChanges {
     } else {
       return 'forward';
     }
+  }
+
+  public getTimeStamp(logEvent: LogEvent<any>) {
+    return this.simulation.getReadableTicks(logEvent.getTick());
   }
 
   ngOnInit(): void {

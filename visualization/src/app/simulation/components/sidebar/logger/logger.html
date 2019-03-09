@@ -12,7 +12,7 @@
   <app-collapsible *ngFor="let logEvent of getLogs()"
                    [isCollapsed]="logEvent.getEvent().data.length > 1"
                    class="level-{{logEvent.getEvent().level}}"
-                   title="{{logEvent.getTick()}} {{logEvent.getEvent().data[0]}}">
+                   title="{{getTimeStamp(logEvent)}} {{logEvent.getEvent().data[0]}}">
     <pre *ngFor="let data of logEvent.getEvent().data.slice(1)">{{data}}</pre>
   </app-collapsible>
 </section>
