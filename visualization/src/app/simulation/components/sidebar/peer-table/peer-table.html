@@ -18,7 +18,7 @@
         <div class="left">
           <app-button type="icon"
                       text="fa fa-trash"
-                      [disabled]="isDisabled(connection)"
+                      title="close"
                       (click)="connection.close()">
           </app-button>
           {{getConnectionDirection(connection)}}
@@ -26,8 +26,7 @@
           {{connection.getAddress().getLocation()}}
         </div>
         <div class="right">
-          {{connection.getState()}},
-          {{getConnectionQualityText(connection)}}
+          {{getConnectionAnnotation(connection)}}
         </div>
       </li>
     </ul>

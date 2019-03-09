@@ -1,5 +1,14 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {ConnectionState, IConnection, Protocol, RemotePeer, RoleType, TransmissionConnectionMeter, WebRTCConnection} from 'mitosis';
+import {
+  ConnectionState,
+  IConnection,
+  NegotiationState,
+  Protocol,
+  RemotePeer,
+  RoleType,
+  TransmissionConnectionMeter,
+  WebRTCConnection
+} from 'mitosis';
 import {SimulationNodeModel} from '../../../src/simulation-node-model';
 
 @Component({
@@ -12,10 +21,6 @@ export class PeerTableComponent implements OnInit {
   public selectedNode: SimulationNodeModel;
 
   constructor() {
-  }
-
-  public isDisabled(connection: IConnection): boolean {
-    return connection.getAddress().isProtocol(Protocol.VIA, Protocol.VIA_MULTI);
   }
 
   public getPeerAnnotation(peer: RemotePeer): string {
@@ -53,13 +58,13 @@ export class PeerTableComponent implements OnInit {
     const routerRank = remotePeer.getMeter().getAverageRouterLinkQuality(peerTable);
     const acquisitionQuality = remotePeer.getMeter().getAcquisitionQuality(peerTable);
     return `
-      ⌀CQ: ${avgConnectionQuality.toFixed(2)}
-      ⌀PunQ: ${avgPunishment}
-      Prtcd: ${isProtected === 1 ? 'yes' : 'no'}
-      ls: ${lastseen}
-      exp: ${expired ? 'yes' : 'no'}
-      rtrRnk: ${routerRank.toFixed(2)}
-      acQ: ${acquisitionQuality.toFixed(2)}
+      ⌀ConQ:${avgConnectionQuality.toFixed(2)}
+      ⌀PunQ:${avgPunishment.toFixed(2)}
+      Prot:${isProtected === 1 ? 'y' : 'n'}
+      LSeen:${lastseen}
+      Exp:${expired ? 'y' : 'n'}
+      ⌀RLQ:${routerRank.toFixed(2)}
+      AcQ:${acquisitionQuality.toFixed(2)}
     `;
   }
 
@@ -83,20 +88,32 @@ export class PeerTableComponent implements OnInit {
     }
   }
 
-  public getConnectionQualityText(connection: IConnection) {
+  public getConnectionAnnotation(connection: IConnection): string {
     const remotePeerTable = this.selectedNode.getMitosis().getPeerManager().getPeerTable();
+    let annotation = '';
+    if (connection.getState() !== ConnectionState.OPEN) {
+      annotation += `${connection.getState()}`;
+    }
+    if (connection.getNegotiationState() !== NegotiationState.ESTABLISHED) {
+      annotation += `${connection.getNegotiationState()}`;
+    }
+    if (connection.getAddress().isProtocol(Protocol.VIA_MULTI)) {
+      annotation += `
+        LSeen:${connection.getMeter().getLastSeen()}
+      `;
+    } else {
+      annotation += `
+        ConQ:${connection.getMeter().getQuality(remotePeerTable).toFixed(2)}
+      `;
+    }
     if (connection.getAddress().isProtocol(Protocol.WEBRTC_DATA)) {
       const meter = connection.getMeter() as TransmissionConnectionMeter;
-      return `
-      ⌀CQ: ${meter.getQuality(remotePeerTable).toFixed(2)},
-      Lat: ${meter.getAverageLatency().toFixed(2)},
-      ⌀LatQ: ${meter.getLatencyQuality(remotePeerTable).toFixed(2)}
+      annotation += `
+        Lat:${meter.getAverageLatency().toFixed(0)}
+        LatQ:${meter.getLatencyQuality(remotePeerTable).toFixed(2)}
       `;
-    } else if (!connection.getAddress().isProtocol(Protocol.VIA_MULTI)) {
-      return `⌀CQ: ${connection.getMeter().getQuality(remotePeerTable).toFixed(2)}`;
-    } else {
-      return '';
     }
+    return annotation;
   }
 
   public getAllConnectionsAnnotation(): string {
