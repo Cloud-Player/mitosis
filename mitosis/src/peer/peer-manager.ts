@@ -521,7 +521,7 @@ export class PeerManager {
   public sendMessage(message: IMessage): boolean {
     if (message.getTtl() < 1) {
       Logger.getLogger(this._myId)
-        .warn(`message ${message.getId()} from ${message.getSender()} timed out`, message);
+        .warn(`message ${message.getId()} from ${message.getSender().getId()} timed out`, message);
       return false;
     } else {
       message.decreaseTtl();
@@ -543,7 +543,7 @@ export class PeerManager {
       return this.sendMessageToPeer(existingPeer, message);
     } else {
       Logger.getLogger(this._myId)
-        .warn(`failed to send message to ${message.getReceiver()}`, message);
+        .warn(`failed to send message to ${message.getReceiver().getId()}`, message);
       return false;
     }
   }
