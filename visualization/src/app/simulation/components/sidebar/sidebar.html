@@ -49,18 +49,22 @@
         <app-stream-table [selectedNode]="selectedNode"></app-stream-table>
       </app-tab-pane>
       <app-tab-pane icon="fa fa-bar-chart">
-        <app-stats [selectedNode]="selectedNode"></app-stats>
+        <app-stats [selectedNode]="selectedNode" [simulation]="simulation"></app-stats>
       </app-tab-pane>
       <app-tab-pane icon="fa fa-envelope-o">
-        <app-messages [selectedNode]="selectedNode"></app-messages>
+        <app-messages [selectedNode]="selectedNode" [simulation]="simulation"></app-messages>
       </app-tab-pane>
       <app-tab-pane icon="fa fa-newspaper-o">
-        <app-logger [selectedNode]="selectedNode"></app-logger>
+        <app-logger [selectedNode]="selectedNode" [simulation]="simulation"></app-logger>
       </app-tab-pane>
     </app-tab-bar>
   </section>
 
-  <section *ngIf="!selectedNode">
-    <app-simulation-settings [simulation]="simulation" [graph]="graph"></app-simulation-settings>
+  <section *ngIf="!selectedNode"
+           class="no-padding no-border">
+    <app-simulation-settings [simulation]="simulation"
+                             [graph]="graph"
+                             (logSizeChange)="updateLogSize($event)">
+    </app-simulation-settings>
   </section>
 </div>

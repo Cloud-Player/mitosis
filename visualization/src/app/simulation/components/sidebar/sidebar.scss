@@ -34,10 +34,15 @@
       &.no-padding {
         padding: 10px 0;
       }
+
+      &.no-border {
+        border-top: 0;
+      }
     }
 
-    /deep/ hr{
-      border: 1px solid rgba(255,255,255,0.5);
+    /deep/ hr {
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      margin-top: 22px;
     }
 
     /deep/ app-button {
@@ -112,6 +117,22 @@
             border-bottom-color: white;
           }
         }
+      }
+    }
+
+    /deep/ .form-field {
+      display: flex;
+      align-items: center;
+
+      label {
+        width: 60px;
+        text-align: end;
+        margin-right: 5px;
+      }
+
+      app-slider {
+        //margin-top: -10px;
+        flex-grow: 1;
       }
     }
 
