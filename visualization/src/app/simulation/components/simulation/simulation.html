@@ -2,7 +2,7 @@
   <div *ngIf="getClock()"
        class="clock">
     {{getClockEmoji()}}
-    {{getClock().getTick()}}
+    {{simulation.getReadableTicks(getClock().getTick())}}
   </div>
   <div class="graph">
     <app-d3-directed-graph #graph
@@ -16,7 +16,8 @@
     <app-sidebar #sidebar
                  [selectedNode]="selectedNode"
                  [graph]="graph"
-                 (scenarioChange)="updateScenario($event)">
+                 (scenarioChange)="updateScenario($event)"
+                 (logSizeChange)="updateLogSize($event)">
     </app-sidebar>
   </div>
 </div>

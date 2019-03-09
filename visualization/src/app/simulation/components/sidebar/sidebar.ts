@@ -1,5 +1,5 @@
 import {HttpClient} from '@angular/common/http';
-import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
 import {Node, Simulation} from 'mitosis-simulation';
 import {D3DirectedGraphComponent} from '../../../shared/components/d3-directed-graph/d3-directed-graph';
 import {SearchInputComponent} from '../../../shared/components/ui/inputs/search/search';
@@ -9,7 +9,7 @@ import {SearchInputComponent} from '../../../shared/components/ui/inputs/search/
   templateUrl: './sidebar.html',
   styleUrls: ['./sidebar.scss'],
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnChanges {
   private searchNode: string;
   private selectedScenario: any;
   public availableNodeIds: Array<string> = [];
@@ -24,11 +24,15 @@ export class SidebarComponent implements OnInit {
   @Output()
   public scenarioChange: EventEmitter<any>;
 
+  @Output()
+  public logSizeChange: EventEmitter<number>;
+
   @ViewChild('searchInput')
   public searchEl: SearchInputComponent;
 
   constructor(private _http: HttpClient) {
     this.scenarioChange = new EventEmitter();
+    this.logSizeChange = new EventEmitter();
     this.simulation = Simulation.getInstance();
   }
 
@@ -56,6 +60,10 @@ export class SidebarComponent implements OnInit {
     this.selectedScenario = scenario;
   }
 
+  public updateLogSize(logSize: number) {
+    this.logSizeChange.emit(logSize);
+  }
+
   public restart() {
     if (this.selectedScenario) {
       this.scenarioChange.emit(this.selectedScenario);
@@ -77,5 +85,14 @@ export class SidebarComponent implements OnInit {
           }
         }
       });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.selectedNode) {
+      if (changes.selectedNode.currentValue === null) {
+        this.searchNode = null;
+        this.searchEl.reset();
+      }
+    }
   }
 }

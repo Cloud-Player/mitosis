@@ -1,8 +1,7 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {ILogEvent} from 'mitosis';
-import {Node} from 'mitosis-simulation';
+import {LogEvent, Simulation} from 'mitosis-simulation';
 import {LogEventLogger} from '../../../services/log-event-logger';
-import {LogEvent} from '../../../src/event-logger';
 import {SimulationNodeModel} from '../../../src/simulation-node-model';
 
 @Component({
@@ -13,6 +12,9 @@ import {SimulationNodeModel} from '../../../src/simulation-node-model';
 export class LoggerComponent implements OnInit, OnChanges {
   @Input()
   public selectedNode: SimulationNodeModel;
+
+  @Input()
+  public simulation: Simulation;
 
   public filterQuery: string;
 
@@ -41,6 +43,10 @@ export class LoggerComponent implements OnInit, OnChanges {
 
   public filterLog(searchQuery: string) {
     this.filterQuery = searchQuery;
+  }
+
+  public getTimeStamp(logEvent: LogEvent<any>) {
+    return this.simulation.getReadableTicks(logEvent.getTick());
   }
 
   ngOnInit(): void {

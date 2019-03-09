@@ -17,17 +17,23 @@ export class LogEvent<TLog> {
 }
 
 export class NodeEventLogger<TLog> {
-  public static maxSize = 100;
+  private _maxSize: number;
 
   private _logs: Array<LogEvent<TLog>>;
 
-  constructor() {
+  constructor(maxSize = 100) {
     this._logs = [];
+    this._maxSize = maxSize;
+  }
+
+  public setMaxSize(maxSize: number) {
+    this._maxSize = maxSize;
+    this._logs.splice(this._maxSize);
   }
 
   public add(event: LogEvent<TLog>): void {
     this._logs.unshift(event);
-    this._logs.splice(NodeEventLogger.maxSize);
+    this._logs.splice(this._maxSize);
   }
 
   public addOrUpdateExisting(event: LogEvent<TLog>): void {

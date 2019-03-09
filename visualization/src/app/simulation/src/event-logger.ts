@@ -1,52 +1,14 @@
 import {IClock} from 'mitosis';
-
-export class LogEvent<TLog> {
-  private readonly _tick: number;
-  private readonly _event: TLog;
-
-  constructor(tick: number, event: TLog) {
-    this._tick = tick;
-    this._event = event;
-  }
-
-  public getEvent(): TLog {
-    return this._event;
-  }
-
-  public getTick(): number {
-    return this._tick;
-  }
-}
-
-export class NodeEventLogger<TLog> {
-  public static maxSize = 100;
-
-  private _logs: Array<LogEvent<TLog>>;
-
-  constructor() {
-    this._logs = [];
-  }
-
-  public add(event: LogEvent<TLog>): void {
-    this._logs.unshift(event);
-    this._logs.splice(NodeEventLogger.maxSize);
-  }
-
-  public getLogs(): Array<LogEvent<TLog>> {
-    return this._logs.slice();
-  }
-
-  public flush() {
-    this._logs = [];
-  }
-}
+import {LogEvent, NodeEventLogger} from 'mitosis-simulation';
 
 export class EventLogger<TLog> {
   private _eventsPerNodeId: Map<string, NodeEventLogger<TLog>>;
   private _clock: IClock;
+  private _maxSize: number;
 
-  constructor() {
+  constructor(maxSize = 100) {
     this._eventsPerNodeId = new Map();
+    this._maxSize = maxSize;
   }
 
   private getCurrentTick() {
@@ -64,8 +26,10 @@ export class EventLogger<TLog> {
   public addEventForNodeId(nodeId: string, event: any) {
     let existingNodeEventLogger: NodeEventLogger<TLog> = this._eventsPerNodeId.get(nodeId);
     if (!existingNodeEventLogger) {
+      const logger: NodeEventLogger<TLog> = new NodeEventLogger();
+      logger.setMaxSize(this._maxSize);
       existingNodeEventLogger = this._eventsPerNodeId
-        .set(nodeId, new NodeEventLogger())
+        .set(nodeId, logger)
         .get(nodeId);
     }
     existingNodeEventLogger.add(new LogEvent(this.getCurrentTick(), event));
@@ -85,5 +49,15 @@ export class EventLogger<TLog> {
     if (existingNodeEventLogger) {
       return existingNodeEventLogger.flush();
     }
+  }
+
+  public setLogSize(size: number) {
+    Array.from(this._eventsPerNodeId.entries())
+      .forEach(
+        ([key, value]) => {
+          value.setMaxSize(size);
+        }
+      );
+    this._maxSize = size;
   }
 }

@@ -8,7 +8,9 @@
   <!--title="{{logEvent.getTick()}} {{logEvent.getEvent() | json}}">-->
   <!--</app-collapsible>-->
   <app-d3-line-chart style="width: 300px; height: 100px; display: block"
-                     [models]="getLogs()">
+                     [speed]="this.getSpeed()"
+                     [models]="getLogs()"
+                     axisColor="white">
   </app-d3-line-chart>
 
   <div class="total-stats">
@@ -24,7 +26,7 @@
         </div>
         <div>
           TotalSize:
-          {{ (getLoggers().networkInLogger.getLogs()[0].getEvent().getStat().totalSize/1024).toFixed(0)}}kb
+          {{ (getLoggers().networkInLogger.getLogs()[0].getEvent().getStat().totalSize / 1024).toFixed(0)}}kb
         </div>
       </div>
     </app-collapsible>
@@ -40,7 +42,7 @@
         </div>
         <div>
           TotalSize:
-          {{ (getLoggers().networkOutLogger.getLogs()[0].getEvent().getStat().totalSize/1024).toFixed(0)}}kb
+          {{ (getLoggers().networkOutLogger.getLogs()[0].getEvent().getStat().totalSize / 1024).toFixed(0)}}kb
         </div>
       </div>
     </app-collapsible>

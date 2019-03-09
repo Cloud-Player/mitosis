@@ -33,6 +33,7 @@ export class Simulation {
   private _nodes: Map<string, Node>;
   private _edges: Map<string, Edge>;
   private _nodeSubject: Subject<{ type: ChurnType, node: Node }>;
+  private _loggingMaxSize = 100;
 
   private constructor() {
     this._clock = new MasterClock();
@@ -93,6 +94,17 @@ export class Simulation {
     clock.setSpeed(this._subTicks);
     clock.forward(offset);
     return clock;
+  }
+
+  public setLoggerMaxSize(maxSize: number) {
+    this._nodes.forEach(
+      node => node.setLoggerMaxSize(maxSize)
+    );
+    this._loggingMaxSize = maxSize;
+  }
+
+  public getLoggerMaxSize(): number {
+    return this._loggingMaxSize;
   }
 
   public getSubTicks(): number {
@@ -204,6 +216,7 @@ export class Simulation {
 
   public addNode(mitosis: Mitosis): Node {
     const node = new Node(mitosis);
+    node.setLoggerMaxSize(this._loggingMaxSize);
     this._nodes.set(mitosis.getMyAddress().getId(), node);
     this._nodeSubject.next({type: ChurnType.ADDED, node});
     return node;
@@ -286,6 +299,12 @@ export class Simulation {
         this._clock.setTimeout(instr.execute.bind(instr, this), instr.getTick());
       });
     this._clock.start();
+  }
+
+  public getReadableTicks(ticks: number) {
+    const majorTicks = Math.floor(ticks / this.getSubTicks());
+    const subTicks = ticks % this.getSubTicks();
+    return `${majorTicks}′${subTicks}″`;
   }
 
   public reset() {

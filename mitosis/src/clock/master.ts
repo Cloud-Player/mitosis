@@ -36,4 +36,8 @@ export class MasterClock extends AbstractClock implements IClock {
   public pauseClock(): void {
     clearInterval(this._masterCancelId);
   }
+
+  public getSpeed(): number{
+    return this._speed;
+  }
 }

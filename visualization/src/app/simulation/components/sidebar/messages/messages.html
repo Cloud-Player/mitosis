@@ -12,7 +12,7 @@
   <app-collapsible *ngFor="let logEvent of getMessageLog()"
                    [isCollapsed]="true"
                    class="subject-{{logEvent.getEvent().message.getSubject()}} message-{{getDirection(logEvent.getEvent(), selectedNode)}}"
-                   title="{{logEvent.getTick()}} {{getTitle(logEvent.getEvent(), selectedNode)}}">
+                   title="{{getTimeStamp(logEvent)}} {{getTitle(logEvent.getEvent(), selectedNode)}}">
     <span *ngIf="!logEvent.getEvent().inComing">
       to {{logEvent.getEvent().nodeId}}
     </span>

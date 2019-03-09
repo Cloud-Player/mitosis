@@ -1,4 +1,6 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {MasterClock} from 'mitosis';
+import {Simulation} from 'mitosis-simulation';
 import {D3Model} from '../../../../shared/components/d3-line-chart/models/d3';
 import {SimulationNodeModel} from '../../../src/simulation-node-model';
 
@@ -10,6 +12,9 @@ import {SimulationNodeModel} from '../../../src/simulation-node-model';
 export class StatsComponent implements OnInit, OnChanges {
   @Input()
   public selectedNode: SimulationNodeModel;
+
+  @Input()
+  public simulation: Simulation;
 
   constructor() {
   }
@@ -50,6 +55,10 @@ export class StatsComponent implements OnInit, OnChanges {
         incomingTrafficModel.add(val.x, val.y);
       });
     return [outgoingTrafficModel, incomingTrafficModel];
+  }
+
+  public getSpeed() {
+    return (this.simulation.getClock() as MasterClock).getSpeed();
   }
 
   public purgeLog() {

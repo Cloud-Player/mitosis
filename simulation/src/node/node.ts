@@ -103,6 +103,13 @@ export class Node {
     );
   }
 
+  public setLoggerMaxSize(maxSize: number) {
+    this._messagesInLogger.setMaxSize(maxSize);
+    this._messagesOutLogger.setMaxSize(maxSize);
+    this._networkInLogger.setMaxSize(maxSize);
+    this._networkOutLogger.setMaxSize(maxSize);
+  }
+
   public getNetworkLatency(): number {
     return this._latency;
   }
