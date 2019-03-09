@@ -9,7 +9,7 @@ import {SearchInputComponent} from '../../../shared/components/ui/inputs/search/
   templateUrl: './sidebar.html',
   styleUrls: ['./sidebar.scss'],
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnChanges {
   private searchNode: string;
   private selectedScenario: any;
   public availableNodeIds: Array<string> = [];
@@ -85,5 +85,14 @@ export class SidebarComponent implements OnInit {
           }
         }
       });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.selectedNode) {
+      if (changes.selectedNode.currentValue === null) {
+        this.searchNode = null;
+        this.searchEl.reset();
+      }
+    }
   }
 }
