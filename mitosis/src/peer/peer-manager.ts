@@ -215,7 +215,7 @@ export class PeerManager {
       }
     } else {
       Logger.getLogger(this.getMyId())
-        .error(`no direct connection to ${message.getReceiver().getId()} says ${peer.getId()}`, message);
+        .error(`sending failed because no connection to ${peer.getId()}`, message, peer);
       return false;
     }
   }
@@ -551,7 +551,7 @@ export class PeerManager {
   public sendMessage(message: IMessage): boolean {
     if (message.getTtl() < 1) {
       Logger.getLogger(this._myId)
-        .warn(`message ${message.getId()} from ${message.getSender()} timed out`, message);
+        .warn(`message ${message.getId()} from ${message.getSender().getId()} timed out`, message);
       return false;
     } else {
       message.decreaseTtl();
@@ -573,7 +573,7 @@ export class PeerManager {
       return this.sendMessageToPeer(existingPeer, message);
     } else {
       Logger.getLogger(this._myId)
-        .warn(`failed to send message to ${message.getReceiver()}`, message);
+        .warn(`failed to send message to ${message.getReceiver().getId()}`, message);
       return false;
     }
   }
