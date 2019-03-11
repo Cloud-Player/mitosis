@@ -23,8 +23,8 @@ const usage = function () {
 
     -v          Verbosity can be increased by adding more v's
     scenario    Path to a scenario JSON file to benchmark
-    eval        Path to file to write evaluation to, defaults to Desktop
-    mesh        Path to write mesh description to, disabled by default
+    eval        Path to file to write evaluation to, defaults to Desktop. Also accepts path for directory
+    mesh        Path to write mesh description to. Optional otherwise eval path is used
   `;
   console.log(chalk.green(usageText));
 };
