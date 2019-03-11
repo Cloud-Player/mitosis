@@ -12,5 +12,12 @@
       width: 100vw;
       height: 100vh;
     }
+
+    app-slider{
+      position: absolute;
+      bottom: 10px;
+      width: calc(100% - 40px);
+      margin: 0 20px;
+    }
   }
 }

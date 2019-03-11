@@ -1,4 +1,11 @@
 <div class="mesh-visualizer">
   <app-file-import [(ngModel)]="json" (ngModelChange)="updateMesh($event)"></app-file-import>
   <app-d3-directed-graph [model]="directedGraphModel"></app-d3-directed-graph>
+  <app-slider [min]="1"
+              [max]="directedGraphModels.length"
+              [step]="1"
+              [showSliderValue]="1"
+              [(ngModel)]="snapshotNumber"
+              (valueChanged)="setDirectedGraphModel($event-1)">
+  </app-slider>
 </div>
