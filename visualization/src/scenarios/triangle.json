@@ -10,7 +10,7 @@
       "tick": 0,
       "type": "set-clock-speed",
       "configuration": {
-        "speed": 50
+        "speed": 10
       }
     },
     {
@@ -34,7 +34,11 @@
       "tick": 0,
       "type": "add-peer",
       "configuration": {
-        "address": "mitosis/v1/bob/webrtc"
+        "address": "mitosis/v1/bob/webrtc",
+        "connectionSettings": {
+          "latency": 4,
+          "stability": 0.8
+        }
       }
     },
     {
@@ -45,18 +49,8 @@
       }
     },
     {
-      "tick": 24,
-      "type": "set-clock-speed",
-      "configuration": {
-        "speed": 250
-      }
-    },
-    {
-      "tick": 25,
-      "type": "set-clock-speed",
-      "configuration": {
-        "speed": 1500
-      }
+      "tick": 100,
+      "type": "finish-scenario"
     }
   ]
 }

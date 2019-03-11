@@ -12,7 +12,7 @@ export class GeneratePeers extends AbstractInstruction implements IInstruction {
     let tick = 0;
     while (generated <= config.count) {
       stack += (config.rate || 1);
-      tick ++;
+      tick++;
       for (let i = 0; i < Math.floor(stack); i++) {
         stack--;
         generated++;
@@ -21,9 +21,11 @@ export class GeneratePeers extends AbstractInstruction implements IInstruction {
           .getClock()
           .setTimeout(
             () => simulation.addPeer(
-              new Address(peerId, Protocol.WEBRTC_DATA).toString(),
-              config.signal,
-              config.roles
+              {
+                peerAddress: new Address(peerId, Protocol.WEBRTC_DATA).toString(),
+                signalAddress: config.signal,
+                roles: config.roles
+              }
             ),
             tick
           );

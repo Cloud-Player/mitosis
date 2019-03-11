@@ -1,7 +1,7 @@
 import {IMessage, Mitosis} from 'mitosis';
 import {MockConnection} from '../connection/mock';
 import {Edge} from '../edge/edge';
-import {INodeMessageLog} from '../interface';
+import {IConnectionSettings, INodeMessageLog} from '../interface';
 import {Simulation} from '../simulation';
 import {NetworkStats} from '../statistics/network-stats';
 import {IStatEv, StatLogEvent} from '../statistics/stat-log-event';
@@ -18,13 +18,18 @@ export class Node {
   private _latency = 1;
   private _stability = 1;
 
-  constructor(mitosis: Mitosis) {
+  constructor(mitosis: Mitosis, connectionSettings: IConnectionSettings) {
     this._mitosis = mitosis;
     this._networkStats = new NetworkStats(Simulation.getInstance().getClock());
     this._messagesInLogger = new NodeEventLogger<INodeMessageLog>();
     this._messagesOutLogger = new NodeEventLogger<INodeMessageLog>();
     this._networkInLogger = new NodeEventLogger<StatLogEvent>();
     this._networkOutLogger = new NodeEventLogger<StatLogEvent>();
+
+    if (connectionSettings) {
+      this._latency = connectionSettings.latency;
+      this._stability = connectionSettings.stability;
+    }
   }
 
   public getMitosis() {
