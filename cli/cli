@@ -216,6 +216,27 @@ function evaluate(simulation) {
       }, {in: {count: 0, size: 0}, out: {count: 0, size: 0}}
     );
 
+  const maxStats = nodes
+    .map(
+      node => {
+        return node.getNetworkStats();
+      }
+    )
+    .reduce(
+      (previous, current) => {
+        return {
+          in: {
+            count: Math.max(previous.in.count, current.in.count),
+            size: Math.max(previous.in.size, current.in.size)
+          },
+          out: {
+            count: Math.max(previous.out.count, current.out.count),
+            size: Math.max(previous.out.size, current.out.size)
+          }
+        }
+      }, {in: {count: 0, size: 0}, out: {count: 0, size: 0}}
+    );
+
   return {
     tickCount: simulation.getClock().getTick(),
     allConns: directConnections.length,
@@ -224,6 +245,10 @@ function evaluate(simulation) {
     peerCount: peers.length,
     newbieCount: newbies.length,
     routerPeers: routerPeerTable.length,
+    maxInKB: Math.floor(maxStats.in.size / 1024),
+    maxInCount: maxStats.in.count,
+    maxOutKB: Math.floor(maxStats.out.size / 1024),
+    maxOutCount: maxStats.out.count,
     totalInKB: Math.floor(totalStats.in.size / 1024),
     totalInCount: totalStats.in.count,
     totalOutKB: Math.floor(totalStats.out.size / 1024),
