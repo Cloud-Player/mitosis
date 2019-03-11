@@ -200,21 +200,27 @@ export class Mitosis {
 
   public toJSON(): { [key: string]: any } {
     const peerTable = this.getPeerManager().getPeerTable();
+    const connectionToJSON = (connection: IConnection) => {
+      return {
+        id: connection.getAddress().getId(),
+        quality: connection.getMeter().getQuality(peerTable)
+      };
+    };
     const wssConnections = peerTable
       .aggregateConnections(
         table => table.filterByProtocol(Protocol.WEBSOCKET, Protocol.WEBSOCKET_UNSECURE)
       )
-      .map(value => value.getAddress().getId());
+      .map(connectionToJSON);
     const webrtcDataConnections = peerTable
       .aggregateConnections(
         table => table.filterByProtocol(Protocol.WEBRTC_DATA)
       )
-      .map(value => value.getAddress().getId());
+      .map(connectionToJSON);
     const webrtcStreamConnections = peerTable
       .aggregateConnections(
         table => table.filterByProtocol(Protocol.WEBRTC_STREAM)
       )
-      .map(value => value.getAddress().getId());
+      .map(connectionToJSON);
     const channels = this.getStreamManager().getChannelTable().map(
       channel => {
         return {
