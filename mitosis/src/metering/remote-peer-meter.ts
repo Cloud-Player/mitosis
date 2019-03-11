@@ -76,7 +76,7 @@ export class RemotePeerMeter implements IMeter {
         connection => (connection.getMeter() as IConnectionMeter).getLastSeen()
       )
       .reduce(
-        (previous, current) => Math.max(previous, current),
+        (previous, current) => Math.min(previous, current),
         0
       );
   }
