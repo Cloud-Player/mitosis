@@ -71,10 +71,12 @@ if (args.length < 3) {
   let basePath = args[3];
   const hasFileExtension = args[3].match(/(.*)(\.json|\.csv)/);
   if (hasFileExtension) {
-    basePath = basePath.replace(hasFileExtension[2], '');
+    basePath = basePath.replace(hasFileExtension[2], '')+'-';
+  } else if (basePath[basePath.length - 1] !== '/') {
+    basePath = basePath + '/';
   }
-  evalPath = `${basePath}-${seed}-${timestamp}.csv`;
-  meshPath = `${basePath}-${seed}-${timestamp}.json`;
+  evalPath = `${basePath}${seed}-${timestamp}.csv`;
+  meshPath = `${basePath}${seed}-${timestamp}.json`;
 } else if (args.length === 5) {
   evalPath = args[3];
   meshPath = args[4];
