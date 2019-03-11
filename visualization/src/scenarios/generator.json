@@ -1,15 +1,7 @@
 {
-  "benchmark": {
-    "default": {
-      "LAST_SEEN_TIMEOUT": {
-        "from": 0,
-        "to": 60,
-        "step": 5
-      }
-    }
-  },
   "configuration": {
     "sub-ticks": 4,
+    "random-seed": "cool",
     "newbie": {
       "DEFAULT_SIGNAL_ADDRESS": "mitosis/v1/signal/wss"
     }
@@ -19,7 +11,7 @@
       "tick": 0,
       "type": "set-clock-speed",
       "configuration": {
-        "speed": 250
+        "speed": 1
       }
     },
     {
@@ -36,20 +28,12 @@
       "tick": 1,
       "type": "generate-peers",
       "configuration": {
-        "count": 40,
+        "count": 5,
         "rate": 0.3
       }
     },
     {
-      "tick": 10,
-      "type": "eliminate-peers",
-      "configuration": {
-        "count": 10,
-        "rate": 0.025
-      }
-    },
-    {
-      "tick": 2500,
+      "tick": 1000,
       "type": "finish-scenario"
     }
   ]
