@@ -32,6 +32,8 @@ export abstract class AbstractClock {
 
   protected abstract pauseClock(): void;
 
+  public abstract getPrecisionTimestamp(): number;
+
   public tick(): void {
     try {
       this.doTick();
@@ -104,16 +106,6 @@ export abstract class AbstractClock {
 
   public isRunning() {
     return this._isRunning;
-  }
-
-  public getPrecisionTimestamp(): number {
-    if (performance && typeof performance.now === 'function') {
-      return performance.now();
-    } else if (Date && typeof Date.now === 'function') {
-      return Date.now();
-    } else {
-      return this.getTick();
-    }
   }
 
   public timeIt(): () => number {

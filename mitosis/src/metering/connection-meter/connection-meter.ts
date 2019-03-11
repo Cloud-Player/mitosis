@@ -74,7 +74,7 @@ export abstract class ConnectionMeter {
   }
 
   public getLastSeen(): number {
-    return this._lastSeenTick;
+    return this._clock.getTick() - this._lastSeenTick;
   }
 
   public isPunished(): boolean {

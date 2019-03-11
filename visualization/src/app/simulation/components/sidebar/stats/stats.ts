@@ -20,7 +20,7 @@ export class StatsComponent implements OnInit, OnChanges {
   }
 
   public getLogs(): Array<D3Model> {
-    const outgoingTrafficModel = new D3Model('network-output', 'black', 'outgoing traffic');
+    const outgoingTrafficModel = new D3Model('network-output', '#ffdde9', 'outgoing traffic');
     this.selectedNode
       .getLoggers()
       .networkOutLogger
@@ -37,7 +37,7 @@ export class StatsComponent implements OnInit, OnChanges {
       .forEach((val) => {
         outgoingTrafficModel.add(val.x, val.y);
       });
-    const incomingTrafficModel = new D3Model('network-input', '#ccc', 'incoming traffic');
+    const incomingTrafficModel = new D3Model('network-input', '#b7eeb7', 'incoming traffic');
     this.selectedNode
       .getLoggers()
       .networkInLogger

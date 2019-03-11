@@ -22,6 +22,10 @@ export class ForkedClock extends AbstractClock implements IClock {
     this.startClock(speed);
   }
 
+  public getPrecisionTimestamp(): number {
+    return this._masterClock.getPrecisionTimestamp();
+  }
+
   public startClock(speed?: number): void {
     this._cancelId = this._masterClock.setInterval(this.tick.bind(this), speed);
   }

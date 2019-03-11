@@ -22,7 +22,7 @@
     }
 
     &.level-0 {
-      color: gainsboro;
+      color: $gray-light;
 
       &:before {
         content: "📠";
@@ -30,7 +30,7 @@
     }
 
     &.level-10 {
-      color: lightcyan;
+      color: $brand-info-light;
 
       &:before {
         content: "🛠";
@@ -38,7 +38,7 @@
     }
 
     &.level-20 {
-      color: lightyellow;
+      color: $brand-debug-light;
 
       &:before {
         content: "📬";
@@ -46,7 +46,7 @@
     }
 
     &.level-30 {
-      color: #ffb88f;
+      color: $brand-warning-light;
 
       &:before {
         content: "🚧";
@@ -59,7 +59,7 @@
       }
 
       .title {
-        background: tomato;
+        background: $brand-danger;
         padding: 2px 5px;
         color: white;
       }

@@ -22,28 +22,28 @@
     }
 
     &.subject-introduction {
-      color: gainsboro;
+      color: $gray-light;
     }
 
     &.subject-peer-update {
-      color: #ffdde9;
+      color: $brand-danger-light;
     }
 
     &.subject-role-update {
-      color: lightcyan;
+      color: $brand-info-light;
     }
 
     &.subject-connection-negotiation {
-      color: #ffd4b8;
+      color: $brand-warning-light;
     }
 
     &.subject-app-content {
-      color: lightyellow;
+      color: $brand-debug-light;
     }
 
     &.subject-ping,
     &.subject-pong {
-      color: #b7eeb7;
+      color: $brand-success-light;
     }
 
     &.message-receive {

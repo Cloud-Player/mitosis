@@ -1,3 +1,5 @@
+@import 'variables';
+
 .d3-line-chart{
   .line {
     fill: none;
@@ -11,13 +13,13 @@
 
   /* Style the dots by assigning a fill and stroke */
   .dot {
-    fill: #ffab00;
-    stroke: #fff;
+    fill: $brand-warning;
+    stroke: white;
   }
 
   .focus ellipse {
     fill: none;
-    stroke: steelblue;
+    stroke: $brand-primary-light;
   }
 }
 

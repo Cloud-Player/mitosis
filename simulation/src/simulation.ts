@@ -14,6 +14,7 @@ import {
   RoleType
 } from 'mitosis';
 import {Subject} from 'rxjs';
+import {MockClock} from './clock/mock-clock';
 import {MockConnection} from './connection/mock';
 import {WebRTCDataMockConnection} from './connection/webrtc-data-mock';
 import {WebRTCStreamMockConnection} from './connection/webrtc-stream-mock';
@@ -37,7 +38,7 @@ export class Simulation {
   private _loggingMaxSize = 100;
 
   private constructor() {
-    this._clock = new MasterClock();
+    this._clock = new MockClock();
     this._nodes = new Map();
     this._edges = new Map();
     this._nodeSubject = new Subject();
