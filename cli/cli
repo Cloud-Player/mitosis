@@ -80,7 +80,7 @@ if (args.length < 3) {
   meshPath = `${basePath}${seed}-${timestamp}.json`;
 
   if (args.length === 5) {
-    meteringInterval = parseInt(args[4])-1;
+    meteringInterval = parseInt(args[4]) - 1;
   }
 } else if (args.length > 5) {
   console.log(chalk.yellow(`ignoring arguments ${args.splice(4).join(', ')}`));
@@ -286,37 +286,7 @@ function dumpMesh(simulation) {
       .values()
   )
     .map(
-      node => {
-        const peer = node.getMitosis();
-        const connections = peer
-          .getPeerTable()
-          .aggregateConnections(
-            table => table
-              .filterDirect()
-              .filterByStates(mitosis.ConnectionState.OPEN)
-          );
-        return {
-          id: peer.getMyAddress().getId(),
-          roles: peer.getRoleManager().getRoles(),
-          connections: {
-            "wss": connections
-              .filterByProtocol(mitosis.Protocol.WEBSOCKET, mitosis.Protocol.WEBSOCKET_UNSECURE)
-              .map(
-                connection => connection.getAddress().getId()
-              ),
-            "webrtc-data": connections
-              .filterByProtocol(mitosis.Protocol.WEBRTC_DATA)
-              .map(
-                connection => connection.getAddress().getId()
-              ),
-            "webrtc-stream": connections
-              .filterByProtocol(mitosis.Protocol.WEBRTC_STREAM)
-              .map(
-                connection => connection.getAddress().getId()
-              )
-          }
-        };
-      }
+      node => node.getMitosis().toJSON()
     );
 }
 
