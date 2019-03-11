@@ -57,8 +57,14 @@ if (args.length < 3) {
   evalPath = path.join(
     process.env.HOME,
     'Desktop', `${path.basename(args[2], '.json')}-${timestamp}.csv`);
+  meshPath = path.join(
+    process.env.HOME,
+    'Desktop', `${path.basename(args[2], '.json')}-${timestamp}.json`);
 } else if (args.length === 4) {
   evalPath = args[3];
+  meshPath = path.join(
+    process.env.HOME,
+    'Desktop', `${path.basename(args[2], '.json')}-${timestamp}.json`);
 } else if (args.length === 5) {
   evalPath = args[3];
   meshPath = args[4];
@@ -86,6 +92,7 @@ function simulate(simulation, scenario, collector) {
             const evaluation = evaluate(simulation);
             const eval = Object.assign(evaluation, configDump);
             collector.eval.push(eval);
+            collector.mesh.push(dumpMesh(simulation));
           },
           Math.min(duration, Math.max(20, duration / 100))
         )
@@ -328,7 +335,7 @@ function finishBenchmark(results) {
         console.log(chalk.gray(excerpt));
         console.log(chalk.blue(`evaluation written to ${evalPath}`));
         if (meshPath) {
-          const meshDump = JSON.stringify(results.mesh[results.mesh.length - 1], undefined, 2);
+          const meshDump = JSON.stringify(results.mesh, undefined, 2);
           fs.writeFile(meshPath, meshDump, error => {
             if (error) {
               return console.log(chalk.red(error));
