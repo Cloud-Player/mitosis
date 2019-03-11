@@ -40,6 +40,9 @@ export class SliderComponent implements ControlValueAccessor {
   @Input()
   public vertical = false;
 
+  @Input()
+  public disabled = false;
+
   @Output()
   public valueChange = new EventEmitter();
 
