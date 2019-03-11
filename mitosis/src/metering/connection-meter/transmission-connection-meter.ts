@@ -44,7 +44,7 @@ export class TransmissionConnectionMeter extends ConnectionMeter implements ICon
       sequence
     );
     Logger.getLogger(this._originator.getId()).debug(
-      `send ping to ${receiver.getId()}`,
+      `send pong to ${receiver.getId()}`,
       pong
     );
     this.emitMessage(pong);
