@@ -73,7 +73,7 @@ export abstract class AbstractClock {
   }
 
   public setInterval(callback: () => void, interval: number = 1): number {
-    interval = Math.max(interval, 1);
+    interval = Math.floor(Math.max(interval, 1));
     this._lastCancelId = (this._lastCancelId + 1) % this._maxCancelId;
     const scheduledCallback = {tick: interval, cancelId: this._lastCancelId, callback: callback};
     this._intervals.push(scheduledCallback);
@@ -87,7 +87,7 @@ export abstract class AbstractClock {
   }
 
   public setTimeout(callback: () => void, timeout: number = 1): number {
-    timeout = Math.max(timeout, 1);
+    timeout = Math.floor(Math.max(timeout, 1));
     this._lastCancelId = (this._lastCancelId + 1) % this._maxCancelId;
     const scheduledCallback = {tick: this._tickCounter + timeout, cancelId: this._lastCancelId, callback: callback};
     this._timeouts.push(scheduledCallback);
