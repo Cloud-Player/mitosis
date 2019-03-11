@@ -60,8 +60,15 @@ export class MeshVisualizerComponent implements OnInit {
       if (data[0] && typeof data[0].id === 'string') {
         this.resolveDirectedGraphModel(data);
       } else if (data[0] && Array.isArray(data[0])) {
-        const restricted = Math.max(0, data.length - MeshVisualizerComponent.maxImportData);
-        data = data.splice(restricted);
+        const every = Math.round(data.length / MeshVisualizerComponent.maxImportData);
+        const filtered = [];
+        for (let i = 0, j = 0; i < data.length; i++) {
+          if (i / every === j) {
+            filtered.push(data[i]);
+            j++;
+          }
+        }
+        data = filtered;
         data.forEach((snapshot) => {
           if (Array.isArray(snapshot) && snapshot[0] && typeof snapshot[0].id === 'string') {
             this.resolveDirectedGraphModel(snapshot);
@@ -77,7 +84,7 @@ export class MeshVisualizerComponent implements OnInit {
     if (existingModel) {
       this.directedGraphModel = existingModel;
     }
-    this.snapshotNumber = index + 1;
+    this.snapshotNumber = index;
   }
 
   ngOnInit(): void {
