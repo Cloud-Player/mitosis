@@ -40,7 +40,6 @@ export class Simulation {
     this._clock = new MasterClock();
     this._nodes = new Map();
     this._edges = new Map();
-    this._alea = alea('simulation');
     this._nodeSubject = new Subject();
   }
 
@@ -59,6 +58,8 @@ export class Simulation {
 
   private configure(configuration: any): void {
     this._subTicks = configuration['sub-ticks'] || 1;
+    this._alea = alea(configuration['random-seed'] || 'simulation');
+
     Object.keys(configuration)
       .filter(key =>
         ConfigurationMap.get(key as RoleType) !== undefined
