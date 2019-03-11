@@ -114,7 +114,6 @@ export abstract class AbstractClock {
     } else {
       return this.getTick();
     }
-
   }
 
   public timeIt(): () => number {
