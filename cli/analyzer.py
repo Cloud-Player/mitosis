@@ -43,11 +43,13 @@ for mesh in mesh_series:
     for node in mesh:
         if 'router' in node['roles']:
             router = node['id']
-        if 'signal' in node['roles']:
-            continue
+        df.at[node['id'], node['id']] = 0
         for proto in node['connections'].values():
             for peer in proto:
-                df.at[node['id'], peer] = 1
+                if peer in ids:
+                    df.at[node['id'], peer] = 1
+    df.drop('signal', axis=0, inplace=True)
+    df.drop('signal', axis=1, inplace=True)
     dist_matrix = csg.floyd_warshall(df, directed=False, unweighted=False)
     dm = pd.DataFrame(dist_matrix, index=ids, columns=ids)
     dm = dm.replace(np.inf, np.NaN)
