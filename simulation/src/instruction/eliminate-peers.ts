@@ -34,7 +34,7 @@ export class EliminatePeers extends AbstractInstruction implements IInstruction 
               const peerId = peers[index].getId();
               const success = simulation.removeNodeById(peerId);
               Logger.getLogger('simulation')
-                .fatal(`${success ? '' : 'could not'} eliminated peer ${peerId}`);
+                .warn(`${success ? '' : 'could not'} eliminated peer ${peerId}`);
             },
             tick
           );
