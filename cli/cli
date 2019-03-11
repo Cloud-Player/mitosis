@@ -1,6 +1,8 @@
 #!/usr/bin/env node
-global.Event = class MockEvent {};
-global.EventTarget = class MockEventTarget {};
+global.Event = class MockEvent {
+};
+global.EventTarget = class MockEventTarget {
+};
 
 const chalk = require('chalk');
 const fs = require('fs');
@@ -49,28 +51,38 @@ args
 let evalPath;
 let meshPath;
 const timestamp = getTimestamp();
+let scenario;
 if (args.length < 3) {
   console.log(chalk.red(`no scenario path provided`));
   usage();
   process.exit(1);
 } else if (args.length === 3) {
+  scenario = require(args[2]);
+  const seed = scenario.configuration['random-seed'] || 'no-seed';
   evalPath = path.join(
     process.env.HOME,
-    'Desktop', `${path.basename(args[2], '.json')}-${timestamp}.csv`);
+    `${seed}-${path.basename(args[2], '.json')}-${timestamp}.csv`);
   meshPath = path.join(
     process.env.HOME,
-    'Desktop', `${path.basename(args[2], '.json')}-${timestamp}.json`);
+    'Desktop', `${seed}-${path.basename(args[2], '.json')}-${timestamp}.json`);
 } else if (args.length === 4) {
-  evalPath = args[3];
-  meshPath = path.join(
-    process.env.HOME,
-    'Desktop', `${path.basename(args[2], '.json')}-${timestamp}.json`);
+  scenario = require(args[2]);
+  const seed = scenario.configuration['random-seed'] || 'no-seed';
+  let basePath = args[3];
+  const hasFileExtension = args[3].match(/(.*)(\.json|\.csv)/);
+  if (hasFileExtension) {
+    basePath = basePath.replace(hasFileExtension[2], '');
+  }
+  evalPath = `${basePath}-${seed}-${timestamp}.csv`;
+  meshPath = `${basePath}-${seed}-${timestamp}.json`;
 } else if (args.length === 5) {
   evalPath = args[3];
   meshPath = args[4];
 } else if (args.length > 5) {
   console.log(chalk.yellow(`ignoring arguments ${args.splice(4).join(', ')}`));
 }
+
+scenario = require(args[2]);
 
 function simulate(simulation, scenario, collector) {
   if (!collector) {
@@ -424,7 +436,6 @@ mitosis.Logger.setVerbose(logLevel <= mitosis.LogLevel.DEBUG);
 mitosis.Logger.setLevel(logLevel);
 mitosis.Logger.getLogger('simulation').setLevel(logLevel);
 simulator.InstructionTypeMap['finish-scenario'] = FinishScenario;
-const scenario = require(args[2]);
 let promise;
 if (scenario.benchmark) {
   const queue = scheduleBenchmark(sim, scenario);
