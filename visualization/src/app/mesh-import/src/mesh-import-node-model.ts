@@ -7,7 +7,7 @@ export interface IMeshImportNode {
   y?: number;
   roles: Array<string>;
   id: string;
-  connections: { [key: string]: Array<string> };
+  connections: { [key: string]: Array<{id: string, quality: number, state: string}> };
 }
 
 export class MeshImportNodeModel extends NodeModel {

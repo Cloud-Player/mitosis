@@ -11,6 +11,7 @@ import {MeshImportNodeModel} from '../../src/mesh-import-node-model';
   styleUrls: ['./mesh-visualizer.scss']
 })
 export class MeshVisualizerComponent implements OnInit {
+  private static maxImportData = 10;
   public json: {};
   public directedGraphModel: DirectedGraphModel<NodeModel, EdgeModel>;
   public directedGraphModels: Array<DirectedGraphModel<NodeModel, EdgeModel>>;
@@ -22,6 +23,11 @@ export class MeshVisualizerComponent implements OnInit {
 
   private resolveDirectedGraphModel(meshDump: any) {
     const model = new DirectedGraphModel();
+    model.addNode(new MeshImportNodeModel({
+      id: 'signal',
+      roles: ['signal'],
+      connections: {}
+    }));
     meshDump.forEach((item: any) => {
       model.addNode(new MeshImportNodeModel(item));
       if (typeof item.connections === 'object') {
@@ -29,7 +35,15 @@ export class MeshVisualizerComponent implements OnInit {
         Object.entries(item.connections).forEach(([key, value]) => {
           if (Array.isArray(value)) {
             value.forEach((target) => {
-              model.addEdge(new MeshImportEdgeModel(item.id, target, key, index));
+              // TODO Remove, just for backwards compatibility
+              if (typeof target === 'string') {
+                target = {
+                  id: target
+                };
+              }
+              if (meshDump.find(node => node.id === target.id)) {
+                model.addEdge(new MeshImportEdgeModel(item.id, target.id, target.state, key, index));
+              }
             });
             if (value.length > 0) {
               index++;
@@ -46,13 +60,15 @@ export class MeshVisualizerComponent implements OnInit {
       if (data[0] && typeof data[0].id === 'string') {
         this.resolveDirectedGraphModel(data);
       } else if (data[0] && Array.isArray(data[0])) {
+        const restricted = Math.max(0, data.length - MeshVisualizerComponent.maxImportData);
+        data = data.splice(restricted);
         data.forEach((snapshot) => {
-          // if (Array.isArray(snapshot) && snapshot[0] && typeof snapshot[0] === 'string') {
-          this.resolveDirectedGraphModel(snapshot);
-          // }
+          if (Array.isArray(snapshot) && snapshot[0] && typeof snapshot[0].id === 'string') {
+            this.resolveDirectedGraphModel(snapshot);
+          }
         });
       }
-      this.setDirectedGraphModel(1);
+      this.setDirectedGraphModel(0);
     }
   }
 

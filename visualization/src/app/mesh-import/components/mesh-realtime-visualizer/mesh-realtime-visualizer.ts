@@ -17,14 +17,14 @@ export class MeshRealtimeVisualizerComponent implements OnInit {
     this.directedGraphModel = new DirectedGraphModel();
   }
 
-  private static addConnectionsToModel(connections: { [key: string]: Array<string> },
+  private static addConnectionsToModel(connections: { [key: string]: Array<{id: string, quality: number, state: string}> },
                                        source: string,
                                        model: DirectedGraphModel<MeshImportNodeModel, MeshImportEdgeModel>) {
     let index = 0;
     Object.entries(connections).forEach(([key, value]) => {
       if (Array.isArray(value)) {
         value.forEach((target) => {
-          model.addEdge(new MeshImportEdgeModel(source, target, key, index));
+          model.addEdge(new MeshImportEdgeModel(source, target.id, target.state, key, index));
         });
         if (value.length > 0) {
           index++;
