@@ -203,7 +203,8 @@ export class Mitosis {
     const connectionToJSON = (connection: IConnection) => {
       return {
         id: connection.getAddress().getId(),
-        quality: connection.getMeter().getQuality(peerTable)
+        quality: connection.getMeter().getQuality(peerTable),
+        state: connection.getState()
       };
     };
     const wssConnections = peerTable
