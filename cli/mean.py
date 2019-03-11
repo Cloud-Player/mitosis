@@ -30,6 +30,6 @@ for frame in frames:
 df_concat = pd.concat(frames, sort=False)
 by_row_index = df_concat.groupby(df_concat.index)
 df_means = by_row_index.mean()
-outfile = '{}/mean.csv'.format(folder)
+outfile = '{}/{}-mean.csv'.format(folder, folder.rsplit('/')[-1])
 df_means.to_csv(outfile)
 print('saved to {}'.format(outfile))
