@@ -22,6 +22,7 @@ import {Edge} from './edge/edge';
 import {MockEnclave} from './enclave/mock';
 import {InstructionFactory} from './instruction/factory';
 import {AbstractInstruction} from './instruction/instruction';
+import {IConnectionSettings, IMitosisSettings} from './interface';
 import {Node} from './node/node';
 
 export class Simulation {
@@ -215,8 +216,8 @@ export class Simulation {
     }
   }
 
-  public addNode(mitosis: Mitosis): Node {
-    const node = new Node(mitosis);
+  public addNode(mitosis: Mitosis, connectionSettings?: IConnectionSettings): Node {
+    const node = new Node(mitosis, connectionSettings);
     node.setLoggerMaxSize(this._loggingMaxSize);
     this._nodes.set(mitosis.getMyAddress().getId(), node);
     this._nodeSubject.next({type: ChurnType.ADDED, node});
@@ -248,21 +249,21 @@ export class Simulation {
     return this._clock;
   }
 
-  public addPeer(peerAddress?: string, signalAddress?: string, roles?: Array<RoleType>): Node {
-    if (!signalAddress) {
+  public addPeer(mitosisSettings: IMitosisSettings = {}, connectionSettings?: IConnectionSettings): Node {
+    if (!mitosisSettings.signalAddress) {
       const signal = this.getSignalNode();
       if (signal) {
-        signalAddress = signal.getMitosis().getMyAddress().toString();
+        mitosisSettings.signalAddress = signal.getMitosis().getMyAddress().toString();
       }
     }
     const mitosis = new Mitosis(
       this.getPeerClock(),
       new MockEnclave(),
-      peerAddress,
-      signalAddress,
-      roles
+      mitosisSettings.peerAddress,
+      mitosisSettings.signalAddress,
+      mitosisSettings.roles
     );
-    return this.addNode(mitosis);
+    return this.addNode(mitosis, connectionSettings);
   }
 
   public getEdge(from: string, to: string, location: string): Edge {

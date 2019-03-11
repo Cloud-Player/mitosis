@@ -106,10 +106,21 @@ export abstract class AbstractClock {
     return this._isRunning;
   }
 
+  public getPrecisionTimestamp(): number {
+    if (performance && typeof performance.now === 'function') {
+      return performance.now();
+    } else if (Date && typeof Date.now === 'function') {
+      return Date.now();
+    } else {
+      return this.getTick();
+    }
+
+  }
+
   public timeIt(): () => number {
-    const start = this.getTick();
+    const start = this.getPrecisionTimestamp();
     return (): number => {
-      return this.getTick() - start;
+      return this.getPrecisionTimestamp() - start;
     };
   }
 }
