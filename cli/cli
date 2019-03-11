@@ -19,17 +19,17 @@ const usage = function () {
   run mitosis simulation from the command line
 
   usage:
-    mitosis-cli [-v] scenario [output-dir] [only-final]
+    mitosis-cli [-v] scenario [output-dir] [meter-count]
 
     -v          Verbosity can be increased by adding more v's
     scenario    Path to a scenario JSON file to benchmark
     output-dir  Path to file to write evaluation to, defaults to Desktop. Also accepts path for directory
-    only-final  Output only final values dont measure stuff in between
+    meter-count  Amount of metering points 
   `;
   console.log(chalk.green(usageText));
 };
 
-let logLevel;
+let logLevel = mitosis.LogLevel.FATAL;
 const verbosityMap = {
   '-v': mitosis.LogLevel.ERROR,
   '-vv': mitosis.LogLevel.WARN,
@@ -48,15 +48,11 @@ args
     }
   );
 
-if (!logLevel) {
-  logLevel = mitosis.LogLevel.FATAL;
-}
-
 let evalPath;
 let meshPath;
 const timestamp = getTimestamp();
 let scenario;
-let measureOnlyFinal = false;
+let meteringInterval = 100;
 if (args.length < 3) {
   console.log(chalk.red(`no scenario path provided`));
   usage();
@@ -84,7 +80,7 @@ if (args.length < 3) {
   meshPath = `${basePath}${seed}-${timestamp}.json`;
 
   if (args.length === 5) {
-    measureOnlyFinal = true;
+    meteringInterval = parseInt(args[4])-1;
   }
 } else if (args.length > 5) {
   console.log(chalk.yellow(`ignoring arguments ${args.splice(4).join(', ')}`));
@@ -105,7 +101,7 @@ function simulate(simulation, scenario, collector) {
       } else {
         console.log(chalk.blue('evaluating next simulation'));
       }
-      if (!scenario.benchmark && !measureOnlyFinal) {
+      if (!scenario.benchmark) {
         simulation.getClock().setInterval(
           () => {
             const configDump = dumpConfig();
@@ -114,7 +110,7 @@ function simulate(simulation, scenario, collector) {
             collector.eval.push(eval);
             collector.mesh.push(dumpMesh(simulation));
           },
-          Math.min(duration, Math.max(20, duration / 100))
+          Math.min(duration, Math.max(20, duration / meteringInterval))
         )
       }
       simulation.getClock().setTimeout(() => {
