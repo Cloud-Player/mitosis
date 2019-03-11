@@ -48,8 +48,8 @@ for mesh in mesh_series:
         for proto in node['connections'].values():
             for conn in proto:
                 if isinstance(conn, str):
-                    conn = {'id': conn, 'quality': 1.0}
-                if conn['id'] in ids:
+                    conn = {'id': conn, 'quality': 1.0, 'state': 'open'}
+                if conn['state'] == 'open' and conn['id'] in ids:
                     df.at[node['id'], conn['id']] = conn['quality']
 
     dist_matrix = csg.dijkstra(df, directed=False, unweighted=False)
