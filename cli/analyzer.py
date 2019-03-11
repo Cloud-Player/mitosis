@@ -27,7 +27,12 @@ else:
 with open(infile) as fh:
     mesh_series = json.load(fh)
 
-output = []
+analysis = [{
+    'average_distance_to_router': 0,
+    'number_of_connected_nodes': 0,
+    'number_of_total_nodes': 0,
+    'connected_components': 0
+}]
 
 for mesh in mesh_series:
     if not mesh:
@@ -52,12 +57,19 @@ for mesh in mesh_series:
     dm = dm.replace(np.NaN, 0.0)
     connected_components, _ = csg.connected_components(dm.values)
     average_distance_to_router = dm.get(router).sum() / len(dm)
-    output.append({
+    analysis.append({
         'average_distance_to_router': average_distance_to_router,
         'number_of_connected_nodes': len(dm),
         'number_of_total_nodes': len(mesh),
         'connected_components': connected_components
     })
 
-outframe = pd.DataFrame(output)
+aframe = pd.DataFrame(analysis)
+
+statsfile = infile.replace('.json', '.csv')
+sframe = pd.read_csv(statsfile)
+sframe.drop('BROADCAST_ADDRESS', 1, inplace=True)
+sframe.drop('DEFAULT_SIGNAL_ADDRESS', 1, inplace=True)
+
+outframe = aframe.join(sframe)
 outframe.to_csv(outfile)
