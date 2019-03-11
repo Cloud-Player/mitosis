@@ -50,7 +50,6 @@ export class PeerTableComponent implements OnInit {
 
   public getPeerStatsAnnotation(remotePeer: RemotePeer) {
     const peerTable = this.selectedNode.getMitosis().getPeerTable();
-    const currentTick = this.selectedNode.getMitosis().getClock().getTick();
     const avgConnectionQuality = remotePeer.getMeter().getAverageConnectionQuality(peerTable);
     const avgPunishment = remotePeer.getMeter().getAverageConnectionPunishment();
     const isProtected = remotePeer.getMeter().getConnectionProtection();
@@ -62,7 +61,7 @@ export class PeerTableComponent implements OnInit {
       ⌀ConQ:${avgConnectionQuality.toFixed(2)}
       ⌀PunQ:${avgPunishment.toFixed(2)}
       Prot:${isProtected === 1 ? 'y' : 'n'}
-      LSeen:${currentTick - lastseen}
+      LSeen:${lastseen}
       Exp:${expired ? 'y' : 'n'}
       ⌀RLQ:${routerRank.toFixed(2)}
       AcQ:${acquisitionQuality.toFixed(2)}
@@ -99,9 +98,8 @@ export class PeerTableComponent implements OnInit {
       annotation += `${connection.getNegotiationState()}`;
     }
     if (connection.getAddress().isProtocol(Protocol.VIA_MULTI)) {
-      const currentTick = this.selectedNode.getMitosis().getClock().getTick();
       annotation += `
-        LSeen:${currentTick - connection.getMeter().getLastSeen()}
+        LSeen:${connection.getMeter().getLastSeen()}
       `;
     } else {
       annotation += `
@@ -111,7 +109,7 @@ export class PeerTableComponent implements OnInit {
     if (connection.getAddress().isProtocol(Protocol.WEBRTC_DATA)) {
       const meter = connection.getMeter() as TransmissionConnectionMeter;
       annotation += `
-        Lat:${meter.getAverageLatency().toFixed(0)}
+        Lat:${meter.getAverageLatency().toFixed(2)}
         LatQ:${meter.getLatencyQuality(remotePeerTable).toFixed(2)}
       `;
     }

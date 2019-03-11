@@ -64,8 +64,15 @@ export class SimulationNodeModel extends NodeModel {
 
   public ellipseFillTransformer(selectedNode: SimulationNodeModel): string {
     const roleManager = this._mitosis.getRoleManager();
-
-    if (selectedNode) {
+    if (roleManager.hasRole(RoleType.SIGNAL)) {
+      return D3DirectedGraphConfig.NODE_ROLE_SIGNAL_FILL_COLOR;
+    } else if (roleManager.hasRole(RoleType.ROUTER)) {
+      return D3DirectedGraphConfig.NODE_ROLE_ROUTER_FILL_COLOR;
+    } else if (roleManager.hasRole(RoleType.NEWBIE)) {
+      return D3DirectedGraphConfig.NODE_ROLE_NEWBIE_FILL_COLOR;
+    } else if (this._mitosis.getStreamManager().getLocalChannel()) {
+        return D3DirectedGraphConfig.NODE_STREAMER_FILL_COLOR;
+    } else if (selectedNode) {
       const selectedNodePeerManager = selectedNode.getMitosis().getPeerManager();
       const associatedPeer = selectedNodePeerManager.getPeerById(this.getId());
       if (associatedPeer) {
@@ -73,20 +80,9 @@ export class SimulationNodeModel extends NodeModel {
         const quality = associatedPeer
           .getMeter()
           .getAcquisitionQuality(peerTable);
-        return `rgb(0,${100 + (quality * 100)},0)`;
+        return `rgb(5,${100 + (quality * 120)},55)`;
       }
     }
-
-    if (this._mitosis.getStreamManager().getLocalChannel()) {
-      return D3DirectedGraphConfig.NODE_STREAMER_FILL_COLOR;
-    } else if (roleManager.hasRole(RoleType.SIGNAL)) {
-      return D3DirectedGraphConfig.NODE_ROLE_SIGNAL_FILL_COLOR;
-    } else if (roleManager.hasRole(RoleType.ROUTER)) {
-      return D3DirectedGraphConfig.NODE_ROLE_ROUTER_FILL_COLOR;
-    } else if (roleManager.hasRole(RoleType.NEWBIE)) {
-      return D3DirectedGraphConfig.NODE_ROLE_NEWBIE_FILL_COLOR;
-    } else {
-      return super.ellipseFillTransformer(selectedNode);
-    }
+    return super.ellipseFillTransformer(selectedNode);
   }
 }

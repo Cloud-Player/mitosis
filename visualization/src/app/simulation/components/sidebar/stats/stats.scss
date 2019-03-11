@@ -36,13 +36,13 @@
 
     /deep/ app-collapsible.incoming{
       .collapsible-head .title:before{
-        background: #ccc;
+        background: $brand-success-light;
       }
     }
 
     /deep/ app-collapsible.outgoing{
       .collapsible-head .title:before{
-        background: black;
+        background: $brand-danger-light;
       }
     }
   }

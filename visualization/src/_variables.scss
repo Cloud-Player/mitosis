@@ -1,4 +1,4 @@
-$gray: #515151;
+$gray: #546f7d;
 $gray-light: #DDDDDD;
 $gray-base: #000 !default;
 $gray-darker: lighten($gray-base, 13.5%) !default; // #222
@@ -8,10 +8,18 @@ $gray-light: lighten($gray-base, 46.7%) !default; // #777
 $gray-lighter: lighten($gray-base, 93.5%) !default; // #eee
 
 $brand-primary: #024C7A;
-$brand-success: #5cb85c !default;
+$brand-primary-light: #4682B4 default;
+$brand-success: #05cc55 !default;
+$brand-success-light: #b7eeb7 !default;
+$brand-debug: #FFFF00 !default;
+$brand-debug-light: #FFFFE0 !default;
 $brand-info: #5bc0de !default;
+$brand-info-light: #e0ffff !default;
 $brand-warning: #f0ad4e !default;
-$brand-danger: #d9534f !default;
+$brand-warning-light: #ffd4b8 !default;
+$brand-danger: #f83d51 !default;
+$brand-danger-light: #ffdde9 !default;
+$brand-active: #4b0082 !default;
 
 $primary-boxshadow: 0 0 8px 0 rgba(0, 0, 0, 0.7);
 
