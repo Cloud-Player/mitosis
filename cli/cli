@@ -19,17 +19,17 @@ const usage = function () {
   run mitosis simulation from the command line
 
   usage:
-    mitosis-cli [-v] scenario [eval] [mesh]
+    mitosis-cli [-v] scenario [output-dir] [only-final]
 
     -v          Verbosity can be increased by adding more v's
     scenario    Path to a scenario JSON file to benchmark
-    eval        Path to file to write evaluation to, defaults to Desktop. Also accepts path for directory
-    mesh        Path to write mesh description to. Optional otherwise eval path is used
+    output-dir  Path to file to write evaluation to, defaults to Desktop. Also accepts path for directory
+    only-final  Output only final values dont measure stuff in between
   `;
   console.log(chalk.green(usageText));
 };
 
-let logLevel = mitosis.LogLevel.FATAL;
+let logLevel;
 const verbosityMap = {
   '-v': mitosis.LogLevel.ERROR,
   '-vv': mitosis.LogLevel.WARN,
@@ -48,10 +48,15 @@ args
     }
   );
 
+if (!logLevel) {
+  logLevel = mitosis.LogLevel.FATAL;
+}
+
 let evalPath;
 let meshPath;
 const timestamp = getTimestamp();
 let scenario;
+let measureOnlyFinal = false;
 if (args.length < 3) {
   console.log(chalk.red(`no scenario path provided`));
   usage();
@@ -65,21 +70,22 @@ if (args.length < 3) {
   meshPath = path.join(
     process.env.HOME,
     'Desktop', `${seed}-${path.basename(args[2], '.json')}-${timestamp}.json`);
-} else if (args.length === 4) {
+} else if (args.length === 4 || args.length === 5) {
   scenario = require(args[2]);
   const seed = scenario.configuration['random-seed'] || 'no-seed';
   let basePath = args[3];
   const hasFileExtension = args[3].match(/(.*)(\.json|\.csv)/);
   if (hasFileExtension) {
-    basePath = basePath.replace(hasFileExtension[2], '')+'-';
+    basePath = basePath.replace(hasFileExtension[2], '') + '-';
   } else if (basePath[basePath.length - 1] !== '/') {
     basePath = basePath + '/';
   }
   evalPath = `${basePath}${seed}-${timestamp}.csv`;
   meshPath = `${basePath}${seed}-${timestamp}.json`;
-} else if (args.length === 5) {
-  evalPath = args[3];
-  meshPath = args[4];
+
+  if (args.length === 5) {
+    measureOnlyFinal = true;
+  }
 } else if (args.length > 5) {
   console.log(chalk.yellow(`ignoring arguments ${args.splice(4).join(', ')}`));
 }
@@ -99,7 +105,7 @@ function simulate(simulation, scenario, collector) {
       } else {
         console.log(chalk.blue('evaluating next simulation'));
       }
-      if (!scenario.benchmark) {
+      if (!scenario.benchmark && !measureOnlyFinal) {
         simulation.getClock().setInterval(
           () => {
             const configDump = dumpConfig();
