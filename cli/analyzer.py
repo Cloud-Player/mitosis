@@ -46,9 +46,12 @@ for mesh in mesh_series:
         if node['id'] not in ids:
             continue
         for proto in node['connections'].values():
-            for peer in proto:
-                if peer in ids:
-                    df.at[node['id'], peer] = 1
+            for conn in proto:
+                if isinstance(conn, str):
+                    conn = {'id': conn, 'quality': 1.0}
+                if conn['id'] in ids:
+                    df.at[node['id'], conn['id']] = conn['quality']
+
     dist_matrix = csg.dijkstra(df, directed=False, unweighted=False)
     dm = pd.DataFrame(dist_matrix, index=ids, columns=ids)
     dm = dm.replace(np.inf, np.NaN)
