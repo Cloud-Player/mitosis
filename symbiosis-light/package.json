@@ -1,0 +1,41 @@
+{
+  "name": "symbiosis-light",
+  "version": "0.0.1",
+  "description": "TBD",
+  "authors": [
+    "Nicolas Drebenstedt",
+    "Alexander Zarges"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/auxdotapp/mitosis.git"
+  },
+  "scripts": {
+    "start": "cross-env NODE_ENV=development webpack-dev-server",
+    "build": "cross-env NODE_ENV=production webpack"
+  },
+  "preferGlobal": true,
+  "devDependencies": {
+    "@types/webpack-env": "1.13.6",
+    "cross-env": "5.2.0",
+    "css-loader": "^0.28.10",
+    "file-loader": "^1.1.10",
+    "html-loader": "^0.5.5",
+    "html-webpack-plugin": "3.2.0 ",
+    "mini-css-extract-plugin": "^0.5.0",
+    "optimize-css-assets-webpack-plugin": "^5.0.1",
+    "source-map-loader": "0.2.4",
+    "style-loader": "0.23.1",
+    "ts-loader": "5.3.0",
+    "url-loader": "1.1.2",
+    "webpack": "4.26.1",
+    "webpack-cli": "3.1.2",
+    "webpack-dev-server": "^3.1.14"
+  },
+  "dependencies": {
+    "mitosis": "file:../mitosis"
+  },
+  "homepage": "https://github.com/auxdotapp/mitosis#readme",
+  "keywords": []
+}
