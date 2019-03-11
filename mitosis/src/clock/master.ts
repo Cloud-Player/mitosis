@@ -33,11 +33,21 @@ export class MasterClock extends AbstractClock implements IClock {
     this._masterCancelId = setInterval(this.tick.bind(this), this._speed);
   }
 
+  public getPrecisionTimestamp(): number {
+    if (performance && typeof performance.now === 'function') {
+      return performance.now();
+    } else if (Date && typeof Date.now === 'function') {
+      return Date.now();
+    } else {
+      return this.getTick();
+    }
+  }
+
   public pauseClock(): void {
     clearInterval(this._masterCancelId);
   }
 
-  public getSpeed(): number{
+  public getSpeed(): number {
     return this._speed;
   }
 }

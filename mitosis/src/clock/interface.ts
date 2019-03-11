@@ -30,6 +30,8 @@ export interface IClock {
 
   getTick(): number;
 
+  getPrecisionTimestamp(): number;
+
   forward(tick: number): void;
 
   rewind(): void;
