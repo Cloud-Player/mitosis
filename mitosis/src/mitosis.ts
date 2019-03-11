@@ -231,6 +231,7 @@ export class Mitosis {
               return {
                 peerId: provider.getPeerId(),
                 isActive: provider.isActive(),
+                isLocal: provider.isLocal(),
                 capacity: provider.getCapacity()
               };
             }
