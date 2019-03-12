@@ -21,6 +21,8 @@
     "cli-progress": "2.1.1",
     "csv": "^5.1.1",
     "mitosis": "file:../mitosis",
-    "mitosis-simulation": "file:../simulation"
+    "mitosis-simulation": "file:../simulation",
+    "event-target-shim": "5.0.1",
+    "event-shim": "0.2.0"
   }
 }
