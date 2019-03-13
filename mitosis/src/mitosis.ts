@@ -2,6 +2,7 @@ import {Subject} from 'rxjs';
 import {IClock} from './clock/interface';
 import {MasterClock} from './clock/master';
 import {ConnectionState, IConnection, Protocol} from './connection/interface';
+import {WebRTCConnection} from './connection/webrtc';
 import {IEnclave} from './enclave/interface';
 import {SecureEnclave} from './enclave/secure';
 import {ChurnType} from './interface';
@@ -221,6 +222,9 @@ export class Mitosis {
       .aggregateConnections(
         table => table.filterByProtocol(Protocol.WEBRTC_STREAM)
       )
+      .filter(
+        (connection: WebRTCConnection) => connection.isInitiator()
+      )
       .map(connectionToJSON);
     const channels = this.getStreamManager().getChannelTable().map(
       channel => {
@@ -231,6 +235,7 @@ export class Mitosis {
               return {
                 peerId: provider.getPeerId(),
                 isActive: provider.isActive(),
+                isLocal: provider.isLocal(),
                 capacity: provider.getCapacity()
               };
             }

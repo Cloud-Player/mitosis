@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-global.Event = class MockEvent {
-};
-global.EventTarget = class MockEventTarget {
-};
+const evTargetShim = require('event-target-shim');
+const evShim = require('event-shim');
+global.Event = evShim;
+global.EventTarget = evTargetShim.EventTarget;
 
 const chalk = require('chalk');
 const fs = require('fs');
