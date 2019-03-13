@@ -89,7 +89,7 @@ for mesh_index, mesh in enumerate(mesh_series):
         average_distance_to_router = dm.get(router).sum() / len(dm)
         components, _ = np.histogram(labels.T, labels.max() + 1)
         component_distribution = ','.join(str(c) for c in sorted(components))
-        largest_component = max(component_distribution)
+        largest_component = max(components)
         analysis.append({
             'average_distance_to_router': average_distance_to_router,
             'number_of_connected_nodes': len(dm),
