@@ -3,15 +3,17 @@ import {filter} from 'rxjs/operators';
 import {Simulation} from '../simulation';
 
 export abstract class MockConnection extends AbstractConnection implements IConnection {
+  private _timeout: number;
   protected readonly _client: Simulation = Simulation.getInstance();
   protected _connectionDelay = 1;
-  private _timeout: number;
-
-  protected abstract openClient(): void;
 
   public constructor(address: Address, clock: IClock, options?: IConnectionOptions) {
     super(address, clock, options);
     this.expectOpenWithinTimeout();
+    const node = this._client.getNodeMap().get(this._options.mitosisId);
+    if (node) {
+      this._connectionDelay = node.getEstablishDelay();
+    }
   }
 
   private expectOpenWithinTimeout(): void {
@@ -24,7 +26,7 @@ export abstract class MockConnection extends AbstractConnection implements IConn
           Logger.getLogger(this._options.mitosisId).warn(reason, this);
           this.onError(reason);
         },
-        20
+        20 * this._client.getSubTicks()
       );
     });
     this.observeStateChange().pipe(
@@ -36,6 +38,8 @@ export abstract class MockConnection extends AbstractConnection implements IConn
         }
       });
   }
+
+  protected abstract openClient(): void;
 
   protected closeClient(): void {
     this.onClose('mock connection close client');

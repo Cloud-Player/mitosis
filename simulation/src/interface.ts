@@ -15,4 +15,5 @@ export interface IMitosisSettings {
 export interface IConnectionSettings {
   stability: number;
   latency: number;
+  establishDelay: number;
 }

@@ -17,6 +17,7 @@ export class Node {
   private _networkOutLogger: NodeEventLogger<StatLogEvent>;
   private _latency = 1;
   private _stability = 1;
+  private _establishDelay = 1;
 
   constructor(mitosis: Mitosis, connectionSettings: IConnectionSettings) {
     this._mitosis = mitosis;
@@ -29,6 +30,7 @@ export class Node {
     if (connectionSettings) {
       this._latency = connectionSettings.latency;
       this._stability = connectionSettings.stability;
+      this._establishDelay = connectionSettings.establishDelay;
     }
   }
 
@@ -132,6 +134,14 @@ export class Node {
     this._stability = stability;
   }
 
+  public getEstablishDelay(): number {
+    return this._establishDelay;
+  }
+
+  public setEstablishDelay(delay: number) {
+    this._establishDelay = delay;
+  }
+
   public getMessagesInLogger(): NodeEventLogger<INodeMessageLog> {
     return this._messagesInLogger;
   }
@@ -152,6 +162,14 @@ export class Node {
     return {
       in: this._networkStats.getIncomingStat().getStat(),
       out: this._networkStats.getOutgoingStat().getStat()
+    };
+  }
+
+  public getConnectionSettings(): IConnectionSettings {
+    return {
+      stability: this._stability,
+      latency: this._latency,
+      establishDelay: this._establishDelay
     };
   }
 
@@ -177,5 +195,6 @@ export class Node {
     this._messagesOutLogger.flush();
     this._networkInLogger.flush();
     this._networkOutLogger.flush();
+    this.getNetworkStats().in.totalCount;
   }
 }

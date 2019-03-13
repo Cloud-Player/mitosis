@@ -31,6 +31,9 @@ export class EliminatePeers extends AbstractInstruction implements IInstruction 
                     .hasRole(RoleType.PEER)
                 );
               const index = simulation.getRandom() * simulation.getNodeMap.length;
+              if (!peers[index]) {
+                return;
+              }
               const peerId = peers[index].getId();
               const success = simulation.removeNodeById(peerId);
               Logger.getLogger('simulation')

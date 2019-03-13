@@ -7,7 +7,6 @@ import {
   IMessage,
   Logger,
   LogLevel,
-  MasterClock,
   Mitosis,
   Protocol,
   ProtocolConnectionMap,
@@ -99,6 +98,10 @@ export class Simulation {
     return clock;
   }
 
+  public getRandomBetween(min: number, max: number) {
+    return this.getRandom() * (max - min + 1) + min;
+  }
+
   public setLoggerMaxSize(maxSize: number) {
     this._nodes.forEach(
       node => node.setLoggerMaxSize(maxSize)
@@ -183,7 +186,8 @@ export class Simulation {
       }
       const senderDropProbability = this.getRandom();
       const receiverDropProbability = this.getRandom();
-      const deliveryDelay = Math.floor((sender.getNetworkLatency() + receiver.getNetworkLatency()) / 2);
+      const averageLatency = (sender.getNetworkLatency() + receiver.getNetworkLatency()) / 2;
+      const deliveryDelay = Math.floor(averageLatency);
       if (senderDropProbability > sender.getNetworkStability()) {
         Logger.getLogger('simulation').info(
           `sender ${to} drops message ${message.getSubject()}`, message

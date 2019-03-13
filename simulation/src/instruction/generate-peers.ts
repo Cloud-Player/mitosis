@@ -10,6 +10,10 @@ export class GeneratePeers extends AbstractInstruction implements IInstruction {
     let stack = 0;
     let generated = 0;
     let tick = 0;
+    const connectionSettings = config.connectionSettings || {
+      latency: {from: 1, to: 1},
+      stability: {from: 1, to: 1}
+    };
     while (generated <= config.count) {
       stack += (config.rate || 1);
       tick++;
@@ -25,6 +29,11 @@ export class GeneratePeers extends AbstractInstruction implements IInstruction {
                 peerAddress: new Address(peerId, Protocol.WEBRTC_DATA).toString(),
                 signalAddress: config.signal,
                 roles: config.roles
+              },
+              {
+                latency: simulation.getRandomBetween(connectionSettings.latency.from, connectionSettings.latency.to),
+                stability: simulation.getRandomBetween(connectionSettings.stability.from * 10, connectionSettings.stability.to * 10),
+                establishDelay: simulation.getRandomBetween(connectionSettings.establishDelay.from, connectionSettings.establishDelay.to)
               }
             ),
             tick
