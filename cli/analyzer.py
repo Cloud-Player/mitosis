@@ -23,6 +23,7 @@ filename = infile.rsplit('/', 1)[1].split('.')[0]
 sys.setrecursionlimit(10000)
 afile = infile.replace('.json', '-analyzed.csv')
 sfile = infile.replace('.json', '-stream.csv')
+nfile = infile.replace('.json', '-nodes.csv')
 
 with open(infile) as fh:
     mesh_series = json.load(fh)
@@ -36,6 +37,8 @@ analysis = [{
 
 stream_histos = []
 
+node_details = {}
+
 def clean_frame(df):
     df = df.replace(np.inf, np.NaN)
     df = df.replace(0.0, np.NaN)
@@ -44,7 +47,7 @@ def clean_frame(df):
     df = df.replace(np.NaN, 0.0)
     return df
 
-for mesh in mesh_series[-2:]:
+for mesh_index, mesh in enumerate(mesh_series):
     if not mesh:
         continue
     router = None
@@ -55,6 +58,12 @@ for mesh in mesh_series[-2:]:
     for node in mesh:
         if node['id'] not in ids:
             continue
+        node_info = node.copy()
+        for role in node_info.pop('roles', []):
+            node_info[role] = 1
+        node_info['connection_count'] = len(node_info.pop('connections', []))
+        node_info['channel_count'] = len(node_info.pop('channels', []))
+        node_details[node_info.pop('id')] = node_info
         if 'router' in node['roles']:
             router = node['id']
         for channel in node['channels']:
@@ -75,7 +84,7 @@ for mesh in mesh_series[-2:]:
     mesh_path = csg.dijkstra(mesh_df, directed=False, unweighted=True)
     dm = pd.DataFrame(mesh_path, index=ids, columns=ids)
     dm = clean_frame(dm)
-    if dm.get(router).any():
+    if dm.get(router, pd.Series([])).any():
         connected_components, _ = csg.connected_components(dm.values)
         average_distance_to_router = dm.get(router).sum() / len(dm)
         analysis.append({
@@ -84,6 +93,10 @@ for mesh in mesh_series[-2:]:
             'number_of_total_nodes': len(mesh),
             'connected_components': connected_components
         })
+
+        if mesh_index == len(mesh_series) - 1:
+            for node_id, distance in dm.get(router).to_dict().items():
+                node_details[node_id]['distance_to_router'] = distance
 
     if stream_df.size and stream_df.max().max():
         stream_path, predecessors = csg.dijkstra(
@@ -100,11 +113,22 @@ statsfile = infile.replace('.json', '.csv')
 sframe = pd.read_csv(statsfile)
 sframe.drop('BROADCAST_ADDRESS', 1, inplace=True)
 sframe.drop('DEFAULT_SIGNAL_ADDRESS', 1, inplace=True)
-aframe.join(sframe).to_csv(afile)
-print('saved to {}'.format(afile))
+jframe = aframe.join(sframe)
+jframe.to_csv(afile)
+print(jframe.head())
+print('...\nsaved to {}'.format(afile))
+
+if node_details:
+    nframe = pd.DataFrame(node_details)
+    nframe = nframe.transpose()
+    nframe = clean_frame(nframe)
+    nframe.to_csv(nfile)
+    print(nframe.head())
+    print('...\nsaved to {}'.format(nfile))
 
 if stream_histos:
     sframe = pd.DataFrame(stream_histos)
     sframe = clean_frame(sframe)
     sframe.to_csv(sfile)
-    print('saved to {}'.format(sfile))
+    print(sframe.head())
+    print('...\nsaved to {}'.format(sfile))
