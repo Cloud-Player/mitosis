@@ -32,7 +32,7 @@ export class GeneratePeers extends AbstractInstruction implements IInstruction {
               },
               {
                 latency: simulation.getRandomBetween(connectionSettings.latency.from, connectionSettings.latency.to),
-                stability: simulation.getRandomBetween(connectionSettings.stability.from * 10, connectionSettings.stability.to * 10),
+                stability: simulation.getRandomBetween(connectionSettings.stability.from, connectionSettings.stability.to),
                 establishDelay: simulation.getRandomBetween(connectionSettings.establishDelay.from, connectionSettings.establishDelay.to)
               }
             ),
