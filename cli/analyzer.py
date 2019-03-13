@@ -85,13 +85,16 @@ for mesh_index, mesh in enumerate(mesh_series):
     dm = pd.DataFrame(mesh_path, index=ids, columns=ids)
     dm = clean_frame(dm)
     if dm.get(router, pd.Series([])).any():
-        connected_components, _ = csg.connected_components(dm.values)
+        connected_components, labels = csg.connected_components(dm.values)
         average_distance_to_router = dm.get(router).sum() / len(dm)
+        components, _ = np.histogram(labels.T, labels.max() + 1)
+        component_distribution = ','.join(str(c) for c in components)
         analysis.append({
             'average_distance_to_router': average_distance_to_router,
             'number_of_connected_nodes': len(dm),
             'number_of_total_nodes': len(mesh),
-            'connected_components': connected_components
+            'connected_components': connected_components,
+            'component_distribution': component_distribution
         })
 
         if mesh_index == len(mesh_series) - 1:
