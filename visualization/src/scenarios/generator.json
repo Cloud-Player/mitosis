@@ -1,6 +1,6 @@
 {
   "configuration": {
-    "sub-ticks": 4,
+    "sub-ticks": 10,
     "random-seed": "meiosis",
     "newbie": {
       "DEFAULT_SIGNAL_ADDRESS": "mitosis/v1/signal/wss"
@@ -28,20 +28,26 @@
       "tick": 1,
       "type": "generate-peers",
       "configuration": {
-        "count": 1000,
-        "rate": 0.9
+        "count": 500,
+        "rate": 0.6,
+        "connectionSettings": {
+          "latency": {
+            "from": 1,
+            "to": 10
+          },
+          "stability": {
+            "from": 0.9,
+            "to": 1
+          },
+          "establishDelay": {
+            "from" : 1,
+            "to": 30
+          }
+        }
       }
     },
     {
-      "tick": 10,
-      "type": "eliminate-peers",
-      "configuration": {
-        "count": 300,
-        "rate": 0.3
-      }
-    },
-    {
-      "tick": 10000,
+      "tick": 5000,
       "type": "finish-scenario"
     }
   ]
