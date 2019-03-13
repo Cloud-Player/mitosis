@@ -260,6 +260,31 @@ function evaluate(simulation) {
       }, {in: {count: 0, size: 0}, out: {count: 0, size: 0}}
     );
 
+  const signalNetStats = nodes
+    .filter(
+      node => node
+        .getMitosis()
+        .getRoleManager()
+        .hasRole(mitosis.RoleType.SIGNAL)
+    )
+    .map(
+      node => node.getNetworkStats()
+    )
+    .reduce(
+      (previous, current) => {
+        return {
+          in: {
+            count: Math.max(previous.in.count, current.in.count),
+            size: Math.max(previous.in.size, current.in.size)
+          },
+          out: {
+            count: Math.max(previous.out.count, current.out.count),
+            size: Math.max(previous.out.size, current.out.size)
+          }
+        }
+      }, {in: {count: 0, size: 0}, out: {count: 0, size: 0}}
+    );
+
   return {
     tickCount: simulation.getClock().getTick(),
     allConns: directConnections.length,
@@ -275,7 +300,11 @@ function evaluate(simulation) {
     totalInKB: Math.floor(totalStats.in.size / 1024),
     totalInCount: totalStats.in.count,
     totalOutKB: Math.floor(totalStats.out.size / 1024),
-    totalOutCount: totalStats.out.count
+    totalOutCount: totalStats.out.count,
+    signalTotalInKB: Math.floor(signalNetStats.in.size / 1024),
+    signalTotalInCount: signalNetStats.in.count,
+    signalTotalOutKB: Math.floor(signalNetStats.out.size / 1024),
+    signalTotalOutCount: signalNetStats.out.count
   };
 }
 
@@ -286,7 +315,14 @@ function dumpMesh(simulation) {
       .values()
   )
     .map(
-      node => node.getMitosis().toJSON()
+      node => {
+        const connectionSettings = node.getConnectionSettings();
+        return Object.assign(node.getMitosis().toJSON(),{
+          establishDelay: connectionSettings.establishDelay,
+          stability: connectionSettings.stability,
+          latency: connectionSettings.latency
+        });
+      }
     );
 }
 
