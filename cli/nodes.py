@@ -9,6 +9,12 @@ import pandas as pd
 import numpy as np
 import scipy.sparse.csgraph as csg
 
+usage = """\
+node details to histogram converter
+
+usage:
+  nodes /path/to/folder
+"""
 if len(sys.argv) < 2:
     print(usage)
     sys.exit(1)
@@ -30,7 +36,7 @@ for d in distances:
         'stabilty': dd['stability'].mean()
     }
 
-sf = pd.DataFrame(summary)
+sf = pd.DataFrame(summary).transpose()
 outfile = '{}/{}-histogram.csv'.format(folder, folder.rsplit('/')[-1])
 sf.to_csv(outfile)
 print(sf.head())
