@@ -10,10 +10,10 @@ export class GeneratePeers extends AbstractInstruction implements IInstruction {
     let stack = 0;
     let generated = 0;
     let tick = 0;
-    const connectionSettings = config.connectionSettings || {
-      latency: {from: 1, to: 1},
-      stability: {from: 1, to: 1}
-    };
+    const connectionSettings = config.connectionSettings || {};
+    connectionSettings.latency = connectionSettings.latency || {from: 1, to: 1};
+    connectionSettings.stability = connectionSettings.stability || {from: 1, to: 1};
+    connectionSettings.establishDelay = connectionSettings.establishDelay || {from: 1, to: 1};
     while (generated <= config.count) {
       stack += (config.rate || 1);
       tick++;
@@ -24,18 +24,21 @@ export class GeneratePeers extends AbstractInstruction implements IInstruction {
         simulation
           .getClock()
           .setTimeout(
-            () => simulation.addPeer(
-              {
-                peerAddress: new Address(peerId, Protocol.WEBRTC_DATA).toString(),
-                signalAddress: config.signal,
-                roles: config.roles
-              },
-              {
+            () => {
+              const settings = {
                 latency: simulation.getRandomBetween(connectionSettings.latency.from, connectionSettings.latency.to),
                 stability: simulation.getRandomBetween(connectionSettings.stability.from, connectionSettings.stability.to),
                 establishDelay: simulation.getRandomBetween(connectionSettings.establishDelay.from, connectionSettings.establishDelay.to)
-              }
-            ),
+              };
+              simulation.addPeer(
+                {
+                  peerAddress: new Address(peerId, Protocol.WEBRTC_DATA).toString(),
+                  signalAddress: config.signal,
+                  roles: config.roles
+                },
+                settings
+              );
+            },
             tick
           );
       }
