@@ -237,8 +237,12 @@ export class PeerManager {
       .filterConnections(
         table => table.filterDirect()
       );
-    if (directPeers.length >= this.getConfiguration().DIRECT_CONNECTIONS_MAX) {
-      return Promise.reject(`rejecting ${address.getId()} because max connections reached`);
+    const isViaAddress = address.isProtocol(Protocol.VIA, Protocol.VIA_MULTI);
+    if (!isViaAddress && directPeers.length >= this.getConfiguration().DIRECT_CONNECTIONS_MAX) {
+      const rejectReason = `rejecting ${address.getId()} because max connections reached`;
+      Logger.getLogger(this.getMyId())
+        .error(rejectReason);
+      return Promise.reject(rejectReason);
     }
 
     if (!peer) {
