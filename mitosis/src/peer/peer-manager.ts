@@ -283,6 +283,7 @@ export class PeerManager {
   public connectToVia(remoteAddress: Address, options?: IConnectionOptions): Promise<RemotePeer> {
     const viaPeer = this.getPeerById(remoteAddress.getLocation());
     if (viaPeer) {
+      Logger.getLogger(this.getMyId()).info(`connect to via ${remoteAddress.getId()}`, remoteAddress);
       const parent = viaPeer
         .getConnectionTable()
         .filterDirectData()
@@ -296,7 +297,8 @@ export class PeerManager {
       options = options || {payload: {}};
       options.payload.quality = parent.getMeter().getQuality(this.getPeerTable());
       options.payload.parent = parent;
-      return this.connectTo(remoteAddress, options as IViaConnectionOptions);
+      return this
+        .connectTo(remoteAddress, options as IViaConnectionOptions);
     } else {
       const reason = `cannot connect to ${remoteAddress.getId()} because via ${remoteAddress.getLocation()} is missing`;
       Logger.getLogger(this._myId).error(reason);
@@ -312,6 +314,7 @@ export class PeerManager {
         return Promise.reject(
           `direct connection to ${remoteAddress.getId()} disappeared`);
       } else {
+        Logger.getLogger(this.getMyId()).info(`ensure connection to new peer ${remoteAddress.getId()}`, remoteAddress);
         return this.connectToVia(remoteAddress, options);
       }
     }
@@ -322,6 +325,7 @@ export class PeerManager {
     }
 
     if (!existingRemotePeer.getConnectionForAddress(remoteAddress)) {
+      Logger.getLogger(this.getMyId()).info(`add new via connection to existing peer ${remoteAddress.getId()}`, remoteAddress);
       return this.connectToVia(remoteAddress, options);
     } else {
       if (remoteAddress.isProtocol(Protocol.VIA, Protocol.VIA_MULTI)) {
@@ -387,6 +391,8 @@ export class PeerManager {
       directPeers,
       this.getPeerTable()
     );
+    Logger.getLogger(this.getMyId())
+      .debug(`send peer suggestion to ${receiverId}`);
     this.sendMessage(peerUpdate);
   }
 
