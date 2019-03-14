@@ -75,6 +75,18 @@ export class MessageBroker {
     try {
       message.setInboundAddress(connection.getAddress());
       this._incomingMessageSubject.next(message);
+
+      const viaPeerId = message.getInboundAddress().getId();
+      const senderId = message.getSender().getId();
+
+      Logger.getLogger(this._peerManager.getMyId()).warn(`ensure connection to ${senderId} via ${viaPeerId}`);
+      this._peerManager
+        .ensureConnection(new Address(senderId, Protocol.VIA_MULTI, viaPeerId))
+        .catch(
+          reason =>
+            Logger.getLogger(this._peerManager.getMyId()).warn(reason, message)
+        );
+
       if (message.getReceiver().getId() === this._peerManager.getMyId()) {
         this.receiveMessage(message);
       } else if (message.getReceiver().getId() === ConfigurationMap.getDefault().BROADCAST_ADDRESS) {
@@ -91,14 +103,6 @@ export class MessageBroker {
 
   private receiveMessage(message: IMessage): void {
     const viaPeerId = message.getInboundAddress().getId();
-    const senderId = message.getSender().getId();
-
-    this._peerManager
-      .ensureConnection(new Address(senderId, Protocol.VIA_MULTI, viaPeerId))
-      .catch(
-        reason =>
-          Logger.getLogger(this._peerManager.getMyId()).warn(reason, message)
-      );
 
     switch (message.getSubject()) {
       case MessageSubject.ROLE_UPDATE:
