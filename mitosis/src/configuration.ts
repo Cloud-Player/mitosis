@@ -32,3 +32,4 @@ export class Configuration {
 }
 
 export const ConfigurationMap: DefaultMap<RoleType, Configuration> = new DefaultMap(() => new Configuration());
+ConfigurationMap.get(RoleType.SIGNAL).DIRECT_CONNECTIONS_MAX = 100;
