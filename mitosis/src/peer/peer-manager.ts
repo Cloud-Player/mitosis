@@ -420,12 +420,57 @@ export class PeerManager {
     }
   }
 
-  public updatePeers(peerUpdate: PeerUpdate | PeerSuggestion, viaPeerId: string): void {
+  public updateSuggestedPeers(peerSuggestion: PeerSuggestion, viaPeerId: string) {
+    const senderId = peerSuggestion.getSender().getId();
+
+    const updatedPeerIds: Array<string> = [];
+
+    peerSuggestion
+      .getBody()
+      .filter(
+        entry => entry.peerId !== this._myId
+      )
+      .forEach(
+        entry => {
+          updatedPeerIds.push(entry.peerId);
+          const peerExistedBefore = !!this.getPeerById(entry.peerId);
+          this.ensureConnection(
+            new Address(entry.peerId, Protocol.VIA_MULTI, viaPeerId))
+            .then(
+              remotePeer => {
+                // TODO: Only set roles if peerUpdate from superior
+                if (!peerExistedBefore) {
+                  remotePeer.setRoles(entry.roles);
+                }
+              }
+            ).catch(
+            reason => Logger.getLogger(this.getMyId()).debug(reason)
+          );
+        }
+      );
+
+    this.getPeerTable()
+      .forEach(
+        peer => peer
+          .getConnectionTable()
+          .filterByProtocol(Protocol.VIA)
+          .filterByLocation(senderId)
+          .filter(
+            connection =>
+              updatedPeerIds.indexOf(connection.getAddress().getId()) === -1
+          )
+          .forEach(
+            connection => connection.close()
+          )
+      );
+  }
+
+  public updatePeers(peerUpdate: PeerUpdate, viaPeerId: string): void {
     const senderId = peerUpdate.getSender().getId();
 
     const updatedPeerIds: Array<string> = [];
 
-    if (peerUpdate instanceof PeerUpdate && senderId !== viaPeerId) {
+    if (senderId !== viaPeerId) {
       Logger.getLogger(this.getMyId())
         .error(`will not accept peer-update from ${senderId} via ${viaPeerId}`, peerUpdate);
       return;
