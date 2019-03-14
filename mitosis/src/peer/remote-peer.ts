@@ -147,6 +147,12 @@ export class RemotePeer {
   }
 
   public connect(address: Address, options?: IConnectionOptions): Promise<RemotePeer> {
+    const punishValue = this.getMeter().getAverageConnectionPunishment();
+    if (punishValue < 0) {
+      Logger.getLogger(this._mitosisId)
+        .warn(`punish value of ${this.getId()} is ${punishValue}`);
+      return Promise.reject(`can not connect to peer ${this.getId()} because its punish value is ${punishValue}`);
+    }
     let connection = this._connectionsPerAddress.get(address.toString());
     if (!connection) {
       connection = this.createConnection(address, options);
