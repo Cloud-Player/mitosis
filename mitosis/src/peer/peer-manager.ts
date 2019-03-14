@@ -492,9 +492,7 @@ export class PeerManager {
             .then(
               remotePeer => {
                 // TODO: Only set roles if peerUpdate from superior
-                if (!peerExistedBefore || peerUpdate instanceof PeerUpdate) {
-                  remotePeer.setRoles(entry.roles);
-                }
+                remotePeer.setRoles(entry.roles);
               }
             ).catch(
             reason => Logger.getLogger(this.getMyId()).debug(reason)
