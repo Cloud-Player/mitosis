@@ -7,6 +7,7 @@ import {
   IMessage,
   Logger,
   LogLevel,
+  MessageSubject,
   Mitosis,
   Protocol,
   ProtocolConnectionMap,
@@ -99,7 +100,7 @@ export class Simulation {
   }
 
   public getRandomBetween(min: number, max: number) {
-    return this.getRandom() * (max - min + 1) + min;
+    return this.getRandom() * (max - min) + min;
   }
 
   public setLoggerMaxSize(maxSize: number) {
@@ -188,9 +189,12 @@ export class Simulation {
       const receiverDropProbability = this.getRandom();
       const averageLatency = (sender.getNetworkLatency() + receiver.getNetworkLatency()) / 2;
       const deliveryDelay = Math.floor(averageLatency);
-      if (senderDropProbability > sender.getNetworkStability()) {
-        Logger.getLogger('simulation').info(
-          `sender ${to} drops message ${message.getSubject()}`, message
+      const isPingPong =
+        message.getSubject() === MessageSubject.PING || message.getSubject() === MessageSubject.PONG;
+
+      if (isPingPong && senderDropProbability > sender.getNetworkStability()) {
+        Logger.getLogger('simulation').warn(
+          `sender ${to} drops message ${message.getSubject()} ${sender.getNetworkStability()} ${senderDropProbability}`, message
         );
         return;
       } else {
@@ -200,9 +204,9 @@ export class Simulation {
       this._clock.setTimeout(() => {
         const connection = (edge.getConnection() as MockConnection);
         if (connection.getState() === ConnectionState.OPEN) {
-          if (receiverDropProbability > receiver.getNetworkStability()) {
-            Logger.getLogger('simulation').info(
-              `receiver ${to} drops message ${message.getSubject()}`, message
+          if (isPingPong && receiverDropProbability > receiver.getNetworkStability()) {
+            Logger.getLogger('simulation').warn(
+              `receiver ${to} drops message ${message.getSubject()} ${receiver.getNetworkStability()} ${receiverDropProbability}`, message
             );
             return;
           }
