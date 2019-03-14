@@ -525,23 +525,34 @@ export class PeerManager {
     const senderAddress = connectionNegotiation.getSender();
     const receiverAddress = connectionNegotiation.getReceiver();
     const negotiation = connectionNegotiation.getBody();
+    const lastHopPeer = this.getPeerById(connectionNegotiation.getInboundAddress().getId());
 
     const directConnectionCount = this.getPeerTable()
       .countConnections(
-        table => table.filterDirect()
+        table => table
+          .filterDirect()
+          .filterByStates(ConnectionState.OPEN)
       );
 
-    if (directConnectionCount >= this.getConfiguration().DIRECT_CONNECTIONS_MAX &&
+    let hasReachedMaxConnections = directConnectionCount >= this.getConfiguration().DIRECT_CONNECTIONS_MAX;
+
+    if (this._roleManager.hasRole(RoleType.ROUTER)) {
+      hasReachedMaxConnections = directConnectionCount >= this.getConfiguration().DIRECT_CONNECTIONS_GOAL_MAX;
+    }
+
+    if (hasReachedMaxConnections &&
       negotiation.type === ConnectionNegotiationType.OFFER
     ) {
+      logger.debug(`i have ${directConnectionCount} connections`);
       logger.info('too many connections already', connectionNegotiation);
       const rejection = new Message(
         receiverAddress,
-        senderAddress,
+        new Address(senderAddress.getId()),
         MessageSubject.CONNECTION_NEGOTIATION,
         {type: ConnectionNegotiationType.REJECTION}
       );
       this.sendMessage(rejection);
+      this.sendPeerSuggestion(senderAddress.getId());
       return;
     }
 
