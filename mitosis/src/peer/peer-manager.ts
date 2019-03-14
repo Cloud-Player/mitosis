@@ -158,9 +158,11 @@ export class PeerManager {
    */
   private resolvePeer(remotePeer: RemotePeer): RemotePeer {
     if (!remotePeer) {
-      const router = this.getPeerTable().filterByRole(RoleType.ROUTER).pop();
-      if (router) {
-        return this.resolvePeer(router);
+      if (!this._roleManager.hasRole(RoleType.ROUTER)) {
+        const router = this.getPeerTable().filterByRole(RoleType.ROUTER).pop();
+        if (router) {
+          return this.resolvePeer(router);
+        }
       }
       return;
     }
