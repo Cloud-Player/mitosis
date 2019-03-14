@@ -162,11 +162,18 @@ export class RemotePeerMeter implements IMeter {
 
   // returns value between 0 and 1. When no connection is punished it returns 1, when all are punished 0
   public getAverageConnectionPunishment(): number {
-    const punishedConnectionCount = this._connectionsPerAddress.size - this._punishedConnections;
-    if (this._connectionsPerAddress.size === 0) {
+    const directConnections = this._connectionsPerAddress
+      .asTable()
+      .filter(
+        connection => connection
+          .getAddress()
+          .isProtocol(Protocol.WEBRTC_DATA, Protocol.WEBSOCKET_UNSECURE, Protocol.WEBSOCKET)
+      );
+    const punishedConnectionCount = directConnections.length - this._punishedConnections;
+    if (directConnections.length === 0) {
       return 0;
     }
-    return punishedConnectionCount / this._connectionsPerAddress.size;
+    return punishedConnectionCount / directConnections.length;
   }
 
   // returns the quality of this peer that is reported to our direct connections
