@@ -112,7 +112,7 @@ export class MessageBroker {
         this._peerManager.updatePeers(message as PeerUpdate, viaPeerId);
         break;
       case MessageSubject.PEER_SUGGESTION:
-        this._peerManager.updatePeers(message as PeerSuggestion, viaPeerId);
+        this._peerManager.updateSuggestedPeers(message as PeerSuggestion, viaPeerId);
         break;
       case MessageSubject.UNKNOWN_PEER:
         const existingPeer = this._peerManager.getPeerById(message.getBody());
