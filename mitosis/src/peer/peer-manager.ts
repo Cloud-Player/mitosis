@@ -532,10 +532,8 @@ export class PeerManager {
       case ConnectionNegotiationType.REJECTION:
         this.getPeerById(senderAddress.getId())
           .getConnectionTable()
-          .exclude(
-            table => table.filterByStates(ConnectionState.OPEN)
-          )
-          .filterByLocation(receiverAddress.getLocation())
+          .filterByProtocol(Protocol.WEBRTC_DATA)
+          .filterByStates(ConnectionState.OPENING)
           .forEach(
             connection => {
               logger.warn(`${senderAddress.getProtocol()} connection negotiation rejected by ${senderAddress}`, connection);
