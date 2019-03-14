@@ -14,7 +14,7 @@ export function acquireDirectConnections(mitosis: Mitosis, count: number): Array
     .getPeerManager()
     .getPeerTable();
 
-  const viaPeers = peerTable
+  let viaPeers = peerTable
     .filterConnections(
       table => table.filterByProtocol(Protocol.VIA)
     )
@@ -25,6 +25,28 @@ export function acquireDirectConnections(mitosis: Mitosis, count: number): Array
           connectionTable => connectionTable.filterDirectData()
         )
     );
+
+  if (viaPeers.length <= 1) {
+    viaPeers = peerTable
+      .filterConnections(
+        table => table.filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI)
+      )
+      .filterByRole(RoleType.PEER)
+      .exclude(
+        table => table
+          .filterConnections(
+            connectionTable => connectionTable.filterDirectData()
+          )
+      );
+  }
+
+  viaPeers.exclude(
+    table => table.filter(
+      peer => {
+        return peer.getMeter().getAverageConnectionPunishment() < 0;
+      }
+    )
+  );
 
   return viaPeers
     .sortBy(
@@ -40,7 +62,12 @@ export function acquireDirectConnections(mitosis: Mitosis, count: number): Array
           .debug(`connecting to ${peer.getId()} with quality ${peer.getMeter().getQuality(mitosis.getPeerManager().getPeerTable())}`, peer);
         return mitosis
           .getPeerManager()
-          .connectTo(address);
+          .connectTo(address)
+          .catch(
+            err =>
+              Logger.getLogger(mitosis.getMyAddress().getId())
+                .debug(`can not acquire ${peer.getId()}`, err)
+          );
       }
     );
 }
