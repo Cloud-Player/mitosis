@@ -5,6 +5,9 @@
 
 # mitosis
 
+software suite for building decentralised media streaming applications    
+includes library, evaluators, simulator, visualizer and sample applications
+
 ## cli
 command line client for benchmarking mitosis simulations
 ```bash
