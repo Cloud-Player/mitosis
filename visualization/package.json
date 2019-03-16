@@ -3,10 +3,11 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "npm run build:lib && ng serve",
     "build": "ng build --prod",
     "lint": "ng lint",
-    "build:lib": "cd ../mitosis && npm run build && cd ../simulation && npm run build && cd ../visualization"
+    "build:lib": "cd ../mitosis && npm run build && cd ../simulation && npm run build && cd ../visualization",
+    "build:doc": "typedoc --out docs --target es6 --theme minimal --mode file src",
+    "start": "npm run build:lib && ng serve"
   },
   "private": true,
   "preferGlobal": true,
@@ -86,6 +87,7 @@
     "protractor": "~5.4.0",
     "ts-node": "~7.0.0",
     "tslint": "~5.11.0",
+    "typedoc": "^0.14.2",
     "typescript": "~3.1.6"
   }
 }
