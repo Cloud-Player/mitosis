@@ -1,3 +1,4 @@
+import {HashLocationStrategy, LocationStrategy} from '@angular/common';
 import {HttpClientModule} from '@angular/common/http';
 import {NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
@@ -10,9 +11,10 @@ import {MessengerComponent} from './components/messenger/messenger';
 import {PeerTableComponent} from './components/sidebar/peer-table/peer-table';
 import {SidebarComponent} from './components/sidebar/sidebar';
 import {StreamPlayerComponent} from './components/stream-player/stream-player';
+import {WelcomeComponent} from './components/welcome/welcome';
 import {MainRoutingModule} from './main.routes';
-import {StreamService} from './services/stream';
 import {ReportingService} from './services/reporting';
+import {StreamService} from './services/stream';
 
 @NgModule({
   imports: [
@@ -31,12 +33,15 @@ import {ReportingService} from './services/reporting';
     PeerTableComponent,
     MessengerComponent,
     StreamPlayerComponent,
-    ControlsComponent
+    ControlsComponent,
+    WelcomeComponent
   ],
   providers: [
     StreamService,
-    ReportingService
+    ReportingService,
+    {provide: LocationStrategy, useClass: HashLocationStrategy}
   ],
+  entryComponents: [WelcomeComponent],
   bootstrap: [MainComponent]
 })
 export class MainModule {
