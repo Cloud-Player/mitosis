@@ -1,4 +1,7 @@
 [![Build Status](https://travis-ci.org/auxdotapp/mitosis.svg?branch=master)](https://travis-ci.org/auxdotapp/mitosis)
+[![TypeScript](https://img.shields.io/badge/lang-TypeScript-blue.svg)](https://www.typescriptlang.org)
+[![WebRTC](https://img.shields.io/badge/tech-WebRTC-ff69b4.svg)](https://www.typescriptlang.org)
+[![License](https://img.shields.io/github/license/auxdotapp/mitosis.svg)](https://github.com/auxdotapp/mitosis/blob/master/LICENSE)
 
 # mitosis
 
@@ -6,6 +9,7 @@
 minimal decentralised chat demo built with mitosis
 ```bash
 npm i
+
 npm start
 ```
 
@@ -13,10 +17,11 @@ npm start
 command line client for benchmarking mitosis simulations
 ```bash
 npm i
-./cli scenario.json bench.csv
 [brew|apt-get] install python3
-pip3 install pandas matplotlib
-./plotter.py bench.csv
+pip3 install numpy scipy pandas
+
+./cli scenario.json bench.csv
+./analyzer.py bench.csv
 ```
 
 ## mitosis
@@ -29,6 +34,7 @@ npm i
 granular webrtc experiments to verify mitosis video transfer
 ```bash
 npm i
+
 npm start
 ```
 
@@ -37,6 +43,7 @@ mock implementation of mitosis signal for python setup
 ```bash
 [brew|apt-get] install python3 redisserver
 pip3 install tornado redis
+
 ./server.py
 ```
 
@@ -50,6 +57,7 @@ npm i
 advanced decentralised chat application built with mitosis
 ```bash
 npm i
+
 npm start
 ```
 
