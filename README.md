@@ -5,14 +5,6 @@
 
 # mitosis
 
-## chat
-minimal decentralised chat demo built with mitosis
-```bash
-npm i
-
-npm start
-```
-
 ## cli
 command line client for benchmarking mitosis simulations
 ```bash
@@ -54,7 +46,15 @@ npm i
 ```
 
 ## symbiosis
-advanced decentralised chat application built with mitosis
+advanced video chat sample application built with mitosis
+```bash
+npm i
+
+npm start
+```
+
+## symbiosis-light
+dependency free video chat application built with mitosis
 ```bash
 npm i
 
@@ -65,5 +65,6 @@ npm start
 graphical mesh visualizer using angular and d3js
 ```
 npm i
+
 npm start
 ```
