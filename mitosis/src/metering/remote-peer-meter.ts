@@ -7,6 +7,7 @@ import {ViaConnection} from '../connection/via';
 import {ChurnType} from '../interface';
 import {Logger} from '../logger/logger';
 import {RemotePeerTable} from '../peer/remote-peer-table';
+import {RoleType} from '../role/interface';
 import {ObservableMap} from '../util/observable-map';
 import {IConnectionEventType, IConnectionMeter, IConnectionMeterEvent} from './connection-meter/interface';
 import {ViaConnectionMeter} from './connection-meter/via-connection-meter';
@@ -125,7 +126,7 @@ export class RemotePeerMeter implements IMeter {
   public getConnectionProtection(): 0 | 1 {
     // TODO: Use role specific configuration for this remote peer
     const unsatisfied = this.getConnectionTable().filterByProtocol(Protocol.VIA).length <
-      ConfigurationMap.getDefault().DIRECT_CONNECTIONS_GOAL_MIN;
+      ConfigurationMap.get(RoleType.PEER).DIRECT_CONNECTIONS_GOAL_MIN;
     if (unsatisfied) {
       if (this._protectedConnections > 0) {
         return 1;
