@@ -8,12 +8,15 @@
 software suite for building decentralised media streaming applications    
 includes library, evaluators, simulator, visualizer and sample applications
 
+```bash
+[brew|apt|yum] install node python3 redis
+```
+
 ## cli
 command line client for benchmarking mitosis simulations
 ```bash
-npm i
-[brew|apt-get] install python3
-pip3 install numpy scipy pandas
+npm install
+pip3 install -r requirements.txt
 
 ./cli scenario.json bench.csv
 ./analyzer.py bench.csv
@@ -22,13 +25,13 @@ pip3 install numpy scipy pandas
 ## mitosis
 mesh networking library for browser-to-browser streaming
 ```bash
-npm i
+npm install
 ```
 
 ## nucleus
 granular webrtc experiments to verify mitosis video transfer
 ```bash
-npm i
+npm install
 
 npm start
 ```
@@ -36,8 +39,7 @@ npm start
 ## signal
 mock implementation of mitosis signal for python setup
 ```bash
-[brew|apt-get] install python3 redisserver
-pip3 install tornado redis
+pip3 install -r requirements.txt
 
 ./server.py
 ```
@@ -45,13 +47,13 @@ pip3 install tornado redis
 ## simulation
 runtime library for simulating multiple mitosis clients
 ```bash
-npm i
+npm install
 ```
 
 ## symbiosis
 advanced video chat sample application built with mitosis
 ```bash
-npm i
+npm install
 
 npm start
 ```
@@ -59,7 +61,7 @@ npm start
 ## symbiosis-light
 dependency free video chat application built with mitosis
 ```bash
-npm i
+npm install
 
 npm start
 ```
@@ -67,7 +69,7 @@ npm start
 ## visualization
 graphical mesh visualizer using angular and d3js
 ```
-npm i
+npm install
 
 npm start
 ```
