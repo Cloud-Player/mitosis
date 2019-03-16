@@ -1,10 +1,13 @@
 import {
   Address,
+  ChurnType,
   ConnectionState,
   IConnection,
   IConnectionOptions,
+  IStreamChurnEvent,
   Message,
-  Protocol, WebRTCDataConnection,
+  Protocol,
+  WebRTCDataConnection,
   WebRTCStreamConnection
 } from 'mitosis';
 import {AbstractConnector} from './abstract-connector';
@@ -29,23 +32,37 @@ export class StreamConnector extends AbstractConnector<WebRTCStreamConnection> {
             resolve();
           });
       } else {
-        this._connections[1].getStream().then(
-          (stream: MediaStream) => {
-            connection.setStream(stream);
-            resolve();
-          }
-        );
+        const stream = this._connections[1].getStream();
+        if (stream) {
+          connection.setStream(stream);
+          resolve();
+        } else {
+          connection.observeStreamChurn().subscribe(
+            (streamChurnEv: IStreamChurnEvent) => {
+              if (streamChurnEv.type === ChurnType.ADDED) {
+                connection.setStream(streamChurnEv.stream);
+                resolve();
+              }
+            }
+          );
+        }
       }
     });
   }
 
   protected beforeCreateAnswer(connection: WebRTCStreamConnection): Promise<void> {
     return new Promise((resolve) => {
-      connection.getStream().then(
-        (stream: MediaStream) => {
-          this._videoElement.srcObject = stream;
-        }
-      );
+      if (connection.getStream()) {
+        this._videoElement.srcObject = connection.getStream();
+      } else {
+        connection.observeStreamChurn().subscribe(
+          (streamChurnEv: IStreamChurnEvent) => {
+            if (streamChurnEv.type === ChurnType.ADDED) {
+              this._videoElement.srcObject = connection.getStream();
+            }
+          }
+        );
+      }
       resolve();
     });
   }

@@ -87,7 +87,7 @@ export abstract class AbstractConnector<TConnection extends WebRTCConnection> {
 
   private establish(): void {
     const answer = JSON.parse(this._inAreaElement.value);
-    this._connections[0].establish(answer);
+    this._connections[0].establish({payload: answer});
   }
 
   protected onOpen(connection: IConnection) {

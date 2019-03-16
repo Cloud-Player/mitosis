@@ -1,7 +1,7 @@
 {
-  "name": "mitosis-chat",
+  "name": "nucleus",
   "version": "0.0.1",
-  "description": "TBD",
+  "description": "Manual setup of WebRTC connections",
   "authors": [
     "Nicolas Drebenstedt",
     "Alexander Zarges"
