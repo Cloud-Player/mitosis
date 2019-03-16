@@ -23,7 +23,7 @@ tables = glob.glob('{}/*-nodes.csv'.format(folder))
 print('loading {}'.format(', '.join(t.rsplit('/')[-1] for t in tables)))
 frames = [pd.read_csv(t) for t in tables]
 df = pd.concat(frames, sort=False)
-df = df[['distance_to_router', 'latency', 'stability']]
+df = df[['distance_to_router', 'latency', 'stability', 'establishDelay']]
 df = df.where(lambda x: x['distance_to_router'] > 0)
 df = df.dropna(axis=0, how='all')
 summary = {}
@@ -33,7 +33,8 @@ for d in distances:
     dd = dd.dropna(axis=0, how='all')
     summary[d] = {
         'latency': dd['latency'].mean(),
-        'stabilty': dd['stability'].mean()
+        'stability': dd['stability'].mean(),
+        'establishDelay': dd['establishDelay'].mean()
     }
 
 sf = pd.DataFrame(summary).transpose()
