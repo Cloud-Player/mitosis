@@ -1,0 +1,1 @@
+body,html{padding:0;margin:0}.flex-container{display:flex}.flex-container.column{flex-direction:column}button,fieldset{transition:opacity .5s ease}button[disabled],fieldset[disabled]{opacity:.3}.left{width:50%}

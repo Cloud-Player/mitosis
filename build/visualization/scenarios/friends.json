@@ -1,0 +1,97 @@
+{
+  "configuration": {
+    "sub-ticks": 4,
+    "newbie": {
+      "DEFAULT_SIGNAL_ADDRESS": "mitosis/v1/signal/wss"
+    }
+  },
+  "instructions": [
+    {
+      "tick": 0,
+      "type": "set-clock-speed",
+      "configuration": {
+        "speed": 200
+      }
+    },
+    {
+      "tick": 0,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/signal/wss",
+        "roles": [
+          "signal"
+        ]
+      }
+    },
+    {
+      "tick": 1,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/monica/webrtc"
+      }
+    },
+    {
+      "tick": 1,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/rachel/webrtc"
+      }
+    },
+    {
+      "tick": 1,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/phoebe/webrtc"
+      }
+    },
+    {
+      "tick": 1,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/joey/webrtc"
+      }
+    },
+    {
+      "tick": 1,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/chandler/webrtc"
+      }
+    },
+    {
+      "tick": 1,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/ross/webrtc"
+      }
+    },
+    {
+      "tick": 1,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/gunther/webrtc"
+      }
+    },
+    {
+      "tick": 1,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/richard/webrtc"
+      }
+    },
+    {
+      "tick": 1,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/ursula/webrtc"
+      }
+    },
+    {
+      "tick": 90,
+      "type": "start-stream",
+      "configuration": {
+        "address": "mitosis/v1/phoebe"
+      }
+    }
+  ]
+}

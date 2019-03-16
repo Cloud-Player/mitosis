@@ -1,0 +1,205 @@
+{
+  "configuration": {
+    "newbie": {
+      "DEFAULT_SIGNAL_ADDRESS": "mitosis/v1/signal/wss"
+    }
+  },
+  "instructions": [
+    {
+      "tick": 0,
+      "type": "set-clock-speed",
+      "configuration": {
+        "speed": 100
+      }
+    },
+    {
+      "tick": 0,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/signal/wss",
+        "roles": [
+          "signal"
+        ]
+      }
+    },
+    {
+      "tick": 1,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/alice/webrtc"
+      }
+    },
+    {
+      "tick": 2,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/bob/webrtc"
+      }
+    },
+    {
+      "tick": 2,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/chloe/webrtc"
+      }
+    },
+    {
+      "tick": 3,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/dylan/webrtc"
+      }
+    },
+    {
+      "tick": 3,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/eve/webrtc"
+      }
+    },
+    {
+      "tick": 3,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/finn/webrtc"
+      }
+    },
+    {
+      "tick": 4,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/grace/webrtc"
+      }
+    },
+    {
+      "tick": 4,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/henry/webrtc"
+      }
+    },
+    {
+      "tick": 4,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/isabel/webrtc"
+      }
+    },
+    {
+      "tick": 4,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/jack/webrtc"
+      }
+    },
+    {
+      "tick": 5,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/kati/webrtc"
+      }
+    },
+    {
+      "tick": 5,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/lenny/webrtc"
+      }
+    },
+    {
+      "tick": 5,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/mary/webrtc"
+      }
+    },
+    {
+      "tick": 5,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/noah/webrtc"
+      }
+    },
+    {
+      "tick": 5,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/olivia/webrtc"
+      }
+    },
+    {
+      "tick": 6,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/parker/webrtc"
+      }
+    },
+    {
+      "tick": 6,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/quinn/webrtc"
+      }
+    },
+    {
+      "tick": 6,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/ronald/webrtc"
+      }
+    },
+    {
+      "tick": 6,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/tom/webrtc"
+      }
+    },
+    {
+      "tick": 6,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/uma/webrtc"
+      }
+    },
+    {
+      "tick": 6,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/vinny/webrtc"
+      }
+    },
+    {
+      "tick": 7,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/wendy/webrtc"
+      }
+    },
+    {
+      "tick": 7,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/xavier/webrtc"
+      }
+    },
+    {
+      "tick": 7,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/yvonne/webrtc"
+      }
+    },
+    {
+      "tick": 7,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/zoe/webrtc"
+      }
+    },
+    {
+      "tick": 110,
+      "type": "finish-scenario"
+    }
+  ]
+}

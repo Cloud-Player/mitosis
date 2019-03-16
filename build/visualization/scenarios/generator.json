@@ -1,0 +1,54 @@
+{
+  "configuration": {
+    "sub-ticks": 10,
+    "random-seed": "meiosis-p200",
+    "newbie": {
+      "DEFAULT_SIGNAL_ADDRESS": "mitosis/v1/signal/wss"
+    }
+  },
+  "instructions": [
+    {
+      "tick": 0,
+      "type": "set-clock-speed",
+      "configuration": {
+        "speed": 1
+      }
+    },
+    {
+      "tick": 1,
+      "type": "add-peer",
+      "configuration": {
+        "address": "mitosis/v1/signal/wss",
+        "roles": [
+          "signal"
+        ]
+      }
+    },
+    {
+      "tick": 1,
+      "type": "generate-peers",
+      "configuration": {
+        "count": 200,
+        "rate": 0.3,
+        "connectionSettings": {
+          "latency": {
+            "from": 1,
+            "to": 10
+          },
+          "stability": {
+            "from": 1,
+            "to": 1
+          },
+          "establishDelay": {
+            "from" : 1,
+            "to": 20
+          }
+        }
+      }
+    },
+    {
+      "tick": 10000,
+      "type": "finish-scenario"
+    }
+  ]
+}
