@@ -7,26 +7,17 @@
     <ul class="connections">
       <div class="meter">
         <pre>
-          ⌀TQ: {{remotePeer.getMeter().getAverageConnectionQuality().toFixed(2)}},
-          ⌀PunQ: {{remotePeer.getMeter().getAverageConnectionPunishment().toFixed(2)}},
-          ProQ: {{remotePeer.getMeter().getConnectionProtection()}}
-          LastSeen: {{remotePeer.getMeter().getLastSeen()}}
-          isExpired: {{remotePeer.getMeter().lastSeenIsExpired() | json}}
+          {{getPeerStatsAnnotation(remotePeer)}}
         </pre>
       </div>
       <li *ngFor="let connection of remotePeer.getConnectionTable()">
         <div class="left">
-          <app-button type="icon"
-                      text="fa fa-trash"
-                      [disabled]="isDisabled(connection)"
-                      (click)="connection.close()">
-          </app-button>
-          <span>{{getConnectionDirection(connection)}}</span>
+          {{getConnectionDirection(connection)}}
           {{connection.getAddress().getProtocol()}}
           {{connection.getAddress().getLocation()}}
         </div>
         <div class="right">
-          {{connection.getState()}}
+          {{getConnectionAnnotation(connection)}}
         </div>
       </li>
     </ul>
@@ -39,12 +30,16 @@
                    title="channel {{channel.getId().slice(0, 5)}}">
     <ul class="connections">
       <li *ngFor="let provider of channel.getProviderTable()">
-        <div class="left">
-          <span *ngIf="provider.isActive()" class="fa fa-video-camera"></span>
+        <div (click)="updateChannel(channel, provider)" class="left">
           {{provider.getPeerId()}}
+          <span *ngIf="provider.isActive()" class="fa fa-video-camera" title="active"></span>
+          <span *ngIf="provider.isLive()" class="fa fa-rss" title="live"></span>
+          <span *ngIf="provider.isLocal()" class="fa fa-user" title="local"></span>
+          <span *ngIf="provider.isSource()" class="fa fa-arrow-up" title="source"></span>
+          <span *ngIf="provider.isSink()" class="fa fa-arrow-down" title="sink"></span>
         </div>
         <div class="right">
-          <span class="fa fa-link"></span> {{provider.getCapacity()}}
+          <span class="fa fa-link" title="capacity"></span> {{provider.getCapacity()}}
         </div>
       </li>
     </ul>

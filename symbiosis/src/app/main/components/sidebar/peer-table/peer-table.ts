@@ -1,5 +1,18 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {ConnectionState, IConnection, IConnectionMeter, Mitosis, Protocol, RemotePeer, RoleType, WebRTCConnection} from 'mitosis';
+import {
+  Channel,
+  ConnectionState,
+  IConnection,
+  Mitosis,
+  NegotiationState,
+  Protocol,
+  Provider,
+  RemotePeer,
+  RoleType,
+  TransmissionConnectionMeter,
+  WebRTCConnection
+} from 'mitosis';
+import {StreamService} from '../../../services/stream';
 
 @Component({
   selector: 'app-peer-table',
@@ -10,37 +23,29 @@ export class PeerTableComponent implements OnInit {
   @Input()
   public mitosis: Mitosis;
 
-  constructor() {
+  constructor(public streamService: StreamService) {
   }
 
-  public isDisabled(connection: IConnection) {
-    return connection.getAddress().isProtocol(Protocol.VIA, Protocol.VIA_MULTI);
-  }
-
-  public getConnectionDirection(connection: IConnection): string {
-    if (connection.getAddress().isProtocol(Protocol.WEBRTC_STREAM)) {
-      if ((connection as WebRTCConnection).isInitiator()) {
-        return '↗️';
-      } else {
-        return '↙️';
-      }
-    } else if (connection.getAddress().isProtocol(Protocol.WEBRTC_DATA, Protocol.WEBSOCKET)) {
-      return '↔️';
+  public updateChannel(channel: Channel, provider: Provider): void {
+    const stream = provider.getStream();
+    if (stream) {
+      this.streamService.update(channel, stream);
     }
   }
 
-  public getPeerAnnotation(peer: RemotePeer) {
+  public getPeerAnnotation(peer: RemotePeer): string {
     const roles = peer.getRoles()
       .filter(roleType => roleType !== RoleType.PEER)
       .map(roleType => roleType.toString()[0].toUpperCase());
     const roleTag = roles.length ? `[${roles.join(', ')}]` : '';
+    const peerTable = this.mitosis.getPeerManager().getPeerTable();
 
-    const quality = peer.getMeter().getQuality(this.mitosis.getPeerManager().getPeerTable())
+    const quality = peer.getMeter().getQuality(peerTable)
       .toFixed(2)
       .toString();
 
     const directConnections = peer.getConnectionTable()
-      .filterDirect();
+      .filterDirect().filterByStates(ConnectionState.OPENING, ConnectionState.OPEN);
     const nonOpenConnections = directConnections
       .exclude(table => table.filterByStates(ConnectionState.OPEN));
     const directText = `${directConnections.length - nonOpenConnections.length}/${directConnections.length}`;
@@ -51,6 +56,98 @@ export class PeerTableComponent implements OnInit {
       .toString();
 
     return `${roleTag} ${quality}✫ ${directText}← ${viaText}⤺`;
+  }
+
+  public getPeerStatsAnnotation(remotePeer: RemotePeer) {
+    const peerTable = this.mitosis.getPeerTable();
+    const avgConnectionQuality = remotePeer.getMeter().getAverageConnectionQuality(peerTable);
+    const avgPunishment = remotePeer.getMeter().getAverageConnectionPunishment();
+    const isProtected = remotePeer.getMeter().getConnectionProtection();
+    const lastSeen = remotePeer.getMeter().getLastSeen();
+    const expired = remotePeer.getMeter().lastSeenIsExpired();
+    const routerRank = remotePeer.getMeter().getAverageRouterLinkQuality(peerTable);
+    const acquisitionQuality = remotePeer.getMeter().getAcquisitionQuality(peerTable);
+    return `
+      ⌀ConQ:${avgConnectionQuality.toFixed(2)}
+      ⌀PunQ:${avgPunishment.toFixed(2)}
+      Prot:${isProtected === 1 ? 'y' : 'n'}
+      LSeen:${lastSeen}
+      Exp:${expired ? 'y' : 'n'}
+      ⌀RLQ:${routerRank.toFixed(2)}
+      AcQ:${acquisitionQuality.toFixed(2)}
+    `;
+  }
+
+  public getConnectionDirection(connection: IConnection): string {
+    switch (connection.getAddress().getProtocol()) {
+      case Protocol.WEBSOCKET:
+      case Protocol.WEBSOCKET_UNSECURE:
+        return '↔️';
+      case Protocol.WEBRTC_DATA:
+        if ((connection as WebRTCConnection).isInitiator()) {
+          return '↔️👤';
+        } else {
+          return '↔️';
+        }
+      case Protocol.WEBRTC_STREAM:
+        if ((connection as WebRTCConnection).isInitiator()) {
+          return '↗️';
+        } else {
+          return '↙️';
+        }
+    }
+  }
+
+  public getConnectionAnnotation(connection: IConnection): string {
+    const remotePeerTable = this.mitosis.getPeerManager().getPeerTable();
+    let annotation = '';
+    if (connection.getState() !== ConnectionState.OPEN) {
+      annotation += `${connection.getState()}`;
+    }
+    if (connection.getNegotiationState() !== NegotiationState.ESTABLISHED) {
+      annotation += `${connection.getNegotiationState()}`;
+    }
+    if (connection.getAddress().isProtocol(Protocol.VIA_MULTI)) {
+      annotation += `
+        LSeen:${connection.getMeter().getLastSeen()}
+      `;
+    } else {
+      annotation += `
+        ConQ:${connection.getMeter().getQuality(remotePeerTable).toFixed(2)}
+      `;
+    }
+    if (connection.getAddress().isProtocol(Protocol.WEBRTC_DATA)) {
+      const meter = connection.getMeter() as TransmissionConnectionMeter;
+      annotation += `
+        Lat:${meter.getAverageLatency().toFixed(2)}
+        LatQ:${meter.getLatencyQuality(remotePeerTable).toFixed(2)}
+      `;
+    }
+    return annotation;
+  }
+
+  public getAllConnectionsAnnotation(): string {
+    const peerTable = this
+      .mitosis
+      .getPeerManager()
+      .getPeerTable();
+
+    const directConnections = peerTable
+      .aggregateConnections(
+        cTable => cTable
+          .filterDirect()
+          .filterByStates(ConnectionState.OPEN, ConnectionState.OPENING)
+      );
+    const nonOpenConnections = directConnections
+      .exclude(
+        excludeCTable => excludeCTable.filterByStates(ConnectionState.OPEN)
+      );
+    const viaConnections = peerTable
+      .aggregateConnections(cTable => cTable.filterByProtocol(Protocol.VIA, Protocol.VIA_MULTI));
+
+    const directText = `${directConnections.length - nonOpenConnections.length}/${directConnections.length}`;
+
+    return `${directText}← ${viaConnections.length}⤺`;
   }
 
   ngOnInit(): void {

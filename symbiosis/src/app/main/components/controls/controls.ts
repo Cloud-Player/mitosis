@@ -18,21 +18,6 @@ export class ControlsComponent {
   constructor(private streamService: StreamService) {
   }
 
-  private getOtherChannels(): Array<Channel> {
-    return this.mitosis
-      .getStreamManager()
-      .getChannelTable()
-      .filter(
-        channel => {
-          if (!channel.isActive()) {
-            return false;
-          }
-          return channel.getId() !== this.streamService.getChannelId();
-        }
-      )
-      .asArray();
-  }
-
   public getButtonType(): string {
     if (this.mini) {
       return 'fab-mini';
@@ -42,7 +27,7 @@ export class ControlsComponent {
   }
 
   public showStartButton(): boolean {
-    return !this.showStopButton() && this.getOtherChannels().length <= 3;
+    return !this.showStopButton() && this.streamService.getOtherChannels().length <= 3;
   }
 
   public startStream(): void {
@@ -67,18 +52,10 @@ export class ControlsComponent {
   }
 
   public showSwitchButton(): boolean {
-    return this.getOtherChannels().length > 0;
+    return this.streamService.getOtherChannels().length > 0;
   }
 
   public switchStream(): void {
-    const channel = this.getOtherChannels()
-      .sort(
-        () => 0.5 - Math.random()
-      )
-      .pop();
-    if (channel) {
-      const stream = channel.getMediaStream();
-      this.streamService.update(channel, stream);
-    }
+    this.streamService.switchChannel();
   }
 }
