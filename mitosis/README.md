@@ -2,7 +2,6 @@
 
 mesh networking library for browser-to-browser streaming
 ```bash
-npm i
+npm install
 ```
 
-more docs soon
